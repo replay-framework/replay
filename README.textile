@@ -1,0 +1,30 @@
+h1. Welcome to Play framework  
+
+!https://travis-ci.org/codeborne/replay.svg?branch=master!:https://travis-ci.org/codeborne/replay !https://badges.gitter.im/codeborne/replay.svg!
+
+Play framework makes it easier to build Web applications with Java. It is a clean alternative to bloated Enterprise Java stacks. It focuses on developer productivity and targets RESTful architectures. Play is a perfect companion to agile software development.
+
+h2. Introduction
+
+This is a fork of Play1! framework made by Codeborne.
+
+This fork is significantly changed comparing to the original Play 1.5.0
+
+The goal of this fork is to make some breaking changes that would not be possible in the original Play framework without breaking backward compatibility:
+
+1. Remove all static fields/methods from Play itself (we believe in OOP)
+2. Use dependency injection in Play itself and client code (controllers, jobs etc) - we choose Guice as a DI provider
+3. Don't store JARs in git repo, but fetch them with a Gradle
+4. Make methods in controllers non-static
+5. `play.result.Result` will not extend Exception anymore. Controllers should return Result (instead of throwing it)
+6. Remove all built-in play modules (console, docviewer, grizzly, secure, testrunner)
+
+h2. Get the source
+
+Fork the project source code on "Github":http://github.com/playframework/play:
+
+bc. git clone git://github.com/codeborne/replay.git
+
+h2. Licence
+
+Play framework is distributed under "Apache 2 licence":http://www.apache.org/licenses/LICENSE-2.0.html.
