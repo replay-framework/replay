@@ -31,6 +31,7 @@ import java.util.*;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hibernate.FlushMode.MANUAL;
 
 
 public class JPAPlugin extends PlayPlugin {
@@ -182,6 +183,7 @@ public class JPAPlugin extends PlayPlugin {
     protected EntityManagerFactory newEntityManagerFactory(String dbName, Configuration dbConfig) {
         PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(dbName, dbConfig);
         Map<String, Object> configuration = new HashMap<>();
+        configuration.put(AvailableSettings.INTERCEPTOR, new HibernateInterceptor());
 
         return new EntityManagerFactoryBuilderImpl(
                 new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration
@@ -191,7 +193,8 @@ public class JPAPlugin extends PlayPlugin {
     protected PersistenceUnitInfoImpl persistenceUnitInfo(String dbName, Configuration dbConfig) {
         final List<Class> managedClasses = entityClasses(dbName);
         final Properties properties = properties(dbName, dbConfig);
-        properties.put(org.hibernate.jpa.AvailableSettings.LOADED_CLASSES,managedClasses);
+        properties.put(org.hibernate.jpa.AvailableSettings.LOADED_CLASSES, managedClasses);
+        properties.put(org.hibernate.jpa.AvailableSettings.FLUSH_MODE, MANUAL);
         return new PersistenceUnitInfoImpl(dbName,
                 managedClasses, mappingFiles(dbConfig), properties);
     }
