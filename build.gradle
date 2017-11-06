@@ -11,11 +11,22 @@ compileJava.options.debugOptions.debugLevel = "source,lines,vars"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-defaultTasks 'check', 'test', 'install'
+defaultTasks 'clean', 'test', 'jar'
 
 repositories {
   jcenter()
   mavenCentral()
+}
+
+sourceSets {
+  main {
+    java {srcDir 'src'}
+    resources {srcDir 'src'}
+  }
+  test {
+    java {srcDir 'test'}
+    resources {srcDir 'test'}
+  }
 }
 
 configurations {
@@ -103,6 +114,18 @@ task libsTest(type: Sync) {
 
 compileJava.dependsOn libsProd, libsTest
 
+task generateReplayVersion(type: Exec) {
+  commandLine 'git', 'describe', '--always'
+  standardOutput out
+
+  doFirst {
+     standardOutput new FileOutputStream("${buildDir}/classes/java/main/play/version")
+     standardOutput.write((project.version + '-').getBytes('UTF-8'))
+  }
+}
+
+test.dependsOn generateReplayVersion
+
 test {
   include 'play/**/*'
   systemProperties['file.encoding'] = 'UTF-8'
@@ -114,6 +137,14 @@ jar {
       "Implementation-Title": project.group + '.' + project.name,
       "Implementation-Version": version,
       "Implementation-Vendor": "Codeborne")
+  }
+
+  doLast {
+    copy {
+        from "${archivePath}"
+        into 'framework'
+        rename ('.*', 'replay.jar')
+    }
   }
 }
 
