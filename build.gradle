@@ -167,3 +167,11 @@ artifacts {
   archives sourcesJar
   archives javadocJar
 }
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      repository(url: "file://${buildDir}/repo")
+    }
+  }
+}
