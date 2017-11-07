@@ -37,12 +37,14 @@ subprojects {
 
   task libsProd(type: Sync) {
     from configurations.compile
-    into "build/lib"
+    into "${rootDir}/build/lib"
+    preserve {include '*'}
   }
 
   task libsTest(type: Sync) {
     from configurations.testRuntime
-    into "build/lib-test"
+    into "${rootDir}/build/lib-test"
+    preserve {include '*'}
   }
 
   compileJava.dependsOn libsProd, libsTest
@@ -53,12 +55,12 @@ subprojects {
   }
 
   jar {
-//    manifest {
-//      attributes(
-//        "Implementation-Title": project.group + '.' + project.name,
-//        "Implementation-Version": version,
-//        "Implementation-Vendor": "Codeborne")
-//    }
+    manifest {
+      attributes(
+        "Implementation-Title": project.group + '.' + project.name,
+        "Implementation-Version": version,
+        "Implementation-Vendor": "Codeborne")
+    }
   }
 
   task sourcesJar(type: Jar, dependsOn:classes) {
