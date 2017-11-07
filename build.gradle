@@ -1,5 +1,9 @@
 defaultTasks 'clean', 'test', 'jar', 'uploadArchives'
 
+ext {
+  REPO = project.properties['repo'] ?: "${rootDir}/repo"
+}
+
 subprojects {
 
   group='com.codeborne.replay'
@@ -76,7 +80,7 @@ subprojects {
   uploadArchives {
     repositories {
       mavenDeployer {
-        repository(url: "file://${rootDir}/repo")
+        repository(url: "file://${REPO}")
       }
     }
   }
