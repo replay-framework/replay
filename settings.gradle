@@ -1,1 +1,1 @@
-include 'framework', 'liquibase', 'fastergt', 'excel'
+include 'framework', 'rebel', 'liquibase', 'fastergt', 'excel'

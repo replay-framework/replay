@@ -11,12 +11,15 @@
       <sourceFolder url="file://$MODULE_DIR$/fastergt/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fastergt/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/excel/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rebel/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rebel/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/excel/build" />
       <excludeFolder url="file://$MODULE_DIR$/fastergt/build" />
       <excludeFolder url="file://$MODULE_DIR$/framework/build" />
       <excludeFolder url="file://$MODULE_DIR$/liquibase/build" />
+      <excludeFolder url="file://$MODULE_DIR$/rebel/build" />
       <excludeFolder url="file://$MODULE_DIR$/repo" />
     </content>
     <orderEntry type="inheritedJdk" />
