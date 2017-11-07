@@ -7,6 +7,7 @@ import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -57,7 +58,13 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
                 throw new RuntimeException(e);
             }
         }
-        
+
+        // try to find in classpath (e.g. "tags/select.tag" is located in "com.codeborne.replay:framework.jar")
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(queryPath);
+        if (resource != null) {
+            return new GTTemplateLocationReal(queryPath, resource);
+        }
+
         // didn't find it
         return null;
     }
