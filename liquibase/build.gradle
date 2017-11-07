@@ -1,0 +1,6 @@
+dependencies {
+  compile project(':framework')
+  compile('org.liquibase:liquibase-core:3.5.3') {transitive = false}
+  runtime('com.mattbertolini:liquibase-slf4j:2.0.0') {transitive = false}
+  testCompile('junit:junit:4.12'){transitive = false}
+}

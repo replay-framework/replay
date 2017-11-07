@@ -1,1 +1,1 @@
-include 'framework'
+include 'framework', 'liquibase'
