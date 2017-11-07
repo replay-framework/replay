@@ -1,1 +1,1 @@
-include 'framework', 'liquibase'
+include 'framework', 'liquibase', 'fastergt'

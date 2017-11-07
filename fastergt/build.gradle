@@ -1,0 +1,5 @@
+dependencies {
+  compile project(':framework')
+  testCompile('org.easytesting:fest-assert:1.4')
+  testCompile('com.novocode:junit-interface:0.11')
+}

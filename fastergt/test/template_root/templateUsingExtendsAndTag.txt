@@ -1,0 +1,2 @@
+#{extends 'main.txt'/}templateUsingExtends2
+#{simpleTag 'x'/}
