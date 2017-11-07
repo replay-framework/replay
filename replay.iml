@@ -3,33 +3,42 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/framework/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/framework/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/liquibase/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/liquibase/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/fastergt/app" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/fastergt/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/fastergt/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/excel/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/framework" />
-      <excludeFolder url="file://$MODULE_DIR$/test-result" />
+      <excludeFolder url="file://$MODULE_DIR$/excel/build" />
+      <excludeFolder url="file://$MODULE_DIR$/fastergt/build" />
+      <excludeFolder url="file://$MODULE_DIR$/framework/build" />
+      <excludeFolder url="file://$MODULE_DIR$/liquibase/build" />
+      <excludeFolder url="file://$MODULE_DIR$/repo" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/framework/lib" />
+          <root url="file://$MODULE_DIR$/build/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/framework/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/build/lib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/framework/lib-test" />
+          <root url="file://$MODULE_DIR$/build/lib-test" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/framework/lib-test" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/build/lib-test" recursive="false" />
       </library>
     </orderEntry>
   </component>

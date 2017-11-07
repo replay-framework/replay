@@ -1,7 +1,5 @@
 .idea
 .gradle
 build
-framework/lib-test
-framework/lib
-framework/replay.jar
+repo
 test-result
