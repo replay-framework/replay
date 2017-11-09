@@ -14,11 +14,14 @@
       <sourceFolder url="file://$MODULE_DIR$/rebel/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/pdf/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pdf/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/guice/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/guice/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/excel/build" />
       <excludeFolder url="file://$MODULE_DIR$/fastergt/build" />
       <excludeFolder url="file://$MODULE_DIR$/framework/build" />
+      <excludeFolder url="file://$MODULE_DIR$/guice/build" />
       <excludeFolder url="file://$MODULE_DIR$/liquibase/build" />
       <excludeFolder url="file://$MODULE_DIR$/pdf/build" />
       <excludeFolder url="file://$MODULE_DIR$/rebel/build" />
