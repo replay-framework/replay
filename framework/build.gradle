@@ -61,7 +61,7 @@ dependencies {
   compile('com.google.code.maven-play-plugin.org.playframework:jj-simplecaptcha:1.1')
 
   compile('junit:junit:4.12'){transitive = false}
-  testCompile 'org.mockito:mockito-core:2.11.0'
+  testCompile 'org.mockito:mockito-core:2.12.0'
   testCompile 'org.easytesting:fest-assert:1.4'
 }
 

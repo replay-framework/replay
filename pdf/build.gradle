@@ -10,6 +10,8 @@ ext {
 
 dependencies {
   compile project(':framework')
+  testCompile project(':framework').sourceSets.test.compileClasspath
+
   thirdParty("org.xhtmlrenderer:flying-saucer-core:$FLYING_SOURCER_VERSION")
   compile("org.xhtmlrenderer:flying-saucer-pdf:$FLYING_SOURCER_VERSION") {
     exclude group: 'org.xhtmlrenderer', module: 'flying-saucer-core'
@@ -19,8 +21,6 @@ dependencies {
   compile('org.allcolor:shaniparser-xmlapi:1.4.22')
   compile("com.google.code.maven-play-plugin.org.allcolor.yahp:yahp:$YAHP_VERSION") {transitive = false}
   thirdParty("com.google.code.maven-play-plugin.org.allcolor.yahp:yahp-internal:$YAHP_VERSION") {transitive = false}
-
-  testCompile('junit:junit:4.12'){transitive = false}
 }
 
 repositories {
