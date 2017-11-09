@@ -1,0 +1,17 @@
+dependencies {
+  compile project(':framework')
+  compile('org.xhtmlrenderer:flying-saucer-core:9.1.9')
+  compile('org.xhtmlrenderer:flying-saucer-pdf:9.1.9')
+
+  compile('org.allcolor:shaniparser:1.4.22')
+  compile('com.google.code.maven-play-plugin.org.allcolor.yahp:yahp:1.3') {transitive = false}
+  compile('com.google.code.maven-play-plugin.org.allcolor.yahp:yahp-internal:1.3') {transitive = false}
+
+  testCompile('junit:junit:4.12'){transitive = false}
+}
+
+repositories {
+  maven {
+    url uri('https://dl.bintray.com/allcolor/alc-web')
+  }
+}
