@@ -34,11 +34,6 @@ subprojects {
     }
   }
 
-  configurations {
-    provided
-    compile.extendsFrom provided
-  }
-
   task libsProd(type: Sync) {
     from configurations.compile
     into "${rootDir}/build/lib"
