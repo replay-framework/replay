@@ -177,10 +177,6 @@ public class ApplicationClasses {
          */
         public byte[] javaByteCode;
         /**
-         * The enhanced byteCode
-         */
-        public byte[] enhancedByteCode;
-        /**
          * The in JVM loaded class
          */
         public Class<?> javaClass;
@@ -222,20 +218,8 @@ public class ApplicationClasses {
                 this.javaSource = this.javaFile.contentAsString();
             }
             this.javaByteCode = null;
-            this.enhancedByteCode = null;
             this.compiled = false;
             this.timestamp = 0L;
-        }
-
-        /**
-         * Enhance this class
-         * 
-         * @return the enhanced byteCode
-         */
-        public byte[] enhance() {
-            this.enhancedByteCode = this.javaByteCode;
-            return this.enhancedByteCode;
-
         }
 
         /**
@@ -291,7 +275,6 @@ public class ApplicationClasses {
          */
         public void compiled(byte[] code) {
             javaByteCode = code;
-            enhancedByteCode = code;
             compiled = true;
             this.timestamp = this.javaFile.lastModified();
         }

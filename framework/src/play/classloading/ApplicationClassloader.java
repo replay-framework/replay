@@ -145,9 +145,9 @@ public class ApplicationClassloader extends ClassLoader {
                 loadPackage(name);
             }
             if (bc != null) {
-                applicationClass.enhancedByteCode = bc;
-                applicationClass.javaClass = defineClass(applicationClass.name, applicationClass.enhancedByteCode, 0,
-                        applicationClass.enhancedByteCode.length, protectionDomain);
+                applicationClass.javaByteCode = bc;
+                applicationClass.javaClass = defineClass(applicationClass.name, applicationClass.javaByteCode, 0,
+                        applicationClass.javaByteCode.length, protectionDomain);
                 resolveClass(applicationClass.javaClass);
                 if (!applicationClass.isClass()) {
                     applicationClass.javaPackage = applicationClass.javaClass.getPackage();
@@ -160,10 +160,9 @@ public class ApplicationClassloader extends ClassLoader {
                 return applicationClass.javaClass;
             }
             if (applicationClass.javaByteCode != null || applicationClass.compile() != null) {
-                applicationClass.enhance();
-                applicationClass.javaClass = defineClass(applicationClass.name, applicationClass.enhancedByteCode, 0,
-                        applicationClass.enhancedByteCode.length, protectionDomain);
-                BytecodeCache.cacheBytecode(applicationClass.enhancedByteCode, name, applicationClass.javaSource);
+                applicationClass.javaClass = defineClass(applicationClass.name, applicationClass.javaByteCode, 0,
+                        applicationClass.javaByteCode.length, protectionDomain);
+                BytecodeCache.cacheBytecode(applicationClass.javaByteCode, name, applicationClass.javaSource);
                 resolveClass(applicationClass.javaClass);
                 if (!applicationClass.isClass()) {
                     applicationClass.javaPackage = applicationClass.javaClass.getPackage();
@@ -321,12 +320,11 @@ public class ApplicationClassloader extends ClassLoader {
                 currentState = new ApplicationClassloaderState();// show others that we have changed..
             } else {
                 int sigChecksum = applicationClass.sigChecksum;
-                applicationClass.enhance();
                 if (sigChecksum != applicationClass.sigChecksum) {
                     dirtySig = true;
                 }
-                BytecodeCache.cacheBytecode(applicationClass.enhancedByteCode, applicationClass.name, applicationClass.javaSource);
-                newDefinitions.add(new ClassDefinition(applicationClass.javaClass, applicationClass.enhancedByteCode));
+                BytecodeCache.cacheBytecode(applicationClass.javaByteCode, applicationClass.name, applicationClass.javaSource);
+                newDefinitions.add(new ClassDefinition(applicationClass.javaClass, applicationClass.javaByteCode));
                 currentState = new ApplicationClassloaderState();// show others that we have changed..
             }
         }
