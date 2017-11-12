@@ -24,17 +24,16 @@ package play.modules.pdf;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.apache.commons.io.FilenameUtils;
 import play.Play;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer;
 import play.data.validation.Validation;
 import play.exceptions.PlayException;
 import play.exceptions.TemplateNotFoundException;
-import play.exceptions.UnexpectedException;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Scope;
 import play.vfs.VirtualFile;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,21 +68,6 @@ public class PDF {
       this.options = options;
     }
 
-    /**
-     * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-     * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-     */
-    @Deprecated
-    public PDFDocument(String template, Options options, Object... args) {
-      this(template, options);
-      for (Object o : args) {
-        List<String> names = LocalvariablesNamesEnhancer.LocalVariablesNamesTracer.getAllLocalVariableNames(o);
-        for (String name : names) {
-          this.args.put(name, o);
-        }
-      }
-    }
-
     public PDFDocument(String template, Options options, Map<String, Object> args) {
       this(template, options);
       this.args.putAll(args);
@@ -109,120 +93,10 @@ public class PDF {
       return this;
     }
 
-    /**
-     * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-     * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-     */
-    @Deprecated
-    public MultiPDFDocuments add(String template, Options options, Object... args) {
-      documents.add(new PDFDocument(template, options, args));
-      return this;
-    }
-
     public MultiPDFDocuments add(String template, Options options, Map<String, Object> args) {
       documents.add(new PDFDocument(template, options, args));
       return this;
     }
-  }
-
-  /**
-   * Render the corresponding template
-   *
-   * @param args The template data
-   *
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void renderPDF(Object... args) {
-    render(args);
-  }
-
-  /**
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void render(Object... args) {
-    writePDF(null, true, args);
-  }
-
-  /**
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void renderAsAttachment(Object... args) {
-    writePDF(null, false, args);
-  }
-
-  /**
-   * Render the corresponding template into a file
-   *
-   * @param file the file to render to, or null to render to the current Response object
-   * @param args the template data
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void writePDF(File file, Object... args) {
-    try (OutputStream os = new FileOutputStream(file)) {
-      writePDF(os, true, args);
-      os.flush();
-    }
-    catch (IOException e) {
-      throw new UnexpectedException(e);
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void writePDF(OutputStream out, Object... args) {
-    writePDF(out, true, args);
-  }
-
-  /**
-   * Render the corresponding template into a file
-   *
-   * @param out  the stream to render to, or null to render to the current Response object
-   * @param args the template data
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void writePDF(OutputStream out, boolean inline, Object... args) {
-    final Http.Request request = Http.Request.current();
-    final String format = request.format;
-
-    PDFDocument singleDoc = new PDFDocument();
-    MultiPDFDocuments docs = null;
-
-    if (args.length > 0) {
-      if (args[0] instanceof String && LocalvariablesNamesEnhancer.LocalVariablesNamesTracer.getAllLocalVariableNames(args[0]).isEmpty()) {
-        singleDoc.template = args[0].toString();
-      }
-      else if (args[0] instanceof MultiPDFDocuments) {
-        docs = (MultiPDFDocuments) args[0];
-      }
-      if (docs == null) {
-        for (Object arg : args) {
-          if (arg instanceof Options) {
-            singleDoc.options = (Options) arg;
-          }
-        }
-      }
-    }
-    if (docs == null) {
-      if (singleDoc.template == null) {
-        singleDoc.template = templateNameFromAction(format);
-      }
-      docs = createMultiPDFDocuments(singleDoc);
-    }
-
-    renderTemplateAsPDF(out, docs, inline, args);
   }
 
   private static MultiPDFDocuments createMultiPDFDocuments(PDFDocument singleDoc) {
@@ -276,25 +150,6 @@ public class PDF {
     PDF.MultiPDFDocuments docs = createMultiPDFDocuments(singleDoc);
     renderTemplateAsPDF(out, docs, inline, args);
     return out.toByteArray();
-  }
-
-  /**
-   * Render a specific template
-   *
-   * @param args The template data
-   * @deprecated Use {@link #renderTemplateAsPDF(OutputStream, MultiPDFDocuments, boolean, Map)} 
-   * or {@link #generateTemplateAsPDF(java.lang.String, java.util.Map, boolean, play.modules.pdf.PDF.Options)}
-   */
-  @Deprecated
-  public static void renderTemplateAsPDF(OutputStream out, MultiPDFDocuments docs, boolean inline, Object... args) {
-    Map<String, Object> arguments = new HashMap<>();
-    for (Object o : args) {
-      List<String> names = LocalvariablesNamesEnhancer.LocalVariablesNamesTracer.getAllLocalVariableNames(o);
-      for (String name : names) {
-        arguments.put(name, o);
-      }
-    }
-    renderTemplateAsPDF(out, docs, inline, arguments);
   }
 
   /**

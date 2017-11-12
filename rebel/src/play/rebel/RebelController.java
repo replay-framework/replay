@@ -1,6 +1,5 @@
 package play.rebel;
 
-import play.classloading.enhancers.ControllersEnhancer.ControllerSupport;
 import play.data.validation.Validation;
 import play.mvc.Http;
 import play.mvc.PlayController;
@@ -13,7 +12,7 @@ import java.lang.annotation.Annotation;
 /**
  * A superclass for all controllers that are intended to work without play enhancers.
  */
-public class RebelController implements PlayController, ControllerSupport {
+public class RebelController implements PlayController {
 
   protected Http.Request request = Http.Request.current();
 

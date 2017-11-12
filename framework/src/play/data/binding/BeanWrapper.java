@@ -1,7 +1,6 @@
 package play.data.binding;
 
 import play.Logger;
-import play.classloading.enhancers.PropertiesEnhancer.PlayPropertyAccessor;
 import play.exceptions.UnexpectedException;
 
 import java.lang.annotation.Annotation;
@@ -65,11 +64,12 @@ public class BeanWrapper {
     }
 
     private boolean isSetter(Method method) {
-        return (!method.isAnnotationPresent(PlayPropertyAccessor.class) && method.getName().startsWith("set") && method.getName().length() > 3 && method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0);
+        return method.getName().startsWith("set") && method.getName().length() > 3 &&
+          method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0;
     }
 
     private boolean isScalaSetter(Method method) {
-        return (!method.isAnnotationPresent(PlayPropertyAccessor.class) && method.getName().endsWith("_$eq") && method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0);
+        return method.getName().endsWith("_$eq") && method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0;
     }
 
     protected Object newBeanInstance() throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {

@@ -1,4 +1,3 @@
-0:play.plugins.EnhancerPlugin
 1:play.ConfigurationChangeWatcherPlugin
 100:play.data.parsing.TempFilePlugin
 200:play.data.validation.ValidationPlugin

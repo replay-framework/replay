@@ -4,7 +4,6 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import play.Play.Mode;
 import play.classloading.ApplicationClassloader;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer.LocalVariablesNamesTracer;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
@@ -25,7 +24,7 @@ public class Invoker {
     /**
      * Main executor for requests invocations.
      */
-    public static ScheduledThreadPoolExecutor executor = null;
+    public static ScheduledThreadPoolExecutor executor;
 
     /**
      * Run the code in a new thread took from a thread pool.
@@ -234,7 +233,6 @@ public class Invoker {
          */
         public void after() {
             Play.pluginCollection.afterInvocation();
-            LocalVariablesNamesTracer.checkEmpty(); // detect bugs ....
         }
 
         /**

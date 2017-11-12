@@ -10,12 +10,6 @@ import play.Invoker.Suspend;
 import play.Logger;
 import play.Play;
 import play.classloading.ApplicationClasses.ApplicationClass;
-import play.classloading.enhancers.ContinuationEnhancer;
-import play.classloading.enhancers.ControllersEnhancer.ControllerInstrumentation;
-import play.classloading.enhancers.ControllersEnhancer.ControllerSupport;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer.LocalVariablesNamesTracer;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer.LocalVariablesSupport;
 import play.data.binding.Unbinder;
 import play.data.validation.Validation;
 import play.data.validation.ValidationPlugin;
@@ -40,7 +34,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.Future;
@@ -51,7 +44,7 @@ import java.util.concurrent.Future;
  *
  * This is the class that your controllers should extend in most cases.
  */
-public class Controller implements PlayController, ControllerSupport, LocalVariablesSupport {
+public class Controller implements PlayController {
 
     /**
      * The current HTTP request: the message sent by the client to the server.
@@ -743,26 +736,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
     }
 
     /**
-     * Render a specific template
-     *
-     * @param templateName
-     *            The template name
-     * @param args
-     *            The template data
-     */
-    protected static void renderTemplate(String templateName, Object... args) {
-        // Template datas
-        Map<String, Object> templateBinding = new HashMap<>(16);
-        for (Object o : args) {
-            List<String> names = LocalVariablesNamesTracer.getAllLocalVariableNames(o);
-            for (String name : names) {
-                templateBinding.put(name, o);
-            }
-        }
-        renderTemplate(templateName, templateBinding);
-    }
-
-    /**
      * Render a specific template.
      *
      * @param templateName
@@ -805,22 +778,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
      */
     protected static void renderTemplate(Map<String, Object> args) {
         renderTemplate(template(), args);
-    }
-
-    /**
-     * Render the corresponding template (@see <code>template()</code>).
-     *
-     * @param args
-     *            The template data
-     */
-    protected static void render(Object... args) {
-        String templateName = null;
-        if (args.length > 0 && args[0] instanceof String && LocalVariablesNamesTracer.getAllLocalVariableNames(args[0]).isEmpty()) {
-            templateName = args[0].toString();
-        } else {
-            templateName = template();
-        }
-        renderTemplate(templateName, args);
     }
 
     /**
@@ -928,25 +885,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
     }
 
     /**
-     * Call the parent action adding this objects to the params scope
-     * 
-     * @param args
-     *            List of parameters
-     * @deprecated
-     */
-    @Deprecated
-    protected static void parent(Object... args) {
-        Map<String, Object> map = new HashMap<>(16);
-        for (Object o : args) {
-            List<String> names = LocalVariablesNamesTracer.getAllLocalVariableNames(o);
-            for (String name : names) {
-                map.put(name, o);
-            }
-        }
-        parent(map);
-    }
-
-    /**
      * Call the parent method * @deprecated
      */
     @Deprecated
@@ -989,7 +927,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
                 mapss.put(entry.getKey(), value == null ? null : value.toString());
             }
             Scope.Params.current().__mergeWith(mapss);
-            ControllerInstrumentation.initActionCall();
             Java.invokeStatic(superMethod, ActionInvoker.getActionMethodArgs(superMethod, null));
         } catch (InvocationTargetException ex) {
             // It's a Result ? (expected)
@@ -1104,7 +1041,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
             // localVariablesState
             Stack<Map<String, Object>> localVariablesState = (Stack<Map<String, Object>>) Http.Request.current().args
                     .remove(ActionInvoker.CONTINUATIONS_STORE_LOCAL_VARIABLE_NAMES);
-            LocalvariablesNamesEnhancer.LocalVariablesNamesTracer.setLocalVariablesStateAfterAwait(localVariablesState);
 
             // renderArgs
             Scope.RenderArgs renderArgs = (Scope.RenderArgs) Request.current().args.remove(ActionInvoker.CONTINUATIONS_STORE_RENDER_ARGS);
@@ -1127,10 +1063,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
 
         } else {
             // we are storing before suspend
-
-            // localVariablesState
-            Request.current().args.put(ActionInvoker.CONTINUATIONS_STORE_LOCAL_VARIABLE_NAMES,
-                    LocalVariablesNamesTracer.getLocalVariablesStateBeforeAwait());
 
             // renderArgs
             Request.current().args.put(ActionInvoker.CONTINUATIONS_STORE_RENDER_ARGS, Scope.RenderArgs.current());
@@ -1169,7 +1101,6 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
             future = (Future<T>) Request.current().args.get(ActionInvoker.F);
 
             // Now reset the Controller invocation context
-            ControllerInstrumentation.stopActionCall();
             storeOrRestoreDataStateForContinuations(true);
         } else {
             throw new UnexpectedException("Lost promise for " + Http.Request.current() + "!");
@@ -1219,7 +1150,7 @@ public class Controller implements PlayController, ControllerSupport, LocalVaria
                         return; // done checking
                     } else {
                         // is this class enhanced?
-                        boolean enhanced = ContinuationEnhancer.isEnhanced(className);
+                        boolean enhanced = false;
                         if (!enhanced) {
                             throw new ContinuationsException(
                                     "Cannot use await/continuations when not all application classes on the callstack are properly enhanced. The following class is not enhanced: "

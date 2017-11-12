@@ -181,17 +181,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Enhance this class
-     * 
-     * @param applicationClass
-     *            the class to enhance
-     * @throws java.lang.Exception
-     *             if cannot enhance the class
-     */
-    public void enhance(ApplicationClass applicationClass) throws Exception {
-    }
-
-    /**
      * This hook is not plugged, don't implement it
      * 
      * @param template

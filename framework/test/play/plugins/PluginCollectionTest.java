@@ -37,7 +37,7 @@ public class PluginCollectionTest {
         pc.loadPlugins();
 
         // the following plugin-list should match the list in the file 'play.plugins'
-        assertThat(pc.getEnabledPlugins()).containsExactly(pc.getPluginInstance(EnhancerPlugin.class),
+        assertThat(pc.getEnabledPlugins()).containsExactly(
                 pc.getPluginInstance(ConfigurationChangeWatcherPlugin.class), pc.getPluginInstance(TempFilePlugin.class),
                 pc.getPluginInstance(ValidationPlugin.class), 
                 pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class), 
@@ -62,10 +62,10 @@ public class PluginCollectionTest {
 
         pc.loadPlugins();
 
-        EnhancerPlugin enhancerPlugin_first_instance = pc.getPluginInstance(EnhancerPlugin.class);
+        PlayStatusPlugin playStatusPlugin_first_instance = pc.getPluginInstance(PlayStatusPlugin.class);
         TestPlugin testPlugin_first_instance = pc.getPluginInstance(TestPlugin.class);
 
-        assertThat(pc.getAllPlugins()).containsExactly(enhancerPlugin_first_instance, testPlugin_first_instance);
+        assertThat(pc.getAllPlugins()).containsExactly(playStatusPlugin_first_instance, testPlugin_first_instance);
 
     }
 
@@ -82,7 +82,7 @@ public class PluginCollectionTest {
         when(pc.loadPlayPluginDescriptors())
                 .thenReturn(asList(getClass().getResource("custom-play.plugins"), getClass().getResource("custom-play.plugins.duplicate")));
         pc.loadPlugins();
-        assertThat(pc.getAllPlugins()).containsExactly(pc.getPluginInstance(EnhancerPlugin.class), pc.getPluginInstance(TestPlugin.class));
+        assertThat(pc.getAllPlugins()).containsExactly(pc.getPluginInstance(PlayStatusPlugin.class), pc.getPluginInstance(TestPlugin.class));
     }
 
     @Test
@@ -107,18 +107,18 @@ public class PluginCollectionTest {
 
         pc.loadPlugins();
 
-        EnhancerPlugin enhancerPlugin_first_instance = pc.getPluginInstance(EnhancerPlugin.class);
+        PlayStatusPlugin firstPlugin_first_instance = pc.getPluginInstance(PlayStatusPlugin.class);
         TestPlugin testPlugin_first_instance = pc.getPluginInstance(TestPlugin.class);
 
         // the following plugin-list should match the list in the file 'play.plugins'
-        assertThat(pc.getEnabledPlugins()).containsExactly(enhancerPlugin_first_instance, testPlugin_first_instance);
-        assertThat(pc.getAllPlugins()).containsExactly(enhancerPlugin_first_instance, testPlugin_first_instance);
+        assertThat(pc.getEnabledPlugins()).containsExactly(firstPlugin_first_instance, testPlugin_first_instance);
+        assertThat(pc.getAllPlugins()).containsExactly(firstPlugin_first_instance, testPlugin_first_instance);
 
         pc.reloadApplicationPlugins();
 
         TestPlugin testPlugin_second_instance = pc.getPluginInstance(TestPlugin.class);
 
-        assertThat(pc.getPluginInstance(EnhancerPlugin.class)).isEqualTo(enhancerPlugin_first_instance);
+        assertThat(pc.getPluginInstance(PlayStatusPlugin.class)).isEqualTo(firstPlugin_first_instance);
         assertThat(testPlugin_second_instance).isNotEqualTo(testPlugin_first_instance);
 
     }

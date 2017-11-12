@@ -1,14 +1,12 @@
 package play.mvc;
 
-import play.classloading.enhancers.ControllersEnhancer.ControllerSupport;
-import play.classloading.enhancers.LocalvariablesNamesEnhancer.LocalVariablesSupport;
 import play.data.validation.Validation;
 import play.libs.F;
 import play.mvc.results.WebSocketDisconnect;
 
 import java.util.concurrent.Future;
 
-public class WebSocketController implements ControllerSupport, LocalVariablesSupport {
+public class WebSocketController implements PlayController {
 
     protected static Http.Request request = null;
     protected static Http.Inbound inbound = null;

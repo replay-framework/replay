@@ -9,8 +9,6 @@ import play.Logger;
 import play.Play;
 import play.cache.Cache;
 import play.cache.CacheFor;
-import play.classloading.enhancers.ControllersEnhancer;
-import play.classloading.enhancers.ControllersEnhancer.ControllerInstrumentation;
 import play.data.binding.Binder;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.binding.ParamNode;
@@ -39,7 +37,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.Future;
 
 /**
@@ -100,8 +97,6 @@ public class ActionInvoker {
         Scope.Session.current.set(Scope.Session.restore());
         Scope.Flash.current.set(Scope.Flash.restore());
         CachedBoundActionMethodArgs.init();
-
-        ControllersEnhancer.currentAction.set(new Stack<>());
     }
 
     public static void invoke(Http.Request request, Http.Response response) {
@@ -131,7 +126,6 @@ public class ActionInvoker {
                 Controller.class.getDeclaredField("validation").set(null, Validation.current());
             }
 
-            ControllerInstrumentation.stopActionCall();
             Play.pluginCollection.beforeActionInvocation(actionMethod);
 
             // Monitoring
@@ -157,7 +151,6 @@ public class ActionInvoker {
                 }
 
                 if (actionResult == null) {
-                    ControllerInstrumentation.initActionCall();
                     inferResult(invokeControllerMethod(actionMethod));
                 }
             } catch (Result result) {
@@ -221,7 +214,6 @@ public class ActionInvoker {
         // @Catch
         Object[] args = new Object[] {throwable};
         List<Method> catches = Java.findAllAnnotatedMethods(getControllerClass(), Catch.class);
-        ControllerInstrumentation.stopActionCall();
         for (Method mCatch : catches) {
             Class[] exceptions = mCatch.getAnnotation(Catch.class).value();
             if (exceptions.length == 0) {
@@ -271,7 +263,6 @@ public class ActionInvoker {
 
     private static void handleBefores(Http.Request request) throws Exception {
         List<Method> befores = Java.findAllAnnotatedMethods(getControllerClass(), Before.class);
-        ControllerInstrumentation.stopActionCall();
         for (Method before : befores) {
             String[] unless = before.getAnnotation(Before.class).unless();
             String[] only = before.getAnnotation(Before.class).only();
@@ -305,7 +296,6 @@ public class ActionInvoker {
 
     private static void handleAfters(Http.Request request) throws Exception {
         List<Method> afters = Java.findAllAnnotatedMethods(getControllerClass(), After.class);
-        ControllerInstrumentation.stopActionCall();
         for (Method after : afters) {
             String[] unless = after.getAnnotation(After.class).unless();
             String[] only = after.getAnnotation(After.class).only();
@@ -357,7 +347,6 @@ public class ActionInvoker {
 
         try {
             List<Method> allFinally = Java.findAllAnnotatedMethods(Request.current().controllerClass, Finally.class);
-            ControllerInstrumentation.stopActionCall();
             for (Method aFinally : allFinally) {
                 String[] unless = aFinally.getAnnotation(Finally.class).unless();
                 String[] only = aFinally.getAnnotation(Finally.class).only();
@@ -426,10 +415,6 @@ public class ActionInvoker {
             if (o instanceof Map) {
                 Controller.renderTemplate((Map<String, Object>) o);
             }
-            if (o instanceof Object[]) {
-                Controller.render(o);
-            }
-
             Controller.renderHtml(o);
         }
     }

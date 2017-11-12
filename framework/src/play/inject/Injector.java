@@ -1,9 +1,8 @@
 package play.inject;
 
 import play.Play;
-import play.classloading.enhancers.ControllersEnhancer.ControllerSupport;
 import play.jobs.Job;
-import play.mvc.Mailer;
+import play.mvc.PlayController;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -38,8 +37,7 @@ public class Injector {
      *            the beanSource to inject
      */
     public static void inject(BeanSource source) {
-        List<Class> classes = new ArrayList<>(Play.classloader.getAssignableClasses(ControllerSupport.class));
-        classes.addAll(Play.classloader.getAssignableClasses(Mailer.class));
+        List<Class> classes = new ArrayList<>(Play.classloader.getAssignableClasses(PlayController.class));
         classes.addAll(Play.classloader.getAssignableClasses(Job.class));
         classes.addAll(Play.classloader.getAnnotatedClasses(RequireInjection.class));
         for (Class<?> clazz : classes) {
