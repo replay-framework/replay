@@ -8,7 +8,6 @@ import play.data.binding.BindingAnnotations;
 import play.data.binding.ParamNode;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
-import play.mvc.Scope.Params;
 
 import javax.persistence.*;
 import java.lang.annotation.Annotation;
@@ -366,111 +365,6 @@ public class GenericModel extends JPABase {
     public <T extends JPABase> T delete() {
         _delete();
         return (T) this;
-    }
-
-    /**
-     * Create the new entity
-     *
-     * @param name
-     *            name of the model
-     * @param params
-     *            list of parameters
-     * @param <T>
-     *            class of the entity
-     * @return The created entity.
-     */
-    public static <T extends JPABase> T create(String name, Params params) {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Count entities
-     *
-     * @return number of entities of this class
-     */
-    public static long count() {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Count entities with a special query. Example : Long moderatedPosts = Post.count("moderated", true);
-     *
-     * @param query
-     *            HQL query or shortcut
-     * @param params
-     *            Params to bind to the query
-     * @return A long
-     */
-    public static long count(String query, Object... params) {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Find all entities of this type
-     *
-     * @param <T>
-     *            the type of the entity
-     * @return All entities of this type
-     */
-    public static <T extends JPABase> List<T> findAll() {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Find the entity with the corresponding id.
-     *
-     * @param id
-     *            The entity id
-     * @param <T>
-     *            the type of the entity
-     * @return The entity
-     */
-    public static <T extends JPABase> T findById(Object id) {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Prepare a query to find entities.
-     *
-     * @param query
-     *            HQL query or shortcut
-     * @param params
-     *            Params to bind to the query
-     * @return A JPAQuery
-     */
-    public static JPAQuery find(String query, Object... params) {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Prepare a query to find *all* entities.
-     *
-     * @return A JPAQuery
-     */
-    public static JPAQuery all() {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Batch delete of entities
-     *
-     * @param query
-     *            HQL query or shortcut
-     * @param params
-     *            Params to bind to the query
-     * @return Number of entities deleted
-     */
-    public static int delete(String query, Object... params) {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
-    }
-
-    /**
-     * Delete all entities
-     *
-     * @return Number of entities deleted
-     */
-    public static int deleteAll() {
-        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
     }
 
     /**

@@ -12,7 +12,6 @@ import org.hibernate.type.BasicType;
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
-import play.classloading.ApplicationClasses.ApplicationClass;
 import play.data.binding.Binder;
 import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
@@ -95,11 +94,6 @@ public class JPAPlugin extends PlayPlugin {
             return GenericModel.edit(rootParamNode, name, bean, null);
         }
         return null;
-    }
-
-    @Override
-    public void enhance(ApplicationClass applicationClass) throws Exception {
-        new JPAEnhancer().enhanceThisClass(applicationClass);
     }
      
     public EntityManager em(String key) {
