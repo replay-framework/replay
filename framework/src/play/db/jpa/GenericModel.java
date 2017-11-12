@@ -309,31 +309,6 @@ public class GenericModel extends JPABase {
     }
 
     /**
-     * Validate and store the entity
-     * 
-     * @return true if successful
-     */
-    public boolean validateAndSave() {
-        if (Validation.current().valid(this).ok) {
-            save();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Validate and create the entity
-     * 
-     * @return true if successful
-     */
-    public boolean validateAndCreate() {
-        if (Validation.current().valid(this).ok) {
-            return create();
-        }
-        return false;
-    }
-
-    /**
      * store (ie insert) the entity.
      * 
      * @param <T>
@@ -395,7 +370,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Create the new entity
-     * 
+     *
      * @param name
      *            name of the model
      * @param params
@@ -410,7 +385,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Count entities
-     * 
+     *
      * @return number of entities of this class
      */
     public static long count() {
@@ -419,7 +394,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Count entities with a special query. Example : Long moderatedPosts = Post.count("moderated", true);
-     * 
+     *
      * @param query
      *            HQL query or shortcut
      * @param params
@@ -432,7 +407,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Find all entities of this type
-     * 
+     *
      * @param <T>
      *            the type of the entity
      * @return All entities of this type
@@ -443,7 +418,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Find the entity with the corresponding id.
-     * 
+     *
      * @param id
      *            The entity id
      * @param <T>
@@ -456,7 +431,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Prepare a query to find entities.
-     * 
+     *
      * @param query
      *            HQL query or shortcut
      * @param params
@@ -469,7 +444,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Prepare a query to find *all* entities.
-     * 
+     *
      * @return A JPAQuery
      */
     public static JPAQuery all() {
@@ -478,7 +453,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Batch delete of entities
-     * 
+     *
      * @param query
      *            HQL query or shortcut
      * @param params
@@ -491,7 +466,7 @@ public class GenericModel extends JPABase {
 
     /**
      * Delete all entities
-     * 
+     *
      * @return Number of entities deleted
      */
     public static int deleteAll() {
