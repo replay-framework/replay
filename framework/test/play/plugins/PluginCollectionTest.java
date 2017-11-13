@@ -9,7 +9,6 @@ import play.PlayPlugin;
 import play.data.parsing.TempFilePlugin;
 import play.data.validation.ValidationPlugin;
 import play.db.DBPlugin;
-import play.db.Evolutions;
 import play.db.jpa.JPAPlugin;
 import play.i18n.MessagesPlugin;
 import play.jobs.JobsPlugin;
@@ -42,7 +41,7 @@ public class PluginCollectionTest {
                 pc.getPluginInstance(ValidationPlugin.class), 
                 pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class), 
                 pc.getPluginInstance(JPAPlugin.class),
-                pc.getPluginInstance(Evolutions.class), pc.getPluginInstance(MessagesPlugin.class), pc.getPluginInstance(WS.class),
+                pc.getPluginInstance(MessagesPlugin.class), pc.getPluginInstance(WS.class),
                 pc.getPluginInstance(JobsPlugin.class), pc.getPluginInstance(ConfigurablePluginDisablingPlugin.class),
                 pc.getPluginInstance(PlayStatusPlugin.class));
     }

@@ -125,8 +125,6 @@ public class Fixtures {
         deleteDatabase();
     }
 
-    static String[] dontDeleteTheseTables = new String[] { "play_evolutions" };
-
     /**
      * Flush the entire JDBC database
      */
@@ -141,12 +139,10 @@ public class Fixtures {
             }
             disableForeignKeyConstraints();
             for (String name : names) {
-                if (Arrays.binarySearch(dontDeleteTheseTables, name) < 0) {
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("Dropping content of table %s", name);
-                    }
-                    DB.execute(getDeleteTableStmt(name) + ";");
+                if (Logger.isTraceEnabled()) {
+                    Logger.trace("Dropping content of table %s", name);
                 }
+                DB.execute(getDeleteTableStmt(name) + ";");
             }
             enableForeignKeyConstraints();
             Play.pluginCollection.afterFixtureLoad();
