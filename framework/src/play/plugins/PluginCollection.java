@@ -600,15 +600,6 @@ public class PluginCollection {
     }
 
     @Deprecated
-    public List<ApplicationClasses.ApplicationClass> onClassesChange(List<ApplicationClasses.ApplicationClass> modified) {
-        List<ApplicationClasses.ApplicationClass> modifiedWithDependencies = new ArrayList<>();
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            modifiedWithDependencies.addAll(plugin.onClassesChange(modified));
-        }
-        return modifiedWithDependencies;
-    }
-
-    @Deprecated
     public void compileAll(List<ApplicationClasses.ApplicationClass> classes) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.compileAll(classes);

@@ -304,9 +304,6 @@ public class ApplicationClassloader extends ClassLoader {
         }
         Set<ApplicationClass> modifiedWithDependencies = new HashSet<>();
         modifiedWithDependencies.addAll(modifieds);
-        if (!modifieds.isEmpty()) {
-            modifiedWithDependencies.addAll(Play.pluginCollection.onClassesChange(modifieds));
-        }
         List<ClassDefinition> newDefinitions = new ArrayList<>();
         boolean dirtySig = false;
         for (ApplicationClass applicationClass : modifiedWithDependencies) {
