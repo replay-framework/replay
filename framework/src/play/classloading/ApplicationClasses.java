@@ -187,15 +187,12 @@ public class ApplicationClasses {
         /**
          * Last time than this class was compiled
          */
+        @Deprecated
         public Long timestamp = 0L;
         /**
          * Is this class compiled
          */
         boolean compiled;
-        /**
-         * Signatures checksum
-         */
-        public int sigChecksum;
 
         public ApplicationClass() {
         }
@@ -213,7 +210,7 @@ public class ApplicationClasses {
         /**
          * Need to refresh this class !
          */
-        public final void refresh() {
+        private void refresh() {
             if (this.javaFile != null) {
                 this.javaSource = this.javaFile.contentAsString();
             }

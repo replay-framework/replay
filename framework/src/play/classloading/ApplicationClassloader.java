@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.Play;
 import play.classloading.ApplicationClasses.ApplicationClass;
-import play.exceptions.RestartNeededException;
 import play.exceptions.UnexpectedException;
 import play.libs.IO;
 import play.vfs.VirtualFile;
@@ -14,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.lang.instrument.ClassDefinition;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AllPermission;
@@ -285,46 +283,6 @@ public class ApplicationClassloader extends ClassLoader {
                 return it.next();
             }
         };
-    }
-
-    /**
-     * Detect Java changes
-     * 
-     * @throws play.exceptions.RestartNeededException
-     *             Thrown if the application need to be restarted
-     */
-    public void detectChanges() throws RestartNeededException {
-        // Now check for file modification
-        List<ApplicationClass> modifieds = new ArrayList<>();
-        for (ApplicationClass applicationClass : Play.classes.all()) {
-            if (applicationClass.timestamp < applicationClass.javaFile.lastModified()) {
-                applicationClass.refresh();
-                modifieds.add(applicationClass);
-            }
-        }
-        Set<ApplicationClass> modifiedWithDependencies = new HashSet<>();
-        modifiedWithDependencies.addAll(modifieds);
-        List<ClassDefinition> newDefinitions = new ArrayList<>();
-        boolean dirtySig = false;
-        for (ApplicationClass applicationClass : modifiedWithDependencies) {
-            if (applicationClass.compile() == null) {
-                Play.classes.classes.remove(applicationClass.name);
-                currentState = new ApplicationClassloaderState();// show others that we have changed..
-            } else {
-                int sigChecksum = applicationClass.sigChecksum;
-                if (sigChecksum != applicationClass.sigChecksum) {
-                    dirtySig = true;
-                }
-                BytecodeCache.cacheBytecode(applicationClass.javaByteCode, applicationClass.name, applicationClass.javaSource);
-                newDefinitions.add(new ClassDefinition(applicationClass.javaClass, applicationClass.javaByteCode));
-                currentState = new ApplicationClassloaderState();// show others that we have changed..
-            }
-        }
-
-        // Check signature (variable name & annotations aware !)
-        if (dirtySig) {
-            throw new RestartNeededException("Signature change !");
-        }
     }
 
     /**

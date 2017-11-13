@@ -2,7 +2,6 @@ package play.classloading;
 
 
 import play.Play;
-import play.exceptions.RestartNeededException;
 
 public class RebelClassloader extends ApplicationClassloader {
   @Override
@@ -13,9 +12,6 @@ public class RebelClassloader extends ApplicationClassloader {
   @Override public Class<?> loadApplicationClass(String name) {
     ApplicationClasses.ApplicationClass applicationClass = Play.classes.classes.get(name);
     return applicationClass == null ? null : applicationClass.javaClass;
-  }
-
-  @Override public void detectChanges() throws RestartNeededException {
   }
 }
 

@@ -632,7 +632,6 @@ public class Play {
             return;
         }
         try {
-            classloader.detectChanges();
             Router.detectChanges(ctxPath);
             pluginCollection.detectChange();
             if (!Play.started) {
