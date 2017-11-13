@@ -6,7 +6,6 @@ import play.Logger;
 import play.Play;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses.ApplicationClass;
-import play.classloading.hash.ClassStateHashCreator;
 import play.exceptions.RestartNeededException;
 import play.exceptions.UnexpectedException;
 import play.libs.IO;
@@ -35,8 +34,6 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
  */
 public class ApplicationClassloader extends ClassLoader {
 
-    private final ClassStateHashCreator classStateHashCreator = new ClassStateHashCreator();
-
     /**
      * A representation of the current state of the ApplicationClassloader. It gets a new value each time the state of
      * the classloader changes.
@@ -56,7 +53,6 @@ public class ApplicationClassloader extends ClassLoader {
         for (ApplicationClass applicationClass : Play.classes.all()) {
             applicationClass.uncompile();
         }
-        pathHash = computePathHash();
         try {
             CodeSource codeSource = new CodeSource(new URL("file:" + Play.applicationPath.getAbsolutePath()), (Certificate[]) null);
             Permissions permissions = new Permissions();
@@ -345,39 +341,6 @@ public class ApplicationClassloader extends ClassLoader {
         if (dirtySig) {
             throw new RestartNeededException("Signature change !");
         }
-
-        // Now check if there is new classes or removed classes
-        int hash = computePathHash();
-        if (hash != this.pathHash) {
-            // Remove class for deleted files !!
-            for (ApplicationClass applicationClass : Play.classes.all()) {
-                if (!applicationClass.javaFile.exists()) {
-                    Play.classes.classes.remove(applicationClass.name);
-                    currentState = new ApplicationClassloaderState();// show others that we have changed..
-                }
-                if (applicationClass.name.contains("$")) {
-                    Play.classes.classes.remove(applicationClass.name);
-                    currentState = new ApplicationClassloaderState();// show others that we have changed..
-                    // Ok we have to remove all classes from the same file ...
-                    VirtualFile vf = applicationClass.javaFile;
-                    for (ApplicationClass ac : Play.classes.all()) {
-                        if (ac.javaFile.equals(vf)) {
-                            Play.classes.classes.remove(ac.name);
-                        }
-                    }
-                }
-            }
-            throw new RestartNeededException("Path has changed");
-        }
-    }
-
-    /**
-     * Used to track change of the application sources path
-     */
-    private int pathHash = 0;
-
-    private int computePathHash() {
-        return classStateHashCreator.computePathHash(Play.javaPath);
     }
 
     /**
