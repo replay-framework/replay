@@ -1,0 +1,3 @@
+rootProject.name = 'replay-tests'
+
+include 'helloworld', 'dependency-injection'

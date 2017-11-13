@@ -80,3 +80,8 @@ subprojects {
     }
   }
 }
+
+task integrationTests(type: GradleBuild) {
+  buildFile = 'replay-tests/build.gradle'
+  tasks = ['test', 'uitest']
+}

@@ -26,6 +26,7 @@
       <excludeFolder url="file://$MODULE_DIR$/pdf/build" />
       <excludeFolder url="file://$MODULE_DIR$/rebel/build" />
       <excludeFolder url="file://$MODULE_DIR$/repo" />
+      <excludeFolder url="file://$MODULE_DIR$/replay-tests" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

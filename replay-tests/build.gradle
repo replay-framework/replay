@@ -1,0 +1,65 @@
+subprojects {
+  apply plugin: 'java'
+
+  task libsProd(type: Sync) {
+    from configurations.compile
+    into "build/lib"
+  }
+
+  task libsTest(type: Sync) {
+    from configurations.testRuntime
+    into "build/lib-test"
+  }
+
+  compileJava.dependsOn libsProd, libsTest
+
+  repositories {
+    jcenter()
+    maven {
+      url uri("${rootDir}/../repo")
+    }
+  }
+
+  compileJava {
+    options.debugOptions.debugLevel = "source,lines,vars"
+    options.fork = true
+    options.compilerArgs << '-parameters'
+    options.encoding = 'UTF-8'
+  }
+
+  sourceSets {
+    main {
+      java {srcDir "app"}
+      resources {srcDirs "conf", "app"}
+    }
+    test {
+      java {srcDir "test"}
+      resources {srcDir "test"}
+    }
+  }
+
+  dependencies {
+    compile('com.codeborne.replay:framework:1.6-SNAPSHOT')
+    compile('com.codeborne.replay:rebel:1.6-SNAPSHOT')
+
+    testCompile('org.assertj:assertj-core:3.8.0')
+    testCompile('com.codeborne:selenide:4.8')
+    testCompile('junit:junit:4.12')
+    testCompile('org.mockito:mockito-core:2.10.0')
+  }
+
+  test {
+    exclude 'ui/**'
+  }
+
+  task uitest(type: Test) {
+    include 'ui/**/*'
+    systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
+  }
+
+  tasks.withType(Test).all { testTask ->
+    testTask.systemProperties['file.encoding'] = 'UTF-8'
+    testTask.testLogging {exceptionFormat = 'full'}
+    testTask.outputs.upToDateWhen { false }
+  }
+}
