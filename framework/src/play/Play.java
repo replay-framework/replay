@@ -3,7 +3,6 @@ package play;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
 import play.classloading.ApplicationClassloader;
-import play.deps.DependenciesManager;
 import play.exceptions.PlayException;
 import play.exceptions.RestartNeededException;
 import play.exceptions.UnexpectedException;
@@ -734,37 +733,20 @@ public class Play {
 
         File localModules = Play.getFile("modules");
         Set<String> modules = new LinkedHashSet<>();
-        if (localModules != null && localModules.exists() && localModules.isDirectory()) {
-            try {
-                File userHome = new File(System.getProperty("user.home"));
-                DependenciesManager dm = new DependenciesManager(applicationPath, frameworkPath, userHome);
-                modules = dm.retrieveModules();
-            } catch (Exception e) {
-                Logger.error("There was a problem parsing dependencies.yml (module will not be loaded in order of the dependencies.yml)",
-                        e);
-                // Load module without considering the dependencies.yml order
-                modules.addAll(Arrays.asList(localModules.list()));
-            }
+        if (localModules.exists() && localModules.isDirectory()) {
+            modules.addAll(Arrays.asList());
 
-            for (Iterator<String> iter = modules.iterator(); iter.hasNext();) {
-                String moduleName = iter.next();
-
-                File module = new File(localModules, moduleName);
-
-                if (moduleName.contains("-")) {
-                    moduleName = moduleName.substring(0, moduleName.indexOf("-"));
-                }
-
+            for (File module : localModules.listFiles()) {
                 if (module == null || !module.exists()) {
-                    Logger.error("Module %s will not be loaded because %s does not exist", moduleName, module.getAbsolutePath());
+                    Logger.error("Module %s will not be loaded because %s does not exist", module.getName(), module.getAbsolutePath());
                 } else if (module.isDirectory()) {
-                    addModule(appRoot, moduleName, module);
+                    addModule(appRoot, module.getName(), module);
                 } else {
                     File modulePath = new File(IO.readContentAsString(module).trim());
                     if (!modulePath.exists() || !modulePath.isDirectory()) {
-                        Logger.error("Module %s will not be loaded because %s does not exist", moduleName, modulePath.getAbsolutePath());
+                        Logger.error("Module %s will not be loaded because %s does not exist", module.getName(), modulePath.getAbsolutePath());
                     } else {
-                        addModule(appRoot, moduleName, modulePath);
+                        addModule(appRoot, module.getName(), modulePath);
                     }
                 }
             }
