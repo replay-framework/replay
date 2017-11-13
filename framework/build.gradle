@@ -1,5 +1,4 @@
 dependencies {
-  compile('antlr:antlr:2.7.7')
   compile('com.zaxxer:HikariCP:2.7.2')
   compile('org.ow2.asm:asm-all:5.2')
   compile('cglib:cglib:3.2.4') {transitive = false}
