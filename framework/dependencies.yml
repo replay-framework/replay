@@ -48,7 +48,8 @@ require:    &allDependencies
     - org.apache.ivy -> ivy 2.4.0
     - org.bouncycastle -> bcprov-jdk15on 1.57
     - org.bouncycastle -> bcpkix-jdk15on 1.57
-    - org.codehaus.groovy -> groovy-all 2.4.11
+    - org.codehaus.groovy -> groovy 2.4.12
+    - org.codehaus.groovy -> groovy-xml 2.4.12
     - org.eclipse.jdt.core 3.12.3
     - org.hibernate -> hibernate-core 5.2.10.patched
     - org.hibernate.common -> hibernate-commons-annotations 5.0.1.Final
