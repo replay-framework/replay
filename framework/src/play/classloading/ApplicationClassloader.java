@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.Play;
-import play.cache.Cache;
 import play.classloading.ApplicationClasses.ApplicationClass;
 import play.exceptions.RestartNeededException;
 import play.exceptions.UnexpectedException;
@@ -325,18 +324,6 @@ public class ApplicationClassloader extends ClassLoader {
             }
         }
 
-        if (!newDefinitions.isEmpty()) {
-            Cache.clear();
-            if (HotswapAgent.enabled) {
-                try {
-                    HotswapAgent.reload(newDefinitions.toArray(new ClassDefinition[newDefinitions.size()]));
-                } catch (Throwable e) {
-                    throw new RestartNeededException(newDefinitions.size() + " classes changed", e);
-                }
-            } else {
-                throw new RestartNeededException(newDefinitions.size() + " classes changed (and HotSwap is not enabled)");
-            }
-        }
         // Check signature (variable name & annotations aware !)
         if (dirtySig) {
             throw new RestartNeededException("Signature change !");
