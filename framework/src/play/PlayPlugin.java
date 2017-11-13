@@ -221,9 +221,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         return false;
     }
 
-    public void beforeDetectingChanges() {
-    }
-
     /**
      * @param file
      *            the file of the template to load

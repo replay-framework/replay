@@ -548,12 +548,6 @@ public class PluginCollection {
         }
     }
 
-    public void beforeDetectingChanges() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.beforeDetectingChanges();
-        }
-    }
-
     public void detectChange() {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.detectChange();
