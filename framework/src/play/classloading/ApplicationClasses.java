@@ -216,7 +216,6 @@ public class ApplicationClasses {
             }
             this.javaByteCode = null;
             this.compiled = false;
-            this.timestamp = 0L;
         }
 
         /**
@@ -273,7 +272,6 @@ public class ApplicationClasses {
         public void compiled(byte[] code) {
             javaByteCode = code;
             compiled = true;
-            this.timestamp = this.javaFile.lastModified();
         }
 
         @Override
