@@ -652,9 +652,6 @@ public class Play {
                 }
             }
             start();
-        } catch (Exception e) {
-            Logger.error(e, "Restart: " + e.getMessage());
-            start();
         }
     }
 
