@@ -35,8 +35,6 @@ dependencies {
   compile('oauth.signpost:signpost-core:1.2.1.2')
   compile('org.apache.geronimo.specs:geronimo-servlet_2.5_spec:1.2')
   compile('org.apache.ivy:ivy:2.4.0')
-  compile('org.bouncycastle:bcprov-jdk15on:1.57')
-  compile('org.bouncycastle:bcpkix-jdk15on:1.57')
   compile('org.codehaus.groovy:groovy:2.4.12')
   compile('org.codehaus.groovy:groovy-xml:2.4.12')
   compile('org.eclipse.jdt:org.eclipse.jdt.core:3.13.0') {transitive = false}
