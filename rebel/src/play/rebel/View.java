@@ -17,12 +17,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static play.rebel.Bridge.template;
 
 /**
  * 200 OK with a template rendering
  */
 public class View extends Result {
+  private static TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
   private final String templateName;
   private final Map<String, Object> arguments = new HashMap<>();
@@ -30,7 +30,7 @@ public class View extends Result {
   private long renderTime;
 
   public View() {
-    this(template());
+    this(templateNameResolver.resolveTemplateName());
   }
 
   public View(String templateName) {
@@ -102,7 +102,7 @@ public class View extends Result {
   }
 
   private Template resolveTemplate() {
-    return TemplateLoader.load(template(templateName));
+    return TemplateLoader.load(templateNameResolver.resolveTemplateName(templateName));
   }
   
   public String getName() {

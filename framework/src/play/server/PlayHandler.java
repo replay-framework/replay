@@ -12,7 +12,6 @@ import org.jboss.netty.handler.codec.http.cookie.Cookie;
 import org.jboss.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.jboss.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import org.jboss.netty.handler.codec.http.websocketx.*;
 import org.jboss.netty.handler.stream.ChunkedInput;
 import org.jboss.netty.handler.stream.ChunkedStream;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
@@ -26,11 +25,13 @@ import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
 import play.libs.F.Action;
-import play.libs.F.Promise;
 import play.libs.MimeTypes;
-import play.mvc.*;
+import play.mvc.ActionInvoker;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Router;
+import play.mvc.Scope;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.templates.JavaExtensions;
@@ -47,7 +48,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
@@ -73,8 +73,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
      */
     public Map<String, ChannelHandler> pipelines = new HashMap<>();
 
-    private WebSocketServerHandshaker handshaker;
-
     static {
         try {
             SHA_1 = MessageDigest.getInstance("SHA1");
@@ -99,12 +97,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         if (msg instanceof HttpRequest) {
 
             final HttpRequest nettyRequest = (HttpRequest) msg;
-
-            // Websocket upgrade
-            if (HttpHeaders.Values.WEBSOCKET.equalsIgnoreCase(nettyRequest.headers().get(HttpHeaders.Names.UPGRADE))) {
-                websocketHandshake(ctx, nettyRequest, messageEvent);
-                return;
-            }
 
             // Plain old HttpRequest
             try {
@@ -147,12 +139,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 Logger.warn(ex, "Exception on request. serving 500 back");
                 serve500(ex, ctx, nettyRequest);
             }
-        }
-
-        // Websocket frame
-        if (msg instanceof WebSocketFrame) {
-            WebSocketFrame frame = (WebSocketFrame) msg;
-            websocketFrameReceived(ctx, frame);
         }
 
         if (Logger.isTraceEnabled()) {
@@ -201,7 +187,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 }
                 if (Play.mode == Play.Mode.PROD
                         && staticPathsCache.containsKey(request.domain + " " + request.method + " " + request.path)) {
-                    RenderStatic rs = null;
+                    RenderStatic rs;
                     synchronized (staticPathsCache) {
                         rs = staticPathsCache.get(request.domain + " " + request.method + " " + request.path);
                     }
@@ -308,7 +294,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 // as Key as it will result error when printing error
                 error.append("play.netty.maxContentLength");
                 error.append(":");
-                String size = null;
+                String size;
                 try {
                     size = JavaExtensions.formatSize(Long.parseLong(length));
                 } catch (Exception e) {
@@ -375,7 +361,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Logger.trace("writeResponse: begin");
         }
 
-        byte[] content = null;
+        byte[] content;
 
         boolean keepAlive = isKeepAlive(nettyRequest);
         if (nettyRequest.getMethod().equals(HttpMethod.HEAD)) {
@@ -1049,207 +1035,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             }
         } catch (Exception e) {
             throw new UnexpectedException(e);
-        }
-    }
-
-    // ~~~~~~~~~~~ Websocket
-    static final Map<ChannelHandlerContext, Http.Inbound> channels = new ConcurrentHashMap<>();
-
-    private void websocketFrameReceived(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
-        Http.Inbound inbound = channels.get(ctx);
-        // Check for closing frame
-        if (webSocketFrame instanceof CloseWebSocketFrame) {
-            this.handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) webSocketFrame);
-        } else if (webSocketFrame instanceof PingWebSocketFrame) {
-            ctx.getChannel().write(new PongWebSocketFrame(webSocketFrame.getBinaryData()));
-        } else if (webSocketFrame instanceof BinaryWebSocketFrame) {
-            inbound._received(new Http.WebSocketFrame(webSocketFrame.getBinaryData().array()));
-        } else if (webSocketFrame instanceof TextWebSocketFrame) {
-            inbound._received(new Http.WebSocketFrame(((TextWebSocketFrame) webSocketFrame).getText()));
-        }
-    }
-
-    private String getWebSocketLocation(HttpRequest req) {
-        return "ws://" + req.headers().get(HttpHeaders.Names.HOST) + req.getUri();
-    }
-
-    private void websocketHandshake(final ChannelHandlerContext ctx, HttpRequest req, MessageEvent messageEvent) throws Exception {
-
-        Integer max = Integer.valueOf(Play.configuration.getProperty("play.netty.maxContentLength", "65345"));
-
-        // Upgrade the pipeline as the handshaker needs the HttpStream
-        // Aggregator
-        ctx.getPipeline().addLast("fake-aggregator", new HttpChunkAggregator(max));
-        try {
-            WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), null, false);
-            this.handshaker = wsFactory.newHandshaker(req);
-            if (this.handshaker == null) {
-                wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
-            } else {
-                try {
-                    this.handshaker.handshake(ctx.getChannel(), req);
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                }
-            }
-        } finally {
-            // Remove fake aggregator in case handshake was not a success, it is
-            // still lying around
-            try {
-                ctx.getPipeline().remove("fake-aggregator");
-            } catch (Exception e) {
-            }
-        }
-        Http.Request request = parseRequest(ctx, req, messageEvent);
-
-        // Route the websocket request
-        request.method = "WS";
-
-        Map<String, String> route = Router.route(request.method, request.path);
-        if (!route.containsKey("action")) {
-            // No route found to handle this websocket connection
-            ctx.getChannel().write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND));
-            return;
-        }
-
-        // Inbound
-        Http.Inbound inbound = new Http.Inbound(ctx) {
-
-            @Override
-            public boolean isOpen() {
-                return ctx.getChannel().isOpen();
-            }
-        };
-        channels.put(ctx, inbound);
-
-        // Outbound
-        Http.Outbound outbound = new Http.Outbound() {
-
-            final List<ChannelFuture> writeFutures = Collections.synchronizedList(new ArrayList<ChannelFuture>());
-            Promise<Void> closeTask;
-
-            synchronized void writeAndClose(ChannelFuture writeFuture) {
-                if (!writeFuture.isDone()) {
-                    writeFutures.add(writeFuture);
-                    writeFuture.addListener(new ChannelFutureListener() {
-
-                        @Override
-                        public void operationComplete(ChannelFuture cf) throws Exception {
-                            writeFutures.remove(cf);
-                            futureClose();
-                        }
-                    });
-                }
-            }
-
-            void futureClose() {
-                if (closeTask != null && writeFutures.isEmpty()) {
-                    closeTask.invoke(null);
-                }
-            }
-
-            @Override
-            public void send(String data) {
-                if (!isOpen()) {
-                    throw new IllegalStateException("The outbound channel is closed");
-                }
-                writeAndClose(ctx.getChannel().write(new TextWebSocketFrame(data)));
-            }
-
-            @Override
-            public void send(byte opcode, byte[] data, int offset, int length) {
-                if (!isOpen()) {
-                    throw new IllegalStateException("The outbound channel is closed");
-                }
-
-                writeAndClose(ctx.getChannel().write(new BinaryWebSocketFrame(wrappedBuffer(data, offset, length))));
-            }
-
-            @Override
-            public synchronized boolean isOpen() {
-                return ctx.getChannel().isOpen() && closeTask == null;
-            }
-
-            @Override
-            public synchronized void close() {
-                closeTask = new Promise<>();
-                closeTask.onRedeem(new Action<Promise<Void>>() {
-
-                    @Override
-                    public void invoke(Promise<Void> completed) {
-                        writeFutures.clear();
-                        ctx.getChannel().disconnect();
-                        closeTask = null;
-                    }
-                });
-                futureClose();
-            }
-        };
-        Logger.trace("invoking");
-
-        Invoker.invoke(new WebSocketInvocation(route, request, inbound, outbound, ctx, messageEvent));
-    }
-
-    @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        Http.Inbound inbound = channels.get(ctx);
-        if (inbound != null) {
-            inbound.close();
-        }
-        channels.remove(ctx);
-    }
-
-    public static class WebSocketInvocation extends Invoker.Invocation {
-
-        Map<String, String> route;
-        Http.Request request;
-        Http.Inbound inbound;
-        Http.Outbound outbound;
-        ChannelHandlerContext ctx;
-        MessageEvent e;
-
-        public WebSocketInvocation(Map<String, String> route, Http.Request request, Http.Inbound inbound, Http.Outbound outbound,
-                ChannelHandlerContext ctx, MessageEvent e) {
-            this.route = route;
-            this.request = request;
-            this.inbound = inbound;
-            this.outbound = outbound;
-            this.ctx = ctx;
-            this.e = e;
-        }
-
-        @Override
-        public boolean init() {
-            Http.Request.current.set(request);
-            Http.Inbound.current.set(inbound);
-            Http.Outbound.current.set(outbound);
-            return super.init();
-        }
-
-        @Override
-        public InvocationContext getInvocationContext() {
-            WebSocketInvoker.resolve(request);
-            return new InvocationContext(Http.invocationType, request.invokedMethod.getAnnotations(),
-                    request.invokedMethod.getDeclaringClass().getAnnotations());
-        }
-
-        @Override
-        public void execute() throws Exception {
-            WebSocketInvoker.invoke(request, inbound, outbound);
-        }
-
-        @Override
-        public void onException(Throwable e) {
-            Logger.error(e, "Internal Server Error in WebSocket (closing the socket) for request %s", request.method + " " + request.url);
-            ctx.getChannel().close();
-            super.onException(e);
-        }
-
-        @Override
-        public void onSuccess() throws Exception {
-            outbound.close();
-            super.onSuccess();
         }
     }
 }

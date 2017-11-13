@@ -134,8 +134,4 @@ public class RebelController implements PlayController {
   protected static <T extends Annotation> T getActionAnnotation(Class<T> annotationClass) {
     return request().invokedMethod.getAnnotation(annotationClass);
   }
-
-  protected static <T extends Annotation> T getControllerInheritedAnnotation(Class<T> annotationClass) {
-    return Bridge.getControllerInheritedAnnotation(annotationClass);
-  }
 }

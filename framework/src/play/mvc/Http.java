@@ -1,15 +1,10 @@
 package play.mvc;
 
-import com.google.gson.Gson;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import play.Logger;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.libs.Codec;
 import play.libs.F;
-import play.libs.F.BlockingEventStream;
-import play.libs.F.Option;
-import play.libs.F.Promise;
 import play.libs.Time;
 import play.utils.HTTP;
 import play.utils.Utils;
@@ -266,10 +261,6 @@ public class Http {
          * When the request has been received
          */
         public Date date = new Date();
-        /**
-         * New request or already submitted
-         */
-        public boolean isNew = true;
         /**
          * HTTP Basic User
          */
@@ -890,136 +881,5 @@ public class Http {
         public void onWriteChunk(F.Action<Object> handler) {
             writeChunkHandlers.add(handler);
         }
-    }
-
-    /**
-     * A Websocket Inbound channel
-     */
-    public abstract static class Inbound {
-
-        public static final ThreadLocal<Inbound> current = new ThreadLocal<>();
-        final BlockingEventStream<WebSocketEvent> stream;
-
-        public Inbound(ChannelHandlerContext ctx) {
-            stream = new BlockingEventStream<>(ctx);
-        }
-
-        public static Inbound current() {
-            return current.get();
-        }
-
-        public void _received(WebSocketFrame frame) {
-            stream.publish(frame);
-        }
-
-        public Promise<WebSocketEvent> nextEvent() {
-            if (!isOpen()) {
-                throw new IllegalStateException("The inbound channel is closed");
-            }
-            return stream.nextEvent();
-        }
-
-        public void close() {
-            stream.publish(new WebSocketClose());
-        }
-
-        public abstract boolean isOpen();
-    }
-
-    /**
-     * A Websocket Outbound channel
-     */
-    public abstract static class Outbound {
-
-        public static final ThreadLocal<Outbound> current = new ThreadLocal<>();
-
-        public static Outbound current() {
-            return current.get();
-        }
-
-        public abstract void send(String data);
-
-        public abstract void send(byte opcode, byte[] data, int offset, int length);
-
-        public abstract boolean isOpen();
-
-        public abstract void close();
-
-        public void send(byte opcode, byte[] data) {
-            send(opcode, data, 0, data.length);
-        }
-
-        public void send(String pattern, Object... args) {
-            send(String.format(pattern, args));
-        }
-
-        public void sendJson(Object o) {
-            send(new Gson().toJson(o));
-        }
-    }
-
-    public static class WebSocketEvent {
-
-        public static F.Matcher<WebSocketEvent, WebSocketClose> SocketClosed = new F.Matcher<WebSocketEvent, WebSocketClose>() {
-
-            @Override
-            public Option<WebSocketClose> match(WebSocketEvent o) {
-                if (o instanceof WebSocketClose) {
-                    return F.Option.Some((WebSocketClose) o);
-                }
-                return F.Option.None();
-            }
-        };
-        public static F.Matcher<WebSocketEvent, String> TextFrame = new F.Matcher<WebSocketEvent, String>() {
-
-            @Override
-            public Option<String> match(WebSocketEvent o) {
-                if (o instanceof WebSocketFrame) {
-                    WebSocketFrame frame = (WebSocketFrame) o;
-                    if (!frame.isBinary) {
-                        return F.Option.Some(frame.textData);
-                    }
-                }
-                return F.Option.None();
-            }
-        };
-        public static F.Matcher<WebSocketEvent, byte[]> BinaryFrame = new F.Matcher<WebSocketEvent, byte[]>() {
-
-            @Override
-            public Option<byte[]> match(WebSocketEvent o) {
-                if (o instanceof WebSocketFrame) {
-                    WebSocketFrame frame = (WebSocketFrame) o;
-                    if (frame.isBinary) {
-                        return F.Option.Some(frame.binaryData);
-                    }
-                }
-                return F.Option.None();
-            }
-        };
-    }
-
-    /**
-     * A Websocket frame
-     */
-    public static class WebSocketFrame extends WebSocketEvent {
-
-        public final boolean isBinary;
-        public final String textData;
-        public final byte[] binaryData;
-
-        public WebSocketFrame(String data) {
-            this.isBinary = false;
-            this.textData = data;
-            this.binaryData = null;
-        }
-
-        public WebSocketFrame(byte[] data) {
-            this.isBinary = true;
-            this.binaryData = data;
-            this.textData = null;
-        }
-    }
-
-    public static class WebSocketClose extends WebSocketEvent {
     }
 }
