@@ -5,7 +5,9 @@ dependencies {
   compile('cglib:cglib:3.2.4') {transitive = false}
   compile('com.google.code.gson:gson:2.8.0')
   compile('com.jamonapi:jamon:2.81') {transitive = false}
-  compile('com.ning:async-http-client:1.9.40')
+  compile('com.ning:async-http-client:1.9.40') {
+    exclude group: 'io.netty'
+  }
   compile('commons-beanutils:commons-beanutils:1.9.2')
   compile('commons-codec:commons-codec:1.10')
   compile('org.apache.commons:commons-email:1.4') {transitive = false}
@@ -48,8 +50,8 @@ dependencies {
   compile('org.hibernate:hibernate-ehcache:5.2.12.Final') {transitive = false}
   compile('com.mchange:mchange-commons-java:0.2.12')
   compile('io.netty:netty:3.10.6.Final')
-  compile('org.slf4j:slf4j-api:1.7.22')
-  compile('org.slf4j:slf4j-log4j12:1.7.22')
+  compile('org.slf4j:slf4j-api:1.7.25')
+  compile('org.slf4j:slf4j-log4j12:1.7.25')
   compile('org.yaml:snakeyaml:1.17')
   compile('net.spy:spymemcached:2.12.1')
   compile('com.thoughtworks.xstream:xstream:1.4.9') {transitive = false}
