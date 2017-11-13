@@ -1,8 +1,5 @@
 package play.utils;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.bytecode.SourceFileAttribute;
 import play.Play;
 import play.classloading.ApplicationClassloaderState;
 import play.data.binding.Binder;
@@ -46,16 +43,6 @@ public class Java {
 
             }
             return _javaWithCaching;
-        }
-    }
-
-    public static String[] extractInfosFromByteCode(byte[] code) {
-        try {
-            CtClass ctClass = ClassPool.getDefault().makeClass(new ByteArrayInputStream(code));
-            String sourceName = ((SourceFileAttribute) ctClass.getClassFile().getAttribute("SourceFile")).getFileName();
-            return new String[] { ctClass.getName(), sourceName };
-        } catch (Exception e) {
-            throw new UnexpectedException("Cannot read a scala generated class using javassist", e);
         }
     }
 
