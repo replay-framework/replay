@@ -556,9 +556,6 @@ public class Logger {
                     if (se.getClassName().startsWith("java.lang.reflect.")) {
                         continue; // not very interesting
                     }
-                    if (se.getClassName().startsWith("com.mchange.v2.c3p0.")) {
-                        continue; // not very interesting
-                    }
                     if (se.getClassName().startsWith("scala.tools.")) {
                         continue; // not very interesting
                     }

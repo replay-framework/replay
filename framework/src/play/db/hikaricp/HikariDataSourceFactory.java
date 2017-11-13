@@ -72,13 +72,6 @@ public class HikariDataSourceFactory implements DataSourceFactory {
         ds.setConnectionTestQuery("/* ping */ SELECT 1");
       }
     }
-
-    // This check is not required, but here to make it clear that nothing changes for people
-    // that don't set this configuration property. It may be safely removed.
-    if(dbConfig.getProperty("db.isolation") != null) {
-//    TODO not yet migrated from c3p0 to Hikari CP:
-//      ds.setConnectionCustomizerClassName(PlayConnectionCustomizer.class.getName());
-    }
     return ds;
   }
 
