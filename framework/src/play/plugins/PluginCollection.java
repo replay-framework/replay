@@ -514,15 +514,6 @@ public class PluginCollection {
         return false;
     }
 
-    public boolean detectClassesChange() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.detectClassesChange()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void invocationFinally() {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.invocationFinally();

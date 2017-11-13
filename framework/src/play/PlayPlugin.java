@@ -240,15 +240,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * It's time for the plugin to detect changes. Throw an exception is the application must be reloaded.
-     * 
-     * @return false si no change detected
-     */
-    public boolean detectClassesChange() {
-        return false;
-    }
-
-    /**
      * Called at application start (and at each reloading) Time to start stateful things.
      */
     public void onApplicationStart() {
