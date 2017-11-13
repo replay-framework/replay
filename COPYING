@@ -74,9 +74,6 @@ http://www.opensource.org/licenses/cpl1.0.php
 http://www.mozilla.org/MPL/MPL-1.1.html
     - Javassist
 
-http://www.gnu.org/licenses/gpl.html
-    - MySQL connector
-
 Public Domain
     - backport-util-concurrent
 

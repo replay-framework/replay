@@ -245,7 +245,7 @@ public class JPAPlugin extends PlayPlugin {
         } else if ("org.hsqldb.jdbcDriver".equals(driver)) {
             return "org.hibernate.dialect.HSQLDialect";
         } else if ("com.mysql.jdbc.Driver".equals(driver)) {
-            return "play.db.jpa.MySQLDialect";
+            return "org.hibernate.dialect.MySQLDialect";
         } else if ("org.postgresql.Driver".equals(driver)) {
             return "org.hibernate.dialect.PostgreSQLDialect";
         } else if ("com.ibm.db2.jdbc.app.DB2Driver".equals(driver)) {
