@@ -22,9 +22,7 @@ import play.exceptions.UnexpectedException;
 import play.inject.Injector;
 import play.mvc.Http.Request;
 import play.mvc.Router.Route;
-import play.mvc.results.NoResult;
-import play.mvc.results.NotFound;
-import play.mvc.results.Result;
+import play.mvc.results.*;
 import play.utils.Java;
 import play.utils.Utils;
 
@@ -407,15 +405,15 @@ public class ActionInvoker {
                 throw (Result) o;
             }
             if (o instanceof InputStream) {
-                Controller.renderBinary((InputStream) o);
+                throw new RenderBinary((InputStream) o, null, true);
             }
             if (o instanceof File) {
-                Controller.renderBinary((File) o);
+                throw new RenderBinary((File) o);
             }
             if (o instanceof Map) {
-                Controller.renderTemplate((Map<String, Object>) o);
+                throw new UnsupportedOperationException("Controller action cannot return Map");
             }
-            Controller.renderHtml(o);
+            throw new RenderHtml(o.toString());
         }
     }
 
@@ -481,11 +479,8 @@ public class ActionInvoker {
     static final String C = "__continuation";
     static final String A = "__callback";
     static final String F = "__future";
-    static final String CONTINUATIONS_STORE_LOCAL_VARIABLE_NAMES = "__CONTINUATIONS_STORE_LOCAL_VARIABLE_NAMES";
     static final String CONTINUATIONS_STORE_RENDER_ARGS = "__CONTINUATIONS_STORE_RENDER_ARGS";
-    static final String CONTINUATIONS_STORE_PARAMS = "__CONTINUATIONS_STORE_PARAMS";
     public static final String CONTINUATIONS_STORE_VALIDATIONS = "__CONTINUATIONS_STORE_VALIDATIONS";
-    static final String CONTINUATIONS_STORE_VALIDATIONPLUGIN_KEYS = "__CONTINUATIONS_STORE_VALIDATIONPLUGIN_KEYS";
 
     static Object invokeWithContinuation(Method method, Object instance, Object[] realArgs) throws Exception {
         // Callback case

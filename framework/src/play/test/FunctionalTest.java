@@ -7,7 +7,6 @@ import org.junit.Before;
 import play.Invoker;
 import play.Invoker.InvocationContext;
 import play.mvc.ActionInvoker;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -531,7 +530,6 @@ public abstract class FunctionalTest extends BaseTest {
 
     protected static URL reverse() {
         ActionDefinition actionDefinition = new ActionDefinition();
-        Controller._currentReverse.set(actionDefinition);
         return new URL(actionDefinition);
     }
 
