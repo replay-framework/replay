@@ -14,7 +14,6 @@ import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
 import play.data.parsing.UrlEncodedParser;
-import play.data.validation.Validation;
 import play.exceptions.ActionNotFoundException;
 import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
@@ -111,18 +110,6 @@ public class ActionInvoker {
             String encoding = Http.Request.current().encoding;
             Scope.Params.current()
                     ._mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(encoding))));
-
-            // 2. Easy debugging ...
-            if (Play.mode == Play.Mode.DEV) {
-                Controller.class.getDeclaredField("params").set(null, Scope.Params.current());
-                Controller.class.getDeclaredField("request").set(null, Http.Request.current());
-                Controller.class.getDeclaredField("response").set(null, Http.Response.current());
-                Controller.class.getDeclaredField("session").set(null, Scope.Session.current());
-                Controller.class.getDeclaredField("flash").set(null, Scope.Flash.current());
-                Controller.class.getDeclaredField("renderArgs").set(null, Scope.RenderArgs.current());
-                Controller.class.getDeclaredField("routeArgs").set(null, Scope.RouteArgs.current());
-                Controller.class.getDeclaredField("validation").set(null, Validation.current());
-            }
 
             Play.pluginCollection.beforeActionInvocation(actionMethod);
 
