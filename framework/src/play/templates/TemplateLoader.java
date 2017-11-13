@@ -6,10 +6,15 @@ import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
 import play.vfs.VirtualFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.commons.io.FileUtils.copyURLToFile;
 
 public class TemplateLoader {
 
@@ -202,10 +207,27 @@ public class TemplateLoader {
             VirtualFile tf = Play.getVirtualFile(path);
             if (tf != null && tf.exists()) {
                 template = TemplateLoader.load(tf);
-            } else {
-                throw new TemplateNotFoundException(path);
             }
         }
+        
+        if (template == null) {
+            URL resource = Play.classloader.getResource(path);
+            if (resource != null) {
+                File tmpTemplateFile = new File(Play.tmpDir, path);
+                try {
+                    copyURLToFile(resource, tmpTemplateFile);
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                template = TemplateLoader.load(Play.getVirtualFile("tmp/" + path));
+            }
+        }
+
+        if (template == null) {
+            throw new TemplateNotFoundException(path);
+        }
+
         return template;
     }
 
