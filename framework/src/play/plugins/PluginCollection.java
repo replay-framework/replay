@@ -748,16 +748,4 @@ public class PluginCollection {
         }
         return null;
     }
-
-    public Collection<Class> getUnitTests() {
-        Set<Class> allPluginTests = new HashSet<>();
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Collection<Class> unitTests = plugin.getUnitTests();
-            if (unitTests != null) {
-                allPluginTests.addAll(unitTests);
-            }
-        }
-
-        return allPluginTests;
-    }
 }

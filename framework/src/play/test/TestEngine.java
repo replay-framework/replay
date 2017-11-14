@@ -1,6 +1,5 @@
 package play.test;
 
-import org.junit.Assert;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.notification.Failure;
@@ -14,39 +13,15 @@ import play.mvc.Scope.RenderArgs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Run application tests
  */
 public class TestEngine {
 
-    private static final class ClassNameComparator implements Comparator<Class> {
-        @Override
-        public int compare(Class aClass, Class bClass) {
-            return aClass.getName().compareTo(bClass.getName());
-        }
-    }
-
-    private static final ClassNameComparator classNameComparator = new ClassNameComparator();
-
-
-    public static List<Class> allUnitTests() {
-        List<Class> classes = new ArrayList<>();
-        classes.addAll(Play.classloader.getAssignableClasses(Assert.class));
-        classes.addAll(Play.pluginCollection.getUnitTests());
-        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
-            Class c = it.next();
-            if (Modifier.isAbstract(c.getModifiers())) {
-                it.remove();
-            }
-        }
-        Collections.sort(classes, classNameComparator);
-        return classes;
-    }
-
-    public static void initTest(Class<?> testClass) { 
+    public static void initTest(Class<?> testClass) {
         CleanTest cleanTestAnnot = null;
         if(testClass != null ){
             cleanTestAnnot = testClass.getAnnotation(CleanTest.class) ;

@@ -13,10 +13,8 @@ import play.db.jpa.JPAPlugin;
 import play.i18n.MessagesPlugin;
 import play.jobs.JobsPlugin;
 import play.libs.WS;
-import play.test.TestEngine;
 
 import java.io.File;
-import java.util.Collection;
 
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -152,24 +150,6 @@ public class PluginCollectionTest {
         assertThat(Play.plugins).isEqualTo(pc.getEnabledPlugins());
 
     }
-
-    @Test
-    public void verifyThatPluginsCanAddUnitTests() {
-        PluginCollection pc = new PluginCollection();
-        Play.pluginCollection = pc;
-
-        assertThat(TestEngine.allUnitTests()).isEmpty();
-
-        PluginWithTests p1 = new PluginWithTests();
-        PluginWithTests2 p2 = new PluginWithTests2();
-        pc.addPlugin(p1);
-        pc.addPlugin(p2);
-
-        pc.initializePlugin(p1);
-        pc.initializePlugin(p2);
-
-        assertThat(TestEngine.allUnitTests()).contains(PluginUnit.class, PluginUnit2.class);
-    }
 }
 
 class LegacyPlugin extends PlayPlugin {
@@ -188,32 +168,4 @@ class LegacyPlugin extends PlayPlugin {
         Play.plugins.remove(pluginToRemove);
     }
 
-}
-
-class PluginWithTests extends PlayPlugin {
-
-    @Override
-    public Collection<Class> getUnitTests() {
-        return asList(new Class[] { PluginUnit.class });
-    }
-}
-
-class PluginWithTests2 extends PlayPlugin {
-
-    @Override
-    public Collection<Class> getUnitTests() {
-        return asList(new Class[] { PluginUnit2.class });
-    }
-}
-
-class PluginUnit {
-}
-
-class PluginUnit2 {
-}
-
-class PluginFunc {
-}
-
-class PluginFunc2 {
 }

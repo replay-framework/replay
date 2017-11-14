@@ -17,7 +17,6 @@ import play.vfs.VirtualFile;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -432,22 +431,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         int thisHashCode = System.identityHashCode(this);
         int otherHashCode = System.identityHashCode(o);
         return Integer.compare(thisHashCode, otherHashCode);
-    }
-
-    /**
-     * Implement to add some classes that should be considered unit tests but do not extend {@link org.junit.Assert} to
-     * tests that can be executed by test runner (will be visible in test UI).
-     * <p>
-     * <strong>Note:</strong>You probably will also need to override {@link PlayPlugin#runTest(java.lang.Class)} method
-     * to handle unsupported tests execution properly.
-     * <p>
-     * Keep in mind that this method can only add tests to currently loaded ones. You cannot disable tests this way. You
-     * should also make sure you do not duplicate already loaded tests.
-     * 
-     * @return list of plugin supported unit test classes (empty list in default implementation)
-     */
-    public Collection<Class> getUnitTests() {
-        return emptyList();
     }
 
     /**
