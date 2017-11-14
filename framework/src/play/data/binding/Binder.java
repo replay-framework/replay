@@ -391,13 +391,6 @@ public abstract class Binder {
                     if (value != NO_BINDING) {
                         prop.setValue(bean, value);
                     }
-                } else {
-                    // retry without annotations resolved from property, but use input-annotations instead..
-                    // This is actually necessary to parse Fixture (iso) dates
-                    value = internalBind(propParamNode, prop.getType(), prop.getGenericType(), bindingAnnotations);
-                    if (value != NO_BINDING && value != MISSING) {
-                        prop.setValue(bean, value);
-                    }
                 }
             }
         }

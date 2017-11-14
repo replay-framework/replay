@@ -1,10 +1,8 @@
 package play.data.binding;
 
 import org.apache.commons.lang.StringUtils;
-import play.data.binding.types.DateBinder;
 import play.i18n.Lang;
 import play.libs.I18N;
-import play.test.Fixtures;
 
 import java.lang.annotation.Annotation;
 import java.text.ParseException;
@@ -35,11 +33,7 @@ public class AnnotationHelper {
                 As as = (As) annotation;
                 Locale locale = Lang.getLocale();
                 String format = as.value()[0];
-                // According to Binder.java line 328 : Fixtures can use (iso) dates as default
-                if (format != null && format.equals(Fixtures.PROFILE_NAME)) {
-                    format = DateBinder.ISO8601;
-                    locale = null;
-                } else if (!StringUtils.isEmpty(format)) {
+                if (!StringUtils.isEmpty(format)) {
                     // This can be comma separated
                     Tuple tuple = getLocale(as.lang());
                     if (tuple != null) {

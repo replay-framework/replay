@@ -13,8 +13,6 @@ import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.results.Result;
 import play.templates.Template;
-import play.test.BaseTest;
-import play.test.TestEngine;
 import play.vfs.VirtualFile;
 
 import java.io.BufferedReader;
@@ -728,22 +726,6 @@ public class PluginCollection {
             Template pluginProvided = plugin.loadTemplate(file);
             if (pluginProvided != null) {
                 return pluginProvided;
-            }
-        }
-        return null;
-    }
-
-    public void afterFixtureLoad() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.afterFixtureLoad();
-        }
-    }
-
-    public TestEngine.TestResults runTest(Class<BaseTest> clazz) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            TestEngine.TestResults pluginTestResults = plugin.runTest(clazz);
-            if (pluginTestResults != null) {
-                return pluginTestResults;
             }
         }
         return null;

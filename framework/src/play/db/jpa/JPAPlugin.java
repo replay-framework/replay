@@ -299,15 +299,6 @@ public class JPAPlugin extends PlayPlugin {
     }
 
     @Override
-    public void afterFixtureLoad() {
-        if (JPA.isEnabled()) {
-            for(String emfKey: JPA.emfs.keySet()) {
-                JPA.em(emfKey).clear();
-            }
-        }
-    } 
-   
-    @Override
     public void afterInvocation() {
        // In case the current Action got suspended
        for(String emfKey: JPA.emfs.keySet()) {

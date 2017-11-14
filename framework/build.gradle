@@ -52,7 +52,7 @@ dependencies {
   compile('com.thoughtworks.xstream:xstream:1.4.10') {transitive = false}
   compile('xmlpull:xmlpull:1.1.3.4d_b4_min')
 
-  compile('junit:junit:4.12'){transitive = false}
+  testCompile('junit:junit:4.12'){transitive = false}
   testCompile('org.hamcrest:hamcrest-all:1.3')
   testCompile 'org.mockito:mockito-core:2.12.0'
   testCompile 'org.easytesting:fest-assert:1.4'

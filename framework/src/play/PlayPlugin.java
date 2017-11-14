@@ -10,8 +10,6 @@ import play.mvc.Http.Response;
 import play.mvc.Router.Route;
 import play.mvc.results.Result;
 import play.templates.Template;
-import play.test.BaseTest;
-import play.test.TestEngine.TestResults;
 import play.vfs.VirtualFile;
 
 import java.lang.annotation.Annotation;
@@ -41,17 +39,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     public boolean compileSources() {
         return false;
-    }
-
-    /**
-     * Run a test class
-     * 
-     * @param clazz
-     *            the class to run
-     * @return : tests results
-     */
-    public TestResults runTest(Class<BaseTest> clazz) {
-        return null;
     }
 
     /**
@@ -388,9 +375,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      */
     public Model.Factory modelFactory(Class<? extends Model> modelClass) {
         return null;
-    }
-
-    public void afterFixtureLoad() {
     }
 
     /**
