@@ -41,6 +41,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
     public final GTTemplateLocation templateLocation;
 
     public static final ThreadLocal<Map<Object, Object>> layoutData = new ThreadLocal<>();
+    private static final Object[] emptyArray = new Object[] {};
 
     protected GTJavaBase(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation) {
         this.groovyClass = groovyClass;
@@ -280,13 +281,6 @@ public abstract class GTJavaBase extends GTRenderingResult {
     // must be overridden by play framework
     public abstract boolean validationHasError(String key);
 
-    // Needs this method to be backward compatible with Play 1,
-    // But it is very hard to override when subclassing in Scala,
-    // therefore it calls resolveMessage, which must be implemented.
-    public final String messagesGet(Object key, Object... args) {
-        return resolveMessage(key, args);
-    }
-
     // Implement this method to do the actuall message-resolving
     protected abstract String resolveMessage(Object key, Object[] args);
 
@@ -321,14 +315,14 @@ public abstract class GTJavaBase extends GTRenderingResult {
                     "have you forgotten quotes around the message-key?");
         }
         if (argsList.size() == 1) {
-            return messagesGet(key);
+            return resolveMessage(key, emptyArray);
         } else {
             // extract args from val
             Object[] args = new Object[argsList.size()-1];
             for( int i=1;i<argsList.size();i++) {
                 args[i-1] = argsList.get(i);
             }
-            return messagesGet(key, args);
+            return resolveMessage(key, args);
         }
     }
 

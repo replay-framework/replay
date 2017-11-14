@@ -411,7 +411,6 @@ public class ActionInvoker {
     public static Object invokeControllerMethod(Method method, Object[] forceArgs) throws Exception {
         boolean isStatic = Modifier.isStatic(method.getModifiers());
         String declaringClassName = method.getDeclaringClass().getName();
-        boolean isProbablyScala = declaringClassName.contains("$");
 
         Http.Request request = Http.Request.current();
 
@@ -420,19 +419,6 @@ public class ActionInvoker {
         }
 
         Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(method, request.controllerInstance);
-
-        if (isProbablyScala) {
-            try {
-                Object scalaInstance = request.controllerClass.getDeclaredField("MODULE$").get(null);
-                if (declaringClassName.endsWith("$class")) {
-                    args[0] = scalaInstance; // Scala trait method
-                } else {
-                    request.controllerInstance = (PlayController) scalaInstance; // Scala object method
-                }
-            } catch (NoSuchFieldException e) {
-                // not Scala
-            }
-        }
 
         Object methodClassInstance = isStatic ? null :
             (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
@@ -547,14 +533,6 @@ public class ActionInvoker {
             controllerClass = Play.classloader.getClassIgnoreCase(controller);
             if (controllerClass == null) {
                 throw new ActionNotFoundException(fullAction, new Exception("Controller " + controller + " not found"));
-            }
-            if (!PlayController.class.isAssignableFrom(controllerClass)) {
-                // Try the scala way
-                controllerClass = Play.classloader.getClassIgnoreCase(controller + "$");
-                if (!PlayController.class.isAssignableFrom(controllerClass)) {
-                    throw new ActionNotFoundException(fullAction,
-                            new Exception("class " + controller + " does not extend play.mvc.Controller"));
-                }
             }
             actionMethod = findActionMethod(action, controllerClass);
             if (actionMethod == null) {

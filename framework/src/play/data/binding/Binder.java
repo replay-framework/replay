@@ -151,20 +151,6 @@ public abstract class Binder {
         }
 
         if (result == MISSING) {
-            // Try the scala default
-            if (methodAndParamInfo != null) {
-                try {
-                    Method method = methodAndParamInfo.method;
-                    Method defaultMethod = method.getDeclaringClass()
-                            .getDeclaredMethod(method.getName() + "$default$" + methodAndParamInfo.parameterIndex);
-                    return defaultMethod.invoke(methodAndParamInfo.objectInstance);
-                } catch (NoSuchMethodException ignore) {
-                } catch (Exception e) {
-                    logBindingNormalFailure(paramNode, e);
-                    throw new UnexpectedException(e);
-                }
-            }
-
             if (clazz.equals(boolean.class)) {
                 return false;
             }

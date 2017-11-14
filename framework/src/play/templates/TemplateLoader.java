@@ -291,7 +291,7 @@ public class TemplateLoader {
     }
 
     private static void scan(List<Template> templates, VirtualFile current) {
-        if (!current.isDirectory() && !current.getName().startsWith(".") && !current.getName().endsWith(".scala.html")) {
+        if (!current.isDirectory() && !current.getName().startsWith(".")) {
             long start = System.currentTimeMillis();
             Template template = load(current);
             if (template != null) {

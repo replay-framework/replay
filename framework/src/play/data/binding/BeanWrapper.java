@@ -30,20 +30,9 @@ public class BeanWrapper {
         }
 
         this.beanClass = forClass;
-        boolean isScala = false;
-        for (Class<?> intf : forClass.getInterfaces()) {
-            if ("scala.ScalaObject".equals(intf.getName())) {
-                isScala = true;
-                break;
-            }
-        }
 
-        registerSetters(forClass, isScala);
-        if(isScala) {
-            registerAllFields(forClass);
-        } else {
-            registerFields(forClass);
-        }
+        registerSetters(forClass);
+        registerFields(forClass);
     }
 
     public Collection<Property> getWrappers() {
@@ -66,10 +55,6 @@ public class BeanWrapper {
     private boolean isSetter(Method method) {
         return method.getName().startsWith("set") && method.getName().length() > 3 &&
           method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0;
-    }
-
-    private boolean isScalaSetter(Method method) {
-        return method.getName().endsWith("_$eq") && method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0;
     }
 
     protected Object newBeanInstance() throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -97,49 +82,21 @@ public class BeanWrapper {
         registerFields(clazz.getSuperclass());
     }
 
-    private void registerAllFields(Class<?> clazz) {
-        // recursive stop condition
-        if (clazz == Object.class) {
-            return;
-        }
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            if (wrappers.containsKey(field.getName())) {
-                continue;
-            }
-            /*if ((field.getModifiers() & notwritableField) != 0) {
-                continue;
-            }*/
-            field.setAccessible(true);
-            Property w = new Property(field);
-            wrappers.put(field.getName(), w);
-        }
-        registerAllFields(clazz.getSuperclass());
-    }
-
-    private void registerSetters(Class<?> clazz, boolean isScala) {
+    private void registerSetters(Class<?> clazz) {
         if (clazz == Object.class) {
             return;
             // deep walk (superclass first)
         }
-        registerSetters(clazz.getSuperclass(), isScala);
+        registerSetters(clazz.getSuperclass());
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            String propertyname;
-            if (isScala) {
-                if (!isScalaSetter(method)) {
-                    continue;
-                }
-                propertyname = method.getName().substring(0, method.getName().length() - 4);
-            } else {
-                if (!isSetter(method)) {
-                    continue;
-                }
-                propertyname = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+            if (!isSetter(method)) {
+                continue;
             }
-            Property wrapper = new Property(propertyname, method);
-            wrappers.put(propertyname, wrapper);
+            String propertyName = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+            Property wrapper = new Property(propertyName, method);
+            wrappers.put(propertyName, wrapper);
         }
     }
 

@@ -73,18 +73,6 @@ public class ActionInvokerTest {
     }
 
     @Test
-    public void invokeScalaObjectMethod() throws Exception {
-        Http.Request.current().controllerClass = TestScalaObject$.class;
-        assertEquals("non-static", ActionInvoker.invokeControllerMethod(TestScalaObject$.class.getMethod("objectMethod"), noArgs));
-    }
-
-    @Test
-    public void invokeScalaTraitMethod() throws Exception {
-        Http.Request.current().controllerClass = TestScalaObject$.class;
-        assertEquals("static-with-object", ActionInvoker.invokeControllerMethod(TestScalaTrait$class.class.getMethod("traitMethod", Object.class), new Object[] {null}));
-    }
-
-    @Test
     public void controllerInstanceIsPreservedForAllControllerMethodInvocations() throws Exception {
         Http.Request.current().controllerClass = FullCycleTestController.class;
 
@@ -216,24 +204,6 @@ public class ActionInvokerTest {
         }
     }
 
-    public static class TestScalaObject$ extends Controller {
-        public static final TestScalaObject$ MODULE$ = new TestScalaObject$();
-
-        public String objectMethod() {
-            return "non-static";
-        }
-
-        @Override public String toString() {
-            return "object";
-        }
-    }
-
-    public abstract static class TestScalaTrait$class {
-        public static String traitMethod(Object that) {
-            return "static-with-" + that;
-        }
-    }
-    
     private static class ActionClass {
 
         private static String privateMethod() {

@@ -4,7 +4,6 @@ import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
 import play.PlayPlugin;
-import play.exceptions.ActionNotFoundException;
 import play.exceptions.UnexpectedException;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
@@ -15,7 +14,6 @@ import play.utils.Java;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -42,7 +40,7 @@ public class ValidationPlugin extends PlayPlugin {
 
     @Override
     public void beforeInvocation() {
-        keys.set(new HashMap<Object, String>());
+        keys.set(new HashMap<>());
         Validation.current.set(new Validation());
     }
 
@@ -110,18 +108,9 @@ public class ValidationPlugin extends PlayPlugin {
 
     // ~~~~~~
     static class Validator extends Guard {
-
         public List<ConstraintViolation> validateAction(Method actionMethod) throws Exception {
             List<ConstraintViolation> violations = new ArrayList<>();
             Object instance = null;
-            // Patch for scala defaults
-            if (!Modifier.isStatic(actionMethod.getModifiers()) && actionMethod.getDeclaringClass().getSimpleName().endsWith("$")) {
-                try {
-                    instance = actionMethod.getDeclaringClass().getDeclaredField("MODULE$").get(null);
-                } catch (Exception e) {
-                    throw new ActionNotFoundException(Http.Request.current().action, e);
-                }
-            }
             Object[] rArgs = ActionInvoker.getActionMethodArgs(actionMethod, instance);
             validateMethodParameters(null, actionMethod, rArgs, violations);
             validateMethodPre(null, actionMethod, rArgs, violations);
