@@ -837,26 +837,21 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             if ((file == null || !file.exists())) {
                 serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, request, nettyRequest);
             } else {
-                boolean raw = Play.pluginCollection.serveStatic(file, Request.current(), Response.current());
-                if (raw) {
-                    copyResponse(ctx, request, response, nettyRequest);
-                } else {
-                    File localFile = file.getRealFile();
-                    boolean keepAlive = isKeepAlive(nettyRequest);
-                    nettyResponse = addEtag(nettyRequest, nettyResponse, localFile);
+                File localFile = file.getRealFile();
+                boolean keepAlive = isKeepAlive(nettyRequest);
+                nettyResponse = addEtag(nettyRequest, nettyResponse, localFile);
 
-                    if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
-                        Channel ch = e.getChannel();
+                if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
+                    Channel ch = e.getChannel();
 
-                        // Write the initial line and the header.
-                        ChannelFuture writeFuture = ch.write(nettyResponse);
-                        if (!keepAlive) {
-                            // Write the content.
-                            writeFuture.addListener(ChannelFutureListener.CLOSE);
-                        }
-                    } else {
-                        FileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
+                    // Write the initial line and the header.
+                    ChannelFuture writeFuture = ch.write(nettyResponse);
+                    if (!keepAlive) {
+                        // Write the content.
+                        writeFuture.addListener(ChannelFutureListener.CLOSE);
                     }
+                } else {
+                    FileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
                 }
 
             }

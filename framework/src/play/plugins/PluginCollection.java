@@ -676,15 +676,6 @@ public class PluginCollection {
         return false;
     }
 
-    public boolean serveStatic(VirtualFile file, Http.Request request, Http.Response response) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.serveStatic(file, request, response)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public List<String> addTemplateExtensions() {
         List<String> list = new ArrayList<>();
         for (PlayPlugin plugin : getEnabledPlugins()) {

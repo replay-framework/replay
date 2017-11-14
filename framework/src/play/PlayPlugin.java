@@ -107,21 +107,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Let a chance to this plugin to manage a static resource
-     * 
-     * @param file
-     *            The requested file
-     * @param request
-     *            The Play request
-     * @param response
-     *            The Play response
-     * @return true if this plugin has managed this request
-     */
-    public boolean serveStatic(VirtualFile file, Request request, Response response) {
-        return false;
-    }
-
-    /**
      * @param file
      *            the file of the template to load
      * @return the template object
