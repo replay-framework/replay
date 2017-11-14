@@ -201,7 +201,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
         Class rawDataClass = getRawDataClass();
         if (rawDataClass != null && rawDataClass.isAssignableFrom(o.getClass())) {
             return convertRawDataToString(o);
-        } else if (!templateLocation.relativePath.endsWith(".html") || GTTagContext.singleton.hasParentTag("verbatim")) {
+        } else if (!templateLocation.relativePath.endsWith(".html")) {
             if ( templateLocation.relativePath.endsWith(".xml")) {
                 return escapeXML(o.toString());
             } else if ( templateLocation.relativePath.endsWith(".csv")) {

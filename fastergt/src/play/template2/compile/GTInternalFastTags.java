@@ -226,10 +226,6 @@ public class GTInternalFastTags extends GTFastTag {
         template.out.append(result);
     }
 
-    public static void tag_verbatim(GTJavaBase template, Map<String, Object> args, GTContentRenderer _content ) {
-        template.insertOutput(_content.render());
-    }
-
     public static void tag_jsAction(GTJavaBase template, Map<String, Object> args, GTContentRenderer _content ) {
         template.out.append("function(options) {var pattern = '" + args.get("arg").toString().replace("&amp;", "&") + "'; for(key in options) { pattern = pattern.replace(':'+key, options[key]); } return pattern }");
     }

@@ -48,10 +48,6 @@ public class FastTags {
         out.print(result);
     }
 
-    public static void _verbatim(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-        out.println(JavaExtensions.toString(body));
-    }
-
     public static void _jsAction(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         String html = "";
         String minimize = "";
@@ -323,7 +319,7 @@ public class FastTags {
         if (val instanceof RawData) {
             return ((RawData) val).data;
         }
-        if (!template.name.endsWith(".html") || TagContext.hasParentTag("verbatim")) {
+        if (!template.name.endsWith(".html")) {
             return val.toString();
         }
         return HTML.htmlEscape(val.toString());

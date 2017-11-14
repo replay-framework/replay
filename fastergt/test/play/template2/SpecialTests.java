@@ -10,23 +10,6 @@ import java.util.Map;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SpecialTests {
-
-    @Test
-    public void testTagFileBodyToStringAndInclude() {
-        GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
-                .build();
-
-        TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
-
-        Map<String, Object> args = new HashMap<>();
-
-        assertThat(sr.renderSrc("A#{printBodyInVerbatim}BC#{/printBodyInVerbatim}C", args)).isEqualTo("A\n[from tag. body: BC]\nC");
-        assertThat(sr.renderSrc("#{include 'simpleTemplate.txt'/}-A#{printBodyInVerbatim}BC#{/printBodyInVerbatim}C", args)).isEqualTo("[from simpleTemplate]-A\n[from tag. body: BC]\nC");
-        assertThat(sr.renderSrc("A#{printBodyInVerbatim}BC\n#{include 'simpleTemplate.txt'/}#{/printBodyInVerbatim}C", args)).isEqualTo("A\n[from tag. body: BC\n[from simpleTemplate]]\nC");
-
-    }
-    
     @Test
     public void testErrorMessage_missingInclude() {
 
@@ -52,7 +35,7 @@ public class SpecialTests {
 
         e=null;
         try {
-            sr.renderSrc("#{printBodyInVerbatim}#{include 'missing.txt'/}#{/printBodyInVerbatim}", args);
+            sr.renderSrc("#{printBody}#{include 'missing.txt'/}#{/printBody}", args);
         }catch(GTRuntimeExceptionWithSourceInfo _e) {
             e = _e;
         }
