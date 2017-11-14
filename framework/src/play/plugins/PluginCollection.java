@@ -12,7 +12,6 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.results.Result;
-import play.templates.BaseTemplate;
 import play.templates.Template;
 import play.test.BaseTest;
 import play.test.TestEngine;
@@ -732,16 +731,6 @@ public class PluginCollection {
             list.addAll(plugin.addTemplateExtensions());
         }
         return list;
-    }
-
-    public String overrideTemplateSource(BaseTemplate template, String source) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            String newSource = plugin.overrideTemplateSource(template, source);
-            if (newSource != null) {
-                source = newSource;
-            }
-        }
-        return source;
     }
 
     public Template loadTemplate(VirtualFile file) {

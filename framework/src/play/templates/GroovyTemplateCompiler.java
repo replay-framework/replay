@@ -37,8 +37,7 @@ public class GroovyTemplateCompiler extends TemplateCompiler {
 
     @Override
     protected String source() {
-        // If a plugin has something to change in the template before the compilation
-        return Play.pluginCollection.overrideTemplateSource(template, template.source);
+        return template.source;
     }
 
     @Override

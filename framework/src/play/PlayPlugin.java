@@ -9,7 +9,6 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router.Route;
 import play.mvc.results.Result;
-import play.templates.BaseTemplate;
 import play.templates.Template;
 import play.test.BaseTest;
 import play.test.TestEngine.TestResults;
@@ -433,10 +432,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         int thisHashCode = System.identityHashCode(this);
         int otherHashCode = System.identityHashCode(o);
         return (thisHashCode < otherHashCode ? -1 : (thisHashCode == otherHashCode ? 0 : 1));
-    }
-
-    public String overrideTemplateSource(BaseTemplate template, String source) {
-        return null;
     }
 
     public Object willBeValidated(Object value) {
