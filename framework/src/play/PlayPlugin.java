@@ -14,9 +14,6 @@ import play.vfs.VirtualFile;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.List;
-
-import static java.util.Collections.emptyList;
 
 /**
  * A framework plugin
@@ -189,7 +186,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     /**
      * Called when the request has been routed.
-     * 
+     *
      * @param route
      *            The route selected.
      */
@@ -232,15 +229,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * @return List of the template extension
-     */
-    public List<String> addTemplateExtensions() {
-        return emptyList();
-    }
-
-    /**
      * Let some plugins route themself
-     * 
+     *
      * @param request
      *            the current request
      */

@@ -676,14 +676,6 @@ public class PluginCollection {
         return false;
     }
 
-    public List<String> addTemplateExtensions() {
-        List<String> list = new ArrayList<>();
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            list.addAll(plugin.addTemplateExtensions());
-        }
-        return list;
-    }
-
     public Template loadTemplate(VirtualFile file) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             Template pluginProvided = plugin.loadTemplate(file);

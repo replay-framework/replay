@@ -24,7 +24,6 @@ public class GroovyTemplateCompiler extends TemplateCompiler {
     public BaseTemplate compile(BaseTemplate template) {
         try {
             extensionsClassnames.clear();
-            extensionsClassnames.addAll(Play.pluginCollection.addTemplateExtensions());
             List<Class> extensionsClasses = Play.classloader.getAssignableClasses(JavaExtensions.class);
             for (Class extensionsClass : extensionsClasses) {
                 extensionsClassnames.add(extensionsClass.getName());
