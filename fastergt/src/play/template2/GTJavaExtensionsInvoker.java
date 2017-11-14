@@ -368,11 +368,9 @@ public abstract class GTJavaExtensionsInvoker {
                 throw new NoSuchMethodException(methodName);
             }
 
-        } catch (Throwable e) {
-            if ( e instanceof InvocationTargetException) {
-                // must unwrap it..
-                e = e.getCause();
-            }
+        } catch (InvocationTargetException e) {
+            throw new GTRuntimeExceptionForwarder(e.getCause());
+        } catch (Exception e) {
             throw new GTRuntimeExceptionForwarder(e);
         }
     }

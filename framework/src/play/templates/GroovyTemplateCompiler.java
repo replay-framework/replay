@@ -22,14 +22,10 @@ public class GroovyTemplateCompiler extends TemplateCompiler {
 
     @Override
     public BaseTemplate compile(BaseTemplate template) {
-        try {
-            extensionsClassnames.clear();
-            List<Class> extensionsClasses = Play.classloader.getAssignableClasses(JavaExtensions.class);
-            for (Class extensionsClass : extensionsClasses) {
-                extensionsClassnames.add(extensionsClass.getName());
-            }
-        } catch (Throwable e) {
-            Logger.error(e, "Failed to compile template %s", template.getName());
+        extensionsClassnames.clear();
+        List<Class> extensionsClasses = Play.classloader.getAssignableClasses(JavaExtensions.class);
+        for (Class extensionsClass : extensionsClasses) {
+            extensionsClassnames.add(extensionsClass.getName());
         }
         return super.compile(template);
     }

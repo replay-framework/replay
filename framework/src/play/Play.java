@@ -221,11 +221,8 @@ public class Play {
             }
 
             if (!tmpDir.exists()) {
-                try {
-                    tmpDir.mkdirs();
-                } catch (Throwable e) {
-                    tmpDir = null;
-                    Logger.warn("No tmp folder will be used (cannot create the tmp dir), caused by: %s", e);
+                if (!tmpDir.mkdirs()) {
+                    throw new IllegalStateException("Could not create " + tmpDir.getAbsolutePath());
                 }
             }
         }

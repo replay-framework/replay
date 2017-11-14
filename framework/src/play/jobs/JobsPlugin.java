@@ -121,10 +121,9 @@ public class JobsPlugin extends PlayPlugin {
                         }
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new UnexpectedException("Job could not be instantiated", e);
+                    } catch (PlayException ex) {
+                        throw ex;
                     } catch (Throwable ex) {
-                        if (ex instanceof PlayException) {
-                            throw (PlayException) ex;
-                        }
                         throw new UnexpectedException(ex);
                     }
                 } else {
@@ -242,10 +241,9 @@ public class JobsPlugin extends PlayPlugin {
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new UnexpectedException("Job could not be instantiated", e);
+                } catch (PlayException ex) {
+                    throw ex;
                 } catch (Throwable ex) {
-                    if (ex instanceof PlayException) {
-                        throw (PlayException) ex;
-                    }
                     throw new UnexpectedException(ex);
                 }
             }

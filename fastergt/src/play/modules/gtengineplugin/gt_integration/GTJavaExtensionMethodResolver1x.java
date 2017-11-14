@@ -24,14 +24,7 @@ public class GTJavaExtensionMethodResolver1x implements GTJavaExtensionMethodRes
                 _lastKnownApplicationClassloaderState = Play.classloader.currentState;
                 List<Class> extensionsClassnames = new ArrayList<>(5);
                 extensionsClassnames.add(JavaExtensions.class);
-                try {
-                    List<Class> extensionsClasses = Play.classloader.getAssignableClasses(JavaExtensions.class);
-                    for (Class extensionsClass : extensionsClasses) {
-                        extensionsClassnames.add(extensionsClass);
-                    }
-                } catch (Throwable e) {
-                    //
-                }
+                extensionsClassnames.addAll(Play.classloader.getAssignableClasses(JavaExtensions.class));
 
                 methodName2ClassMapping = new HashMap<>();
                 for ( Class clazz : extensionsClassnames) {
