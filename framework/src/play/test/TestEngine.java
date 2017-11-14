@@ -11,11 +11,9 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.mvc.Scope.RenderArgs;
-import play.vfs.VirtualFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -48,39 +46,6 @@ public class TestEngine {
         return classes;
     }
 
-    public static List<String> seleniumTests(String testPath, List<String> results) {
-        File testDir = Play.getFile(testPath);
-        if (testDir.exists()) {
-            scanForSeleniumTests(testDir, results);
-        }
-        return results;
-    }
-
-    public static List<String> allSeleniumTests() {
-        List<String> results = new ArrayList<>();
-        seleniumTests("test", results);
-        for (VirtualFile root : Play.roots) {
-            seleniumTests(root.relativePath() + "/test", results);
-        }
-        Collections.sort(results);
-        return results;
-    }
-
-    private static void scanForSeleniumTests(File dir, List<String> tests) {
-        for (File f : dir.listFiles()) {
-            if (f.isDirectory()) {
-                scanForSeleniumTests(f, tests);
-            } else if (f.getName().endsWith(".test.html")) {
-                String test = f.getName();
-                while (!f.getParentFile().getName().equals("test")) {
-                    test = f.getParentFile().getName() + "/" + test;
-                    f = f.getParentFile();
-                }
-                tests.add(test);
-            }
-        }
-    }
-    
     public static void initTest(Class<?> testClass) { 
         CleanTest cleanTestAnnot = null;
         if(testClass != null ){
