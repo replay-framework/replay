@@ -6,7 +6,9 @@ import play.PlayPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.commons.lang.StringUtils.leftPad;
 
 /**
  *  Creates temporary folders for file parsing, and deletes
@@ -14,28 +16,20 @@ import java.text.DecimalFormat;
  */
 public class TempFilePlugin extends PlayPlugin {
 
-    private static DecimalFormat format = new DecimalFormat("##########");
-    
+    private static AtomicLong count = new AtomicLong();
 
-    static {
-        format.setMinimumIntegerDigits(10);
-        format.setGroupingUsed(false);
-    }
-    private static long count = 0;
-
-    private static synchronized long getCountLocal() {
-        return count++;
-    }
     public static final ThreadLocal<File> tempFolder = new ThreadLocal<>();
 
     public static File createTempFolder() {
-        if (Play.tmpDir == null || Play.readOnlyTmp) {
-            return null;
+        if (Play.tmpDir == null) {
+            throw new IllegalStateException("Cannot create temp folder: Play.tmpDir is null");
+        }
+        if (Play.readOnlyTmp) {
+            throw new IllegalStateException("Cannot create temp folder: Play.readOnlyTmp is true");
         }
         if (tempFolder.get() == null) {
-            File file = new File(Play.tmpDir +
-                    File.separator + "uploads" + File.separator +
-                    System.currentTimeMillis() + "_" + format.format(getCountLocal()));
+            File file = new File(new File(Play.tmpDir, "uploads"),
+                    System.currentTimeMillis() + "_" + leftPad(String.valueOf(count.getAndIncrement()), 10, '0'));
             file.mkdirs();
             tempFolder.set(file);
         }
