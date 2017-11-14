@@ -434,10 +434,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         return (thisHashCode < otherHashCode ? -1 : (thisHashCode == otherHashCode ? 0 : 1));
     }
 
-    public Object willBeValidated(Object value) {
-        return null;
-    }
-
     /**
      * Implement to add some classes that should be considered unit tests but do not extend {@link org.junit.Assert} to
      * tests that can be executed by test runner (will be visible in test UI).

@@ -1,7 +1,6 @@
 package play.data.validation;
 
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import play.Play;
 import play.exceptions.UnexpectedException;
 
 import java.lang.annotation.Annotation;
@@ -419,9 +418,5 @@ public class Validation {
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }
-    }
-
-    public static Object willBeValidated(Object value) {
-        return Play.pluginCollection.willBeValidated(value);
     }
 }

@@ -635,16 +635,6 @@ public class PluginCollection {
         return null;
     }
 
-    public Object willBeValidated(Object value) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Object newValue = plugin.willBeValidated(value);
-            if (newValue != null) {
-                return newValue;
-            }
-        }
-        return value;
-    }
-
     public Model.Factory modelFactory(Class<? extends Model> modelClass) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             Model.Factory factory = plugin.modelFactory(modelClass);
