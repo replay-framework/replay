@@ -28,7 +28,7 @@ dependencies {
   compile('net.sf.ehcache:ehcache-core:2.6.11')
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
-  compile('net.sf.oval:oval:1.86')
+  compile('net.sf.oval:oval:1.90')
   compile('oauth.signpost:signpost-core:1.2.1.2')
   compile('org.codehaus.groovy:groovy:2.4.12')
   compile('org.codehaus.groovy:groovy-xml:2.4.12')
