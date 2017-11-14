@@ -2,12 +2,10 @@ package play.libs;
 
 import play.Logger;
 import play.Play;
-import play.PlayPlugin;
 import play.mvc.Http;
 
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,13 +131,6 @@ public class MimeTypes {
             mimetypes.load(is);
         } catch (Exception ex) {
             Logger.warn(ex.getMessage());
-        }
-        // Load mimetypes from plugins
-        for (PlayPlugin plugin : Play.pluginCollection.getEnabledPlugins()) {
-            Map<String, String> pluginTypes = plugin.addMimeTypes();
-            for (String type : pluginTypes.keySet()) {
-                mimetypes.setProperty(type, pluginTypes.get(type));
-            }
         }
         // Load custom mimetypes from the application configuration
         Enumeration<Object> confenum = Play.configuration.keys();

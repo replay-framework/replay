@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 
 /**
  * A framework plugin
@@ -263,16 +262,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      */
     public List<String> addTemplateExtensions() {
         return emptyList();
-    }
-
-    /**
-     * Override to provide additional mime types from your plugin. These mimetypes get priority over the default
-     * framework mimetypes but not over the application's configuration.
-     * 
-     * @return a Map from extensions (without dot) to mimetypes
-     */
-    public Map<String, String> addMimeTypes() {
-        return emptyMap();
     }
 
     /**
