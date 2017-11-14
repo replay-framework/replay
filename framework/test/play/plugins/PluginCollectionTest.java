@@ -198,11 +198,6 @@ class PluginWithTests extends PlayPlugin {
     public Collection<Class> getUnitTests() {
         return asList(new Class[] { PluginUnit.class });
     }
-
-    @Override
-    public Collection<Class> getFunctionalTests() {
-        return asList(new Class[] { PluginFunc.class });
-    }
 }
 
 class PluginWithTests2 extends PlayPlugin {
@@ -210,11 +205,6 @@ class PluginWithTests2 extends PlayPlugin {
     @Override
     public Collection<Class> getUnitTests() {
         return asList(new Class[] { PluginUnit2.class });
-    }
-
-    @Override
-    public Collection<Class> getFunctionalTests() {
-        return asList(new Class[] { PluginFunc2.class });
     }
 }
 

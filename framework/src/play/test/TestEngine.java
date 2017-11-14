@@ -58,8 +58,7 @@ public class TestEngine {
     public static List<Class> allFunctionalTests() {
         List<Class> classes = new ArrayList<>();
         classes.addAll(Play.classloader.getAssignableClasses(FunctionalTest.class));
-        classes.addAll(Play.pluginCollection.getFunctionalTests());
-        
+
         for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
             if (Modifier.isAbstract(it.next().getModifiers())) {
                 it.remove();

@@ -760,16 +760,4 @@ public class PluginCollection {
 
         return allPluginTests;
     }
-
-    public Collection<Class> getFunctionalTests() {
-        Set<Class> allPluginTests = new HashSet<>();
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Collection<Class> funcTests = plugin.getFunctionalTests();
-            if (funcTests != null) {
-                allPluginTests.addAll(funcTests);
-            }
-        }
-
-        return allPluginTests;
-    }
 }

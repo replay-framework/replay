@@ -411,7 +411,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     @Override
     public int compareTo(PlayPlugin o) {
-        int res = index < o.index ? -1 : (index == o.index ? 0 : 1);
+        int res = Integer.compare(index, o.index);
         if (res != 0) {
             return res;
         }
@@ -420,7 +420,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         // Sort on class type to get consistent order
         res = this.getClass().getName().compareTo(o.getClass().getName());
         if (res != 0) {
-            // classnames where different
+            // class names where different
             return res;
         }
 
@@ -431,7 +431,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         // This is consistent with equals() when no special equals-method is implemented.
         int thisHashCode = System.identityHashCode(this);
         int otherHashCode = System.identityHashCode(o);
-        return (thisHashCode < otherHashCode ? -1 : (thisHashCode == otherHashCode ? 0 : 1));
+        return Integer.compare(thisHashCode, otherHashCode);
     }
 
     /**
@@ -447,22 +447,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @return list of plugin supported unit test classes (empty list in default implementation)
      */
     public Collection<Class> getUnitTests() {
-        return emptyList();
-    }
-
-    /**
-     * Implement to add some classes that should be considered functional tests but do not extend
-     * {@link play.test.FunctionalTest} to tests that can be executed by test runner (will be visible in test UI).
-     * <p>
-     * <strong>Note:</strong>You probably will also need to override {@link PlayPlugin#runTest(java.lang.Class)} method
-     * to handle unsupported tests execution properly.
-     * <p>
-     * Keep in mind that this method can only add tests to currently loaded ones. You cannot disable tests this way. You
-     * should also make sure you do not duplicate already loaded tests.
-     *
-     * @return list of plugin supported functional test classes (empty list in default implementation)
-     */
-    public Collection<Class> getFunctionalTests() {
         return emptyList();
     }
 
