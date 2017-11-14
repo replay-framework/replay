@@ -3,7 +3,6 @@ package play.plugins;
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
-import play.classloading.ApplicationClasses;
 import play.classloading.ApplicationClassloader;
 import play.data.binding.RootParamNode;
 import play.db.Model;
@@ -593,13 +592,6 @@ public class PluginCollection {
     public void onEvent(String message, Object context) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.onEvent(message, context);
-        }
-    }
-
-    @Deprecated
-    public void compileAll(List<ApplicationClasses.ApplicationClass> classes) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.compileAll(classes);
         }
     }
 

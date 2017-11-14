@@ -1,7 +1,6 @@
 package play;
 
 import com.google.gson.JsonObject;
-import play.classloading.ApplicationClasses.ApplicationClass;
 import play.data.binding.RootParamNode;
 import play.db.Model;
 import play.libs.F;
@@ -274,17 +273,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      */
     public Map<String, String> addMimeTypes() {
         return emptyMap();
-    }
-
-    /**
-     * Let a chance to the plugin to compile it owns classes. Must be added to the mutable list.
-     * 
-     * @param classes
-     *            list of class to compile
-     * @deprecated
-     */
-    @Deprecated
-    public void compileAll(List<ApplicationClass> classes) {
     }
 
     /**
