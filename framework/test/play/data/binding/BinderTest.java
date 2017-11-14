@@ -22,7 +22,7 @@ public class BinderTest {
     final Annotation[] noAnnotations = new Annotation[]{};
 
     // provider of generic typed collection
-    private class GenericListProvider {
+    private static class GenericListProvider {
         private List<Data2> listOfData2 = new ArrayList<>();
     }
 
@@ -32,7 +32,7 @@ public class BinderTest {
     }
 
     @Test
-    public void verify_and_show_how_unbind_and_bind_work() throws Exception {
+    public void verify_and_show_how_unbind_and_bind_work() {
 
         Map<String, Object> r = new HashMap<>();
 
@@ -44,7 +44,7 @@ public class BinderTest {
     }
 
     @Test
-    public void verify_unbinding_and_binding_of_simple_Bean() throws Exception {
+    public void verify_unbinding_and_binding_of_simple_Bean() {
 
         Data1 data1 = new Data1();
         data1.a = "aAaA";
@@ -70,7 +70,7 @@ public class BinderTest {
 
 
     @Test
-    public void verify_unbinding_and_binding_of_nestedBeans() throws Exception {
+    public void verify_unbinding_and_binding_of_nestedBeans() {
 
         Data2 data2 = new Data2();
         data2.a = "aaa";
@@ -102,7 +102,7 @@ public class BinderTest {
 
 
      @Test
-    public void verifyBindingOfStringMaps() throws Exception {
+    public void verifyBindingOfStringMaps() {
         Map<String, String[]> params = new HashMap<>();
 
         Map<String, String> specialCaseMap = new HashMap<>();
@@ -131,7 +131,7 @@ public class BinderTest {
     }
 
      @Test
-     public void verify_binding_of_simple_bean_collections() throws Exception {
+     public void verify_binding_of_simple_bean_collections() {
 
          Map<String, String[]> params = new HashMap<>();
 
@@ -166,53 +166,7 @@ public class BinderTest {
      }
 
     @Test
-    @SuppressWarnings("deprecation")
-    public void verify_binding_of_root_parameters() throws Exception {
-        Map<String, String[]> params = new HashMap<>();
-        params.put("a", new String[] {"foo"});
-        params.put("b", new String[] {"2"});
-
-        RootParamNode rootParamNode = ParamNode.convert(params);
-        Data1 data1 = new Data1();
-        Binder.bindBean(rootParamNode, "", data1);
-
-        assertThat(data1.a).isEqualTo("foo");
-        assertThat(data1.b).isEqualTo(2);
-
-        // Also test with the old deprecated but shorter form
-        data1 = new Data1();
-        Binder.bind(data1, null, params);
-        assertThat(data1.a).isEqualTo("foo");
-        assertThat(data1.b).isEqualTo(2);
-
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void verify_validation_error_of_root_parameters() throws Exception {
-        // Initialize Validation.current()
-        new ValidationPlugin().beforeInvocation();
-
-        Map<String, String[]> params = new HashMap<>();
-        params.put("a", new String[] {"foo"});
-        params.put("b", new String[] {"bar"});
-
-        RootParamNode rootParamNode = ParamNode.convert(params);
-        Data1 data1 = new Data1();
-        Binder.bindBean(rootParamNode, null, data1);
-
-        assertThat(Validation.error("a")).isNull();
-        assertThat(Validation.error("b")).isNotNull();
-
-        // Also test with the old deprecated but shorter form
-        data1 = new Data1();
-        Binder.bind(data1, null, params);
-        assertThat(Validation.error("a")).isNull();
-        assertThat(Validation.error("b")).isNotNull();
-    }
-
-    @Test
-    public void verify_binding_collections_of_generic_types() throws Exception {
+    public void verify_binding_collections_of_generic_types() {
         Map<String, String[]> params = new HashMap<>();
         params.put("data.genericTypeList", new String[]{"1", "2", "3"});
 
@@ -327,7 +281,7 @@ public class BinderTest {
 
     private static class MyBigDecimalBinder implements TypeBinder<BigDecimal> {
         @Override
-        public Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws Exception {
+        public Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             return new BigDecimal(value).add(TEN);
         }
     }

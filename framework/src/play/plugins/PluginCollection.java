@@ -613,26 +613,6 @@ public class PluginCollection {
         return null;
     }
 
-    public Object bindBean(RootParamNode rootParamNode, String name, Object bean) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Object result = plugin.bindBean(rootParamNode, name, bean);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    public Map<String, Object> unBind(Object src, String name) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Map<String, Object> r = plugin.unBind(src, name);
-            if (r != null) {
-                return r;
-            }
-        }
-        return null;
-    }
-
     public Model.Factory modelFactory(Class<? extends Model> modelClass) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             Model.Factory factory = plugin.modelFactory(modelClass);

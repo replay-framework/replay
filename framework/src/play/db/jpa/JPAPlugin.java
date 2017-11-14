@@ -88,14 +88,6 @@ public class JPAPlugin extends PlayPlugin {
         return null;
     }
 
-    @Override
-    public Object bindBean(RootParamNode rootParamNode, String name, Object bean) {
-        if (bean instanceof JPABase) {
-            return GenericModel.edit(rootParamNode, name, bean, null);
-        }
-        return null;
-    }
-     
     public EntityManager em(String key) {
         EntityManagerFactory emf = JPA.emfs.get(key);
         if(emf == null) {

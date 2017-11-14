@@ -578,7 +578,7 @@ public class ActionInvoker {
 
             RootParamNode root = ParamNode.convert(params);
             rArgs[i] = Binder.bind(root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],
-                    method.getParameterAnnotations()[i], new Binder.MethodAndParamInfo(o, method, i + 1));
+                    method.getParameterAnnotations()[i]);
         }
 
         CachedBoundActionMethodArgs.current().storeActionMethodArgs(method, rArgs);

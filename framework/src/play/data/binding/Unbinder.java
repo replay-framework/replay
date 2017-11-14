@@ -1,6 +1,5 @@
 package play.data.binding;
 
-import play.Play;
 import play.libs.I18N;
 
 import java.lang.annotation.Annotation;
@@ -145,12 +144,6 @@ public class Unbinder {
     }
 
     private static void unBind(Map<String, Object> result, Object src, Class<?> srcClazz, String name, Annotation[] annotations) {
-        Map<String, Object> r = Play.pluginCollection.unBind(src, name);
-        if (r != null) {
-            result.putAll(r);
-            return;
-        }
-        
         if (isDirect(srcClazz) || src == null) {
             directUnbind(result, src, srcClazz, name, annotations);           
         }else if (src.getClass().isArray()) {

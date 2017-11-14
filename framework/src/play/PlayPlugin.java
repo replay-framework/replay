@@ -16,7 +16,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -42,32 +41,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Use method using RootParamNode instead
-     * 
-     * @param name
-     *            the name of the object
-     * @param clazz
-     *            the class of the object to bind
-     * @param type
-     *            type
-     * @param annotations
-     *            annotation on the object
-     * @param params
-     *            parameters to bind
-     * @return binding object
-     * 
-     * @deprecated use {@link #bind(RootParamNode, String, Class, Type, Annotation[])}
-     */
-    @Deprecated
-    public Object bind(String name, Class clazz, Type type, Annotation[] annotations, Map<String, String[]> params) {
-        return null;
-    }
-
-    /**
      * Called when play need to bind a Java object from HTTP params.
-     *
-     * When overriding this method, do not call super impl.. super impl is calling old bind method to be backward
-     * compatible.
      * 
      * @param rootParamNode
      *            parameters to bind
@@ -82,52 +56,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @return binding object
      */
     public Object bind(RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
-        // call old method to be backward compatible
-        return bind(name, clazz, type, annotations, rootParamNode.originalParams);
-    }
-
-    /**
-     * @deprecated Use bindBean instead
-     * @param name
-     *            the name of the object
-     * @param o
-     *            object to bind
-     * @param params
-     *            parameters to bind
-     * @return binding object
-     */
-    @Deprecated
-    public Object bind(String name, Object o, Map<String, String[]> params) {
-        return null;
-    }
-
-    /**
-     * Called when play need to bind an existing Java object from HTTP params. When overriding this method, DO NOT call
-     * the super method, since its default impl is to call the old bind method to be backward compatible.
-     * 
-     * @param rootParamNode
-     *            parameters to bind
-     * @param name
-     *            the name of the object
-     * @param bean
-     *            object to bind
-     * @return binding object
-     */
-    public Object bindBean(RootParamNode rootParamNode, String name, Object bean) {
-        // call old method to be backward compatible.
-        return bind(name, bean, rootParamNode.originalParams);
-    }
-
-    /**
-     * Unbind an object
-     * 
-     * @param src
-     *            object to unbind
-     * @param name
-     *            the name of the object
-     * @return List of parameters
-     */
-    public Map<String, Object> unBind(Object src, String name) {
         return null;
     }
 

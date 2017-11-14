@@ -84,48 +84,7 @@ public abstract class Binder {
         return beanwrappers.get(clazz);
     }
 
-    public static class MethodAndParamInfo {
-        public final Object objectInstance;
-        public final Method method;
-        public int parameterIndex;
-
-        public MethodAndParamInfo(Object objectInstance, Method method, int parameterIndex) {
-            this.objectInstance = objectInstance;
-            this.method = method;
-            this.parameterIndex = parameterIndex;
-        }
-    }
-
-    /**
-     * Deprecated. Use bindBean() instead.
-     * 
-     * @param o
-     *            Object to bind
-     * @param name
-     *            Name of the object
-     * @param params
-     *            List of the parameters
-     * @return : The binding object
-     */
-    @Deprecated
-    public static Object bind(Object o, String name, Map<String, String[]> params) {
-        RootParamNode parentParamNode = RootParamNode.convert(params);
-        Binder.bindBean(parentParamNode, name, o);
-        return o;
-    }
-
-    @Deprecated
-    public static Object bind(String name, Class<?> clazz, Type type, Annotation[] annotations, Map<String, String[]> params) {
-        RootParamNode parentParamNode = RootParamNode.convert(params);
-        return bind(parentParamNode, name, clazz, type, annotations);
-    }
-
     public static Object bind(RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
-        return bind(parentParamNode, name, clazz, type, annotations, null);
-    }
-
-    public static Object bind(RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations,
-            MethodAndParamInfo methodAndParamInfo) {
         ParamNode paramNode = parentParamNode.getChild(name, true);
 
         Object result = null;
@@ -330,35 +289,6 @@ public abstract class Binder {
             Logger.error("Failed to create instance of %s: %s", clazz.getName(), e);
             throw new UnexpectedException(e);
         }
-    }
-
-    /**
-     * Invokes the plugins before using the internal bindBean.
-     * 
-     * @param rootParamNode
-     *            List of parameters
-     * @param name
-     *            The object name
-     * @param bean
-     *            the bean object
-     */
-    public static void bindBean(RootParamNode rootParamNode, String name, Object bean) {
-
-        // Let a chance to plugins to bind this object
-        Object result = Play.pluginCollection.bindBean(rootParamNode, name, bean);
-        if (result != null) {
-            return;
-        }
-
-        ParamNode paramNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name);
-
-        try {
-            internalBindBean(paramNode, bean, new BindingAnnotations());
-        } catch (NumberFormatException e) {
-            logBindingNormalFailure(paramNode, e);
-            addValidationError(paramNode);
-        }
-
     }
 
     /**
