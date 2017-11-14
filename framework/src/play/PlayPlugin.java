@@ -92,17 +92,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * This hook is not plugged, don't implement it
-     * 
-     * @param template
-     *            the template to compile
-     * @deprecated
-     */
-    @Deprecated
-    public void onTemplateCompilation(Template template) {
-    }
-
-    /**
      * Give a chance to this plugin to fully manage this request
      * 
      * @param request
