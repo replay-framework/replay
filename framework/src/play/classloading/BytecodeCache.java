@@ -22,7 +22,7 @@ public class BytecodeCache {
      */
     public static void deleteBytecode(String name) {
         try {
-            if (!Play.initialized || Play.tmpDir == null || Play.readOnlyTmp || !Play.configuration.getProperty("play.bytecodeCache", "true").equals("true")) {
+            if (!Play.initialized || Play.tmpDir == null || !Play.configuration.getProperty("play.bytecodeCache", "true").equals("true")) {
                 return;
             }
             File f = cacheFile(name.replace("/", "_").replace("{", "_").replace("}", "_").replace(":", "_"));
@@ -87,7 +87,7 @@ public class BytecodeCache {
      */
     public static void cacheBytecode(byte[] byteCode, String name, String source) {
         try {
-            if (!Play.initialized || Play.tmpDir == null || Play.readOnlyTmp || !Play.configuration.getProperty("play.bytecodeCache", "true").equals("true")) {
+            if (!Play.initialized || Play.tmpDir == null || !Play.configuration.getProperty("play.bytecodeCache", "true").equals("true")) {
                 return;
             }
             File f = cacheFile(name.replace("/", "_").replace("{", "_").replace("}", "_").replace(":", "_"));
@@ -145,7 +145,7 @@ public class BytecodeCache {
      */
     static File cacheFile(String id) {
         File dir = new File(Play.tmpDir, "bytecode/" + Play.mode.name());
-        if (!dir.exists() && Play.tmpDir != null && !Play.readOnlyTmp) {
+        if (!dir.exists() && Play.tmpDir != null) {
             dir.mkdirs();
         }
         return new File(dir, id);

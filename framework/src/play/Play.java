@@ -80,10 +80,6 @@ public class Play {
      */
     public static File tmpDir = null;
     /**
-     * tmp dir is readOnly
-     */
-    public static boolean readOnlyTmp = false;
-    /**
      * The framework root
      */
     public static File frameworkPath = null;
@@ -226,9 +222,6 @@ public class Play {
 
             if (!tmpDir.exists()) {
                 try {
-                    if (readOnlyTmp) {
-                        throw new Exception("ReadOnly tmp");
-                    }
                     tmpDir.mkdirs();
                 } catch (Throwable e) {
                     tmpDir = null;

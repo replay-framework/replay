@@ -24,9 +24,6 @@ public class TempFilePlugin extends PlayPlugin {
         if (Play.tmpDir == null) {
             throw new IllegalStateException("Cannot create temp folder: Play.tmpDir is null");
         }
-        if (Play.readOnlyTmp) {
-            throw new IllegalStateException("Cannot create temp folder: Play.readOnlyTmp is true");
-        }
         if (tempFolder.get() == null) {
             File file = new File(new File(Play.tmpDir, "uploads"),
                     System.currentTimeMillis() + "_" + leftPad(String.valueOf(count.getAndIncrement()), 10, '0'));
