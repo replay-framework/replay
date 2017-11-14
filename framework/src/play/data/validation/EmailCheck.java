@@ -6,11 +6,10 @@ import net.sf.oval.context.OValContext;
 
 import java.util.regex.Pattern;
 
-@SuppressWarnings("serial")
 public class EmailCheck extends AbstractAnnotationCheck<Email> {
 
     static final String mes = "validation.email";
-    static Pattern emailPattern = Pattern.compile("[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[a-zA-Z0-9](?:[\\w-]*[\\w])?");
+    private static final Pattern emailPattern = Pattern.compile("[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[a-zA-Z0-9](?:[\\w-]*[\\w])?");
 
     @Override
     public void configure(Email email) {
@@ -19,10 +18,7 @@ public class EmailCheck extends AbstractAnnotationCheck<Email> {
 
     @Override
     public boolean isSatisfied(Object validatedObject, Object value, OValContext context, Validator validator) {
-        if (value == null || value.toString().length() == 0) {
-            return true;
-        }
-        return emailPattern.matcher(value.toString()).matches();
+        return value == null || value.toString().isEmpty() || emailPattern.matcher(value.toString()).matches();
     }
    
 }
