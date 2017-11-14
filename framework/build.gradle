@@ -1,7 +1,7 @@
 dependencies {
   compile('com.zaxxer:HikariCP:2.7.3')
   compile('org.ow2.asm:asm-all:5.2')
-  compile('cglib:cglib:3.2.4') {transitive = false}
+  compile('cglib:cglib:3.2.5') {transitive = false}
   compile('com.google.code.gson:gson:2.8.0')
   compile('com.jamonapi:jamon:2.81') {transitive = false}
   compile('com.ning:async-http-client:1.9.40') {
