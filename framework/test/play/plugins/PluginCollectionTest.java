@@ -159,7 +159,6 @@ public class PluginCollectionTest {
         Play.pluginCollection = pc;
 
         assertThat(TestEngine.allUnitTests()).isEmpty();
-        assertThat(TestEngine.allFunctionalTests()).isEmpty();
 
         PluginWithTests p1 = new PluginWithTests();
         PluginWithTests2 p2 = new PluginWithTests2();
@@ -170,7 +169,6 @@ public class PluginCollectionTest {
         pc.initializePlugin(p2);
 
         assertThat(TestEngine.allUnitTests()).contains(PluginUnit.class, PluginUnit2.class);
-        assertThat(TestEngine.allFunctionalTests()).contains(PluginFunc.class, PluginFunc2.class);
     }
 }
 

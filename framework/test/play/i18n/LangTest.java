@@ -4,7 +4,6 @@ import org.junit.Test;
 import play.Play;
 import play.PlayBuilder;
 import play.mvc.Http;
-import play.test.FunctionalTest;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -58,49 +57,49 @@ public class LangTest {
         assertThat(Lang.get()).isEqualTo("no");
 
         // check default when missing info in request
-        Http.Request req = FunctionalTest.newRequest();
+        Http.Request req = newRequest();
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
         // check only with accept-language,  without cookie value
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "no"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "en"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "en-GB"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("en", "GB"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en-GB"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("en", "GB"));
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en-US"));
         Http.Request.current.set(req);
         Lang.current.set(null);
@@ -109,14 +108,14 @@ public class LangTest {
 
         // prove lighthouse fix https://play.lighthouseapp.com/projects/57987/tickets/1302
         // space in accept language header
-        req = FunctionalTest.newRequest();
+        req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "nl, en;q=0.8"));
         Http.Request.current.set(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
         // check with cookie value
 
-        req = FunctionalTest.newRequest();
+        req = newRequest();
 
         Http.Cookie cookie = new Http.Cookie();
         cookie.name = "PLAY_LANG";
@@ -157,5 +156,9 @@ public class LangTest {
     private void assertLocale(Locale locale) {
       assertThat(Lang.get()).isEqualTo(locale.toString());
       assertThat(Lang.getLocale()).isEqualTo(locale);
+    }
+
+    public static Http.Request newRequest() {
+        return Http.Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
     }
 }

@@ -18,8 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Run application tests
@@ -35,7 +33,6 @@ public class TestEngine {
 
     private static final ClassNameComparator classNameComparator = new ClassNameComparator();
 
-    public static ExecutorService functionalTestsExecutor = Executors.newSingleThreadExecutor();
 
     public static List<Class> allUnitTests() {
         List<Class> classes = new ArrayList<>();
@@ -44,23 +41,6 @@ public class TestEngine {
         for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
             Class c = it.next();
             if (Modifier.isAbstract(c.getModifiers())) {
-                it.remove();
-            } else {
-                if (FunctionalTest.class.isAssignableFrom(c)) {
-                    it.remove();
-                }
-            }
-        }
-        Collections.sort(classes, classNameComparator);
-        return classes;
-    }
-
-    public static List<Class> allFunctionalTests() {
-        List<Class> classes = new ArrayList<>();
-        classes.addAll(Play.classloader.getAssignableClasses(FunctionalTest.class));
-
-        for (ListIterator<Class> it = classes.listIterator(); it.hasNext();) {
-            if (Modifier.isAbstract(it.next().getModifiers())) {
                 it.remove();
             }
         }

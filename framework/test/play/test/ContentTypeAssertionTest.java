@@ -3,7 +3,7 @@ package play.test;
 import org.junit.Test;
 import play.mvc.Http.Response;
 
-import static play.test.FunctionalTest.assertContentType;
+import static org.junit.Assert.assertEquals;
 
 public class ContentTypeAssertionTest {
 
@@ -11,7 +11,7 @@ public class ContentTypeAssertionTest {
     public void givenContentTypeIsMissing_shouldThrowAssertionError() {
         Response responseWithoutContentType = new Response();
 
-        assertContentType("text/html", responseWithoutContentType);
+        assertEquals("text/html", responseWithoutContentType.contentType);
     }
 
 }
