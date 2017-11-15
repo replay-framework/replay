@@ -3,17 +3,13 @@ package play.modules.excel;
 import net.sf.jxls.transformer.XLSTransformer;
 import org.apache.poi.ss.usermodel.Workbook;
 import play.Logger;
-import play.Play;
 import play.exceptions.UnexpectedException;
-import play.jobs.Job;
-import play.libs.F.Promise;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.Result;
 import play.vfs.VirtualFile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -28,12 +24,10 @@ import java.util.Map;
 public class RenderExcel extends Result {
 
     public static final String RA_FILENAME = "__FILE_NAME__";
-    public static final String RA_ASYNC = "__EXCEL_ASYNC__";
-    public static final String CONF_ASYNC = "excel.async";
 
-    VirtualFile file;
-    String fileName; // recommended report file name
-    Map<String, Object> beans;
+    private final VirtualFile file;
+    private final String fileName; // recommended report file name
+    private final Map<String, Object> beans;
 
     public RenderExcel(VirtualFile file, Map<String, Object> beans) {
         this(file, beans, null);
@@ -49,23 +43,6 @@ public class RenderExcel extends Result {
         return fileName;
     }
 
-    public static boolean async() {
-        Object o;
-        if (RenderArgs.current().data.containsKey(RA_ASYNC)) {
-            o = RenderArgs.current().get(RA_ASYNC);
-        } else {
-            o = Play.configuration.get(CONF_ASYNC);
-        }
-        boolean async;
-        if (null == o)
-            async = false;
-        else if (o instanceof Boolean)
-            async = (Boolean)o;
-        else
-            async = Boolean.parseBoolean(o.toString());
-        return async;
-    }
-    
     private static String fileName_(String path) {
         if (RenderArgs.current().data.containsKey(RA_FILENAME)) 
             return RenderArgs.current().get(RA_FILENAME, String.class);
@@ -73,12 +50,6 @@ public class RenderExcel extends Result {
         if (-1 == i)
             return path;
         return path.substring(++i);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(fileName_("abc.xls"));
-        System.out.println(fileName_("/xyz/abc.xls"));
-        System.out.println(fileName_("app/xyz/abc.xls"));
     }
 
     @Override
@@ -107,30 +78,4 @@ public class RenderExcel extends Result {
     }
 
     private byte[] excel;
-
-    public void preRender() {
-        try {
-            InputStream is = file.inputstream();
-            Workbook workbook = new XLSTransformer().transformXLS(is, beans);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            workbook.write(os);
-            excel = os.toByteArray();
-            is.close();
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
-        }
-    }
-    
-    public static Promise<RenderExcel> renderAsync(final VirtualFile file, final Map<String, Object> beans, final String fileName) {
-        final String fn = fileName == null ? fileName_(file.relativePath()) : fileName;
-        return new Job<RenderExcel>(){
-            @Override
-            public RenderExcel doJobWithResult() {
-                RenderExcel excel = new RenderExcel(file, beans, fn);
-                excel.preRender();
-                return excel;
-            }
-        }.now();
-    }
-
 }
