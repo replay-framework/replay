@@ -2,7 +2,6 @@ package play.template2;
 
 import org.junit.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +10,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class VariableVisabilityTest {
 
     @Test
-    public void testThatVariablesNotLeakbetweenScriptRuns() throws  Exception {
+    public void testThatVariablesNotLeakbetweenScriptRuns() {
         TemplateSourceRenderer r = new TemplateSourceRenderer( new GTTemplateRepoBuilder().build());
         
         Map<String, Object> args = new HashMap<>();
@@ -26,7 +25,7 @@ public class VariableVisabilityTest {
     @Test
     public void testThatTagArgsToFirstTagIsNotAvailableInCalledTag() {
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .build();
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
         Map<String, Object> args = new HashMap<>();

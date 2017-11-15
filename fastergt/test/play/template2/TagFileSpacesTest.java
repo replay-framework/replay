@@ -2,7 +2,6 @@ package play.template2;
 
 import org.junit.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ public class TagFileSpacesTest {
     public void testSpaces() {
         // first try with unix line feeds
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
@@ -23,7 +22,7 @@ public class TagFileSpacesTest {
 
         // then test with windows line feeds
         tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .withFakeWindowsNewLines(true)
                 .build();
 

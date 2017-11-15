@@ -3,7 +3,6 @@ package play.template2;
 import org.junit.Test;
 import play.template2.exceptions.GTRuntimeExceptionWithSourceInfo;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ public class SpecialTests {
     public void testErrorMessage_missingInclude() {
 
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
@@ -49,7 +48,7 @@ public class SpecialTests {
     @Test
     public void testStringsAndTags() {
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);

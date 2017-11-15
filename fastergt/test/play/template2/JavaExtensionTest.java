@@ -4,7 +4,6 @@ import groovy.lang.GroovyObjectSupport;
 import org.junit.Test;
 import play.template2.compile.GTJavaExtensionMethodResolver;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public class JavaExtensionTest {
 
     private TemplateSourceRenderer createSourceRenderer() {
         TemplateSourceRenderer sr = new TemplateSourceRenderer( new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .withGTJavaExtensionMethodResolver(new GTJavaExtensionMethodResolver() {
                     @Override
                     public Class findClassWithMethod(String methodName) {

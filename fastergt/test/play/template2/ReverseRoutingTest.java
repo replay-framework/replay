@@ -4,7 +4,6 @@ import org.junit.Test;
 import play.template2.compile.GTJavaBaseTesterImpl;
 import play.template2.compile.GTPreCompiler;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class ReverseRoutingTest {
     public void testRegularActionPrinterAsTagArgs() {
         TemplateSourceRenderer r = new TemplateSourceRenderer(
                 new GTTemplateRepoBuilder()
-                        .withTemplateRootFolder(new File("test/template_root/"))
+                        .withTemplateRootFolder(new TemplateRootFolder())
                         .withPreCompilerFactory(new ReverseRoutingGTPreCompilerFactory())
                         .build());
 

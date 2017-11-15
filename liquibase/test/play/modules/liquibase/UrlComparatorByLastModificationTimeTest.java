@@ -5,8 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,9 +18,9 @@ public class UrlComparatorByLastModificationTimeTest {
   String oldFile, newFile;
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() throws IOException, URISyntaxException {
     oldFile = new File("src/play/modules/liquibase/DuplicatesIgnoringResourceAccessor.java").toURI().toURL().toExternalForm();
-    newFile = Files.createFile(Paths.get("build/classes/java/test", "temp" + System.currentTimeMillis())).toUri().toURL().toExternalForm();
+    newFile = getClass().getResource("DuplicatesIgnoringResourceAccessor.class").toString();
   }
 
   @Test

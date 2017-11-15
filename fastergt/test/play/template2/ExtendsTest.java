@@ -2,7 +2,6 @@ package play.template2;
 
 import org.junit.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ public class ExtendsTest {
     public void testExtends() {
                 // first try with unix line feeds
         GTTemplateRepo tr = new GTTemplateRepoBuilder()
-                .withTemplateRootFolder( new File("test/template_root/"))
+                .withTemplateRootFolder(new TemplateRootFolder())
                 .build();
 
         TemplateSourceRenderer sr = new TemplateSourceRenderer(tr);
