@@ -18,7 +18,6 @@ import play.data.binding.RootParamNode;
 import play.db.Configuration;
 import play.db.DB;
 import play.db.Model;
-import play.exceptions.JPAException;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
 
@@ -317,78 +316,6 @@ public class JPAPlugin extends PlayPlugin {
 
     public static EntityManager createEntityManager() {
       return JPA.createEntityManager(JPA.DEFAULT);
-    }
-
-
-    /**
-     * initialize the JPA context and starts a JPA transaction
-     *
-     * @param readonly true for a readonly transaction
-     * @deprecated see JPA startTx() method
-     */
-    @Deprecated
-    public static void startTx(boolean readonly) {
-        if (!JPA.isEnabled()) {
-             return;
-        }
-        EntityManager manager = JPA.createEntityManager();
-        manager.setFlushMode(FlushModeType.COMMIT);
-        manager.setProperty("org.hibernate.readOnly", readonly);
-        if (autoTxs) {
-            manager.getTransaction().begin();
-        }
-        JPA.createContext(JPA.DEFAULT, manager, readonly);
-    }
-
-   
-    /**
-     * clear current JPA context and transaction 
-     * @param rollback shall current transaction be committed (false) or cancelled (true)
-     * @deprecated see {@link JPA#rollbackTx} and {@link JPA#closeTx} method
-     */
-    @Deprecated
-    public static void closeTx(boolean rollback) {
-        if (!JPA.isEnabled() || JPA.currentEntityManager.get() == null || JPA.currentEntityManager.get().get(JPA.DEFAULT) == null || JPA.currentEntityManager.get().get(JPA.DEFAULT).entityManager == null) {
-            return;
-        }
-        EntityManager manager = JPA.currentEntityManager.get().get(JPA.DEFAULT).entityManager;
-        try {
-            if (autoTxs) {
-                // Be sure to set the connection is non-autoCommit mode as some driver will complain about COMMIT statement
-                try {
-                    DB.getConnection(JPA.DEFAULT).setAutoCommit(false);
-                } catch(Exception e) {
-                    Logger.error(e, "Why the driver complains here?");
-                }
-                // Commit the transaction
-                if (manager.getTransaction().isActive()) {
-                    if (JPA.get(JPA.DEFAULT).readonly || rollback || manager.getTransaction().getRollbackOnly()) {
-                        manager.getTransaction().rollback();
-                    } else {
-                        try {
-                            if (autoTxs) {
-                                manager.getTransaction().commit();
-                            }
-                        } catch (Throwable e) {
-                            for (int i = 0; i < 10; i++) {
-                                if (e instanceof PersistenceException && e.getCause() != null) {
-                                    e = e.getCause();
-                                    break;
-                                }
-                                e = e.getCause();
-                                if (e == null) {
-                                    break;
-                                }
-                            }
-                            throw new JPAException("Cannot commit", e);
-                        }
-                    }
-                }
-            }
-        } finally {
-            manager.close();
-            JPA.clearContext(JPA.DEFAULT);
-        }
     }
 
     @Override
