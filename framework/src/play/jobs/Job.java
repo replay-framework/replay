@@ -14,7 +14,6 @@ import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.SupplierWithException;
 import play.libs.Time;
-import play.mvc.Http;
 
 import java.util.Date;
 import java.util.concurrent.Callable;
@@ -72,28 +71,6 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     public Promise<V> now() {
         Promise<V> smartFuture = new Promise<>();
         JobsPlugin.executor.submit(getJobCallingCallable(smartFuture));
-        return smartFuture;
-    }
-
-    /**
-     * If is called in a 'HttpRequest' invocation context, waits until request is served and schedules job then.
-     *
-     * Otherwise is the same as now();
-     *
-     * If you want to schedule a job to run after some other job completes, wait till a promise redeems of just override
-     * first Job's call() to schedule the second one.
-     *
-     * @return the job completion
-     */
-    public Promise<V> afterRequest() {
-        InvocationContext current = Invoker.InvocationContext.current();
-        if (current == null || !Http.invocationType.equals(current.getInvocationType())) {
-            return now();
-        }
-
-        Promise<V> smartFuture = new Promise<>();
-        Callable<V> callable = getJobCallingCallable(smartFuture);
-        JobsPlugin.addAfterRequestAction(callable);
         return smartFuture;
     }
 

@@ -9,7 +9,6 @@ import play.inject.Injector;
 import play.libs.CronExpression;
 import play.libs.Expression;
 import play.libs.Time;
-import play.mvc.Http.Request;
 import play.utils.PThreadFactory;
 
 import java.io.PrintWriter;
@@ -18,7 +17,6 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -26,7 +24,6 @@ public class JobsPlugin extends PlayPlugin {
 
     public static ScheduledThreadPoolExecutor executor;
     public static List<Job> scheduledJobs = new ArrayList<>();
-    private static final ThreadLocal<List<Callable<?>>> afterInvocationActions = new ThreadLocal<>();
 
     @Override
     public String getStatus() {
@@ -251,28 +248,6 @@ public class JobsPlugin extends PlayPlugin {
 
         executor.shutdownNow();
         executor.getQueue().clear();
-    }
-
-    @Override
-    public void beforeInvocation() {
-        afterInvocationActions.set(new LinkedList<Callable<?>>());
-    }
-
-    @Override
-    public void afterInvocation() {
-        List<Callable<?>> currentActions = afterInvocationActions.get();
-        afterInvocationActions.set(null);
-        for (Callable<?> callable : currentActions) {
-            executor.submit(callable);
-        }
-    }
-
-    // default visibility, because we want to use this only from Job.java
-    static void addAfterRequestAction(Callable<?> c) {
-        if (Request.current() == null) {
-            throw new IllegalStateException("After request actions can be added only from threads that serve requests!");
-        }
-        afterInvocationActions.get().add(c);
     }
 
     /**
