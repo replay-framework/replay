@@ -407,60 +407,6 @@ public class F {
         }
     }
 
-    public static class Timeout extends Promise<Timeout> {
-
-        static Timer timer = new Timer("F.Timeout", true);
-        public final String token;
-        public final long delay;
-
-        public Timeout(String delay) {
-            this(Time.parseDuration(delay) * 1000);
-        }
-
-        public Timeout(String token, String delay) {
-            this(token, Time.parseDuration(delay) * 1000);
-        }
-
-        public Timeout(long delay) {
-            this("timeout", delay);
-        }
-
-        public Timeout(String token, long delay) {
-            this.delay = delay;
-            this.token = token;
-            final Timeout timeout = this;
-            timer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    timeout.invoke(timeout);
-                }
-            }, delay);
-        }
-
-        @Override
-        public String toString() {
-            return "Timeout(" + delay + ")";
-        }
-
-    }
-
-    public static Timeout Timeout(String delay) {
-        return new Timeout(delay);
-    }
-
-    public static Timeout Timeout(String token, String delay) {
-        return new Timeout(token, delay);
-    }
-
-    public static Timeout Timeout(long delay) {
-        return new Timeout(delay);
-    }
-
-    public static Timeout Timeout(String token, long delay) {
-        return new Timeout(token, delay);
-    }
-
     public static class EventStream<T> {
 
         final int bufferSize;
