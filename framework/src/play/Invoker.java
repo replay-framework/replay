@@ -8,12 +8,16 @@ import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
 import play.libs.F;
-import play.libs.F.Promise;
 import play.utils.PThreadFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -53,33 +57,6 @@ public class Invoker {
         Monitor monitor = MonitorFactory.getMonitor("Invocation queue", "elmts.");
         monitor.add(executor.getQueue().size());
         return executor.schedule(invocation, millis, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Run the code in the same thread than caller.
-     * 
-     * @param invocation
-     *            The code to run
-     */
-    public static void invokeInThread(DirectInvocation invocation) {
-        boolean retry = true;
-        while (retry) {
-            invocation.run();
-            if (invocation.retry == null) {
-                retry = false;
-            } else {
-                try {
-                    if (invocation.retry.task != null) {
-                        invocation.retry.task.get();
-                    } else {
-                        Thread.sleep(invocation.retry.timeout);
-                    }
-                } catch (Exception e) {
-                    throw new UnexpectedException(e);
-                }
-                retry = true;
-            }
-        }
     }
 
     static void resetClassloaders() {
@@ -260,20 +237,6 @@ public class Invoker {
         }
 
         /**
-         * The request is suspended
-         * 
-         * @param suspendRequest
-         *            the suspended request
-         */
-        public void suspend(Suspend suspendRequest) {
-            if (suspendRequest.task != null) {
-                WaitForTasksCompletion.waitFor(suspendRequest.task, this);
-            } else {
-                Invoker.invoke(this, suspendRequest.timeout);
-            }
-        }
-
-        /**
          * Things to do in all cases after the invocation.
          */
         public void _finally() {
@@ -316,40 +279,11 @@ public class Invoker {
                     after();
                     onSuccess();
                 }
-            } catch (Suspend e) {
-                suspend(e);
-                after();
             } catch (Throwable e) {
                 onException(e);
             } finally {
                 _finally();
             }
-        }
-    }
-
-    /**
-     * A direct invocation (in the same thread than caller)
-     */
-    public abstract static class DirectInvocation extends Invocation {
-
-        public static final String invocationType = "DirectInvocation";
-
-        Suspend retry = null;
-
-        @Override
-        public boolean init() {
-            retry = null;
-            return super.init();
-        }
-
-        @Override
-        public void suspend(Suspend suspendRequest) {
-            retry = suspendRequest;
-        }
-
-        @Override
-        public InvocationContext getInvocationContext() {
-            return new InvocationContext(invocationType);
         }
     }
 
@@ -360,97 +294,5 @@ public class Invoker {
         int core = Integer.parseInt(Play.configuration.getProperty("play.pool",
                 Play.mode == Mode.DEV ? "1" : ((Runtime.getRuntime().availableProcessors() + 1) + "")));
         executor = new ScheduledThreadPoolExecutor(core, new PThreadFactory("play"), new ThreadPoolExecutor.AbortPolicy());
-    }
-
-    /**
-     * Throwable to indicate that the request must be suspended
-     */
-    public static class Suspend extends PlayException {
-
-        /**
-         * Suspend for a timeout (in milliseconds).
-         */
-        long timeout;
-
-        /**
-         * Wait for task execution.
-         */
-        Future<?> task;
-
-        public Suspend(long timeout) {
-            this.timeout = timeout;
-        }
-
-        public Suspend(Future<?> task) {
-            this.task = task;
-        }
-
-        @Override
-        public String getErrorTitle() {
-            return "Request is suspended";
-        }
-
-        @Override
-        public String getErrorDescription() {
-            if (task != null) {
-                return "Wait for " + task;
-            }
-            return "Retry in " + timeout + " ms.";
-        }
-    }
-
-    /**
-     * Utility that track tasks completion in order to resume suspended requests.
-     */
-    static class WaitForTasksCompletion extends Thread {
-
-        static WaitForTasksCompletion instance;
-        Map<Future<?>, Invocation> queue;
-
-        public WaitForTasksCompletion() {
-            queue = new ConcurrentHashMap<>();
-            setName("WaitForTasksCompletion");
-            setDaemon(true);
-        }
-
-        public static <V> void waitFor(Future<V> task, final Invocation invocation) {
-            if (task instanceof Promise) {
-                Promise<V> smartFuture = (Promise<V>) task;
-                smartFuture.onRedeem(new F.Action<F.Promise<V>>() {
-                    @Override
-                    public void invoke(Promise<V> result) {
-                        executor.submit(invocation);
-                    }
-                });
-            } else {
-                synchronized (WaitForTasksCompletion.class) {
-                    if (instance == null) {
-                        instance = new WaitForTasksCompletion();
-                        Logger.warn("Start WaitForTasksCompletion");
-                        instance.start();
-                    }
-                    instance.queue.put(task, invocation);
-                }
-            }
-        }
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    if (!queue.isEmpty()) {
-                        for (Future<?> task : new HashSet<>(queue.keySet())) {
-                            if (task.isDone()) {
-                                executor.submit(queue.get(task));
-                                queue.remove(task);
-                            }
-                        }
-                    }
-                    Thread.sleep(50);
-                } catch (InterruptedException ex) {
-                    Logger.warn(ex, "While waiting for task completions");
-                }
-            }
-        }
     }
 }

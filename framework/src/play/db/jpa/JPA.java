@@ -1,7 +1,6 @@
 package play.db.jpa;
 
 import play.Invoker.InvocationContext;
-import play.Invoker.Suspend;
 import play.Logger;
 import play.Play;
 import play.db.DB;
@@ -306,10 +305,6 @@ public class JPA {
                 }
 
                 return result;
-            } catch (Suspend e) {
-                // Nothing, transaction is in progress
-                closeEm = false;
-                throw e;
             } catch (Throwable t) {
                 // Because people might have mess up with the current entity managers
                 for (JPAContext jpaContext : get().values()) {
