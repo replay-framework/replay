@@ -125,7 +125,7 @@ public class RenderExcel extends Result {
         final String fn = fileName == null ? fileName_(file.relativePath()) : fileName;
         return new Job<RenderExcel>(){
             @Override
-            public RenderExcel doJobWithResult() throws Exception {
+            public RenderExcel doJobWithResult() {
                 RenderExcel excel = new RenderExcel(file, beans, fn);
                 excel.preRender();
                 return excel;

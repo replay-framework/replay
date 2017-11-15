@@ -5,7 +5,7 @@ import play.Logger;
 import play.Play;
 import play.db.DB;
 import play.exceptions.JPAException;
-import play.libs.F;
+import play.libs.SupplierWithException;
 
 import javax.persistence.*;
 import java.util.Map;
@@ -210,11 +210,11 @@ public class JPA {
         return jpaContext != null && jpaContext.entityManager != null && jpaContext.entityManager.getTransaction() != null;
     }
 
-    public static <T> T withinFilter(F.Function0<T> block) throws Throwable {
+    public static <T> T withinFilter(SupplierWithException<T> block) throws Exception {
         if (InvocationContext.current().getAnnotation(NoTransaction.class) != null) {
             // Called method or class is annotated with @NoTransaction telling us that
             // we should not start a transaction
-            return block.apply();
+            return block.get();
         }
 
         boolean readOnly = false;
@@ -254,10 +254,8 @@ public class JPA {
      * @param <T>
      *            The entity class
      * @return The result
-     * @throws java.lang.Throwable
-     *             Thrown in case of error
      */
-    public static <T> T withTransaction(String dbName, boolean readOnly, F.Function0<T> block) throws Throwable {
+    public static <T> T withTransaction(String dbName, boolean readOnly, SupplierWithException<T> block) throws Exception {
         if (isEnabled()) {
             boolean closeEm = true;
             // For each existing persistence unit
@@ -275,7 +273,7 @@ public class JPA {
                     }
                 }
 
-                T result = block.apply();
+                T result = block.get();
 
                 boolean rollbackAll = false;
                 // Get back our entity managers
@@ -305,7 +303,7 @@ public class JPA {
                 }
 
                 return result;
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 // Because people might have mess up with the current entity managers
                 for (JPAContext jpaContext : get().values()) {
                     EntityManager m = jpaContext.entityManager;
@@ -316,6 +314,7 @@ public class JPA {
                             localTx.rollback();
                         }
                     } catch (Throwable e) {
+                        Logger.error(e, "Failed to rollback transaction");
                     }
                 }
 
@@ -335,7 +334,7 @@ public class JPA {
                 }
             }
         } else {
-            return block.apply();
+            return block.get();
         }
     }
 

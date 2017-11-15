@@ -3,7 +3,8 @@ package play;
 import com.google.gson.JsonObject;
 import play.data.binding.RootParamNode;
 import play.db.Model;
-import play.libs.F;
+import play.libs.FunctionWithException;
+import play.libs.SupplierWithException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router.Route;
@@ -292,13 +293,13 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * transaction around an action. The filter applies a transaction to the current Action.
      */
     public abstract static class Filter<T> {
-        String name;
+        private final String name;
 
-        public Filter(String name) {
+        protected Filter(String name) {
             this.name = name;
         }
 
-        public abstract T withinFilter(play.libs.F.Function0<T> fct) throws Throwable;
+        public abstract T withinFilter(SupplierWithException<T> fct) throws Exception;
 
         /**
          * Surround innerFilter with this. (innerFilter after this)
@@ -312,7 +313,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
             final Filter<T> outerFilter = this;
             return new Filter<T>(this.name) {
                 @Override
-                public T withinFilter(F.Function0<T> fct) throws Throwable {
+                public T withinFilter(SupplierWithException<T> fct) throws Exception {
                     return compose(outerFilter.asFunction(), innerFilter.asFunction()).apply(fct);
                 }
             };
@@ -327,41 +328,20 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
          *            Function to be wrapped by outer function -- ("outer after inner")
          * @return A function that computes outer(inner(x)) on application.
          */
-        private static <T> Function1<F.Function0<T>, T> compose(final Function1<F.Function0<T>, T> outer,
-                final Function1<F.Function0<T>, T> inner) {
+        private static <T> FunctionWithException<SupplierWithException<T>, T> compose(final FunctionWithException<SupplierWithException<T>, T> outer,
+                                                                                      final FunctionWithException<SupplierWithException<T>, T> inner) {
 
-            return new Function1<F.Function0<T>, T>() {
-                @Override
-                public T apply(final F.Function0<T> arg) throws Throwable {
-                    return outer.apply(new F.Function0<T>() {
-                        @Override
-                        public T apply() throws Throwable {
-                            return inner.apply(arg);
-                        }
-                    });
-                }
-            };
+            return arg -> outer.apply(() -> inner.apply(arg));
         }
 
-        private final Function1<play.libs.F.Function0<T>, T> _asFunction = new Function1<F.Function0<T>, T>() {
-            @Override
-            public T apply(F.Function0<T> arg) throws Throwable {
-                return withinFilter(arg);
-            }
-        };
+        private final FunctionWithException<SupplierWithException<T>, T> _asFunction = arg -> withinFilter(arg);
 
-        public Function1<play.libs.F.Function0<T>, T> asFunction() {
+        public FunctionWithException<SupplierWithException<T>, T> asFunction() {
             return _asFunction;
         }
 
         public String getName() {
             return name;
-        }
-
-        // I don't want to add any additional dependencies to the project or use JDK 8 features
-        // so I'm just rolling my own 1 arg function interface... there must be a better way to do this...
-        public static interface Function1<I, O> {
-            public O apply(I arg) throws Throwable;
         }
     }
 

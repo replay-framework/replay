@@ -8,6 +8,7 @@ import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
 import play.libs.F;
+import play.libs.SupplierWithException;
 import play.utils.PThreadFactory;
 
 import java.lang.annotation.Annotation;
@@ -162,11 +163,8 @@ public class Invoker {
 
         /**
          * Override this method
-         * 
-         * @throws java.lang.Exception
-         *             Thrown if Invocation encounters any problems
          */
-        public abstract void execute() throws Exception;
+        public abstract void execute();
 
         /**
          * Needs this method to do stuff *before* init() is executed. The different Invocation-implementations does a
@@ -244,7 +242,7 @@ public class Invoker {
             InvocationContext.current.remove();
         }
 
-        private void withinFilter(play.libs.F.Function0<Void> fct) throws Throwable {
+        private void withinFilter(SupplierWithException<Void> fct) throws Exception {
             F.Option<PlayPlugin.Filter<Void>> filters = Play.pluginCollection.composeFilters();
             if (filters.isDefined()) {
                 filters.get().withinFilter(fct);
@@ -264,13 +262,10 @@ public class Invoker {
                 if (init()) {
                     before();
                     final AtomicBoolean executed = new AtomicBoolean(false);
-                    this.withinFilter(new play.libs.F.Function0<Void>() {
-                        @Override
-                        public Void apply() throws Throwable {
-                            executed.set(true);
-                            execute();
-                            return null;
-                        }
+                    this.withinFilter(() -> {
+                        executed.set(true);
+                        execute();
+                        return null;
                     });
                     // No filter function found => we need to execute anyway( as before the use of withinFilter )
                     if (!executed.get()) {

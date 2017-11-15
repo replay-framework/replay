@@ -247,7 +247,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
 
         @Override
-        public void execute() throws Exception {
+        public void execute() {
             if (!ctx.getChannel().isConnected()) {
                 try {
                     ctx.getChannel().close();

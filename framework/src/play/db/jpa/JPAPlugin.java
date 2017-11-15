@@ -20,6 +20,7 @@ import play.db.DB;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
+import play.libs.SupplierWithException;
 
 import javax.persistence.*;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -302,7 +303,7 @@ public class JPAPlugin extends PlayPlugin {
         super(name);
       }
       @Override
-      public Object withinFilter(play.libs.F.Function0<Object> fct) throws Throwable {
+      public Object withinFilter(SupplierWithException<Object> fct) throws Exception {
         return JPA.withinFilter(fct);
       }
     }

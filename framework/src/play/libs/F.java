@@ -7,15 +7,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class F {
-
-
-    /**
-     * A Function with no arguments.
-     */
-    public static interface Function0<R> {
-        public R apply() throws Throwable;
-    }
-
     public static class Promise<V> implements Future<V>, F.Action<V> {
 
         protected final CountDownLatch taskLock = new CountDownLatch(1);
@@ -656,12 +647,12 @@ public class F {
         }
     }
 
-    public static interface Action0 {
+    public interface Action0 {
 
         void invoke();
     }
 
-    public static interface Action<T> {
+    public interface Action<T> {
 
         void invoke(T result);
     }

@@ -12,6 +12,7 @@ import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.libs.F;
 import play.libs.F.Promise;
+import play.libs.SupplierWithException;
 import play.libs.Time;
 import play.mvc.Http;
 
@@ -32,11 +33,11 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     public static final String invocationType = "Job";
 
     protected ExecutorService executor;
-    protected long lastRun = 0;
-    protected boolean wasError = false;
-    protected Throwable lastException = null;
+    protected long lastRun;
+    protected boolean wasError;
+    protected Throwable lastException;
 
-    Date nextPlannedExecution = null;
+    Date nextPlannedExecution;
 
     @Override
     public InvocationContext getInvocationContext() {
@@ -45,9 +46,6 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
 
     /**
      * Here you do the job
-     * 
-     * @throws Exception
-     *             if problems occurred
      */
     public void doJob() throws Exception {
     }
@@ -56,8 +54,6 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
      * Here you do the job and return a result
      * 
      * @return The job result
-     * @throws Exception
-     *             if problems occurred
      */
     public V doJobWithResult() throws Exception {
         doJob();
@@ -65,8 +61,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     }
 
     @Override
-    public void execute() throws Exception {
-
+    public void execute() {
     }
 
     /**
@@ -192,7 +187,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
         call();
     }
 
-    private V withinFilter(play.libs.F.Function0<V> fct) throws Throwable {
+    private V withinFilter(SupplierWithException<V> fct) throws Exception {
         F.Option<PlayPlugin.Filter<V>> filters = Play.pluginCollection.composeFilters();
         if (!filters.isDefined()) {
             return null;
@@ -216,12 +211,9 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
 
                     // If we have a plugin, get him to execute the job within the filter.
                     final AtomicBoolean executed = new AtomicBoolean(false);
-                    result = this.withinFilter(new play.libs.F.Function0<V>() {
-                        @Override
-                        public V apply() throws Throwable {
-                            executed.set(true);
-                            return doJobWithResult();
-                        }
+                    result = this.withinFilter(() -> {
+                        executed.set(true);
+                        return doJobWithResult();
                     });
 
                     // No filter function found => we need to execute anyway( as before the use of withinFilter )
@@ -237,8 +229,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
                 } catch (Exception e) {
                     StackTraceElement element = PlayException.getInterestingStackTraceElement(e);
                     if (element != null) {
-                        throw new JavaExecutionException(Play.classes.getApplicationClass(element.getClassName()), element.getLineNumber(),
-                                e);
+                        throw new JavaExecutionException(Play.classes.getApplicationClass(element.getClassName()), element.getLineNumber(), e);
                     }
                     throw e;
                 }
