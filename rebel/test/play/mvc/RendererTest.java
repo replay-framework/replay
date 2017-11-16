@@ -1,17 +1,28 @@
 package play.mvc;
 
+import org.junit.After;
 import org.junit.Test;
 import play.mvc.results.RenderJson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.fest.assertions.Fail.fail;
 
 public class RendererTest {
+  TimeZone originalTimeZone = TimeZone.getDefault();
+
+  @After
+  public void tearDown() {
+    TimeZone.setDefault(originalTimeZone);
+  }
+
   @Test
   public void jsonDatesAreInStandardFormatWithoutTimeZone() throws Exception {
+    TimeZone.setDefault(TimeZone.getTimeZone("Europe/Tallinn"));
+
     Date dateTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(("11.07.2013 05:50:13"));
     try {
       new Renderer().json(dateTime);
