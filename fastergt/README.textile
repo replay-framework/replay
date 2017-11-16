@@ -12,3 +12,8 @@ The project is built using Gradle:
 > ./gradlew
 ```
 
+Add to your application's `play.plugins` file:
+
+```
+800:play.modules.gtengineplugin.GTEnginePlugin
+```

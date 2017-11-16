@@ -14,8 +14,6 @@ import play.i18n.MessagesPlugin;
 import play.jobs.JobsPlugin;
 import play.libs.WS;
 
-import java.io.File;
-
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -31,6 +29,8 @@ public class PluginCollectionTest {
     @Test
     public void verifyLoading() {
         PluginCollection pc = new PluginCollection();
+        Play.configuration.setProperty("play.plugins.descriptor", "play.plugins.sample");
+
         pc.loadPlugins();
 
         // the following plugin-list should match the list in the file 'play.plugins'
@@ -55,7 +55,7 @@ public class PluginCollectionTest {
             }
         };
         // make sure we load custom play.plugins-file
-        pc.play_plugins_resourceName = "play/plugins/custom-play-with-blank-lines.plugins";
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play-with-blank-lines.plugins");
 
         pc.loadPlugins();
 
@@ -84,9 +84,10 @@ public class PluginCollectionTest {
 
     @Test
     public void canLoadPlayPluginsFromASingleDescriptor() throws Exception {
-        Play.configuration.setProperty("play.plugins.descriptor", "test-src/play/plugins/custom-play.plugins");
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
         PluginCollection pc = new PluginCollection();
-        assertThat(pc.loadPlayPluginDescriptors()).containsExactly(new File(Play.applicationPath, "test-src/play/plugins/custom-play.plugins").toURI().toURL());
+        assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(1);
+        assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
     }
 
     @Test
@@ -100,7 +101,7 @@ public class PluginCollectionTest {
             }
         };
         // make sure we load custom play.plugins-file
-        pc.play_plugins_resourceName = "play/plugins/custom-play.plugins";
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
 
         pc.loadPlugins();
 

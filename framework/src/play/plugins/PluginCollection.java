@@ -15,7 +15,6 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -36,12 +35,6 @@ import static java.util.Objects.hash;
  * Since all the enabled-plugins-iteration is done here, the code elsewhere is cleaner.
  */
 public class PluginCollection {
-
-    /**
-     * Property holding the name of the play.plugins-resource-name. Can be modified in unittest to supply modifies
-     * plugin-list
-     */
-    protected String play_plugins_resourceName = "play.plugins";
 
     /**
      * List that holds all loaded plugins, enabled or disabled
@@ -189,11 +182,8 @@ public class PluginCollection {
 
     List<URL> loadPlayPluginDescriptors() {
         try {
-            String playPluginsDescriptor = Play.configuration.getProperty("play.plugins.descriptor");
-            if (playPluginsDescriptor != null) {
-                return Collections.singletonList(new File(Play.applicationPath, playPluginsDescriptor).toURI().toURL());
-            }
-            return Collections.list(Play.classloader.getResources(play_plugins_resourceName));
+            String pluginsDescriptorFilename = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins");
+            return Collections.list(Play.classloader.getResources(pluginsDescriptorFilename));
         }
         catch (Exception e) {
             Logger.error(e, "Error loading play.plugins");

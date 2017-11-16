@@ -138,14 +138,14 @@ public class ConfigurablePluginDisablingPluginTest {
     @Test
     public void verify_that_the_plugin_gets_loaded(){
         PluginCollection pc = new PluginCollection();
-
         new PlayBuilder().build();
+        Play.configuration.setProperty("play.plugins.descriptor", "play.plugins.sample");
+
         pc.loadPlugins();
+
         ConfigurablePluginDisablingPlugin pi = pc.getPluginInstance(ConfigurablePluginDisablingPlugin.class);
         assertThat(pc.getEnabledPlugins()).contains( pi );
     }
-
-
 }
 
 class TestPlugin extends PlayPlugin {

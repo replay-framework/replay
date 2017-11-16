@@ -8,7 +8,10 @@ public class EhCacheImplTest {
 
     @Test
     public void verifyThatTTLSurvivesIncrDecr() throws Exception {
-        EhCacheImpl cache = EhCacheImpl.newInstance();
+        EhCacheImpl cache = EhCacheImpl.getInstance();
+        if (cache == null) {
+            cache = EhCacheImpl.newInstance();
+        }
         cache.clear();
 
         String key = "EhCacheImplTest_verifyThatTTLSurvivesIncrDecr";
