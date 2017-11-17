@@ -91,6 +91,15 @@ public class PluginCollectionTest {
     }
 
     @Test
+    public void canLoadPlayPluginsFromMultipleDescriptors() throws Exception {
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins,play.plugins.sample");
+        PluginCollection pc = new PluginCollection();
+        assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(2);
+        assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.loadPlayPluginDescriptors().get(1).toString()).endsWith("play.plugins.sample");
+    }
+
+    @Test
     public void verifyReloading() throws Exception {
         // create custom PluginCollection that fakes that TestPlugin is application plugin
         PluginCollection pc = new PluginCollection() {

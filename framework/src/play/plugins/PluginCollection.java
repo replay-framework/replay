@@ -15,6 +15,7 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -22,8 +23,9 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.*;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.list;
 import static java.util.Objects.hash;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class handling all plugins used by Play.
@@ -138,7 +140,7 @@ public class PluginCollection {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.trim().length() == 0) {
+                    if (line.trim().isEmpty()) {
                         continue;
                     }
                     String[] lineParts = line.split(":");
@@ -181,13 +183,21 @@ public class PluginCollection {
     }
 
     List<URL> loadPlayPluginDescriptors() {
+        String[] pluginsDescriptorFilenames = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins").split(",");
+        List<URL> pluginDescriptors = Arrays.stream(pluginsDescriptorFilenames)
+          .map(f -> getResources(f))
+          .flatMap(List::stream)
+          .collect(toList());
+        Logger.info("Found plugin descriptors: " + pluginDescriptors);
+        return pluginDescriptors;
+    }
+
+    private List<URL> getResources(String f) {
         try {
-            String pluginsDescriptorFilename = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins");
-            return Collections.list(Thread.currentThread().getContextClassLoader().getResources(pluginsDescriptorFilename));
+            return list(Thread.currentThread().getContextClassLoader().getResources(f));
         }
-        catch (Exception e) {
-            Logger.error(e, "Error loading play.plugins");
-            return emptyList();
+        catch (IOException e) {
+            throw new IllegalArgumentException("Failed to read plugins from " + f);
         }
     }
 
