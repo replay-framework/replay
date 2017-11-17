@@ -26,8 +26,6 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 
 public class GTJavaCompileToClass {
 
-    public static String javaVersion = "1.5";
-
     private final ClassLoader parentClassLoader;
 
     Map<String, Boolean> packagesCache = new HashMap<>();
@@ -46,11 +44,11 @@ public class GTJavaCompileToClass {
         this.settings.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
         this.settings.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
         this.settings.put(CompilerOptions.OPTION_Encoding, "UTF-8");
-        this.settings.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
-        this.settings.put(CompilerOptions.OPTION_Source, javaVersion);
-        this.settings.put(CompilerOptions.OPTION_TargetPlatform, javaVersion);
-        this.settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-        this.settings.put(CompilerOptions.OPTION_Compliance, javaVersion);
+        this.settings.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+        this.settings.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+        this.settings.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+        this.settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+        this.settings.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
     }
 
     /**
