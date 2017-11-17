@@ -66,13 +66,8 @@ public class GroovyTemplate extends BaseTemplate {
     }
 
     public static class TClassLoader extends GroovyClassLoader {
-
-        public TClassLoader() {
-            super(Play.classloader);
-        }
-
-        public Class defineTemplate(String name, byte[] byteCode) {
-            return defineClass(name, byteCode, 0, byteCode.length, Play.classloader.protectionDomain);
+        public Class<?> defineTemplate(String name, byte[] byteCode) {
+            return defineClass(name, byteCode, 0, byteCode.length);
         }
     }
 
@@ -447,7 +442,7 @@ public class GroovyTemplate extends BaseTemplate {
          */
         public Class __loadClass(String className) throws Exception {
             try {
-                return Play.classloader.loadClass(className);
+                return Thread.currentThread().getContextClassLoader().loadClass(className);
             } catch (ClassNotFoundException e) {
                 return null;
             }

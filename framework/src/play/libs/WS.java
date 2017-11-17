@@ -172,7 +172,7 @@ public class WS extends PlayPlugin {
             wsImpl = new WSAsync();
         } else {
             try {
-                wsImpl = (WSImpl) Play.classloader.loadClass(implementation).newInstance();
+                wsImpl = (WSImpl) Class.forName(implementation).newInstance();
                 if (Logger.isTraceEnabled()) {
                     Logger.trace("Using the class:" + implementation + " for web service");
                 }
@@ -220,9 +220,9 @@ public class WS extends PlayPlugin {
     }
 
     public interface WSImpl {
-        public WSRequest newRequest(String url, String encoding);
+        WSRequest newRequest(String url, String encoding);
 
-        public void stop();
+        void stop();
     }
 
     public abstract static class WSRequest {
@@ -256,9 +256,9 @@ public class WS extends PlayPlugin {
          */
         public Integer timeout = 60;
 
-        public ServiceInfo oauthInfo = null;
-        public String oauthToken = null;
-        public String oauthSecret = null;
+        public ServiceInfo oauthInfo;
+        public String oauthToken;
+        public String oauthSecret;
 
         public WSRequest() {
             this.encoding = Play.defaultWebEncoding;

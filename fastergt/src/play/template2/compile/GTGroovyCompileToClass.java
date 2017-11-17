@@ -20,11 +20,7 @@ import java.util.List;
 
 public class GTGroovyCompileToClass {
 
-    private final ClassLoader parentClassLoader;
-
-    public GTGroovyCompileToClass(ClassLoader parentClassLoader) {
-        this.parentClassLoader = parentClassLoader;
-    }
+    private final ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
 
     static class GTCompilationUnit extends CompilationUnit {
         GTCompilationUnit(CompilerConfiguration configuration) {

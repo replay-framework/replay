@@ -211,7 +211,7 @@ public class TemplateLoader {
         }
         
         if (template == null) {
-            URL resource = Play.classloader.getResource(path);
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
             if (resource != null) {
                 File tmpTemplateFile = new File(Play.tmpDir, path);
                 try {

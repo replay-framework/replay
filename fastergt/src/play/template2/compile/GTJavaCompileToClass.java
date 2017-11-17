@@ -7,6 +7,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -21,11 +22,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
 public class GTJavaCompileToClass {
 
     public static String javaVersion = "1.5";
-
-    public static GTTypeResolver typeResolver;
 
     private final ClassLoader parentClassLoader;
 
@@ -190,33 +191,28 @@ public class GTJavaCompileToClass {
             }
 
             private NameEnvironmentAnswer findType(final String name) {
+                String resourceName = name.replace(".", "/") + ".class";
+                InputStream is = parentClassLoader.getResourceAsStream(resourceName);
+                if (is == null) {
+                    return null;
+                }
+
+                byte[] bytes;
                 try {
-
-                    // first let the framework try to resolve
-                    byte[] bytes = typeResolver.getTypeBytes(name);
-                    if (bytes == null) {
-                        // Now look for our own classes
-                        String resourceName = name.replace(".", "/") + ".class";
-                        InputStream is = parentClassLoader.getResourceAsStream(resourceName);
-                        if (is==null) {
-                            return null;
-                        }
-                        try {
-                            bytes = IOUtils.toByteArray(is);
-                        } catch(IOException e) {
-                            throw new GTCompilationException(e);
-                        }
-                        finally {
-                            is.close();
-                        }
-                    }
-
+                    bytes = IOUtils.toByteArray(is);
+                }
+                catch (IOException e) {
+                    throw new GTCompilationException(e);
+                }
+                finally {
+                    closeQuietly(is);
+                }
+                try {
                     ClassFileReader classFileReader = new ClassFileReader(bytes, name.toCharArray(), true);
                     return new NameEnvironmentAnswer(classFileReader, null);
-
-                } catch (Exception e) {
-                    // Something very very bad
-                    throw new RuntimeException(e);
+                }
+                catch (ClassFormatException e) {
+                    throw new GTCompilationException("Failed to load class " + name, e);
                 }
             }
 

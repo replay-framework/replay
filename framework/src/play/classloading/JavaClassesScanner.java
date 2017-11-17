@@ -1,22 +1,17 @@
-package play.rebel;
-
-import com.google.common.base.Joiner;
+package play.classloading;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 
-public class JavaClasses {
-  public static List<Class<?>> allClassesInProject() {
-    List<Class<?>> result = newArrayList();
+public class JavaClassesScanner {
+  public List<Class<?>> allClassesInProject() {
+    List<Class<?>> result = new ArrayList<>();
 
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     if (!(classLoader instanceof URLClassLoader)) classLoader = classLoader.getParent();
@@ -36,19 +31,25 @@ public class JavaClasses {
     return result;
   }
 
-  private static List<Class<?>> classesInDirectory(String packageName, File directory) throws ClassNotFoundException {
+  private List<Class<?>> classesInDirectory(String packageName, File directory) throws ClassNotFoundException {
     if (directory.getAbsolutePath().contains("/test"))
       return emptyList();
 
-    List<Class<?>> result = newArrayList();
+    List<Class<?>> result = new ArrayList<>();
     for (File file : directory.listFiles()) {
       if (file.isDirectory()) {
-        result.addAll(classesInDirectory(Joiner.on(".").skipNulls().join(packageName, file.getName()), file));
+        String subPackage = packageName == null ? file.getName() : packageName + '.' + file.getName();
+        result.addAll(classesInDirectory(subPackage, file));
       }
       else if (file.getName().endsWith(".class")) {
-        result.add(Class.forName(Joiner.on(".").skipNulls().join(packageName, file.getName().replace(".class", ""))));
+        String className = packageName == null ? classNameOf(file) : packageName + '.' + classNameOf(file);
+        result.add(Class.forName(className));
       }
     }
     return result;
+  }
+
+  private String classNameOf(File file) {
+    return file.getName().replace(".class", "");
   }
 }

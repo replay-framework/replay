@@ -1,6 +1,5 @@
 package play.classloading;
 
-import play.Logger;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.vfs.VirtualFile;
@@ -15,11 +14,6 @@ import java.util.Map;
  * Application classes container.
  */
 public class ApplicationClasses {
-
-    /**
-     * Reference to the eclipse compiler.
-     */
-    ApplicationCompiler compiler = new ApplicationCompiler(this);
     /**
      * Cache of all compiled classes
      */
@@ -64,7 +58,7 @@ public class ApplicationClasses {
                     continue;
                 }
                 try {
-                    Play.classloader.loadClass(applicationClass.name);
+                    Class.forName(applicationClass.name);
                 } catch (ClassNotFoundException ex) {
                     throw new UnexpectedException(ex);
                 }
@@ -94,7 +88,7 @@ public class ApplicationClasses {
                 continue;
             }
             try {
-                Play.classloader.loadClass(applicationClass.name);
+                Class.forName(applicationClass.name);
             } catch (ClassNotFoundException ex) {
                 throw new UnexpectedException(ex);
             }
@@ -199,29 +193,6 @@ public class ApplicationClasses {
         public String getPackage() {
             int dot = name.lastIndexOf('.');
             return dot > -1 ? name.substring(0, dot) : "";
-        }
-
-        /**
-         * Compile the class from Java source
-         * 
-         * @return the bytes that comprise the class file
-         */
-        public byte[] compile() {
-            long start = System.currentTimeMillis();
-            Play.classes.compiler.compile(new String[] { this.name });
-
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to compile class %s", System.currentTimeMillis() - start, name);
-            }
-
-            return this.javaByteCode;
-        }
-
-        /**
-         * Unload the class
-         */
-        public void uncompile() {
-            this.javaClass = null;
         }
 
         /**

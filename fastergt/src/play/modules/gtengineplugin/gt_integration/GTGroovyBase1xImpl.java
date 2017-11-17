@@ -2,7 +2,6 @@ package play.modules.gtengineplugin.gt_integration;
 
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingPropertyException;
-import play.Play;
 import play.data.binding.Unbinder;
 import play.exceptions.ActionNotFoundException;
 import play.exceptions.NoRouteFoundException;
@@ -39,7 +38,7 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
     @Override
     public Class _resolveClass(String clazzName) {
         try {
-            return Play.classloader.loadClass(clazzName);
+            return Class.forName(clazzName);
         } catch (ClassNotFoundException e) {
             return null;
         }

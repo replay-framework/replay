@@ -459,11 +459,6 @@ public class Play {
             }
 
             if (mode == Mode.DEV) {
-                // Need a new classloader
-                classloader = new ApplicationClassloader();
-                // Put it in the current context for any code that relies on having it there
-                Thread.currentThread().setContextClassLoader(classloader);
-                // Reload plugins
                 pluginCollection.reloadApplicationPlugins();
 
             }
@@ -568,7 +563,6 @@ public class Play {
             started = false;
             Cache.stop();
             Router.lastLoading = 0L;
-            Invoker.resetClassloaders();
         }
     }
 
@@ -590,7 +584,6 @@ public class Play {
         }
         try {
             Logger.info("Precompiling ...");
-            Thread.currentThread().setContextClassLoader(Play.classloader);
             long start = System.currentTimeMillis();
             classloader.getAllClasses();
 

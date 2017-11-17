@@ -148,7 +148,7 @@ public class LiquibasePlugin extends PlayPlugin {
     String scanner = Play.configuration.getProperty("liquibase.scanner", "jar");
     switch (scanner) {
       case "jar":
-        return Play.classloader.getResourceAsStream(propertiesPath);
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesPath);
       default:
         return new FileInputStream(Play.getFile(propertiesPath));
     }
@@ -159,7 +159,7 @@ public class LiquibasePlugin extends PlayPlugin {
 
     switch (scanner) {
       case "jar":
-        return new DuplicatesIgnoringResourceAccessor(Play.classloader);
+        return new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
       case "src":
         return new FileSystemResourceAccessor(Play.applicationPath.getAbsolutePath());
       default:

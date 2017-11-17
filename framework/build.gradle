@@ -31,7 +31,6 @@ dependencies {
   compile('oauth.signpost:signpost-core:1.2.1.2')
   compile('org.codehaus.groovy:groovy:2.4.12')
   compile('org.codehaus.groovy:groovy-xml:2.4.12')
-  compile('org.eclipse.jdt:org.eclipse.jdt.core:3.13.0') {transitive = false}
   compile('org.hibernate:hibernate-core:5.2.12.Final')
   compile('org.hibernate.common:hibernate-commons-annotations:5.0.1.Final')
   compile('org.hibernate:hibernate-entitymanager:5.2.12.Final') {

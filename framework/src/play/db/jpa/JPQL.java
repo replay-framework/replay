@@ -1,6 +1,5 @@
 package play.db.jpa;
 
-import play.Play;
 import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
 import play.db.Configuration;
@@ -53,7 +52,7 @@ public class JPQL {
     }
 
     public JPABase findById(String dbName, String entity, Object id) throws Exception {
-        return (JPABase) em(dbName).find(Play.classloader.loadClass(entity), id);
+        return (JPABase) em(dbName).find(Class.forName(entity), id);
     }
 
     public <T extends JPABase> List<T> findBy(String entity, String query, Object[] params) {
@@ -140,7 +139,7 @@ public class JPQL {
     }
 
     public JPABase create(String dbName, String entity, String name, Params params) throws Exception {
-        Object o = Play.classloader.loadClass(entity).newInstance();
+        Object o = Class.forName(entity).newInstance();
 
         RootParamNode rootParamNode = ParamNode.convert(params.all());
 

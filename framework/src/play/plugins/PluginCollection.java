@@ -153,7 +153,7 @@ public class PluginCollection {
         for (LoadingPluginInfo info : pluginsToLoad) {
             Logger.trace("Loading plugin %s", info.name);
             try {
-                PlayPlugin plugin = (PlayPlugin) Injector.getBeanOfType(Play.classloader.loadClass(info.name));
+                PlayPlugin plugin = (PlayPlugin) Injector.getBeanOfType(Class.forName(info.name));
                 plugin.index = info.index;
                 if (addPlugin(plugin)) {
                     Logger.trace("Plugin %s loaded", plugin);
@@ -183,7 +183,7 @@ public class PluginCollection {
     List<URL> loadPlayPluginDescriptors() {
         try {
             String pluginsDescriptorFilename = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins");
-            return Collections.list(Play.classloader.getResources(pluginsDescriptorFilename));
+            return Collections.list(Thread.currentThread().getContextClassLoader().getResources(pluginsDescriptorFilename));
         }
         catch (Exception e) {
             Logger.error(e, "Error loading play.plugins");
@@ -205,7 +205,7 @@ public class PluginCollection {
             // Is this plugin an application-supplied-plugin?
             if (isLoadedByApplicationClassloader(plugin)) {
                 // This plugin is application-supplied - Must reload it
-                Class pluginClazz = Play.classloader.loadClass(plugin.getClass().getName());
+                Class pluginClazz = Class.forName(plugin.getClass().getName());
                 PlayPlugin newPlugin = (PlayPlugin) Injector.getBeanOfType(pluginClazz);
                 newPlugin.index = plugin.index;
                 // Replace this plugin
@@ -489,15 +489,6 @@ public class PluginCollection {
      */
     public boolean isEnabled(PlayPlugin plugin) {
         return getEnabledPlugins().contains(plugin);
-    }
-
-    public boolean compileSources() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.compileSources()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void invocationFinally() {

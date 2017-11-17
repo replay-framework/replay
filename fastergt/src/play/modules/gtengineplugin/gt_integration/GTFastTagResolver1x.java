@@ -2,7 +2,6 @@ package play.modules.gtengineplugin.gt_integration;
 
 import play.Play;
 import play.classloading.ApplicationClasses;
-import play.classloading.ApplicationClassloaderState;
 import play.template2.GTFastTag;
 import play.template2.GTFastTagResolver;
 
@@ -12,14 +11,12 @@ import java.util.List;
 public class GTFastTagResolver1x implements GTFastTagResolver {
 
     private static final Object lock = new Object();
-    private static ApplicationClassloaderState _lastKnownApplicationClassloaderState;
     private static List<GTFastTag> fastTagClasses;
 
     @Override public String resolveFastTag(String tagName) {
 
         synchronized (lock) {
-            if (_lastKnownApplicationClassloaderState == null || !_lastKnownApplicationClassloaderState.equals(Play.classloader.currentState) || fastTagClasses == null) {
-                _lastKnownApplicationClassloaderState = Play.classloader.currentState;
+            if (fastTagClasses == null) {
                 fastTagClasses = new ArrayList<>();
                 for (ApplicationClasses.ApplicationClass appClass : Play.classes.getAssignableClasses( GTFastTag.class ) ) {
                     try {

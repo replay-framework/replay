@@ -1,7 +1,6 @@
 package play.modules.gtengineplugin.gt_integration;
 
 import play.Play;
-import play.classloading.ApplicationClassloaderState;
 import play.template2.compile.GTJavaExtensionMethodResolver;
 import play.templates.JavaExtensions;
 
@@ -14,14 +13,12 @@ import java.util.Map;
 public class GTJavaExtensionMethodResolver1x implements GTJavaExtensionMethodResolver {
 
     private static Object lock = new Object();
-    private static ApplicationClassloaderState _lastKnownApplicationClassloaderState;
     private static Map<String, Class> methodName2ClassMapping;
 
     @Override 
     public Class findClassWithMethod(String methodName) {
         synchronized (lock) {
-            if (_lastKnownApplicationClassloaderState == null || !_lastKnownApplicationClassloaderState.equals(Play.classloader.currentState) || methodName2ClassMapping == null) {
-                _lastKnownApplicationClassloaderState = Play.classloader.currentState;
+            if (methodName2ClassMapping == null) {
                 List<Class> extensionsClassnames = new ArrayList<>(5);
                 extensionsClassnames.add(JavaExtensions.class);
                 extensionsClassnames.addAll(Play.classloader.getAssignableClasses(JavaExtensions.class));
