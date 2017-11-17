@@ -125,26 +125,6 @@ public class ApplicationClasses {
     }
 
     /**
-     * Remove a class from cache
-     * 
-     * @param applicationClass
-     *            The class to remove
-     */
-    public void remove(ApplicationClass applicationClass) {
-        classes.remove(applicationClass.name);
-    }
-
-    /**
-     * Remove a class from cache
-     * 
-     * @param applicationClass
-     *            The class name to remove
-     */
-    public void remove(String applicationClass) {
-        classes.remove(applicationClass);
-    }
-
-    /**
      * Does this class is already loaded ?
      * 
      * @param name
@@ -181,21 +161,9 @@ public class ApplicationClasses {
          */
         public Class<?> javaClass;
         /**
-         * The in JVM loaded package
-         */
-        public Package javaPackage;
-        /**
-         * Last time than this class was compiled
-         */
-        @Deprecated
-        public Long timestamp = 0L;
-        /**
          * Is this class compiled
          */
         boolean compiled;
-
-        public ApplicationClass() {
-        }
 
         public ApplicationClass(String name) {
             this(name, getJava(name));
@@ -204,13 +172,6 @@ public class ApplicationClasses {
         public ApplicationClass(String name, VirtualFile javaFile) {
             this.name = name;
             this.javaFile = javaFile;
-            this.refresh();
-        }
-
-        /**
-         * Need to refresh this class !
-         */
-        private void refresh() {
             if (this.javaFile != null) {
                 this.javaSource = this.javaFile.contentAsString();
             }

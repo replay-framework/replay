@@ -110,9 +110,6 @@ public class ApplicationClassloader extends ClassLoader {
                 ApplicationClass applicationClass = Play.classes.getApplicationClass(name);
                 if (applicationClass != null) {
                     applicationClass.javaClass = clazz;
-                    if (!applicationClass.isClass()) {
-                        applicationClass.javaPackage = applicationClass.javaClass.getPackage();
-                    }
                 }
                 return clazz;
             } catch (Exception e) {
@@ -142,9 +139,6 @@ public class ApplicationClassloader extends ClassLoader {
                 applicationClass.javaClass = defineClass(applicationClass.name, applicationClass.javaByteCode, 0,
                         applicationClass.javaByteCode.length, protectionDomain);
                 resolveClass(applicationClass.javaClass);
-                if (!applicationClass.isClass()) {
-                    applicationClass.javaPackage = applicationClass.javaClass.getPackage();
-                }
 
                 if (Logger.isTraceEnabled()) {
                     Logger.trace("%sms to load class %s from cache", System.currentTimeMillis() - start, name);
@@ -157,9 +151,6 @@ public class ApplicationClassloader extends ClassLoader {
                         applicationClass.javaByteCode.length, protectionDomain);
                 BytecodeCache.cacheBytecode(applicationClass.javaByteCode, name, applicationClass.javaSource);
                 resolveClass(applicationClass.javaClass);
-                if (!applicationClass.isClass()) {
-                    applicationClass.javaPackage = applicationClass.javaClass.getPackage();
-                }
 
                 if (Logger.isTraceEnabled()) {
                     Logger.trace("%sms to load class %s", System.currentTimeMillis() - start, name);
