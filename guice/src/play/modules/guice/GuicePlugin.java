@@ -33,15 +33,10 @@ public class GuicePlugin extends PlayPlugin implements BeanSource {
   private final List<Module> modules = new ArrayList<Module>();
 
   @Override
-  public void onConfigurationRead() {
-    logger.debug("Starting Guice modules scanning");
-    loadInjector();
-    play.inject.Injector.setBeanSource(this);
-  }
-
-  @Override
   public void onApplicationStart() {
     logger.debug("Starting Guice modules injecting");
+    loadInjector();
+    play.inject.Injector.setBeanSource(this);
     play.inject.Injector.inject(this);
     injectAnnotated();
     injectPlayPlugins();
