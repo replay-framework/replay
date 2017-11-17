@@ -135,12 +135,7 @@ public class Play {
      * pluginCollection that holds all loaded plugins and all enabled plugins..
      */
     public static PluginCollection pluginCollection = new PluginCollection();
-    /**
-     * Readonly list containing currently enabled plugins. This list is updated from pluginCollection when
-     * pluginCollection is modified Play plugins Use pluginCollection instead.
-     */
-    @Deprecated
-    public static List<PlayPlugin> plugins = pluginCollection.getEnabledPlugins();
+
     /**
      * Modules
      */
@@ -148,18 +143,18 @@ public class Play {
     /**
      * Framework version
      */
-    public static String version = null;
+    public static String version;
     /**
      * Context path (when several application are deployed on the same host)
      */
     public static String ctxPath = "";
     static boolean firstStart = true;
-    public static boolean usePrecompiled = false;
-    public static boolean forceProd = false;
+    public static boolean usePrecompiled;
+    public static boolean forceProd;
     /**
      * Lazy load the templates on demand
      */
-    public static boolean lazyLoadTemplates = false;
+    public static boolean lazyLoadTemplates;
 
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
@@ -456,11 +451,6 @@ public class Play {
                     hook.setContextClassLoader(ClassLoader.getSystemClassLoader());
                     Runtime.getRuntime().addShutdownHook(hook);
                 }
-            }
-
-            if (mode == Mode.DEV) {
-                pluginCollection.reloadApplicationPlugins();
-
             }
 
             // Reload configuration
