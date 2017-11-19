@@ -36,8 +36,8 @@ public class PluginCollectionTest {
         // the following plugin-list should match the list in the file 'play.plugins'
         assertThat(pc.getEnabledPlugins()).containsExactly(
                 pc.getPluginInstance(ConfigurationChangeWatcherPlugin.class), pc.getPluginInstance(TempFilePlugin.class),
-                pc.getPluginInstance(ValidationPlugin.class), 
-                pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class), 
+                pc.getPluginInstance(ValidationPlugin.class),
+                pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class),
                 pc.getPluginInstance(JPAPlugin.class),
                 pc.getPluginInstance(MessagesPlugin.class), pc.getPluginInstance(WS.class),
                 pc.getPluginInstance(JobsPlugin.class), pc.getPluginInstance(ConfigurablePluginDisablingPlugin.class),
@@ -68,7 +68,7 @@ public class PluginCollectionTest {
 
     /**
      * Avoid including the same class+index twice.
-     * 
+     *
      * This happened in the past under a range of circumstances, including: 1. Class path on NTFS or other case
      * insensitive file system includes play.plugins directory 2x (C:/myproject/conf;c:/myproject/conf) 2.
      * https://play.lighthouseapp.com/projects/57987/tickets/176-app-playplugins-loaded-twice-conf-on-2-classpaths
@@ -150,6 +150,25 @@ public class PluginCollectionTest {
         // make sure Play.plugins-list is still correct
         assertThat(Play.plugins).isEqualTo(pc.getEnabledPlugins());
 
+    }
+
+    @Test
+    public void reversedListOfPlugins() {
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
+        PluginCollection pc = new PluginCollection();
+        pc.loadPlugins();
+
+        assertThat(pc.getReversedEnabledPlugins()).hasSize(2);
+        assertThat(pc.getReversedEnabledPlugins().get(0).getClass()).isEqualTo(TestPlugin.class);
+        assertThat(pc.getReversedEnabledPlugins().get(1).getClass()).isEqualTo(PlayStatusPlugin.class);
+    }
+
+    @Test
+    public void reversedListOfPlugins_forEmptyList() {
+        PluginCollection pc = new PluginCollection();
+        pc.loadPlugins();
+
+        assertThat(pc.getReversedEnabledPlugins()).hasSize(0);
     }
 }
 

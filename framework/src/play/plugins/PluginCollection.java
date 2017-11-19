@@ -438,37 +438,10 @@ public class PluginCollection {
      * 
      * @return Collection of plugins
      */
-    public Collection<PlayPlugin> getReversedEnabledPlugins() {
-        return new AbstractCollection<PlayPlugin>() {
-
-            @Override
-            public Iterator<PlayPlugin> iterator() {
-                final ListIterator<PlayPlugin> enabledPluginsListIt = enabledPlugins.listIterator(size() - 1);
-                return new Iterator<PlayPlugin>() {
-
-                    @Override
-                    public boolean hasNext() {
-                        return enabledPluginsListIt.hasPrevious();
-                    }
-
-                    @Override
-                    public PlayPlugin next() {
-                        return enabledPluginsListIt.previous();
-                    }
-
-                    @Override
-                    public void remove() {
-                        enabledPluginsListIt.remove();
-                    }
-                };
-            }
-
-            @Override
-            public int size() {
-                return enabledPlugins.size();
-            }
-
-        };
+    List<PlayPlugin> getReversedEnabledPlugins() {
+        ArrayList<PlayPlugin> reversedPlugins = new ArrayList<>(enabledPlugins);
+        Collections.reverse(reversedPlugins);
+        return reversedPlugins;
     }
 
     /**

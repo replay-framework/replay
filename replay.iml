@@ -25,8 +25,8 @@
       <excludeFolder url="file://$MODULE_DIR$/liquibase/build" />
       <excludeFolder url="file://$MODULE_DIR$/pdf/build" />
       <excludeFolder url="file://$MODULE_DIR$/rebel/build" />
-      <excludeFolder url="file://$MODULE_DIR$/repo" />
       <excludeFolder url="file://$MODULE_DIR$/replay-tests" />
+      <excludeFolder url="file://$MODULE_DIR$/repo" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
