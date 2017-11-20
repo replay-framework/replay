@@ -5,7 +5,6 @@ import org.junit.Test;
 import play.ConfigurationChangeWatcherPlugin;
 import play.Play;
 import play.PlayBuilder;
-import play.PlayPlugin;
 import play.data.parsing.TempFilePlugin;
 import play.data.validation.ValidationPlugin;
 import play.db.DBPlugin;
@@ -45,15 +44,9 @@ public class PluginCollectionTest {
     }
 
     @Test
-    public void verifyLoadingFromFilesWithBlankLines() throws Exception {
+    public void verifyLoadingFromFilesWithBlankLines() {
         // create custom PluginCollection that fakes that TestPlugin is application plugin
-        PluginCollection pc = new PluginCollection() {
-            @Override
-            protected boolean isLoadedByApplicationClassloader(PlayPlugin plugin) {
-                // return true only if This is our TestPlugin
-                return plugin.getClass().equals(TestPlugin.class);
-            }
-        };
+        PluginCollection pc = new PluginCollection();
         // make sure we load custom play.plugins-file
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play-with-blank-lines.plugins");
 
@@ -83,7 +76,7 @@ public class PluginCollectionTest {
     }
 
     @Test
-    public void canLoadPlayPluginsFromASingleDescriptor() throws Exception {
+    public void canLoadPlayPluginsFromASingleDescriptor() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
         PluginCollection pc = new PluginCollection();
         assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(1);
@@ -91,65 +84,12 @@ public class PluginCollectionTest {
     }
 
     @Test
-    public void verifyReloading() throws Exception {
-        // create custom PluginCollection that fakes that TestPlugin is application plugin
-        PluginCollection pc = new PluginCollection() {
-            @Override
-            protected boolean isLoadedByApplicationClassloader(PlayPlugin plugin) {
-                // return true only if This is our TestPlugin
-                return plugin.getClass().equals(TestPlugin.class);
-            }
-        };
-        // make sure we load custom play.plugins-file
-        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
-
-        pc.loadPlugins();
-
-        PlayStatusPlugin firstPlugin_first_instance = pc.getPluginInstance(PlayStatusPlugin.class);
-        TestPlugin testPlugin_first_instance = pc.getPluginInstance(TestPlugin.class);
-
-        // the following plugin-list should match the list in the file 'play.plugins'
-        assertThat(pc.getEnabledPlugins()).containsExactly(firstPlugin_first_instance, testPlugin_first_instance);
-        assertThat(pc.getAllPlugins()).containsExactly(firstPlugin_first_instance, testPlugin_first_instance);
-
-        pc.reloadApplicationPlugins();
-
-        TestPlugin testPlugin_second_instance = pc.getPluginInstance(TestPlugin.class);
-
-        assertThat(pc.getPluginInstance(PlayStatusPlugin.class)).isEqualTo(firstPlugin_first_instance);
-        assertThat(testPlugin_second_instance).isNotEqualTo(testPlugin_first_instance);
-
-    }
-
-    @SuppressWarnings({ "deprecation" })
-    @Test
-    public void verifyUpdatePlayPluginsList() {
-        assertThat(Play.plugins).isEmpty();
-
+    public void canLoadPlayPluginsFromMultipleDescriptors() {
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins,play.plugins.sample");
         PluginCollection pc = new PluginCollection();
-        pc.loadPlugins();
-
-        assertThat(Play.plugins).containsExactly(pc.getEnabledPlugins().toArray());
-
-    }
-
-    @SuppressWarnings({ "deprecation" })
-    @Test
-    public void verifyThatDisablingPluginsTheOldWayStillWorks() {
-        PluginCollection pc = new PluginCollection();
-
-        PlayPlugin legacyPlugin = new LegacyPlugin();
-
-        pc.addPlugin(legacyPlugin);
-        pc.addPlugin(new TestPlugin());
-
-        pc.initializePlugin(legacyPlugin);
-
-        assertThat(pc.getEnabledPlugins()).containsExactly(legacyPlugin);
-
-        // make sure Play.plugins-list is still correct
-        assertThat(Play.plugins).isEqualTo(pc.getEnabledPlugins());
-
+        assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(2);
+        assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.loadPlayPluginDescriptors().get(1).toString()).endsWith("play.plugins.sample");
     }
 
     @Test
@@ -172,20 +112,3 @@ public class PluginCollectionTest {
     }
 }
 
-class LegacyPlugin extends PlayPlugin {
-
-    @SuppressWarnings({ "deprecation" })
-    @Override
-    public void onLoad() {
-        // find TestPlugin in Play.plugins-list and remove it to disable it
-        PlayPlugin pluginToRemove = null;
-        for (PlayPlugin pp : Play.plugins) {
-            if (pp.getClass().equals(TestPlugin.class)) {
-                pluginToRemove = pp;
-                break;
-            }
-        }
-        Play.plugins.remove(pluginToRemove);
-    }
-
-}

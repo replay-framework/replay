@@ -2,9 +2,7 @@ package play.template2;
 
 import play.template2.compile.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -52,38 +50,7 @@ public class GTTemplateRepoBuilder {
 
 
     private GTTemplateRepo createTemplateRepo(final GTPreCompilerFactory preCompilerFactory) {
-
-        GTJavaCompileToClass.typeResolver = new GTTypeResolver() {
-            @Override public byte[] getTypeBytes(String name) {
-
-                try {
-                    InputStream in = getClass().getClassLoader().getResourceAsStream( name.replaceAll("\\.", "/") + ".class");
-                    if ( in==null) {
-                        return null;
-                    }
-
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    while ( (bytesRead = in.read(buffer))>0 ) {
-                        out.write(buffer, 0, bytesRead);
-                    }
-
-                    return out.toByteArray();
-
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public boolean isApplicationClass(String className) {
-                return false;
-            }
-        };
-
-        final GTTemplateRepo templateRepo = new GTTemplateRepo(getClass().getClassLoader(), false, preCompilerFactory, false, null);
-        return templateRepo;
+        return new GTTemplateRepo(false, preCompilerFactory, false, null);
     }
 
     /**

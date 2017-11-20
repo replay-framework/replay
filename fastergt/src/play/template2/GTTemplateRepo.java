@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GTTemplateRepo {
 
-    public final ClassLoader parentClassLoader;
     public final boolean checkForChanges;
     public final GTPreCompilerFactory preCompilerFactory;
     public final boolean preCompiledMode;
@@ -96,11 +95,7 @@ public class GTTemplateRepo {
     }
 
 
-    public GTTemplateRepo(ClassLoader parentClassLoader, boolean checkForChanges, GTPreCompilerFactory preCompilerFactory, boolean preCompiledMode, File folderToDumpClassesIn) {
-        this.parentClassLoader = parentClassLoader;
-        if (parentClassLoader== null) {
-            throw new GTException("parentClassLoader cannot be null");
-        }
+    public GTTemplateRepo(boolean checkForChanges, GTPreCompilerFactory preCompilerFactory, boolean preCompiledMode, File folderToDumpClassesIn) {
         this.checkForChanges = checkForChanges;
 
         this.preCompilerFactory = preCompilerFactory;
@@ -210,7 +205,7 @@ public class GTTemplateRepo {
             // compiled template classes are loaded by framework as regular classes....
             // look for it
             try {
-                Class<? extends GTJavaBase> templateClass = (Class<? extends GTJavaBase>)parentClassLoader.loadClass(templateClassName);
+                Class<? extends GTJavaBase> templateClass = (Class<? extends GTJavaBase>) Class.forName(templateClassName);
                 // found it
                 return new TemplateInfo( templateLocation, new GTTemplateInstanceFactoryRegularClass(templateClass));
             } catch (ClassNotFoundException e) {
@@ -272,7 +267,7 @@ public class GTTemplateRepo {
         GTCompiler.CompiledTemplate compiledTemplate = new GTCompiler.CompiledTemplate(templateClassName, compiledClasses);
 
 
-        return new TemplateInfo( templateLocationReal, new GTTemplateInstanceFactoryLive(parentClassLoader, compiledTemplate) );
+        return new TemplateInfo( templateLocationReal, new GTTemplateInstanceFactoryLive(compiledTemplate) );
         
 
     }
@@ -287,7 +282,7 @@ public class GTTemplateRepo {
         TemplateInfo ti;
         try {
             // compile it
-            GTCompiler.CompiledTemplate compiledTemplate = new GTCompiler(parentClassLoader, this, preCompilerFactory, true).compile( templateLocation);
+            GTCompiler.CompiledTemplate compiledTemplate = new GTCompiler(this, preCompilerFactory, true).compile( templateLocation);
 
             if (folderToDumpClassesIn != null && templateLocation instanceof GTTemplateLocationReal) {
                 // Must dump these classes in folder...
@@ -305,7 +300,7 @@ public class GTTemplateRepo {
 
             }
 
-            GTTemplateInstanceFactory templateInstanceFactory = new GTTemplateInstanceFactoryLive(parentClassLoader, compiledTemplate);
+            GTTemplateInstanceFactory templateInstanceFactory = new GTTemplateInstanceFactoryLive(compiledTemplate);
 
             ti = new TemplateInfo(templateLocation, templateInstanceFactory);
         } catch(GTTemplateNotFound | GTCompilationExceptionWithSourceInfo e) {

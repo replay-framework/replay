@@ -135,12 +135,7 @@ public class Play {
      * pluginCollection that holds all loaded plugins and all enabled plugins..
      */
     public static PluginCollection pluginCollection = new PluginCollection();
-    /**
-     * Readonly list containing currently enabled plugins. This list is updated from pluginCollection when
-     * pluginCollection is modified Play plugins Use pluginCollection instead.
-     */
-    @Deprecated
-    public static List<PlayPlugin> plugins = pluginCollection.getEnabledPlugins();
+
     /**
      * Modules
      */
@@ -148,18 +143,18 @@ public class Play {
     /**
      * Framework version
      */
-    public static String version = null;
+    public static String version;
     /**
      * Context path (when several application are deployed on the same host)
      */
     public static String ctxPath = "";
     static boolean firstStart = true;
-    public static boolean usePrecompiled = false;
-    public static boolean forceProd = false;
+    public static boolean usePrecompiled;
+    public static boolean forceProd;
     /**
      * Lazy load the templates on demand
      */
-    public static boolean lazyLoadTemplates = false;
+    public static boolean lazyLoadTemplates;
 
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
@@ -458,16 +453,6 @@ public class Play {
                 }
             }
 
-            if (mode == Mode.DEV) {
-                // Need a new classloader
-                classloader = new ApplicationClassloader();
-                // Put it in the current context for any code that relies on having it there
-                Thread.currentThread().setContextClassLoader(classloader);
-                // Reload plugins
-                pluginCollection.reloadApplicationPlugins();
-
-            }
-
             // Reload configuration
             readConfiguration();
 
@@ -568,7 +553,6 @@ public class Play {
             started = false;
             Cache.stop();
             Router.lastLoading = 0L;
-            Invoker.resetClassloaders();
         }
     }
 
@@ -590,7 +574,6 @@ public class Play {
         }
         try {
             Logger.info("Precompiling ...");
-            Thread.currentThread().setContextClassLoader(Play.classloader);
             long start = System.currentTimeMillis();
             classloader.getAllClasses();
 

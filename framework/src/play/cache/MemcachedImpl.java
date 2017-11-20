@@ -59,8 +59,8 @@ public class MemcachedImpl implements CacheImpl {
 
                         @Override
                         protected Class<?> resolveClass(ObjectStreamClass desc)
-                                throws IOException, ClassNotFoundException {
-                            return Class.forName(desc.getName(), false, Play.classloader);
+                                throws ClassNotFoundException {
+                            return Class.forName(desc.getName(), false, Thread.currentThread().getContextClassLoader());
                         }
                     }.readObject();
                 } catch (Exception e) {

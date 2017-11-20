@@ -2,7 +2,6 @@ package play.modules.gtengineplugin;
 
 import play.Logger;
 import play.Play;
-import play.classloading.GTTypeResolver1xImpl;
 import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
 import play.modules.gtengineplugin.gt_integration.GTFileResolver1xImpl;
@@ -12,7 +11,6 @@ import play.modules.gtengineplugin.gt_integration.PreCompilerFactory;
 import play.template2.*;
 import play.template2.compile.GTCompiler;
 import play.template2.compile.GTGroovyPimpTransformer;
-import play.template2.compile.GTJavaCompileToClass;
 import play.template2.exceptions.GTCompilationException;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 import play.template2.exceptions.GTTemplateNotFound;
@@ -34,7 +32,6 @@ public class TemplateLoader {
         GTTagContext.singleton = new GTTagContextBridge();
 
         GTGroovyPimpTransformer.gtJavaExtensionMethodResolver = new GTJavaExtensionMethodResolver1x();
-        GTTemplateInstanceFactoryLive.protectionDomain = Play.classloader.protectionDomain;
         // set up folder where we dump generated src
         GTFileResolver.impl = new GTFileResolver1xImpl(Play.templatesPath);
 
@@ -50,10 +47,7 @@ public class TemplateLoader {
             folderToDumpClassesIn = new File(Play.applicationPath, "tmp/gttemplates");
         }
 
-        GTJavaCompileToClass.typeResolver = new GTTypeResolver1xImpl();
-
         templateRepo = new GTTemplateRepo(
-                Play.classloader,
                 Play.mode == Play.Mode.DEV,
                 new PreCompilerFactory(),
                 Play.usePrecompiled,

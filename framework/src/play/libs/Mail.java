@@ -156,7 +156,7 @@ public class Mail {
             if (authenticator != null) {
                 props.put("mail.smtp.auth", "true");
                 try {
-                    session = Session.getInstance(props, (Authenticator) Play.classloader.loadClass(authenticator).newInstance());
+                    session = Session.getInstance(props, (Authenticator) Class.forName(authenticator).newInstance());
                 } catch (Exception e) {
                     Logger.error(e, "Cannot instantiate custom SMTP authenticator (%s)", authenticator);
                 }

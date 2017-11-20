@@ -166,7 +166,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         @Override
         public boolean init() {
-            Thread.currentThread().setContextClassLoader(Play.classloader);
             if (Logger.isTraceEnabled()) {
                 Logger.trace("init: begin");
             }

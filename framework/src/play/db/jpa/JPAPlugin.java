@@ -111,19 +111,11 @@ public class JPAPlugin extends PlayPlugin {
                 org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.ALL);
             }
 
-            Thread thread = Thread.currentThread();
-            ClassLoader contextClassLoader = thread.getContextClassLoader();
-            thread.setContextClassLoader(Play.classloader);
-            try {
-
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("Initializing JPA for %s...", dbName);
-                }
-                
-                JPA.emfs.put(dbName, newEntityManagerFactory(dbName, dbConfig));
-            } finally {
-                thread.setContextClassLoader(contextClassLoader);
+            if (Logger.isTraceEnabled()) {
+                Logger.trace("Initializing JPA for %s...", dbName);
             }
+
+            JPA.emfs.put(dbName, newEntityManagerFactory(dbName, dbConfig));
         }
         JPQL.instance = new JPQL();
     }
@@ -151,7 +143,7 @@ public class JPAPlugin extends PlayPlugin {
                 continue;
             }
             try {
-                Class<?> clazz = Play.classloader.loadClass(entity);  
+                Class<?> clazz = Class.forName(entity);
                 // Do we have a transactional annotation matching our dbname?
                 PersistenceUnit pu = clazz.getAnnotation(PersistenceUnit.class);
                 if (pu != null && pu.name().equals(dbName)) {

@@ -1,6 +1,5 @@
 package play.classloading;
 
-import play.Logger;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.vfs.VirtualFile;
@@ -15,11 +14,6 @@ import java.util.Map;
  * Application classes container.
  */
 public class ApplicationClasses {
-
-    /**
-     * Reference to the eclipse compiler.
-     */
-    ApplicationCompiler compiler = new ApplicationCompiler(this);
     /**
      * Cache of all compiled classes
      */
@@ -64,7 +58,7 @@ public class ApplicationClasses {
                     continue;
                 }
                 try {
-                    Play.classloader.loadClass(applicationClass.name);
+                    Class.forName(applicationClass.name);
                 } catch (ClassNotFoundException ex) {
                     throw new UnexpectedException(ex);
                 }
@@ -94,7 +88,7 @@ public class ApplicationClasses {
                 continue;
             }
             try {
-                Play.classloader.loadClass(applicationClass.name);
+                Class.forName(applicationClass.name);
             } catch (ClassNotFoundException ex) {
                 throw new UnexpectedException(ex);
             }
@@ -122,26 +116,6 @@ public class ApplicationClasses {
      */
     public void add(ApplicationClass applicationClass) {
         classes.put(applicationClass.name, applicationClass);
-    }
-
-    /**
-     * Remove a class from cache
-     * 
-     * @param applicationClass
-     *            The class to remove
-     */
-    public void remove(ApplicationClass applicationClass) {
-        classes.remove(applicationClass.name);
-    }
-
-    /**
-     * Remove a class from cache
-     * 
-     * @param applicationClass
-     *            The class name to remove
-     */
-    public void remove(String applicationClass) {
-        classes.remove(applicationClass);
     }
 
     /**
@@ -181,21 +155,9 @@ public class ApplicationClasses {
          */
         public Class<?> javaClass;
         /**
-         * The in JVM loaded package
-         */
-        public Package javaPackage;
-        /**
-         * Last time than this class was compiled
-         */
-        @Deprecated
-        public Long timestamp = 0L;
-        /**
          * Is this class compiled
          */
         boolean compiled;
-
-        public ApplicationClass() {
-        }
 
         public ApplicationClass(String name) {
             this(name, getJava(name));
@@ -204,13 +166,6 @@ public class ApplicationClasses {
         public ApplicationClass(String name, VirtualFile javaFile) {
             this.name = name;
             this.javaFile = javaFile;
-            this.refresh();
-        }
-
-        /**
-         * Need to refresh this class !
-         */
-        private void refresh() {
             if (this.javaFile != null) {
                 this.javaSource = this.javaFile.contentAsString();
             }
@@ -238,29 +193,6 @@ public class ApplicationClasses {
         public String getPackage() {
             int dot = name.lastIndexOf('.');
             return dot > -1 ? name.substring(0, dot) : "";
-        }
-
-        /**
-         * Compile the class from Java source
-         * 
-         * @return the bytes that comprise the class file
-         */
-        public byte[] compile() {
-            long start = System.currentTimeMillis();
-            Play.classes.compiler.compile(new String[] { this.name });
-
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to compile class %s", System.currentTimeMillis() - start, name);
-            }
-
-            return this.javaByteCode;
-        }
-
-        /**
-         * Unload the class
-         */
-        public void uncompile() {
-            this.javaClass = null;
         }
 
         /**

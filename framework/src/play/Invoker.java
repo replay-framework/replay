@@ -3,7 +3,6 @@ package play;
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import play.Play.Mode;
-import play.classloading.ApplicationClassloader;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
@@ -60,15 +59,6 @@ public class Invoker {
         return executor.schedule(invocation, millis, TimeUnit.MILLISECONDS);
     }
 
-    static void resetClassloaders() {
-        Thread[] executorThreads = new Thread[executor.getPoolSize()];
-        Thread.enumerate(executorThreads);
-        for (Thread thread : executorThreads) {
-            if (thread != null && thread.getContextClassLoader() instanceof ApplicationClassloader)
-                thread.setContextClassLoader(ClassLoader.getSystemClassLoader());
-        }
-    }
-
     /**
      * The class/method that will be invoked by the current operation
      */
@@ -80,16 +70,6 @@ public class Invoker {
 
         public static InvocationContext current() {
             return current.get();
-        }
-
-        public InvocationContext(String invocationType) {
-            this.invocationType = invocationType;
-            this.annotations = new ArrayList<>();
-        }
-
-        public InvocationContext(String invocationType, List<Annotation> annotations) {
-            this.invocationType = invocationType;
-            this.annotations = annotations;
         }
 
         public InvocationContext(String invocationType, Annotation[] annotations) {
@@ -181,7 +161,6 @@ public class Invoker {
          * @return true if successful
          */
         public boolean init() {
-            Thread.currentThread().setContextClassLoader(Play.classloader);
             Play.detectChanges();
             if (!Play.started) {
                 if (Play.mode == Mode.PROD) {
@@ -199,7 +178,6 @@ public class Invoker {
          * Things to do before an Invocation
          */
         public void before() {
-            Thread.currentThread().setContextClassLoader(Play.classloader);
             Play.pluginCollection.beforeInvocation();
         }
 
@@ -212,9 +190,6 @@ public class Invoker {
 
         /**
          * Things to do when the whole invocation has succeeded (before + execute + after)
-         * 
-         * @throws java.lang.Exception
-         *             Thrown if Invoker encounters any problems
          */
         public void onSuccess() throws Exception {
             Play.pluginCollection.onInvocationSuccess();

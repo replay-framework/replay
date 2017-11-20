@@ -3,7 +3,6 @@ package play.modules.gtengineplugin.gt_integration;
 import groovy.lang.Closure;
 import play.Play;
 import play.classloading.ApplicationClasses;
-import play.classloading.ApplicationClassloaderState;
 import play.exceptions.TemplateExecutionException;
 import play.modules.gtengineplugin.InternalLegacyFastTagsImpls;
 import play.template2.GTJavaBase;
@@ -34,15 +33,12 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
     }
 
     private static Object lock = new Object();
-    private static ApplicationClassloaderState _lastKnownApplicationClassloaderState;
-    private static Map<String, LegacyFastTag> _tagName2FastTag = new HashMap<>();
+    private static Map<String, LegacyFastTag> _tagName2FastTag;
 
     private static Map<String, LegacyFastTag> getTagName2FastTag() {
         synchronized (lock) {
-            if (_lastKnownApplicationClassloaderState == null || !_lastKnownApplicationClassloaderState.equals(Play.classloader.currentState)) {
-                // must reload
-                _tagName2FastTag = new HashMap<>();
-                _lastKnownApplicationClassloaderState = Play.classloader.currentState;
+            if (_tagName2FastTag == null) {
+                Map<String, LegacyFastTag> result = new HashMap<>();
 
                 // find all FastTag-classes
                 List<ApplicationClasses.ApplicationClass> _fastTagClasses = Play.classes.getAssignableClasses( FastTags.class );
@@ -63,11 +59,11 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
 
                         if (m.getName().startsWith("_") && Modifier.isStatic(m.getModifiers()) ) {
                             String tagName = namespacePrefix + m.getName().substring(1);
-                            _tagName2FastTag.put(tagName, new LegacyFastTag(clazz.getName(), m.getName()));
+                            result.put(tagName, new LegacyFastTag(clazz.getName(), m.getName()));
                         }
                     }
                 }
-
+                _tagName2FastTag = result;
             }
             return _tagName2FastTag;
 
@@ -94,7 +90,7 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
         try {
 
             // get the class with the fasttag method on
-            Class clazz = Play.classloader.loadClass(legacyFastTagClassName);
+            Class clazz = Class.forName(legacyFastTagClassName);
             // get the method
             Method m = clazz.getMethod(legacyFastTagMethodName,Map.class, Closure.class, PrintWriter.class, GroovyTemplate.ExecutableTemplate.class, Integer.TYPE);
             if (!Modifier.isStatic(m.getModifiers())) {
@@ -114,7 +110,7 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
                     return gtTemplate.binding.getProperty(property);
                 }
             };
-            
+
             int fromLine = 0;
 
             m.invoke(null, args, body, out, executableTemplate, fromLine);

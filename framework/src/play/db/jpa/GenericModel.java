@@ -1,7 +1,6 @@
 package play.db.jpa;
 
 import org.apache.commons.lang.StringUtils;
-import play.Play;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
 import play.data.binding.BindingAnnotations;
@@ -176,7 +175,7 @@ public class GenericModel extends JPABase {
 
                     ParamNode fieldParamNode = paramNode.getChild(field.getName(), true);
 
-                    Class<Model> c = (Class<Model>) Play.classloader.loadClass(relation);
+                    Class<Model> c = loadClass(relation);
                     if (JPABase.class.isAssignableFrom(c)) {
                         String keyName = Model.Manager.factoryFor(c).keyName();
                         if (multiple && Collection.class.isAssignableFrom(field.getType())) {
@@ -197,7 +196,7 @@ public class GenericModel extends JPABase {
 
                                     Query q = JPA.em(dbName).createQuery("from " + relation + " where " + keyName + " = ?1");
                                     q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), annotations, _id,
-                                            Model.Manager.factoryFor((Class<Model>) Play.classloader.loadClass(relation)).keyType(), null));
+                                            Model.Manager.factoryFor(loadClass(relation)).keyType(), null));
                                     try {
                                         l.add(q.getSingleResult());
 
@@ -213,7 +212,7 @@ public class GenericModel extends JPABase {
 
                                 Query q = JPA.em(dbName).createQuery("from " + relation + " where " + keyName + " = ?1");
                                 q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), annotations, ids[0],
-                                        Model.Manager.factoryFor((Class<Model>) Play.classloader.loadClass(relation)).keyType(), null));
+                                        Model.Manager.factoryFor(loadClass(relation)).keyType(), null));
                                 try {
                                     Object to = q.getSingleResult();
                                     edit(paramNode, field.getName(), to, field.getAnnotations());
@@ -252,6 +251,10 @@ public class GenericModel extends JPABase {
             // restoring changes to paramNode
             ParamNode.restoreRemovedChildren(removedNodesList);
         }
+    }
+
+    private static <T> Class<T> loadClass(String className) throws ClassNotFoundException {
+        return (Class<T>) Thread.currentThread().getContextClassLoader().loadClass(className);
     }
 
     /**
@@ -471,11 +474,9 @@ public class GenericModel extends JPABase {
          * 
          * @param position
          *            Position of the first element
-         * @param <T>
-         *            The entity class
          * @return A new query
          */
-        public <T> JPAQuery from(int position) {
+        public JPAQuery from(int position) {
             query.setFirstResult(position);
             return this;
         }

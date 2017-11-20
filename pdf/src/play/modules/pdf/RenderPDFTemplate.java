@@ -139,8 +139,7 @@ public class RenderPDFTemplate extends Result {
   private synchronized IHtmlToPdfTransformer getTransformer() {
     if (transformer == null) {
       try {
-        transformer = (IHtmlToPdfTransformer) Play.classloader.loadClass(IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER)
-          .newInstance();
+        transformer = (IHtmlToPdfTransformer) Class.forName(IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER).newInstance();
       }
       catch (Exception e) {
         throw new RuntimeException("Exception initializing pdf module", e);

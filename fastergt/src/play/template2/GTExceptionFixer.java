@@ -1,6 +1,5 @@
 package play.template2;
 
-import play.template2.compile.GTJavaCompileToClass;
 import play.template2.compile.GTPreCompiler;
 import play.template2.exceptions.*;
 
@@ -96,7 +95,7 @@ public class GTExceptionFixer {
                 if (clazz.startsWith("org.codehaus.groovy.") || clazz.startsWith("groovy.") || clazz.startsWith("sun.reflect.") || clazz.startsWith("java.lang.reflect.")) {
                     // remove it
                     se = null;
-                } else if (se.getLineNumber() > 0 && GTJavaCompileToClass.typeResolver.isApplicationClass(clazz)) {
+                } else if (se.getLineNumber() > 0) {
                     // This is an applicationClass
                     appClassName = se.getClassName();
                     lineNo = se.getLineNumber();

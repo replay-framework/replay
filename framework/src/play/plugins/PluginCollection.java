@@ -3,7 +3,6 @@ package play.plugins;
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
-import play.classloading.ApplicationClassloader;
 import play.data.binding.RootParamNode;
 import play.db.Model;
 import play.inject.Injector;
@@ -15,6 +14,7 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -22,8 +22,9 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.*;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.list;
 import static java.util.Objects.hash;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class handling all plugins used by Play.
@@ -35,7 +36,6 @@ import static java.util.Objects.hash;
  * Since all the enabled-plugins-iteration is done here, the code elsewhere is cleaner.
  */
 public class PluginCollection {
-
     /**
      * List that holds all loaded plugins, enabled or disabled
      */
@@ -138,7 +138,7 @@ public class PluginCollection {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.trim().length() == 0) {
+                    if (line.trim().isEmpty()) {
                         continue;
                     }
                     String[] lineParts = line.split(":");
@@ -153,7 +153,7 @@ public class PluginCollection {
         for (LoadingPluginInfo info : pluginsToLoad) {
             Logger.trace("Loading plugin %s", info.name);
             try {
-                PlayPlugin plugin = (PlayPlugin) Injector.getBeanOfType(Play.classloader.loadClass(info.name));
+                PlayPlugin plugin = (PlayPlugin) Injector.getBeanOfType(Class.forName(info.name));
                 plugin.index = info.index;
                 if (addPlugin(plugin)) {
                     Logger.trace("Plugin %s loaded", plugin);
@@ -175,56 +175,25 @@ public class PluginCollection {
                 initializePlugin(plugin);
             }
         }
-
-        // Must update Play.plugins-list one last time
-        updatePlayPluginsList();
     }
 
     List<URL> loadPlayPluginDescriptors() {
+        String[] pluginsDescriptorFilenames = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins").split(",");
+        List<URL> pluginDescriptors = Arrays.stream(pluginsDescriptorFilenames)
+          .map(f -> getResources(f))
+          .flatMap(List::stream)
+          .collect(toList());
+        Logger.info("Found plugin descriptors: " + pluginDescriptors);
+        return pluginDescriptors;
+    }
+
+    private List<URL> getResources(String f) {
         try {
-            String pluginsDescriptorFilename = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins");
-            return Collections.list(Play.classloader.getResources(pluginsDescriptorFilename));
+            return list(Thread.currentThread().getContextClassLoader().getResources(f));
         }
-        catch (Exception e) {
-            Logger.error(e, "Error loading play.plugins");
-            return emptyList();
+        catch (IOException e) {
+            throw new IllegalArgumentException("Failed to read plugins from " + f);
         }
-    }
-
-    /**
-     * Reloads all loaded plugins that is application-supplied.
-     * 
-     * @throws Exception
-     *             If problem occurred during reload
-     */
-    public void reloadApplicationPlugins() throws Exception {
-
-        Set<PlayPlugin> reloadedPlugins = new HashSet<>();
-        for (PlayPlugin plugin : getAllPlugins()) {
-
-            // Is this plugin an application-supplied-plugin?
-            if (isLoadedByApplicationClassloader(plugin)) {
-                // This plugin is application-supplied - Must reload it
-                Class pluginClazz = Play.classloader.loadClass(plugin.getClass().getName());
-                PlayPlugin newPlugin = (PlayPlugin) Injector.getBeanOfType(pluginClazz);
-                newPlugin.index = plugin.index;
-                // Replace this plugin
-                replacePlugin(plugin, newPlugin);
-                reloadedPlugins.add(newPlugin);
-            }
-        }
-
-        // Now we must call onLoad for all reloaded plugins
-        for (PlayPlugin plugin : reloadedPlugins) {
-            initializePlugin(plugin);
-        }
-
-        updatePlayPluginsList();
-
-    }
-
-    protected boolean isLoadedByApplicationClassloader(PlayPlugin plugin) {
-        return plugin.getClass().getClassLoader().getClass().equals(ApplicationClassloader.class);
     }
 
     /**
@@ -234,17 +203,16 @@ public class PluginCollection {
      * @param plugin
      *            The given plugin
      */
-    @SuppressWarnings({ "deprecation" })
     protected void initializePlugin(PlayPlugin plugin) {
         Logger.trace("Initializing plugin " + plugin);
         // We're ready to call onLoad for this plugin.
         // must create a unique Play.plugins-list for this onLoad-method-call so
         // we can detect if some plugins are removed/disabled
-        Play.plugins = new ArrayList<>(getEnabledPlugins());
+        List<PlayPlugin> plugins = new ArrayList<>(getEnabledPlugins());
         plugin.onLoad();
         // Check for missing/removed plugins
         for (PlayPlugin enabledPlugin : getEnabledPlugins()) {
-            if (!Play.plugins.contains(enabledPlugin)) {
+            if (!plugins.contains(enabledPlugin)) {
                 Logger.info("Detected that plugin '" + plugin + "' disabled the plugin '" + enabledPlugin
                         + "' the old way - should use Play.disablePlugin()");
                 // This enabled plugin was disabled.
@@ -272,27 +240,6 @@ public class PluginCollection {
         return false;
     }
 
-    protected synchronized void replacePlugin(PlayPlugin oldPlugin, PlayPlugin newPlugin) {
-        if (allPlugins.remove(oldPlugin)) {
-            allPlugins.add(newPlugin);
-            Collections.sort(allPlugins);
-            allPlugins_readOnlyCopy = createReadonlyCopy(allPlugins);
-        }
-
-        if (enabledPlugins.remove(oldPlugin)) {
-            enabledPlugins.add(newPlugin);
-            Collections.sort(enabledPlugins);
-            enabledPlugins_readOnlyCopy = createReadonlyCopy(enabledPlugins);
-
-            if (enabledPluginsWithFilters.remove(oldPlugin) && newPlugin.hasFilter()) {
-                enabledPluginsWithFilters.add(newPlugin);
-                Collections.sort(enabledPluginsWithFilters);
-                enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
-            }
-        }
-
-    }
-
     /**
      * Enable plugin.
      *
@@ -315,7 +262,6 @@ public class PluginCollection {
                     enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
                 }
 
-                updatePlayPluginsList();
                 Logger.trace("Plugin " + plugin + " enabled");
                 return true;
             }
@@ -369,7 +315,6 @@ public class PluginCollection {
                 enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
             }
 
-            updatePlayPluginsList();
             Logger.trace("Plugin " + plugin + " disabled");
             return true;
         }
@@ -386,14 +331,6 @@ public class PluginCollection {
      */
     public boolean disablePlugin(Class<? extends PlayPlugin> pluginClazz) {
         return disablePlugin(getPluginInstance(pluginClazz));
-    }
-
-    /**
-     * Must update Play.plugins-list to be backward compatible
-     */
-    @SuppressWarnings({ "deprecation" })
-    public void updatePlayPluginsList() {
-        Play.plugins = Collections.unmodifiableList(getEnabledPlugins());
     }
 
     /**
@@ -462,15 +399,6 @@ public class PluginCollection {
      */
     public boolean isEnabled(PlayPlugin plugin) {
         return getEnabledPlugins().contains(plugin);
-    }
-
-    public boolean compileSources() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.compileSources()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void invocationFinally() {

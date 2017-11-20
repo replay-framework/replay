@@ -32,10 +32,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     public void onLoad() {
     }
 
-    public boolean compileSources() {
-        return false;
-    }
-
     /**
      * Called when play need to bind a Java object from HTTP params.
      * 

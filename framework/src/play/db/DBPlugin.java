@@ -67,7 +67,7 @@ public class DBPlugin extends PlayPlugin {
                         // Try the driver
                         String driver = dbConfig.getProperty("db.driver");
                         try {
-                            Driver d = (Driver) Class.forName(driver, true, Play.classloader).newInstance();
+                            Driver d = (Driver) Class.forName(driver).newInstance();
                             DriverManager.registerDriver(new ProxyDriver(d));
                         } catch (Exception e) {
                             throw new Exception("Database [" + dbName + "] Driver not found (" + driver + ")", e);

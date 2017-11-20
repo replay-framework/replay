@@ -1,7 +1,5 @@
 package play.utils;
 
-import play.Play;
-import play.classloading.ApplicationClassloaderState;
 import play.mvc.With;
 
 import java.io.*;
@@ -18,23 +16,9 @@ import static java.util.Collections.sort;
 public class Java {
 
     protected static JavaWithCaching _javaWithCaching = new JavaWithCaching();
-    protected static ApplicationClassloaderState _lastKnownApplicationClassloaderState = Play.classloader.currentState;
-    private static final Object _javaWithCachingLock = new Object();
 
     protected static JavaWithCaching getJavaWithCaching() {
-        synchronized (_javaWithCachingLock) {
-            // has the state of the ApplicationClassloader changed?
-            ApplicationClassloaderState currentApplicationClassloaderState = Play.classloader.currentState;
-            if (!currentApplicationClassloaderState.equals(_lastKnownApplicationClassloaderState)) {
-                // it has changed.
-                // we must drop our current _javaWithCaching and create a new one...
-                // and start the caching over again.
-                _lastKnownApplicationClassloaderState = currentApplicationClassloaderState;
-                _javaWithCaching = new JavaWithCaching();
-
-            }
-            return _javaWithCaching;
-        }
+        return _javaWithCaching;
     }
 
     /**
@@ -66,23 +50,6 @@ public class Java {
      */
     public static List<Method> findAllAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annotationType) {
         return getJavaWithCaching().findAllAnnotatedMethods(clazz, annotationType);
-    }
-
-    /**
-     * Find all annotated method from a class
-     * 
-     * @param classes
-     *            The classes
-     * @param annotationType
-     *            The annotation class
-     * @return A list of method object
-     */
-    public static List<Method> findAllAnnotatedMethods(List<Class> classes, Class<? extends Annotation> annotationType) {
-        List<Method> methods = new ArrayList<>();
-        for (Class clazz : classes) {
-            methods.addAll(findAllAnnotatedMethods(clazz, annotationType));
-        }
-        return methods;
     }
 
     public static byte[] serialize(Object o) throws IOException {
