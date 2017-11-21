@@ -152,7 +152,7 @@ public class JobsPlugin extends PlayPlugin {
                     Job job = createJob(clazz);
                     String value = clazz.getAnnotation(Every.class).value();
                     if (value.startsWith("cron.")) {
-                        value = Play.configuration.getProperty(value);
+                        value = Play.configuration.getProperty(value, "never");
                     }
                     value = Expression.evaluate(value, value).toString();
                     if (!"never".equalsIgnoreCase(value)) {
