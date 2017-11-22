@@ -1,5 +1,6 @@
 package play.mvc;
 
+import org.junit.Before;
 import org.junit.Test;
 import play.Play;
 
@@ -11,10 +12,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class CookieSessionStoreTest {
-  CookieSessionStore cookieSessionStore = new CookieSessionStore();
+  @Before
+  public void setUp() {
+    Play.configuration.setProperty(Scope.COOKIE_EXPIRATION_SETTING, "15mn");
+  }
 
   @Test
   public void testSendAlways() {
+    CookieSessionStore cookieSessionStore = new CookieSessionStore();
     setSendOnlyIfChangedConstant(false);
 
     mockRequestAndResponse();
@@ -27,6 +32,7 @@ public class CookieSessionStoreTest {
 
   @Test
   public void testSendOnlyIfChanged() {
+    CookieSessionStore cookieSessionStore = new CookieSessionStore();
     // Mock secret
     Play.secretKey = "0112358";
 

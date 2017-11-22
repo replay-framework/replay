@@ -51,16 +51,6 @@ public abstract class Cache {
     }
 
     /**
-     * Add an element only if it doesn't exist and store it indefinitely.
-     * @param key Element key
-     * @param value Element value
-     */
-    public static void add(String key, Object value) {
-        checkSerializable(value);
-        cacheImpl.add(key, value, Time.parseDuration(null));
-    }
-
-    /**
      * Set an element.
      * @param key Element key
      * @param value Element value
@@ -81,16 +71,6 @@ public abstract class Cache {
     public static boolean safeSet(String key, Object value, String expiration) {
         checkSerializable(value);
         return cacheImpl.safeSet(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
-     * Set an element and store it indefinitely.
-     * @param key Element key
-     * @param value Element value
-     */
-    public static void set(String key, Object value) {
-        checkSerializable(value);
-        cacheImpl.set(key, value, Time.parseDuration(null));
     }
 
     /**
@@ -115,16 +95,6 @@ public abstract class Cache {
     public static boolean safeReplace(String key, Object value, String expiration) {
         checkSerializable(value);
         return cacheImpl.safeReplace(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
-     * Replace an element only if it already exists and store it indefinitely.
-     * @param key Element key
-     * @param value Element value
-     */
-    public static void replace(String key, Object value) {
-        checkSerializable(value);
-        cacheImpl.replace(key, value, Time.parseDuration(null));
     }
 
     /**

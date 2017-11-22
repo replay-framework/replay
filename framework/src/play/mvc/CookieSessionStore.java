@@ -13,6 +13,8 @@ import static play.mvc.Scope.Session.TS_KEY;
  */
 public class CookieSessionStore implements SessionStore {
 
+    private final String COOKIE_EXPIRE = Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING);
+
     @Override
     public Session restore() {
         try {

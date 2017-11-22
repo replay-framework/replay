@@ -29,7 +29,7 @@ public class Time {
      */
     public static int parseDuration(String duration) {
         if (duration == null) {
-            return 30 * DAY;
+            throw new IllegalArgumentException("duration cannot be null");
         }
 
         Matcher matcher = p.matcher(duration);
@@ -52,52 +52,5 @@ public class Time {
         }
 
         return seconds;
-    }
-
-    /**
-     * Parse a CRON expression
-     *
-     * @param cron
-     *            The CRON String
-     * @return The next Date that satisfy the expression
-     */
-    public static Date parseCRONExpression(String cron) {
-        try {
-            return new CronExpression(cron).getNextValidTimeAfter(new Date());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid CRON pattern : " + cron, e);
-        }
-    }
-
-    /**
-     * Compute the number of milliseconds between the next valid date and the
-     * one after
-     *
-     * @param cron
-     *            The CRON String
-     * @return the number of milliseconds between the next valid date and the
-     *         one after, with an invalid interval between
-     */
-    public static long cronInterval(String cron) {
-        return cronInterval(cron, new Date());
-    }
-
-    /**
-     * Compute the number of milliseconds between the next valid date and the
-     * one after
-     *
-     * @param cron
-     *            The CRON String
-     * @param date
-     *            The date to start search
-     * @return the number of milliseconds between the next valid date and the
-     *         one after, with an invalid interval between
-     */
-    public static long cronInterval(String cron, Date date) {
-        try {
-            return new CronExpression(cron).getNextInterval(date);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid CRON pattern : " + cron, e);
-        }
     }
 }
