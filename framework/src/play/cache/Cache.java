@@ -27,30 +27,6 @@ public abstract class Cache {
     public static CacheImpl forcedCacheImpl;
 
     /**
-     * Add an element only if it doesn't exist.
-     * @param key Element key
-     * @param value Element value
-     * @param expiration Ex: 10s, 3mn, 8h
-     */
-    public static void add(String key, Object value, String expiration) {
-        checkSerializable(value);
-        cacheImpl.add(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
-     * Add an element only if it doesn't exist, and return only when 
-     * the element is effectively cached.
-     * @param key Element key
-     * @param value Element value
-     * @param expiration Ex: 10s, 3mn, 8h
-     * @return If the element an eventually been cached
-     */
-    public static boolean safeAdd(String key, Object value, String expiration) {
-        checkSerializable(value);
-        return cacheImpl.safeAdd(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
      * Set an element.
      * @param key Element key
      * @param value Element value
