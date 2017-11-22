@@ -30,7 +30,7 @@ public class Scope {
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
     public static final boolean COOKIE_SECURE = Play.configuration.getProperty("application.session.secure", "false").toLowerCase()
             .equals("true");
-    public static final String COOKIE_EXPIRE = Play.configuration.getProperty("application.session.maxAge");
+    public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
     public static final boolean SESSION_HTTPONLY = Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase()
             .equals("true");
     public static final boolean SESSION_SEND_ONLY_IF_CHANGED = Play.configuration

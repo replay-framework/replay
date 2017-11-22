@@ -6,11 +6,6 @@ import static org.junit.Assert.assertEquals;
 
 public class TimeTest {
     @Test
-    public void parseWithNullArgument() {
-        assertEquals(2592000, Time.parseDuration(null));
-    }
-
-    @Test
     public void parseGood1() {
         assertEquals(40, Time.parseDuration("40s"));
     }
@@ -33,6 +28,21 @@ public class TimeTest {
     @Test
     public void parseGood5() {
         assertEquals(7200, Time.parseDuration("120min"));
+    }
+
+    @Test
+    public void parseGood6() {
+        assertEquals(2592000, Time.parseDuration("30d"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullArgumentIsNotAllowed() {
+        Time.parseDuration(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyArgumentIsNotAllowed() {
+        Time.parseDuration("");
     }
 
     @Test(expected = IllegalArgumentException.class)

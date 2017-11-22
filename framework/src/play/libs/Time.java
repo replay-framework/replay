@@ -29,7 +29,7 @@ public class Time {
      */
     public static int parseDuration(String duration) {
         if (duration == null) {
-            return 30 * DAY;
+            throw new IllegalArgumentException("duration cannot be null");
         }
 
         Matcher matcher = p.matcher(duration);
