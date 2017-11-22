@@ -20,11 +20,6 @@ public abstract class Cache {
      * The underlying cache implementation
      */
     public static CacheImpl cacheImpl;
-    
-    /**
-     * Sometime we REALLY need to change the implementation :)
-     */
-    public static CacheImpl forcedCacheImpl;
 
     /**
      * Set an element.
@@ -172,10 +167,6 @@ public abstract class Cache {
      * Initialize the cache system.
      */
     public static void init() {
-        if(forcedCacheImpl != null) {
-            cacheImpl = forcedCacheImpl;
-            return;
-        }
         if (Play.configuration.getProperty("memcached", "disabled").equals("enabled")) {
             try {
                 cacheImpl = MemcachedImpl.getInstance(true);
