@@ -25,8 +25,6 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.apache.commons.io.FilenameUtils;
 import play.Play;
 import play.data.validation.Validation;
-import play.exceptions.PlayException;
-import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Scope;
@@ -171,29 +169,13 @@ public class PDF {
     templateBinding.put("params", Scope.Params.current());
     templateBinding.put("errors", Validation.errors());
     
-    try {
-      if (out == null) {
-        // we're rendering to the current Response object
-        throw new RenderPDFTemplate(docs, inline, templateBinding);
-      }
-      else {
-        RenderPDFTemplate renderer = new RenderPDFTemplate(docs, inline, templateBinding);
-        renderer.writePDF(out, Http.Request.current());
-      }
+    if (out == null) {
+      // we're rendering to the current Response object
+      throw new RenderPDFTemplate(docs, inline, templateBinding);
     }
-    catch (TemplateNotFoundException ex) {
-      if (ex.isSourceAvailable()) {
-        throw ex;
-      }
-      StackTraceElement element = PlayException.getInterestingStackTraceElement(ex);
-      if (element != null) {
-        throw new TemplateNotFoundException(ex.getPath(),
-            Play.classes.getApplicationClass(element.getClassName()), element.getLineNumber());
-      }
-      else {
-        throw ex;
-      }
+    else {
+      RenderPDFTemplate renderer = new RenderPDFTemplate(docs, inline, templateBinding);
+      renderer.writePDF(out, Http.Request.current());
     }
   }
-
 }

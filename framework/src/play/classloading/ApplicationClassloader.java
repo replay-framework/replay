@@ -1,7 +1,6 @@
 package play.classloading;
 
 import play.Play;
-import play.classloading.ApplicationClasses.ApplicationClass;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -21,21 +20,15 @@ public class ApplicationClassloader {
         if (allClasses == null) {
             List<Class<?>> result = scanner.allClassesInProject();
 
-            Play.classes.clear();
-
-            for (Class<?> javaClass : result) {
-                ApplicationClass appClass = new ApplicationClass(javaClass.getName());
-                appClass.javaClass = javaClass;
-                Play.classes.add(appClass);
-            }
+            Play.classes.set(result);
 
             result.sort(comparing(Class::getName));
 
-            Map<String, ApplicationClass> byNormalizedName = new HashMap<>(result.size());
-            for (ApplicationClass clazz : Play.classes.all()) {
-                byNormalizedName.put(clazz.name.toLowerCase(), clazz);
-                if (clazz.name.contains("$")) {
-                    byNormalizedName.put(replace(clazz.name.toLowerCase(), "$", "."), clazz);
+            Map<String, Class> byNormalizedName = new HashMap<>(result.size());
+            for (Class clazz : result) {
+                byNormalizedName.put(clazz.getName().toLowerCase(), clazz);
+                if (clazz.getName().contains("$")) {
+                    byNormalizedName.put(replace(clazz.getName().toLowerCase(), "$", "."), clazz);
                 }
             }
 
@@ -46,7 +39,7 @@ public class ApplicationClassloader {
     }
 
     private List<Class<?>> allClasses;
-    private Map<String, ApplicationClass> allClassesByNormalizedName;
+    private Map<String, Class> allClassesByNormalizedName;
     private final Map<String, List<Class>> assignableClassesByName = new HashMap<>(100);
 
     /**
@@ -62,15 +55,9 @@ public class ApplicationClassloader {
         }
         getAllClasses();
         List<Class> results = assignableClassesByName.get(clazz.getName());
-        if (results != null) {
-            return results;
-        } else {
-            results = new ArrayList<>();
-            for (ApplicationClass c : Play.classes.getAssignableClasses(clazz)) {
-                results.add(c.javaClass);
-            }
-            // cache assignable classes
-            assignableClassesByName.put(clazz.getName(), unmodifiableList(results));
+        if (results == null) {
+            results = unmodifiableList(Play.classes.getAssignableClasses(clazz));
+            assignableClassesByName.put(clazz.getName(), results); // cache assignable classes
         }
         return results;
     }
@@ -78,8 +65,7 @@ public class ApplicationClassloader {
     public Class<?> getClassIgnoreCase(String name) {
         getAllClasses();
         String nameLowerCased = name.toLowerCase();
-        ApplicationClass c = allClassesByNormalizedName.get(nameLowerCased);
-        return c != null ? c.javaClass : null;
+        return allClassesByNormalizedName.get(nameLowerCased);
     }
 
     /**
@@ -91,10 +77,6 @@ public class ApplicationClassloader {
      */
     public List<Class> getAnnotatedClasses(Class<? extends Annotation> clazz) {
         getAllClasses();
-        List<Class> results = new ArrayList<>();
-        for (ApplicationClass c : Play.classes.getAnnotatedClasses(clazz)) {
-            results.add(c.javaClass);
-        }
-        return results;
+        return Play.classes.getAnnotatedClasses(clazz);
     }
 }

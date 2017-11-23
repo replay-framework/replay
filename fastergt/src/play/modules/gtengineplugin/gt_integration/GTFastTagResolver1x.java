@@ -1,7 +1,6 @@
 package play.modules.gtengineplugin.gt_integration;
 
 import play.Play;
-import play.classloading.ApplicationClasses;
 import play.template2.GTFastTag;
 import play.template2.GTFastTagResolver;
 
@@ -18,9 +17,9 @@ public class GTFastTagResolver1x implements GTFastTagResolver {
         synchronized (lock) {
             if (fastTagClasses == null) {
                 fastTagClasses = new ArrayList<>();
-                for (ApplicationClasses.ApplicationClass appClass : Play.classes.getAssignableClasses( GTFastTag.class ) ) {
+                for (Class appClass : Play.classes.getAssignableClasses( GTFastTag.class ) ) {
                     try {
-                        fastTagClasses.add( (GTFastTag)appClass.javaClass.newInstance());
+                        fastTagClasses.add( (GTFastTag)appClass.newInstance());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

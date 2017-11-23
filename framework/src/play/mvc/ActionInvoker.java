@@ -434,8 +434,7 @@ public class ActionInvoker {
 
             StackTraceElement element = PlayException.getInterestingStackTraceElement(originalThrowable);
             if (element != null) {
-                throw new JavaExecutionException(Play.classes.getApplicationClass(element.getClassName()), element.getLineNumber(),
-                        originalThrowable);
+                throw new JavaExecutionException(element.getLineNumber(), originalThrowable);
             }
             throw new JavaExecutionException(originalThrowable);
         }

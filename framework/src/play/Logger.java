@@ -576,7 +576,7 @@ public class Logger {
                 errorOut.println("@" + playException.getId());
                 errorOut.println(format(message, args));
                 errorOut.println("");
-                if (playException.isSourceAvailable()) {
+                if (playException.getSourceFile() != null) {
                     errorOut.println(playException.getErrorTitle() + " (In " + playException.getSourceFile() + " around line " + playException.getLineNumber() + ")");
                 } else {
                     errorOut.println(playException.getErrorTitle());

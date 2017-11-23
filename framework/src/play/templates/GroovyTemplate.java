@@ -257,10 +257,7 @@ public class GroovyTemplate extends BaseTemplate {
                 Logger.trace("%sms to render template %s", System.currentTimeMillis() - start, name);
             }
         } catch (NoRouteFoundException e) {
-            if (e.isSourceAvailable()) {
-                throw e;
-            }
-            throwException(e);
+            throw e;
         } catch (PlayException e) {
             throw (PlayException) cleanStackTrace(e);
         } catch (DoBodyException e) {

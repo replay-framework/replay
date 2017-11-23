@@ -1,10 +1,7 @@
 package play.exceptions;
 
-import play.classloading.ApplicationClasses.ApplicationClass;
 import play.templates.Template;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,7 +13,6 @@ public class NoRouteFoundException extends PlayException implements SourceAttach
     String action;
     Map<String, Object> args;
     String sourceFile;
-    List<String> source;
     Integer line;
 
     public NoRouteFoundException(String file) {
@@ -24,17 +20,9 @@ public class NoRouteFoundException extends PlayException implements SourceAttach
         this.file = file;
     }
 
-    public NoRouteFoundException(String file, ApplicationClass applicationClass, Integer line) {
-        this(file);
-        this.sourceFile = applicationClass.javaFile.relativePath();
-        this.source = Arrays.asList(applicationClass.javaSource.split("\n"));
-        this.line = line;
-    }
-
     public NoRouteFoundException(String file, Template template, Integer line) {
         this(file);
         this.sourceFile = template.name;
-        this.source = Arrays.asList(template.source.split("\n"));
         this.line = line;
     }
     
@@ -46,18 +34,10 @@ public class NoRouteFoundException extends PlayException implements SourceAttach
             this.action = this.action.substring(12);
         }
     } 
-    
-    public NoRouteFoundException(String action, Map<String, Object> args, ApplicationClass applicationClass, Integer line) {
-        this(action, args);
-        this.sourceFile = applicationClass.javaFile.relativePath();
-        this.source = Arrays.asList(applicationClass.javaSource.split("\n"));
-        this.line = line;
-    }
-    
+
     public NoRouteFoundException(String action, Map<String, Object> args, Template template, Integer line) {
         this(action, args);
         this.sourceFile = template.name;
-        this.source = Arrays.asList(template.source.split("\n"));
         this.line = line;
     }
 
@@ -86,23 +66,12 @@ public class NoRouteFoundException extends PlayException implements SourceAttach
     }
     
     @Override
-    public boolean isSourceAvailable() {
-        return source != null;
-    }
-
-    @Override
     public String getSourceFile() {
         return sourceFile;
     }
 
     public String getFile() {
         return file;
-    }
-
-
-    @Override
-    public List<String> getSource() {
-        return source;
     }
 
     @Override

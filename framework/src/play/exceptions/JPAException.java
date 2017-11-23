@@ -2,9 +2,6 @@ package play.exceptions;
 
 import org.hibernate.exception.GenericJDBCException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class JPAException extends PlayException implements SourceAttachment {
 
     public JPAException(String message) {
@@ -31,22 +28,8 @@ public class JPAException extends PlayException implements SourceAttachment {
     }
 
     @Override
-    public boolean isSourceAvailable() {
-        return getCause() != null && getCause() instanceof GenericJDBCException;
-    }   
-
-    @Override
     public Integer getLineNumber() {
         return 1;
-    }
-
-    @Override
-    public List<String> getSource() {
-        List<String> sql = new ArrayList<>();
-        if (getCause() != null && getCause() instanceof GenericJDBCException) {
-            sql.add(((GenericJDBCException)getCause()).getSQL());
-        }
-        return sql;
     }
 
     @Override
