@@ -33,18 +33,6 @@ public abstract class Cache {
     }
 
     /**
-     * Set an element and return only when the element is effectively cached.
-     * @param key Element key
-     * @param value Element value
-     * @param expiration Ex: 10s, 3mn, 8h
-     * @return If the element an eventually been cached
-     */
-    public static boolean safeSet(String key, Object value, String expiration) {
-        checkSerializable(value);
-        return cacheImpl.safeSet(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
      * Replace an element only if it already exists.
      * @param key Element key
      * @param value Element value
@@ -53,19 +41,6 @@ public abstract class Cache {
     public static void replace(String key, Object value, String expiration) {
         checkSerializable(value);
         cacheImpl.replace(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
-     * Replace an element only if it already exists and return only when the 
-     * element is effectively cached.
-     * @param key Element key
-     * @param value Element value
-     * @param expiration Ex: 10s, 3mn, 8h
-     * @return If the element an eventually been cached
-     */
-    public static boolean safeReplace(String key, Object value, String expiration) {
-        checkSerializable(value);
-        return cacheImpl.safeReplace(key, value, Time.parseDuration(expiration));
     }
 
     /**
@@ -133,16 +108,6 @@ public abstract class Cache {
     }
 
     /**
-     * Delete an element from the cache and return only when the 
-     * element is effectively removed.
-     * @param key The element key
-     * @return If the element an eventually been deleted
-     */
-    public static boolean safeDelete(String key) {
-        return cacheImpl.safeDelete(key);
-    }
-
-    /**
      * Clear all data from cache.
      */
     public static void clear() {
@@ -152,22 +117,10 @@ public abstract class Cache {
     }
 
     /**
-     * Convenient clazz to get a value a class type;
-     * @param <T> The needed type
-     * @param key The element key
-     * @param clazz The type class
-     * @return The element value or null
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T get(String key, Class<T> clazz) {
-        return (T) cacheImpl.get(key);
-    }
-
-    /**
      * Initialize the cache system.
      */
     public static void init() {
-        if (Play.configuration.getProperty("memcached", "disabled").equals("enabled")) {
+        if ("enabled".equals(Play.configuration.getProperty("memcached", "disabled"))) {
             try {
                 cacheImpl = MemcachedImpl.getInstance(true);
                 Logger.info("Connected to memcached");
@@ -187,7 +140,7 @@ public abstract class Cache {
     public static void stop() {
         cacheImpl.stop();
     }
-    
+
     /**
      * Utility that check that an object is serializable.
      */

@@ -65,7 +65,7 @@ public class EhCacheImpl implements CacheImpl {
         if (e == null) {
             return -1;
         }
-        long newValue = ((Number) e.getValue()).longValue() - by;
+        long newValue = ((Number) e.getObjectValue()).longValue() - by;
         Element newE = new Element(key, newValue);
         newE.setTimeToLive(e.getTimeToLive());
         cache.put(newE);
@@ -80,7 +80,7 @@ public class EhCacheImpl implements CacheImpl {
     @Override
     public Object get(String key) {
         Element e = cache.get(key);
-        return (e == null) ? null : e.getValue();
+        return (e == null) ? null : e.getObjectValue();
     }
 
     @Override
@@ -98,7 +98,7 @@ public class EhCacheImpl implements CacheImpl {
         if (e == null) {
             return -1;
         }
-        long newValue = ((Number) e.getValue()).longValue() + by;
+        long newValue = ((Number) e.getObjectValue()).longValue() + by;
         Element newE = new Element(key, newValue);
         newE.setTimeToLive(e.getTimeToLive());
         cache.put(newE);
@@ -114,49 +114,6 @@ public class EhCacheImpl implements CacheImpl {
         Element element = new Element(key, value);
         element.setTimeToLive(expiration);
         cache.put(element);
-    }
-
-    @Override
-    public boolean safeAdd(String key, Object value, int expiration) {
-        try {
-            add(key, value, expiration);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean safeDelete(String key) {
-        try {
-            delete(key);
-            return true;
-        } catch (Exception e) {
-            Logger.error(e.toString());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean safeReplace(String key, Object value, int expiration) {
-        try {
-            replace(key, value, expiration);
-            return true;
-        } catch (Exception e) {
-            Logger.error(e.toString());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean safeSet(String key, Object value, int expiration) {
-        try {
-            set(key, value, expiration);
-            return true;
-        } catch (Exception e) {
-            Logger.error(e.toString());
-            return false;
-        }
     }
 
     @Override

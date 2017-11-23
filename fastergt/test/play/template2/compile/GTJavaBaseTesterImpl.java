@@ -55,7 +55,6 @@ public abstract class GTJavaBaseTesterImpl extends GTJavaBase {
     }
 
     @Override
-    public void cacheSet(String key, Object data, String duration) {
-
+    public void cacheSet(String key, String data, String duration) {
     }
 }

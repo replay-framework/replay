@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Collections.emptyMap;
+
 /**
  * Memcached implementation (using http://code.google.com/p/spymemcached/)
  *
@@ -51,19 +53,18 @@ public class MemcachedImpl implements CacheImpl {
 
     private MemcachedImpl() throws IOException {
         tc = new SerializingTranscoder() {
-
             @Override
             protected Object deserialize(byte[] data) {
-                try {
-                    return new ObjectInputStream(new ByteArrayInputStream(data)) {
-
-                        @Override
-                        protected Class<?> resolveClass(ObjectStreamClass desc)
-                                throws ClassNotFoundException {
-                            return Class.forName(desc.getName(), false, Thread.currentThread().getContextClassLoader());
-                        }
-                    }.readObject();
-                } catch (Exception e) {
+                try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data)) {
+                    @Override
+                    protected Class<?> resolveClass(ObjectStreamClass desc)
+                      throws ClassNotFoundException {
+                        return Class.forName(desc.getName(), false, Thread.currentThread().getContextClassLoader());
+                    }
+                }) {
+                    return in.readObject();
+                }
+                catch (Exception e) {
                     Logger.error(e, "Could not deserialize");
                 }
                 return null;
@@ -71,11 +72,13 @@ public class MemcachedImpl implements CacheImpl {
 
             @Override
             protected byte[] serialize(Object object) {
-                try {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    new ObjectOutputStream(bos).writeObject(object);
-                    return bos.toByteArray();
-                } catch (IOException e) {
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                        oos.writeObject(object);
+                        return bos.toByteArray();
+                    }
+                }
+                catch (IOException e) {
                     Logger.error(e, "Could not serialize");
                 }
                 return null;
@@ -157,7 +160,7 @@ public class MemcachedImpl implements CacheImpl {
         } catch (Exception e) {
             future.cancel(false);
         }
-        return Collections.<String, Object>emptyMap();
+        return emptyMap();
     }
 
     @Override
@@ -173,50 +176,6 @@ public class MemcachedImpl implements CacheImpl {
     @Override
     public void replace(String key, Object value, int expiration) {
         client.replace(key, expiration, value, tc);
-    }
-
-    @Override
-    public boolean safeAdd(String key, Object value, int expiration) {
-        Future<Boolean> future = client.add(key, expiration, value, tc);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(false);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean safeDelete(String key) {
-        Future<Boolean> future = client.delete(key);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(false);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean safeReplace(String key, Object value, int expiration) {
-        Future<Boolean> future = client.replace(key, expiration, value, tc);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(false);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean safeSet(String key, Object value, int expiration) {
-        Future<Boolean> future = client.set(key, expiration, value, tc);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(false);
-        }
-        return false;
     }
 
     @Override
