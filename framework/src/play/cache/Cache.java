@@ -86,8 +86,8 @@ public abstract class Cache {
      * @param key The element key
      * @return The element value or null
      */
-    public static Object get(String key) {
-        return cacheImpl.get(key);
+    public static <T> T get(String key) {
+        return (T) cacheImpl.get(key);
     }
 
     /**
