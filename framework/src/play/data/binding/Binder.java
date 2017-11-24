@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 /**
  * The binder try to convert String values to Java objects.
  */
@@ -188,20 +190,12 @@ public abstract class Binder {
         } catch (NumberFormatException | ParseException e) {
             logBindingNormalFailure(paramNode, e);
             addValidationError(paramNode);
-        } catch (Exception e) {
-            // TODO This is bad catch. I would like to remove it in next version.
-            logBindingUnexpectedFailure(paramNode, e);
-            addValidationError(paramNode);
         }
         return MISSING;
     }
 
     private static void addValidationError(ParamNode paramNode) {
         Validation.addError(paramNode.getOriginalKey(), "validation.invalid");
-    }
-
-    private static void logBindingUnexpectedFailure(ParamNode paramNode, Exception e) {
-        Logger.error(e, "Failed to bind %s=%s", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()));
     }
 
     private static void logBindingNormalFailure(ParamNode paramNode, Exception e) {
@@ -352,8 +346,7 @@ public abstract class Binder {
 
         for (ParamNode child : paramNode.getAllChildren()) {
             try {
-                Object keyObject = directBind(paramNode.getOriginalKey(), bindingAnnotations.annotations, child.getName(), keyClass,
-                        keyClass);
+                Object keyObject = directBind(paramNode.getOriginalKey(), bindingAnnotations.annotations, child.getName(), keyClass, keyClass);
                 Object valueObject = internalBind(child, valueClass, valueClass, bindingAnnotations);
                 if (valueObject == NO_BINDING || valueObject == MISSING) {
                     valueObject = null;
@@ -362,9 +355,6 @@ public abstract class Binder {
             } catch (ParseException | NumberFormatException e) {
                 // Just ignore the exception and continue on the next item
                 logBindingNormalFailure(paramNode, e);
-            } catch (Exception e) {
-                // TODO This is bad catch. I would like to remove it in next version.
-                logBindingUnexpectedFailure(paramNode, e);
             }
         }
 
@@ -564,10 +554,8 @@ public abstract class Binder {
      * @param type
      *            type to bind
      * @return The binding object
-     * @throws Exception
-     *             if problem occurred during binding
      */
-    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz, Type type) throws Exception {
+    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
         // calls the direct binding and returns null if no value could be resolved..
         Object r = internalDirectBind(name, annotations, value, clazz, type);
         if (r == DIRECTBINDING_NO_RESULT) {
@@ -580,8 +568,8 @@ public abstract class Binder {
     // If internalDirectBind was not able to bind it, it returns a special variable instance: DIRECTBIND_MISSING
     // Needs this because sometimes we need to know if no value was returned..
     private static Object internalDirectBind(String name, Annotation[] annotations, String value, Class<?> clazz, Type type)
-            throws Exception {
-        boolean nullOrEmpty = value == null || value.trim().length() == 0;
+            throws ParseException {
+        boolean nullOrEmpty = isBlank(value);
 
         if (annotations != null) {
             for (Annotation annotation : annotations) {

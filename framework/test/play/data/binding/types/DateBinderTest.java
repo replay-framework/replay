@@ -21,7 +21,7 @@ public class DateBinderTest {
     }
 
     @Test
-    public void parses_date_in_play_format() throws Exception {
+    public void parses_date_in_play_format() throws ParseException {
         Play.configuration.setProperty("date.format", "dd.MM.yyyy");
 
         Date actual = binder.bind("client.birthday", null, "31.12.1986", Date.class, null);
@@ -30,24 +30,24 @@ public class DateBinderTest {
     }
 
     @Test
-    public void parses_date_in_iso_format() throws Exception {
+    public void parses_date_in_iso_format() throws ParseException {
         Date actual = binder.bind("client.birthday", null, "ISO8601:1986-04-12T00:00:00+0500", Date.class, null);
         Date expected = new SimpleDateFormat("MM/dd/yyyyZ").parse("04/12/1986+0500");
         assertEquals(expected, actual);
     }
 
     @Test
-    public void parses_null_to_null() throws Exception {
+    public void parses_null_to_null() throws ParseException {
         assertNull(binder.bind("client.birthday", null, null, Date.class, null));
     }
 
     @Test
-    public void parses_empty_string_to_null() throws Exception {
+    public void parses_empty_string_to_null() throws ParseException {
         assertNull(binder.bind("client.birthday", null, "", Date.class, null));
     }
 
     @Test(expected = ParseException.class)
-    public void throws_ParseException_for_invalid_value() throws Exception {
+    public void throws_ParseException_for_invalid_value() throws ParseException {
         binder.bind("client.birthday", null, "12/31/1986", Date.class, null);
     }
 }
