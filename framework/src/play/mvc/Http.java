@@ -149,6 +149,14 @@ public class Http {
          * See http://www.owasp.org/index.php/HttpOnly
          */
         public boolean httpOnly = false;
+
+        public Cookie() {
+        }
+
+        public Cookie(String name, String value) {
+            this.value = value;
+            this.name = name;
+        }
     }
 
     /**
@@ -603,6 +611,10 @@ public class Http {
                     return true;
                 }
             }
+        }
+
+        public void setCookie(String key, String value) {
+            cookies.put(key, new Http.Cookie(key, value));
         }
     }
 
