@@ -1,14 +1,11 @@
 package play.classloading;
 
-import play.Play;
-import play.exceptions.UnexpectedException;
-import play.vfs.VirtualFile;
-
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Application classes container.
@@ -17,13 +14,12 @@ public class ApplicationClasses {
     /**
      * Cache of all compiled classes
      */
-    Map<String, ApplicationClass> classes = new HashMap<>();
+    private final Map<String, Class> classes = new HashMap<>();
 
-    /**
-     * Clear the classes cache
-     */
-    public void clear() {
-        classes = new HashMap<>();
+    void set(List<Class<?>> applicationClasses) {
+        for (Class<?> applicationClass : applicationClasses) {
+            classes.put(applicationClass.getName(), applicationClass);
+        }
     }
 
     /**
@@ -33,13 +29,7 @@ public class ApplicationClasses {
      *            The fully qualified class name
      * @return The ApplicationClass or null
      */
-    public ApplicationClass getApplicationClass(String name) {
-        if (!classes.containsKey(name)) {
-            VirtualFile javaFile = getJava(name);
-            if (javaFile != null) {
-                classes.put(name, new ApplicationClass(name, javaFile));
-            }
-        }
+    public Class getApplicationClass(String name) {
         return classes.get(name);
     }
 
@@ -50,28 +40,10 @@ public class ApplicationClasses {
      *            The superclass, or the interface.
      * @return A list of application classes.
      */
-    public List<ApplicationClass> getAssignableClasses(Class<?> clazz) {
-        List<ApplicationClass> results = new ArrayList<>();
-        if (clazz != null) {
-            for (ApplicationClass applicationClass : new ArrayList<>(classes.values())) {
-                if (!applicationClass.isClass()) {
-                    continue;
-                }
-                try {
-                    Class.forName(applicationClass.name);
-                } catch (ClassNotFoundException ex) {
-                    throw new UnexpectedException(ex);
-                }
-                try {
-                    if (clazz.isAssignableFrom(applicationClass.javaClass)
-                            && !applicationClass.javaClass.getName().equals(clazz.getName())) {
-                        results.add(applicationClass);
-                    }
-                } catch (Exception e) {
-                }
-            }
-        }
-        return results;
+    public List<Class> getAssignableClasses(Class<?> clazz) {
+        return classes.values().stream().filter(applicationClass ->
+          clazz.isAssignableFrom(applicationClass) && !applicationClass.getName().equals(clazz.getName()))
+          .collect(toList());
     }
 
     /**
@@ -81,41 +53,10 @@ public class ApplicationClasses {
      *            The annotation class.
      * @return A list of application classes.
      */
-    public List<ApplicationClass> getAnnotatedClasses(Class<? extends Annotation> clazz) {
-        List<ApplicationClass> results = new ArrayList<>();
-        for (ApplicationClass applicationClass : classes.values()) {
-            if (!applicationClass.isClass()) {
-                continue;
-            }
-            try {
-                Class.forName(applicationClass.name);
-            } catch (ClassNotFoundException ex) {
-                throw new UnexpectedException(ex);
-            }
-            if (applicationClass.javaClass != null && applicationClass.javaClass.isAnnotationPresent(clazz)) {
-                results.add(applicationClass);
-            }
-        }
-        return results;
-    }
-
-    /**
-     * All loaded classes.
-     * 
-     * @return All loaded classes
-     */
-    public List<ApplicationClass> all() {
-        return new ArrayList<>(classes.values());
-    }
-
-    /**
-     * Put a new class to the cache.
-     * 
-     * @param applicationClass
-     *            The class to add
-     */
-    public void add(ApplicationClass applicationClass) {
-        classes.put(applicationClass.name, applicationClass);
+    public List<Class> getAnnotatedClasses(Class<? extends Annotation> clazz) {
+        return classes.values().stream().filter(applicationClass ->
+          applicationClass != null && applicationClass.isAnnotationPresent(clazz))
+          .collect(toList());
     }
 
     /**
@@ -127,122 +68,6 @@ public class ApplicationClasses {
      */
     public boolean hasClass(String name) {
         return classes.containsKey(name);
-    }
-
-    /**
-     * Represent a application class
-     */
-    public static class ApplicationClass {
-
-        /**
-         * The fully qualified class name
-         */
-        public String name;
-        /**
-         * A reference to the java source file
-         */
-        public VirtualFile javaFile;
-        /**
-         * The Java source
-         */
-        public String javaSource;
-        /**
-         * The compiled byteCode
-         */
-        public byte[] javaByteCode;
-        /**
-         * The in JVM loaded class
-         */
-        public Class<?> javaClass;
-        /**
-         * Is this class compiled
-         */
-        boolean compiled;
-
-        public ApplicationClass(String name) {
-            this(name, getJava(name));
-        }
-
-        public ApplicationClass(String name, VirtualFile javaFile) {
-            this.name = name;
-            this.javaFile = javaFile;
-            if (this.javaFile != null) {
-                this.javaSource = this.javaFile.contentAsString();
-            }
-            this.javaByteCode = null;
-            this.compiled = false;
-        }
-
-        /**
-         * Is this class already compiled but not defined ?
-         * 
-         * @return if the class is compiled but not defined
-         */
-        public boolean isDefinable() {
-            return compiled && javaClass != null;
-        }
-
-        public boolean isClass() {
-            return isClass(this.name);
-        }
-
-        public static boolean isClass(String name) {
-            return !name.endsWith("package-info");
-        }
-
-        public String getPackage() {
-            int dot = name.lastIndexOf('.');
-            return dot > -1 ? name.substring(0, dot) : "";
-        }
-
-        /**
-         * Call back when a class is compiled.
-         * 
-         * @param code
-         *            The bytecode.
-         */
-        public void compiled(byte[] code) {
-            javaByteCode = code;
-            compiled = true;
-        }
-
-        @Override
-        public String toString() {
-            return name + " (compiled:" + compiled + ")";
-        }
-    }
-
-    // ~~ Utils
-    /**
-     * Retrieve the corresponding source file for a given class name. It handles innerClass too !
-     * 
-     * @param name
-     *            The fully qualified class name
-     * @return The virtualFile if found
-     */
-    public static VirtualFile getJava(String name) {
-        String fileName = name;
-        if (fileName.contains("$")) {
-            fileName = fileName.substring(0, fileName.indexOf("$"));
-        }
-        // the local variable fileOrDir is important!
-        String fileOrDir = fileName.replace(".", "/");
-        fileName = fileOrDir + ".java";
-        for (VirtualFile path : Play.javaPath) {
-            // 1. check if there is a folder (without extension)
-            VirtualFile javaFile = path.child(fileOrDir);
-
-            if (javaFile.exists() && javaFile.isDirectory() && javaFile.matchName(fileOrDir)) {
-                // we found a directory (package)
-                return null;
-            }
-            // 2. check if there is a file
-            javaFile = path.child(fileName);
-            if (javaFile.exists() && javaFile.matchName(fileName)) {
-                return javaFile;
-            }
-        }
-        return null;
     }
 
     @Override

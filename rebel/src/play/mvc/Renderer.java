@@ -2,11 +2,7 @@ package play.mvc;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import play.Play;
-import play.classloading.ApplicationClasses;
 import play.data.validation.Validation;
-import play.exceptions.PlayException;
-import play.exceptions.TemplateNotFoundException;
 import play.mvc.results.RenderJson;
 import play.mvc.results.RenderTemplate;
 import play.mvc.results.RenderText;
@@ -111,22 +107,7 @@ public class Renderer {
     templateBinding.put("flash", Scope.Flash.current());
     templateBinding.put("params", Scope.Params.current());
     templateBinding.put("errors", Validation.errors());
-    try {
-      Template template = TemplateLoader.load(templateNameResolver.resolveTemplateName(templateName));
-      throw new RenderTemplate(template, templateBinding.data);
-    }
-    catch (TemplateNotFoundException ex) {
-      if (ex.isSourceAvailable()) {
-        throw ex;
-      }
-      StackTraceElement element = PlayException.getInterestingStackTraceElement(ex);
-      if (element != null) {
-        ApplicationClasses.ApplicationClass applicationClass = Play.classes.getApplicationClass(element.getClassName());
-        if (applicationClass != null) {
-          throw new TemplateNotFoundException(templateName, applicationClass, element.getLineNumber());
-        }
-      }
-      throw ex;
-    }
+    Template template = TemplateLoader.load(templateNameResolver.resolveTemplateName(templateName));
+    throw new RenderTemplate(template, templateBinding.data);
   }
 }

@@ -35,10 +35,6 @@ public abstract class PlayException extends RuntimeException {
 
     public abstract String getErrorDescription();
 
-    public boolean isSourceAvailable() {
-        return this instanceof SourceAttachment;
-    }
-
     public Integer getLineNumber() {
         return -1;
     }
@@ -49,11 +45,6 @@ public abstract class PlayException extends RuntimeException {
 
     public String getId() {
         return id;
-    }
-
-    @Deprecated
-    public static StackTraceElement getInterestingStrackTraceElement(Throwable cause) {
-      return getInterestingStackTraceElement(cause);
     }
 
     public static StackTraceElement getInterestingStackTraceElement(Throwable cause) {

@@ -113,7 +113,7 @@ public class GTTemplate extends Template {
                 throw new TemplateExecutionException(this, 0, e.getMessage(), e);
             }
         } catch (GTAppClassException e) {
-            throw new JavaExecutionException(Play.classes.getApplicationClass(e.className), e.lineNo, e.getCause());
+            throw new JavaExecutionException(e.lineNo, e.getCause());
         }
 
     }

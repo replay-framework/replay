@@ -1,47 +1,23 @@
 package play.exceptions;
 
-import play.classloading.ApplicationClasses.ApplicationClass;
 import play.templates.Template;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class TemplateNotFoundException extends PlayException implements SourceAttachment {
 
-    private String path;
+    private final String path;
     private String sourceFile;
-    private List<String> source;
     private Integer line;
 
     public TemplateNotFoundException(String path) {
         super("Template not found : " + path);
         this.path = path;
     }
-    
-    public TemplateNotFoundException(String path, ApplicationClass applicationClass, Integer line) {
-        this(path);
-        //This occurs with using property -Dprecompiled=true and no file is found
-        if (applicationClass != null && applicationClass.javaFile != null && applicationClass.javaSource  != null) {
-            this.sourceFile = applicationClass.javaFile.relativePath();
-            this.source = Arrays.asList(applicationClass.javaSource.split("\n"));
-        }
-        else {
-            this.sourceFile = "{unknown source file.  appclass=" + applicationClass + "}";
-            this.source = Collections.emptyList();
-        }
-        this.line = line;
-    }
-    
+
     public TemplateNotFoundException(String path, Template template, Integer line) {
         this(path);
-        if(template != null){
+        if (template != null) {
             this.sourceFile = template.name;
-            if(template.source != null){
-            this.source = Arrays.asList(template.source.split("\n"));
-            }
         }
-
         this.line = line;
     }
 
@@ -60,18 +36,8 @@ public class TemplateNotFoundException extends PlayException implements SourceAt
     }
 
     @Override
-    public boolean isSourceAvailable() {
-        return this.source != null;
-    }
-
-    @Override
     public String getSourceFile() {
         return this.sourceFile;
-    }
-
-    @Override
-    public List<String> getSource() {
-        return this.source;
     }
 
     @Override

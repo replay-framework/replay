@@ -2,7 +2,6 @@ package play.modules.gtengineplugin.gt_integration;
 
 import groovy.lang.Closure;
 import play.Play;
-import play.classloading.ApplicationClasses;
 import play.exceptions.TemplateExecutionException;
 import play.modules.gtengineplugin.InternalLegacyFastTagsImpls;
 import play.template2.GTJavaBase;
@@ -32,7 +31,7 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
         }
     }
 
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
     private static Map<String, LegacyFastTag> _tagName2FastTag;
 
     private static Map<String, LegacyFastTag> getTagName2FastTag() {
@@ -40,14 +39,9 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
             if (_tagName2FastTag == null) {
                 Map<String, LegacyFastTag> result = new HashMap<>();
 
-                // find all FastTag-classes
-                List<ApplicationClasses.ApplicationClass> _fastTagClasses = Play.classes.getAssignableClasses( FastTags.class );
-
-                List<Class> classes = new ArrayList<>(_fastTagClasses.size() + 1);
+                List<Class> classes = new ArrayList<>();
                 classes.add( InternalLegacyFastTagsImpls.class);
-                for (ApplicationClasses.ApplicationClass appClass : _fastTagClasses) {
-                    classes.add( appClass.javaClass);
-                }
+                classes.addAll(Play.classes.getAssignableClasses( FastTags.class ));
 
                 for (Class clazz : classes) {
                     FastTags.Namespace namespace = (FastTags.Namespace)clazz.getAnnotation(FastTags.Namespace.class);

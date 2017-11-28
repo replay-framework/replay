@@ -85,7 +85,7 @@ public abstract class BaseTemplate extends Template {
                 }
             }
             if (stackTraceElement.getLineNumber() > 0 && Play.classes.hasClass(stackTraceElement.getClassName())) {
-                throw new JavaExecutionException(Play.classes.getApplicationClass(stackTraceElement.getClassName()), stackTraceElement.getLineNumber(), cleanStackTrace(e));
+                throw new JavaExecutionException(stackTraceElement.getLineNumber(), cleanStackTrace(e));
             }
         }
         throw new RuntimeException(e);

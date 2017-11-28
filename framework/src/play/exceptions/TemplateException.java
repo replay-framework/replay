@@ -2,9 +2,6 @@ package play.exceptions;
 
 import play.templates.Template;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * An exception during template execution
  */
@@ -32,11 +29,6 @@ public abstract class TemplateException extends PlayException implements SourceA
     @Override
     public Integer getLineNumber() {
         return lineNumber;
-    }
-
-    @Override
-    public List<String> getSource() {
-        return Arrays.asList(template.source.split("\n"));
     }
 
     @Override
