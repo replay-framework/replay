@@ -6,6 +6,7 @@ import play.libs.MimeTypes;
 import play.mvc.Http;
 import play.mvc.Scope;
 import play.mvc.Scope.Session;
+import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
 import play.templates.Template;
 import play.templates.TemplateLoader;

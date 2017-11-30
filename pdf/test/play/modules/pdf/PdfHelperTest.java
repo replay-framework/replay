@@ -3,18 +3,18 @@ package play.modules.pdf;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static play.modules.pdf.RenderPDFTemplate.removeScripts;
-
-public class RenderPDFTemplateTest {
+public class PdfHelperTest {
+  PdfHelper helper = new PdfHelper();
+  
   @Test
   public void removesScriptTagFromHtml() {
-    assertEquals("", removeScripts("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>"));
-    assertEquals("", removeScripts("<script></script>"));
-    assertEquals("", removeScripts("<script></script><script></script>"));
-    assertEquals("", removeScripts("<script>foo</script><script>bar</script>"));
-    assertEquals("foobar", removeScripts("foo<script></script>bar"));
-    assertEquals("foo", removeScripts("foo<script></script>"));
-    assertEquals("bar", removeScripts("<script></script>bar"));
+    assertEquals("", helper.removeScripts("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>"));
+    assertEquals("", helper.removeScripts("<script></script>"));
+    assertEquals("", helper.removeScripts("<script></script><script></script>"));
+    assertEquals("", helper.removeScripts("<script>foo</script><script>bar</script>"));
+    assertEquals("foobar", helper.removeScripts("foo<script></script>bar"));
+    assertEquals("foo", helper.removeScripts("foo<script></script>"));
+    assertEquals("bar", helper.removeScripts("<script></script>bar"));
   }
 
   @Test
@@ -47,6 +47,6 @@ public class RenderPDFTemplateTest {
       "\n" +
       "\n" +
       "</head>\n" +
-      "</html>\n\n", removeScripts(html));
+      "</html>\n\n", helper.removeScripts(html));
   }
 }
