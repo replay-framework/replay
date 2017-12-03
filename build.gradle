@@ -1,3 +1,5 @@
+import java.nio.file.*
+
 defaultTasks 'clean', 'test', 'jar', 'uploadArchives'
 
 ext {
@@ -34,19 +36,7 @@ subprojects {
     }
   }
 
-  task libsProd(type: Sync) {
-    from configurations.compile
-    into "${rootDir}/build/lib"
-    preserve {include '*'}
-  }
-
-  task libsTest(type: Sync) {
-    from configurations.testRuntime
-    into "${rootDir}/build/lib-test"
-    preserve {include '*'}
-  }
-
-  compileJava.dependsOn libsProd, libsTest
+  classes.dependsOn ':deps'
 
   test {
     include 'play/**/*'
@@ -78,6 +68,23 @@ subprojects {
         repository(url: "file://${REPO}")
       }
     }
+  }
+}
+
+def fetchDependencies(destination, dependencies) {
+  delete destination
+  new File(destination).mkdirs()
+  dependencies.grep{it.name.endsWith(".jar")}.toSet().each {
+    Files.createSymbolicLink(Paths.get("${destination}/${it.name}"), Paths.get(it.path));
+  }
+}
+
+task deps {
+  doLast {
+    def compileDependencies = subprojects.collect{it.configurations.compile.collect{it}}.flatten()
+    def testDependencies = subprojects.collect{it.configurations.testRuntime.collect{it}}.flatten() - compileDependencies
+    fetchDependencies("${rootDir}/build/lib", compileDependencies)
+    fetchDependencies("${rootDir}/build/lib-test", testDependencies)
   }
 }
 
