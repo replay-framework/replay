@@ -1,5 +1,6 @@
 package play.modules.pdf;
 
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import play.mvc.Http;
 import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
@@ -14,6 +15,14 @@ public class PdfResult extends Result {
 
   private final PdfTemplate pdfTemplate;
   private boolean inline = true;
+
+  public PdfResult() {
+    this(new PdfTemplate());
+  }
+
+  public PdfResult(String templateName) {
+    this(new PdfTemplate(templateName));
+  }
 
   public PdfResult(PdfTemplate pdfTemplate) {
     this.pdfTemplate = pdfTemplate;
@@ -42,5 +51,20 @@ public class PdfResult extends Result {
     document.content = template.render(new HashMap<>(document.args));
     helper.loadHeaderAndFooter(document, document.args);
     helper.renderPDF(document, response.out, request);
+  }
+
+  public PdfResult with(String name, Object value) {
+    pdfTemplate.with(name, value);
+    return this;
+  }
+
+  public PdfResult fileName(String fileName) {
+    pdfTemplate.fileName(fileName);
+    return this;
+  }
+
+  public PdfResult pageSize(IHtmlToPdfTransformer.PageSize pageSize) {
+    pdfTemplate.pageSize(pageSize);
+    return this;
   }
 }
