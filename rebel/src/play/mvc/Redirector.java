@@ -14,7 +14,11 @@ import java.util.Objects;
 
 import static java.util.Arrays.asList;
 
+/**
+ * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+ */
 @Singleton
+@Deprecated
 public class Redirector {
 
   public void to(String action, Parameter... parameters) {

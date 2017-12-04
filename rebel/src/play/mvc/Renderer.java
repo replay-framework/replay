@@ -16,8 +16,11 @@ import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 
-@Singleton
+/**
+ * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+ */
 @Deprecated
+@Singleton
 public class Renderer {
   TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
@@ -35,6 +38,10 @@ public class Renderer {
     renderTemplate(templateName, args);
   }
 
+  /**
+   * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+   */
+  @Deprecated
   public Builder with(String name, Object value) {
     return new Builder(name, value);
   }
@@ -80,10 +87,18 @@ public class Renderer {
       return this;
     }
 
+    /**
+     * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+     */
+    @Deprecated
     public void template() {
       renderTemplate(templateNameResolver.resolveTemplateName(), arguments);
     }
 
+    /**
+     * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+     */
+    @Deprecated
     public void template(String templateName) {
       renderTemplate(templateName, arguments);
     }
