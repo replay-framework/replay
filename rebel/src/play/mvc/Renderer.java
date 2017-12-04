@@ -7,7 +7,6 @@ import play.mvc.results.RenderJson;
 import play.mvc.results.RenderTemplate;
 import play.mvc.results.RenderText;
 import play.mvc.results.RenderXml;
-import play.rebel.TemplateNameResolver;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
