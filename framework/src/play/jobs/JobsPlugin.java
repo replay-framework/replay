@@ -288,4 +288,9 @@ public class JobsPlugin extends PlayPlugin {
             throw new RuntimeException(e);
         }
     }
+
+    public static Future<?> runScheduledJobOnceNow(Job<?> job) {
+        job.runOnce = true;
+        return executor.submit((Callable<?>) job);
+    }
 }

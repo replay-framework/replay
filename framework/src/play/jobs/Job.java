@@ -35,6 +35,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     protected long lastRun;
     protected boolean wasError;
     protected Throwable lastException;
+    boolean runOnce;
 
     Date nextPlannedExecution;
 
@@ -227,8 +228,15 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     @Override
     public void _finally() {
         super._finally();
-        if (executor == JobsPlugin.executor) {
-            JobsPlugin.scheduleForCRON(this);
+        synchronized (this) {
+            try {
+                if (executor == JobsPlugin.executor && !runOnce) {
+                    JobsPlugin.scheduleForCRON(this);
+                }
+            }
+            finally {
+                runOnce = false;
+            }
         }
     }
 
