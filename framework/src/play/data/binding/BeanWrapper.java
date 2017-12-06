@@ -1,6 +1,7 @@
 package play.data.binding;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 
 import java.lang.annotation.Annotation;
@@ -13,6 +14,7 @@ import java.util.Map;
  * Parameters map to POJO binder.
  */
 public class BeanWrapper {
+    private static final Logger logger = LoggerFactory.getLogger(BeanWrapper.class);
 
     static final int notwritableField = Modifier.FINAL | Modifier.NATIVE | Modifier.STATIC;
     static final int notaccessibleMethod = Modifier.NATIVE | Modifier.STATIC;
@@ -25,9 +27,7 @@ public class BeanWrapper {
     private Map<String, Property> wrappers = new HashMap<>();
 
     public BeanWrapper(Class<?> forClass) {
-        if (Logger.isTraceEnabled()) {
-            Logger.trace("Bean wrapper for class %s", forClass.getName());
-        }
+        logger.trace("Bean wrapper for class {}", forClass.getName());
 
         this.beanClass = forClass;
 
@@ -47,7 +47,7 @@ public class BeanWrapper {
             }
         }
         String message = String.format("Can't find property with name '%s' on class %s", name, instance.getClass().getName());
-        Logger.warn(message);
+        logger.warn(message);
         throw new UnexpectedException(message);
 
     }
@@ -108,7 +108,6 @@ public class BeanWrapper {
         private Class<?> type;
         private Type genericType;
         private String name;
-        private String[] profiles;
 
         Property(String propertyName, Method setterMethod) {
             name = propertyName;
@@ -116,7 +115,6 @@ public class BeanWrapper {
             type = setter.getParameterTypes()[0];
             annotations = setter.getAnnotations();
             genericType = setter.getGenericParameterTypes()[0];
-            setProfiles(this.annotations);
         }
 
         Property(Field field) {
@@ -126,39 +124,21 @@ public class BeanWrapper {
             type = field.getType();
             annotations = field.getAnnotations();
             genericType = field.getGenericType();
-            setProfiles(this.annotations);
-        }
-
-        public void setProfiles(Annotation[] annotations) {
-            if (annotations != null) {
-                for (Annotation annotation : annotations) {
-                    if (annotation.annotationType().equals(NoBinding.class)) {
-                        NoBinding as = ((NoBinding) annotation);
-                        profiles = as.value();
-                    }
-                }
-            }
         }
 
         public void setValue(Object instance, Object value) {
             try {
                 if (setter != null) {
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("invoke setter %s on %s with value %s", setter, instance, value);
-                    }
-
+                    logger.trace("invoke setter {} on {} with value {}", setter, instance, value);
                     setter.invoke(instance, value);
-                    return;
                 } else {
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("field.set(%s, %s)", instance, value);
-                    }
+                    logger.trace("field.set({}, {})", instance, value);
 
                     field.set(instance, value);
                 }
 
             } catch (Exception ex) {
-                Logger.warn(ex, "ERROR in BeanWrapper when setting property %s value is %s (%s)", name, value, value == null ? null : value.getClass());
+                logger.warn("ERROR in BeanWrapper when setting property {} value is {} ({})", name, value, value == null ? null : value.getClass(), ex);
                 throw new UnexpectedException(ex);
             }
         }
@@ -190,7 +170,7 @@ public class BeanWrapper {
         return bind(name, type, params, prefix, instance, annotations);
     }
 
-    public Object bind(String name, Type type, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) throws Exception {
+    public Object bind(String name, Type type, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) {
         RootParamNode paramNode = RootParamNode.convert( params);
         // when looking at the old code in BeanBinder and Binder.bindInternal, I
         // think it is correct to use 'name+prefix'

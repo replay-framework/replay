@@ -1,6 +1,7 @@
 package play.utils;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
@@ -17,6 +18,7 @@ import java.security.cert.X509Certificate;
  * if certificates are signed with a root certificate (or chained from root)
  */
 public class YesSSLSocketFactory extends SSLSocketFactory {
+    private static final Logger logger = LoggerFactory.getLogger(YesSSLSocketFactory.class);
 
     public static class YesTrustManager implements X509TrustManager {
 
@@ -41,7 +43,7 @@ public class YesSSLSocketFactory extends SSLSocketFactory {
             sslcontext.init(null, new TrustManager[]{new YesTrustManager()}, null);
             factory = sslcontext.getSocketFactory();
         } catch (Exception ex) {
-            Logger.error(ex, "Failed to initialize factory");
+            logger.error("Failed to initialize factory", ex);
         }
     }
 

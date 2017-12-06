@@ -2,7 +2,8 @@ package play.db;
 
 import jregex.Matcher;
 import org.apache.commons.lang.StringUtils;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.db.DB.ExtendedDatasource;
@@ -16,6 +17,7 @@ import java.sql.*;
 import java.util.*;
 
 public class DBPlugin extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(DBPlugin.class);
 
     public static String url = "";
    
@@ -97,14 +99,14 @@ public class DBPlugin extends PlayPlugin {
                         DB.ExtendedDatasource extDs = new DB.ExtendedDatasource(ds, destroyMethod);
 
                         url = testDataSource(ds);
-                        Logger.info("Connected to %s for %s", url, dbName);
+                        logger.info("Connected to {} for {}", url, dbName);
                         DB.datasources.put(dbName, extDs);
                     }
                 }
                 
             } catch (Exception e) {
                 DB.datasource = null;
-                Logger.error(e, "Database [%s] Cannot connected to the database : %s", dbName, e.getMessage());
+                logger.error("Database [{}] Cannot connected to the database : {}", dbName, e.getMessage(), e);
                 if (e.getCause() instanceof InterruptedException) {
                     throw new DatabaseException("Cannot connected to the database["+ dbName + "]. Check the configuration.", e);
                 }
@@ -133,7 +135,7 @@ public class DBPlugin extends PlayPlugin {
 
     private static void check(Configuration config, String mode, String property) {
         if (!StringUtils.isEmpty(config.getProperty(property))) {
-            Logger.warn("Ignoring " + property + " because running the in " + mode + " db.");
+            logger.warn("Ignoring {} because running the in {} db.", property, mode);
         }
     }
 
@@ -311,7 +313,7 @@ public class DBPlugin extends PlayPlugin {
         // in the CommonDataSource interface starting with JDK7 and this annotation
         // would cause compilation errors with JDK6.
         @Override
-        public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        public java.util.logging.Logger getParentLogger() {
             try {
                 return (java.util.logging.Logger) Driver.class.getDeclaredMethod("getParentLogger").invoke(this.driver);
             } catch (Throwable e) {

@@ -2,7 +2,8 @@ package play.data.binding;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.data.Upload;
 import play.data.binding.types.*;
@@ -23,6 +24,8 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  * The binder try to convert String values to Java objects.
  */
 public abstract class Binder {
+    private static final Logger logger = LoggerFactory.getLogger(Binder.class);
+
     public static final Object MISSING = new Object();
     private static final Object DIRECTBINDING_NO_RESULT = new Object();
     public static final Object NO_BINDING = new Object();
@@ -199,7 +202,7 @@ public abstract class Binder {
     }
 
     private static void logBindingNormalFailure(ParamNode paramNode, Exception e) {
-        Logger.debug("Failed to bind %s=%s: %s", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()), e);
+        logger.debug("Failed to bind {}={}: {}", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()), e);
     }
 
     private static Object bindArray(Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
@@ -230,7 +233,7 @@ public abstract class Binder {
                     Array.set(array, i - invalidItemsCount, directBind(paramNode.getOriginalKey(), bindingAnnotations.annotations,
                             thisValue, componentType, componentType));
                 } catch (Exception e) {
-                    Logger.debug("Bad item #%s: %s", i, e);
+                    logger.debug("Bad item #{}: {}", i, e);
                     invalidItemsCount++;
                 }
             }
@@ -244,7 +247,7 @@ public abstract class Binder {
                     try {
                         Array.set(array, i - invalidItemsCount, childValue);
                     } catch (Exception e) {
-                        Logger.debug("Bad item #%s: %s", i, e);
+                        logger.debug("Bad item #{}: {}", i, e);
                         invalidItemsCount++;
                     }
                 }
@@ -277,10 +280,10 @@ public abstract class Binder {
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            Logger.warn("Failed to create instance of %s: %s", clazz.getName(), e);
+            logger.warn("Failed to create instance of {}: {}", clazz.getName(), e);
             throw new UnexpectedException(e);
         } catch (NoSuchMethodException | InvocationTargetException e) {
-            Logger.error("Failed to create instance of %s: %s", clazz.getName(), e);
+            logger.error("Failed to create instance of {}: {}", clazz.getName(), e);
             throw new UnexpectedException(e);
         }
     }
@@ -599,14 +602,10 @@ public abstract class Binder {
 
         // custom types
         for (Class<?> c : supportedTypes.keySet()) {
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("directBind: value [" + value + "] c [" + c + "] Class [" + clazz + "]");
-            }
+            logger.trace("directBind: value [{}] c [" + c + "] Class [" + clazz + "]", value);
 
             if (c.isAssignableFrom(clazz)) {
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("directBind: isAssignableFrom is true");
-                }
+                logger.trace("directBind: isAssignableFrom is true");
                 return supportedTypes.get(c).bind(name, annotations, value, clazz, type);
             }
         }

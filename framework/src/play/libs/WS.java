@@ -3,9 +3,10 @@ package play.libs;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import play.Logger;
 import play.Play;
 import play.PlayPlugin;
 import play.libs.F.Promise;
@@ -47,6 +48,7 @@ import java.util.*;
  * </pre>
  */
 public class WS extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(WS.class);
 
     private static WSImpl wsImpl = null;
 
@@ -162,20 +164,14 @@ public class WS extends PlayPlugin {
         String implementation = Play.configuration.getProperty("webservice", "async");
         if (implementation.equals("urlfetch")) {
             wsImpl = new WSUrlFetch();
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Using URLFetch for web service");
-            }
+            logger.trace("Using URLFetch for web service");
         } else if (implementation.equals("async")) {
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Using Async for web service");
-            }
+            logger.trace("Using Async for web service");
             wsImpl = new WSAsync();
         } else {
             try {
                 wsImpl = (WSImpl) Class.forName(implementation).newInstance();
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("Using the class:" + implementation + " for web service");
-                }
+                logger.trace("Using the class: {} for web service", implementation);
             } catch (Exception e) {
                 throw new RuntimeException("Unable to load the class: " + implementation + " for web service", e);
             }
@@ -822,7 +818,7 @@ public class WS extends PlayPlugin {
             try {
                 return new JsonParser().parse(json);
             } catch (Exception e) {
-                Logger.error("Bad JSON: \n%s", json);
+                logger.error("Bad JSON: \n{}", json);
                 throw new RuntimeException("Cannot parse JSON (check logs)", e);
             }
         }

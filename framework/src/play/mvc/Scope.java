@@ -1,6 +1,7 @@
 package play.mvc;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.data.binding.Binder;
 import play.data.binding.ParamNode;
@@ -26,6 +27,7 @@ import java.util.Map;
  * All application Scopes
  */
 public class Scope {
+    private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
     public static final boolean COOKIE_SECURE = Play.configuration.getProperty("application.session.secure", "false").toLowerCase()
@@ -45,7 +47,7 @@ public class Scope {
         }
 
         try {
-            Logger.info("Storing sessions using " + sessionStoreClass);
+            logger.info("Storing sessions using {}", sessionStoreClass);
             return (SessionStore) Injector.getBeanOfType(sessionStoreClass);
         }
         catch (Exception e) {
@@ -384,11 +386,10 @@ public class Scope {
         public <T> T get(String key, Class<T> type) {
             try {
                 checkAndParse();
-                // TODO: This is used by the test, but this is not the most
-                // convenient.
+                // TODO: This is used by the test, but this is not the most convenient.
                 return (T) Binder.bind(getRootParamNode(), key, type, type, null);
             } catch (RuntimeException e) {
-                Logger.error(e, "Failed to get %s of type %s", key, type);
+                logger.error("Failed to get {} of type {}", key, type, e);
                 Validation.addError(key, "validation.invalid");
                 return null;
             }
@@ -399,7 +400,7 @@ public class Scope {
             try {
                 return (T) Binder.directBind(annotations, get(key), type, null);
             } catch (Exception e) {
-                Logger.error(e, "Failed to get %s of type %s", key, type);
+                logger.error("Failed to get {} of type {}", key, type, e);
                 Validation.addError(key, "validation.invalid");
                 return null;
             }
@@ -466,7 +467,7 @@ public class Scope {
                     try {
                         ue.append(URLEncoder.encode(key, encoding)).append("=").append(URLEncoder.encode(value, encoding)).append("&");
                     } catch (Exception e) {
-                        Logger.error(e, "Error (encoding ?)");
+                        logger.error("Error (encoding ?)", e);
                     }
                 }
             }

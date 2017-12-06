@@ -3,7 +3,8 @@ package play.server;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 public class HttpServerPipelineFactory implements ChannelPipelineFactory {
+    private static final Logger logger = LoggerFactory.getLogger(HttpServerPipelineFactory.class);
 
     private String pipelineConfig = Play.configuration.getProperty("play.netty.pipeline", "play.server.FlashPolicyHandler,org.jboss.netty.handler.codec.http.HttpRequestDecoder,play.server.StreamChunkAggregator,org.jboss.netty.handler.codec.http.HttpResponseEncoder,org.jboss.netty.handler.stream.ChunkedWriteHandler,play.server.PlayHandler");
 
@@ -24,7 +26,7 @@ public class HttpServerPipelineFactory implements ChannelPipelineFactory {
         
         String[] handlers = pipelineConfig.split(",");  
         if(handlers.length <= 0){
-            Logger.error("You must defined at least the playHandler in \"play.netty.pipeline\"");
+            logger.error("You must defined at least the playHandler in \"play.netty.pipeline\"");
             return pipeline;
         }       
         
@@ -33,7 +35,7 @@ public class HttpServerPipelineFactory implements ChannelPipelineFactory {
         ChannelHandler instance = getInstance(handler);
         PlayHandler playHandler = (PlayHandler) instance;
         if (playHandler == null) {
-            Logger.error("The last handler must be the playHandler in \"play.netty.pipeline\"");
+            logger.error("The last handler must be the playHandler in \"play.netty.pipeline\"");
             return pipeline;
         }
       
@@ -48,21 +50,19 @@ public class HttpServerPipelineFactory implements ChannelPipelineFactory {
                     playHandler.pipelines.put(name, instance);
                 }
             } catch (Throwable e) {
-                Logger.error(" error adding " + handler, e);
+                logger.error(" error adding {}", handler, e);
             }
         }
                
-        if (playHandler != null) {
-            pipeline.addLast("handler", playHandler);
-            playHandler.pipelines.put("handler", playHandler);
-        } 
-       
+        pipeline.addLast("handler", playHandler);
+        playHandler.pipelines.put("handler", playHandler);
+
         return pipeline;
     }
 
     protected String getName(String name) {
-        if (name.lastIndexOf(".") > 0)
-            return name.substring(name.lastIndexOf(".") + 1);
+        if (name.lastIndexOf('.') > 0)
+            return name.substring(name.lastIndexOf('.') + 1);
         return name;
     }
 

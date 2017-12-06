@@ -1,6 +1,7 @@
 package play.jobs;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.exceptions.PlayException;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class JobsPlugin extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(JobsPlugin.class);
 
     public static ScheduledThreadPoolExecutor executor;
     public static List<Job> scheduledJobs = new ArrayList<>();
@@ -191,7 +193,7 @@ public class JobsPlugin extends PlayPlugin {
         }
         cron = Expression.evaluate(cron, cron).toString();
         if (cron == null || cron.isEmpty() || "never".equalsIgnoreCase(cron)) {
-            Logger.info("Skipping job %s, cron expression is not defined", job.getClass().getName());
+            logger.info("Skipping job {}, cron expression is not defined", job.getClass().getName());
             return;
         }
         try {
@@ -200,7 +202,7 @@ public class JobsPlugin extends PlayPlugin {
             CronExpression cronExp = new CronExpression(cron);
             Date nextDate = cronExp.getNextValidTimeAfter(now);
             if (nextDate == null) {
-                Logger.warn("The cron expression for job %s doesn't have any match in the future, will never be executed",
+                logger.warn("The cron expression for job {} doesn't have any match in the future, will never be executed",
                         job.getClass().getName());
                 return;
             }

@@ -2,7 +2,8 @@ package play.modules.excel;
 
 import net.sf.jxls.transformer.XLSTransformer;
 import org.apache.poi.ss.usermodel.Workbook;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class RenderExcel extends Result {
+    private static final Logger logger = LoggerFactory.getLogger(RenderExcel.class);
 
     public static final String RA_FILENAME = "__FILE_NAME__";
 
@@ -55,7 +57,7 @@ public class RenderExcel extends Result {
     @Override
     public void apply(Request request, Response response) {
         if (null == excel) {
-            Logger.debug("use sync excel rendering");
+            logger.debug("use sync excel rendering");
             long start = System.currentTimeMillis();
             try {
                 InputStream is = file.inputstream();
@@ -63,12 +65,12 @@ public class RenderExcel extends Result {
                         .transformXLS(is, beans);
                 workbook.write(response.out);
                 is.close();
-                Logger.debug("Excel sync render takes %sms", System.currentTimeMillis() - start);
+                logger.debug("Excel sync render takes {}ms", System.currentTimeMillis() - start);
             } catch (Exception e) {
                 throw new UnexpectedException(e);
             }
         } else {
-            Logger.debug("use async excel rendering...");
+            logger.debug("use async excel rendering...");
             try {
                 response.out.write(excel);
             } catch (IOException e) {

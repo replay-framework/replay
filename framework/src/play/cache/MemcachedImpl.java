@@ -7,13 +7,13 @@ import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.auth.AuthDescriptor;
 import net.spy.memcached.auth.PlainCallbackHandler;
 import net.spy.memcached.transcoders.SerializingTranscoder;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.ConfigurationException;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -27,6 +27,7 @@ import static java.util.Collections.emptyMap;
  * expiration is specified in seconds
  */
 public class MemcachedImpl implements CacheImpl {
+    private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
 
     private static MemcachedImpl uniqueInstance;
 
@@ -65,7 +66,7 @@ public class MemcachedImpl implements CacheImpl {
                     return in.readObject();
                 }
                 catch (Exception e) {
-                    Logger.error(e, "Could not deserialize");
+                    logger.error("Could not deserialize", e);
                 }
                 return null;
             }
@@ -79,7 +80,7 @@ public class MemcachedImpl implements CacheImpl {
                     }
                 }
                 catch (IOException e) {
-                    Logger.error(e, "Could not serialize");
+                    logger.error("Could not serialize", e);
                 }
                 return null;
             }

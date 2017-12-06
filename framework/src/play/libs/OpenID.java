@@ -1,9 +1,10 @@
 package play.libs;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import play.Logger;
 import play.exceptions.PlayException;
 import play.libs.WS.HttpResponse;
 import play.mvc.Http.Request;
@@ -23,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OpenID {
+    private static final Logger logger = LoggerFactory.getLogger(OpenID.class);
 
     private OpenID(String id) {
         this.id = id;
@@ -193,10 +195,7 @@ public class OpenID {
                 }
             }
 
-            if (Logger.isTraceEnabled()) {
-                // Debug
-                Logger.trace("Send request %s", url);
-            }
+            logger.trace("Send request {}", url);
 
             throw new Redirect(url);
         } catch (Redirect | PlayException e) {

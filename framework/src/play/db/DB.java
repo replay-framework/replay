@@ -3,7 +3,8 @@ package play.db;
 import com.sun.rowset.CachedRowSetImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.jpa.HibernateEntityManager;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.db.jpa.JPA;
 import play.exceptions.DatabaseException;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Database connection utilities.
  */
 public class DB {
+    private static final Logger logger = LoggerFactory.getLogger(DB.class);
 
     /**
      * The loaded datasource.
@@ -317,11 +319,11 @@ public class DB {
                     close.invoke(extDatasource.getDataSource(), new Object[] {});
                     datasources.remove(name);
                     DB.datasource = null;
-                    Logger.trace("Datasource destroyed");
+                    logger.trace("Datasource destroyed");
                 }
             }
         } catch (Throwable t) {
-            Logger.error("Couldn't destroy the datasource", t);
+            logger.error("Couldn't destroy the datasource", t);
         }
     }
 

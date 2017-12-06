@@ -4,7 +4,8 @@ import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import org.apache.commons.lang.StringEscapeUtils;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.libs.I18N;
@@ -23,6 +24,7 @@ import java.util.*;
  * Java extensions in templates
  */
 public class JavaExtensions {
+    private static final Logger logger = LoggerFactory.getLogger(JavaExtensions.class);
 
     public static Object[] enumValues(Class clazz) {
         return clazz.getEnumConstants();
@@ -240,7 +242,7 @@ public class JavaExtensions {
             }
             return URLEncoder.encode(entity, encoding);
         } catch (UnsupportedEncodingException e) {
-            Logger.error(e, entity);
+            logger.error("Failed to encode: '{}'", entity, e);
         }
         return entity;
     }

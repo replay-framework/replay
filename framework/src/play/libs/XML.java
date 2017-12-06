@@ -1,10 +1,11 @@
 package play.libs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import play.Logger;
 
 import javax.xml.crypto.KeySelector;
 import javax.xml.crypto.dsig.*;
@@ -34,6 +35,7 @@ import java.util.Collections;
  * XML utils
  */
 public class XML {
+    private static final Logger logger = LoggerFactory.getLogger(XML.class);
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() {
         try {
@@ -89,9 +91,9 @@ public class XML {
         try {
             return newDocumentBuilder().parse(file);
         } catch (SAXException e) {
-            Logger.warn("Parsing error when building Document object from xml file '" + file + "'.", e);
+            logger.warn("Parsing error when building Document object from xml file '{}'.", file, e);
         } catch (IOException e) {
-            Logger.warn("Reading error when building Document object from xml file '" + file + "'.", e);
+            logger.warn("Reading error when building Document object from xml file '{}'.", file, e);
         }
         return null;
     }
@@ -108,9 +110,9 @@ public class XML {
         try {
             return newDocumentBuilder().parse(source);
         } catch (SAXException e) {
-            Logger.warn("Parsing error when building Document object from xml data.", e);
+            logger.warn("Parsing error when building Document object from xml data.", e);
         } catch (IOException e) {
-            Logger.warn("Reading error when building Document object from xml data.", e);
+            logger.warn("Reading error when building Document object from xml data.", e);
         }
         return null;
     }
@@ -126,9 +128,9 @@ public class XML {
         try {
             return newDocumentBuilder().parse(stream);
         } catch (SAXException e) {
-            Logger.warn("Parsing error when building Document object from xml data.", e);
+            logger.warn("Parsing error when building Document object from xml data.", e);
         } catch (IOException e) {
-            Logger.warn("Reading error when building Document object from xml data.", e);
+            logger.warn("Reading error when building Document object from xml data.", e);
         }
         return null;
     }
@@ -154,7 +156,7 @@ public class XML {
             XMLSignature signature = fac.unmarshalXMLSignature(valContext);
             return signature.validate(valContext);
         } catch (Exception e) {
-            Logger.warn("Error validating an XML signature.", e);
+            logger.warn("Error validating an XML signature.", e);
             return false;
         }
     }
@@ -186,7 +188,7 @@ public class XML {
             XMLSignature signature = fac.newXMLSignature(si, ki);
             signature.sign(dsc);
         } catch (Exception e) {
-            Logger.warn("Error while signing an XML document.", e);
+            logger.warn("Error while signing an XML document.", e);
         }
 
         return document;

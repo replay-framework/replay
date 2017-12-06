@@ -1,6 +1,7 @@
 package play.i18n;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -13,6 +14,7 @@ import java.util.*;
  * Language support
  */
 public class Lang {
+    private static final Logger logger = LoggerFactory.getLogger(Lang.class);
 
     static final ThreadLocal<String> current = new ThreadLocal<>();
 
@@ -53,7 +55,7 @@ public class Lang {
             current.set(locale);
             return true;
         } else {
-            Logger.warn("Locale %s is not defined in your application.conf", locale);
+            logger.warn("Locale {} is not defined in your application.conf", locale);
             return false;
         }
     }

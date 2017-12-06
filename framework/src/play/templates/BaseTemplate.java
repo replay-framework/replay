@@ -1,6 +1,7 @@
 package play.templates;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.classloading.BytecodeCache;
 import play.exceptions.JavaExecutionException;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class BaseTemplate extends Template {
+    private static final Logger logger = LoggerFactory.getLogger(BaseTemplate.class);
 
     public String compiledSource;
     public Map<Integer, Integer> linesMatrix = new HashMap<>();
@@ -26,12 +28,12 @@ public abstract class BaseTemplate extends Template {
     public String compiledTemplateName;
     public Long timestamp = System.currentTimeMillis();
 
-    public BaseTemplate(String name, String source) {
+    protected BaseTemplate(String name, String source) {
         this.name = name;
         this.source = source;
     }
 
-    public BaseTemplate(String source) {
+    protected BaseTemplate(String source) {
         this.name = Codec.UUID();
         this.source = source;
     }
@@ -52,13 +54,11 @@ public abstract class BaseTemplate extends Template {
             byte[] bc = BytecodeCache.getBytecode(name, source);
             if (bc != null) {
                 directLoad(bc);
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("%sms to load template %s from cache", System.currentTimeMillis() - start, name);
-                }
+                logger.trace("{}ms to load template {} from cache", System.currentTimeMillis() - start, name);
                 return true;
             }
         } catch (Exception e) {
-            Logger.warn(e, "Cannot load %s from cache", name);
+            logger.warn("Cannot load {} from cache", name, e);
         }
         return false;
     }

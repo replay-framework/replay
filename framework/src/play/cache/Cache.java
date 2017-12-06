@@ -1,6 +1,7 @@
 package play.cache;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.CacheException;
 import play.libs.Time;
@@ -15,6 +16,7 @@ import java.util.Map;
  * Note: When specifying expiration == "0s" (zero seconds) the actual expiration-time may vary between different cache implementations
  */
 public abstract class Cache {
+    private static final Logger logger = LoggerFactory.getLogger(Cache.class);
 
     /**
      * The underlying cache implementation
@@ -123,10 +125,10 @@ public abstract class Cache {
         if ("enabled".equals(Play.configuration.getProperty("memcached", "disabled"))) {
             try {
                 cacheImpl = MemcachedImpl.getInstance(true);
-                Logger.info("Connected to memcached");
+                logger.info("Connected to memcached");
             } catch (Exception e) {
-                Logger.error(e, "Error while connecting to memcached");
-                Logger.warn("Fallback to local cache");
+                logger.error("Error while connecting to memcached", e);
+                logger.warn("Fallback to local cache");
                 cacheImpl = EhCacheImpl.newInstance();
             }
         } else {

@@ -2,7 +2,8 @@ package play.mvc;
 
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.cache.Cache;
 import play.cache.CacheFor;
@@ -36,6 +37,7 @@ import java.util.Map;
  * Invoke an action after an HTTP request.
  */
 public class ActionInvoker {
+    private static final Logger logger = LoggerFactory.getLogger(ActionInvoker.class);
 
     @SuppressWarnings("unchecked")
     public static void resolve(Http.Request request) {
@@ -67,14 +69,12 @@ public class ActionInvoker {
             request.action = request.controller + "." + request.actionMethod;
             request.invokedMethod = actionMethod;
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("------- %s", actionMethod);
-            }
+            logger.trace("------- {}", actionMethod);
 
             request.resolved = true;
 
         } catch (ActionNotFoundException e) {
-            Logger.error(e, "%s action not found", e.getAction());
+            logger.error("{} action not found", e.getAction(), e);
             throw new NotFound(String.format("%s action not found", e.getAction()));
         }
 
@@ -492,8 +492,9 @@ public class ActionInvoker {
             } else {
                 params.putAll(Scope.Params.current().all());
             }
-            Logger.trace("getActionMethodArgs name [" + paramsNames[i] + "] annotation ["
-                    + Utils.join(method.getParameterAnnotations()[i], " ") + "]");
+            if (logger.isTraceEnabled()) {
+                logger.trace("getActionMethodArgs name [{}] annotation [{}]", paramsNames[i], Utils.join(method.getParameterAnnotations()[i], " "));
+            }
 
             RootParamNode root = ParamNode.convert(params);
             rArgs[i] = Binder.bind(root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],

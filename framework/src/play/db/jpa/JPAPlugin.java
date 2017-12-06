@@ -9,7 +9,8 @@ import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.BasicType;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.data.binding.Binder;
@@ -34,6 +35,8 @@ import static org.hibernate.FlushMode.MANUAL;
 
 
 public class JPAPlugin extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(JPAPlugin.class);
+
     public static boolean autoTxs = true;
   
     @Override
@@ -111,9 +114,7 @@ public class JPAPlugin extends PlayPlugin {
                 org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.ALL);
             }
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Initializing JPA for %s...", dbName);
-            }
+            logger.trace("Initializing JPA for {}...", dbName);
 
             JPA.emfs.put(dbName, newEntityManagerFactory(dbName, dbConfig));
         }
@@ -152,7 +153,7 @@ public class JPAPlugin extends PlayPlugin {
                     entityClasses.add(clazz);
                 }         
             } catch (Exception e) {
-                Logger.warn(e, "JPA -> Entity not found: %s", entity);
+                logger.warn("JPA -> Entity not found: {}", entity, e);
             }
         }
         return entityClasses;

@@ -1,6 +1,7 @@
 package play.templates;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.exceptions.PlayException;
 import play.exceptions.TemplateCompilationException;
 import play.exceptions.UnexpectedException;
@@ -9,14 +10,13 @@ import play.vfs.VirtualFile;
 import java.util.Stack;
 
 public abstract class TemplateCompiler {
+    private static final Logger logger = LoggerFactory.getLogger(TemplateCompiler.class);
 
     public BaseTemplate compile(BaseTemplate template) {
         try {
             long start = System.currentTimeMillis();
             generate(template);
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to parse template %s", System.currentTimeMillis() - start, template.name);
-            }
+            logger.trace("{}ms to parse template {}", System.currentTimeMillis() - start, template.name);
             return template;
         } catch (PlayException e) {
             throw e;
@@ -108,10 +108,7 @@ public abstract class TemplateCompiler {
         // Done !
         template.compiledSource = compiledSource.toString();
 
-        if (Logger.isTraceEnabled()) {
-            Logger.trace("%s is compiled to %s", template.name, template.compiledSource);
-        }
-
+        logger.trace("{} is compiled to {}", template.name, template.compiledSource);
     }
 
     protected abstract String source();

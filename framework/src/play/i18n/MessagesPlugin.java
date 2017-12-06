@@ -1,6 +1,7 @@
 package play.i18n;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
@@ -12,10 +13,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 
-/**
- * Messages plugin
- */
 public class MessagesPlugin extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(MessagesPlugin.class);
 
     static Long lastLoading = 0L;
 
@@ -25,12 +24,6 @@ public class MessagesPlugin extends PlayPlugin {
     public void onApplicationStart() {
         includeMessageFilenames.clear();
         Messages.defaults = new Properties();
-        try {
-            File message = new File(Play.frameworkPath, "resources/messages");
-            Messages.defaults.putAll(read(message));
-        } catch (Exception e) {
-            Logger.warn("Default messages file missing: %s", e);
-        }
         for (VirtualFile module : Play.modules.values()) {
             VirtualFile messages = module.child("conf/messages");
             if (messages != null && messages.exists()
@@ -55,7 +48,7 @@ public class MessagesPlugin extends PlayPlugin {
             if (appM != null && appM.exists() && !appM.isDirectory()) {
                 properties.putAll(read(appM));
             } else {
-                Logger.warn("Messages file missing for locale %s", locale);
+                logger.warn("Messages file missing for locale {}", locale);
             }
             Messages.locales.put(locale, properties);
         }
@@ -94,10 +87,10 @@ public class MessagesPlugin extends PlayPlugin {
                                 includeMessageFilenames.add(fileToInclude.getAbsolutePath());
                             }
                         } else {
-                            Logger.warn("Missing include: %s from file %s", filenameToInclude, file.getPath());
+                            logger.warn("Missing include: {} from file {}", filenameToInclude, file.getPath());
                         }
                     } catch (Exception ex) {
-                        Logger.warn("Missing include: %s, caused by: %s", key, ex);
+                        logger.warn("Missing include: {}, caused by: {}", key, ex);
                     }
                 }
             }

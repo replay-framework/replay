@@ -1,6 +1,7 @@
 package play.data.binding.types;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Upload;
 import play.data.binding.Binder;
 import play.data.binding.TypeBinder;
@@ -14,6 +15,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class UploadBinder implements TypeBinder<Model.BinaryField> {
+    private static final Logger logger = LoggerFactory.getLogger(UploadBinder.class);
 
     @Override
     @SuppressWarnings("unchecked")
@@ -39,7 +41,7 @@ public class UploadBinder implements TypeBinder<Model.BinaryField> {
             }
             return Binder.MISSING;
         } catch (Exception e) {
-            Logger.error("", e);
+            logger.error("Failed to bind upload {}", name, e);
             throw new UnexpectedException(e);
         }
     }

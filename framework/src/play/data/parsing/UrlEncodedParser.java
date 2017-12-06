@@ -1,7 +1,8 @@
 package play.data.parsing;
 
 import org.apache.commons.codec.net.URLCodec;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
@@ -20,6 +21,7 @@ import java.util.Map;
  * Parse url-encoded requests.
  */
 public class UrlEncodedParser extends DataParser {
+    private static final Logger logger = LoggerFactory.getLogger(UrlEncodedParser.class);
 
     // Sets the maximum count of accepted POST params - protection against Hash collision DOS attacks
     private static final int maxParams = Integer.parseInt(Play.configuration.getProperty("http.maxParams", "1000")); // 0 == no limit
@@ -78,7 +80,7 @@ public class UrlEncodedParser extends DataParser {
             // to prevent the Play-server from being vulnerable to POST hash collision DOS-attack (Denial of Service through hash table multi-collisions),
             // we should by default not parse the params into HashMap if the count exceeds a maximum limit
             if(maxParams != 0 && keyValues.length > maxParams) {
-                Logger.warn("Number of request parameters %d is higher than maximum of %d, aborting. Can be configured using 'http.maxParams'", keyValues.length, maxParams);
+                logger.warn("Number of request parameters {} is higher than maximum of {}, aborting. Can be configured using 'http.maxParams'", keyValues.length, maxParams);
                 throw new Status(413); //413 Request Entity Too Large
             }
 
@@ -111,7 +113,7 @@ public class UrlEncodedParser extends DataParser {
                     "test".getBytes(providedCharset);
                     charset = providedCharset; // it works..
                 } catch (Exception e) {
-                    Logger.debug(e, "Got invalid _charset_ in form: " + providedCharset);
+                    logger.debug("Got invalid _charset_ in form: {}", providedCharset, e);
                     // lets just use the default one..
                 }
             }

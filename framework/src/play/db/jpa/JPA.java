@@ -1,7 +1,8 @@
 package play.db.jpa;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Invoker.InvocationContext;
-import play.Logger;
 import play.Play;
 import play.db.DB;
 import play.exceptions.JPAException;
@@ -15,21 +16,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * JPA Support
  */
 public class JPA {
+    private static final Logger logger = LoggerFactory.getLogger(JPA.class);
 
     protected static Map<String, EntityManagerFactory> emfs = new ConcurrentHashMap<>();
-    public static final ThreadLocal<Map<String, JPAContext>> currentEntityManager = new ThreadLocal<Map<String, JPAContext>>() {
-        @Override
-        protected Map<String, JPAContext> initialValue() {
-            return new ConcurrentHashMap<>();
-        }
-    };
+    public static final ThreadLocal<Map<String, JPAContext>> currentEntityManager = ThreadLocal.withInitial(() -> new ConcurrentHashMap<>());
     public static String DEFAULT = "default";
 
     public static class JPAContext {
         public String dbName = JPA.DEFAULT;
         public EntityManager entityManager;
         public boolean readonly = true;
-        public boolean autoCommit = false;
+        public boolean autoCommit;
     }
 
     public static boolean isInitialized() {
@@ -314,7 +311,7 @@ public class JPA {
                             localTx.rollback();
                         }
                     } catch (Throwable e) {
-                        Logger.error(e, "Failed to rollback transaction");
+                        logger.error("Failed to rollback transaction", e);
                     }
                 }
 
@@ -363,7 +360,7 @@ public class JPA {
                 try {
                     DB.getConnection(name).setAutoCommit(false);
                 } catch (Exception e) {
-                    Logger.error(e, "Why the driver complains here?");
+                    logger.error("Why the driver complains here?", e);
                 }
                 // Commit the transaction
                 if (manager.getTransaction().isActive()) {
@@ -405,7 +402,7 @@ public class JPA {
                 try {
                     DB.getConnection(name).setAutoCommit(false);
                 } catch (Exception e) {
-                    Logger.error(e, "Why the driver complains here?");
+                    logger.error("Why the driver complains here?", e);
                 }
                 // Commit the transaction
                 if (manager.getTransaction().isActive()) {

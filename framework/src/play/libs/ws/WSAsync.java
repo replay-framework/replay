@@ -14,7 +14,8 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.http.HttpRequest;
 import org.apache.commons.lang.NotImplementedException;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.libs.F.Promise;
 import play.libs.MimeTypes;
@@ -57,6 +58,7 @@ import java.util.*;
  * </pre>
  */
 public class WSAsync implements WSImpl {
+    private static final Logger logger = LoggerFactory.getLogger(WSAsync.class);
 
     private AsyncHttpClient httpClient;
     private static SSLContext sslCTX = null;
@@ -78,9 +80,9 @@ public class WSAsync implements WSImpl {
             try {
                 proxyPortInt = Integer.parseInt(proxyPort);
             } catch (NumberFormatException e) {
-                Logger.error(e,
-                        "Cannot parse the proxy port property '%s'. Check property http.proxyPort either in System configuration or in Play config file.",
-                        proxyPort);
+                logger.error(
+                        "Cannot parse the proxy port property '{}'. Check property http.proxyPort either in System configuration or in Play config file.",
+                        proxyPort, e);
                 throw new IllegalStateException("WS proxy is misconfigured -- check the logs for details");
             }
             ProxyServer proxy = new ProxyServer(proxyHost, proxyPortInt, proxyUser, proxyPassword);
@@ -98,10 +100,8 @@ public class WSAsync implements WSImpl {
 
         if (keyStore != null && !keyStore.equals("")) {
 
-            Logger.info("Keystore configured, loading from '%s', CA validation enabled : %s", keyStore, CAValidation);
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Keystore password : %s, SSLCTX : %s", keyStorePass, sslCTX);
-            }
+            logger.info("Keystore configured, loading from '{}', CA validation enabled : {}", keyStore, CAValidation);
+            logger.trace("Keystore password : {}, SSLCTX : {}", keyStorePass, sslCTX);
 
             if (sslCTX == null) {
                 sslCTX = WSSSLContext.getSslContext(keyStore, keyStorePass, CAValidation);
@@ -117,7 +117,7 @@ public class WSAsync implements WSImpl {
 
     @Override
     public void stop() {
-        Logger.trace("Releasing http client connections...");
+        logger.trace("Releasing http client connections...");
         httpClient.close();
     }
 
@@ -128,8 +128,8 @@ public class WSAsync implements WSImpl {
 
     public class WSAsyncRequest extends WSRequest {
 
-        protected String type = null;
-        private String generatedContentType = null;
+        protected String type;
+        private String generatedContentType;
 
         protected WSAsyncRequest(String url, String encoding) {
             super(url, encoding);
@@ -445,7 +445,7 @@ public class WSAsync implements WSImpl {
                 final Promise<HttpResponse> smartFuture = new Promise<>();
                 prepare(builder).execute(new AsyncCompletionHandler<HttpResponse>() {
                     @Override
-                    public HttpResponse onCompleted(Response response) throws Exception {
+                    public HttpResponse onCompleted(Response response) {
                         HttpResponse httpResponse = new HttpAsyncResponse(response);
                         smartFuture.invoke(httpResponse);
                         return httpResponse;

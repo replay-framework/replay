@@ -9,7 +9,8 @@ import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.DeferredFileOutputStream;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.data.FileUpload;
 import play.data.MemoryUpload;
@@ -27,6 +28,7 @@ import static org.apache.commons.io.FileUtils.readFileToByteArray;
  * From Apache commons fileupload. http://commons.apache.org/fileupload/
  */
 public class ApacheMultipartParser extends DataParser {
+    private static final Logger logger = LoggerFactory.getLogger(ApacheMultipartParser.class);
 
     private static void putMapEntry(Map<String, String[]> map, String name, String value) {
         String[] newValues;
@@ -546,10 +548,10 @@ public class ApacheMultipartParser extends DataParser {
                 }
             }
         } catch (IOException | FileUploadException e) {
-            Logger.debug(e, "error");
+            logger.debug("error", e);
             throw new IllegalStateException("Error when handling upload", e);
         } catch (Exception e) {
-            Logger.debug(e, "error");
+            logger.debug("error", e);
             throw new UnexpectedException(e);
         }
         return result;

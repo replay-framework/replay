@@ -1,7 +1,6 @@
 package play.utils;
 
 import org.junit.Test;
-import play.Logger;
 import play.libs.IO;
 
 import java.io.InputStream;
@@ -21,8 +20,6 @@ public class OrderSafePropertiesTest {
         javaP.load(getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest2.properties"));
         playP.load(getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest2.properties"));
         assertThat(playP.getProperty("a")).isEqualTo(javaP.getProperty("a"));
-        Logger.info("playP.getProperty(\"a\"):" + playP.getProperty("a"));
-
     }
 
     @Test

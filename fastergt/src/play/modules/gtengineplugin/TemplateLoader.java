@@ -1,6 +1,7 @@
 package play.modules.gtengineplugin;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TemplateLoader {
+    private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
     private static GTTemplateRepo templateRepo;
 
@@ -210,9 +212,7 @@ public class TemplateLoader {
         if (!current.isDirectory() && !current.getName().startsWith(".")) {
             long start = System.currentTimeMillis();
             Template template = load(current);
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to load %s", System.currentTimeMillis() - start, current.getName());
-            }
+            logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
             templates.add(template);
         } else if (current.isDirectory() && !current.getName().startsWith(".")) {
             for (VirtualFile virtualFile : current.list()) {

@@ -1,6 +1,7 @@
 package play.classloading;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 
@@ -15,6 +16,7 @@ import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
  * Used to speed up compilation time
  */
 public class BytecodeCache {
+    private static final Logger logger = LoggerFactory.getLogger(BytecodeCache.class);
 
     /**
      * Delete the bytecode
@@ -58,9 +60,7 @@ public class BytecodeCache {
                     offset++;
                 }
                 if (!hash(source).equals(hash.toString())) {
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("Bytecode too old (%s != %s)", hash, hash(source));
-                    }
+                    logger.trace("Bytecode too old ({} != {})", hash, hash(source));
                     fis.close();
                     return null;
                 }
@@ -70,9 +70,7 @@ public class BytecodeCache {
                 return byteCode;
             }
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Cache MISS for %s", name);
-            }
+            logger.trace("Cache MISS for {}", name);
             return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -104,9 +102,7 @@ public class BytecodeCache {
                 writeByteArrayToFile(f, byteCode);
             }
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%s cached", name);
-            }
+            logger.trace("{} cached", name);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

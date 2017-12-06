@@ -3,13 +3,15 @@ package play.libs;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.MailException;
 import play.libs.mail.AbstractMailSystemFactory;
 import play.libs.mail.MailSystem;
 import play.libs.mail.test.LegacyMockMailSystem;
 import play.utils.Utils.Maps;
+import play.utils.YesSSLSocketFactory;
 
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
@@ -23,6 +25,7 @@ import java.util.concurrent.*;
  * Mail utils
  */
 public class Mail {
+    private static final Logger logger = LoggerFactory.getLogger(Mail.class);
 
     private static class StaticMailSystemFactory extends AbstractMailSystemFactory {
 
@@ -125,7 +128,7 @@ public class Mail {
                 // root ca.)
                 props.put("mail.smtp.port", "465");
                 props.put("mail.smtp.socketFactory.port", "465");
-                props.put("mail.smtp.socketFactory.class", "play.utils.YesSSLSocketFactory");
+                props.put("mail.smtp.socketFactory.class", YesSSLSocketFactory.class.getName());
                 props.put("mail.smtp.socketFactory.fallback", "false");
             } else if ("starttls".equals(channelEncryption)) {
                 // port 25 + enable starttls + ssl socket factory
@@ -158,7 +161,7 @@ public class Mail {
                 try {
                     session = Session.getInstance(props, (Authenticator) Class.forName(authenticator).newInstance());
                 } catch (Exception e) {
-                    Logger.error(e, "Cannot instantiate custom SMTP authenticator (%s)", authenticator);
+                    logger.error("Cannot instantiate custom SMTP authenticator ({})", authenticator, e);
                 }
             }
 
@@ -198,7 +201,7 @@ public class Mail {
                         return true;
                     } catch (Throwable e) {
                         MailException me = new MailException("Error while sending email", e);
-                        Logger.error(me, "The email has not been sent");
+                        logger.error("The email has not been sent", me);
                         return false;
                     }
                 }
@@ -210,7 +213,7 @@ public class Mail {
                 msg.send();
             } catch (Throwable e) {
                 MailException me = new MailException("Error while sending email", e);
-                Logger.error(me, "The email has not been sent");
+                logger.error("The email has not been sent", me);
                 result.append("oops");
             }
             return new Future<Boolean>() {

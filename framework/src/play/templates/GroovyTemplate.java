@@ -12,7 +12,8 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.tools.GroovyClass;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.classloading.BytecodeCache;
@@ -40,6 +41,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class GroovyTemplate extends BaseTemplate {
+    private static final Logger logger = LoggerFactory.getLogger(GroovyTemplate.class);
 
     static final Map<String, SafeFormatter> safeFormatters = new HashMap<>();
 
@@ -153,14 +155,12 @@ public class GroovyTemplate extends BaseTemplate {
                         f.getParentFile().mkdirs();
                         FileUtils.write(f, sb.toString(), "utf-8");
                     } catch (Exception e) {
-                        Logger.warn(e, "Unexpected");
+                        logger.warn("Unexpected", e);
                     }
                 }
 
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("%sms to compile template %s to %d classes", System.currentTimeMillis() - start, name,
+                logger.trace("{}ms to compile template {} to {} classes", System.currentTimeMillis() - start, name,
                             groovyClassesForThisTemplate.size());
-                }
 
             } catch (MultipleCompilationErrorsException e) {
                 if (e.getErrorCollector().getLastError() != null) {
@@ -253,9 +253,7 @@ public class GroovyTemplate extends BaseTemplate {
             t.run();
             monitor.stop();
             monitor = null;
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to render template %s", System.currentTimeMillis() - start, name);
-            }
+            logger.trace("{}ms to render template {}", System.currentTimeMillis() - start, name);
         } catch (NoRouteFoundException e) {
             throw e;
         } catch (PlayException e) {

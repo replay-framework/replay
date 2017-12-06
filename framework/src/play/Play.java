@@ -1,5 +1,6 @@
 package play;
 
+import org.slf4j.LoggerFactory;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
 import play.classloading.ApplicationClassloader;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
  * Main framework class
  */
 public class Play {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Play.class);
 
     /**
      * 2 modes
@@ -53,16 +55,16 @@ public class Play {
     /**
      * Is the application initialized
      */
-    public static boolean initialized = false;
+    public static boolean initialized;
 
     /**
      * Is the application started
      */
-    public static boolean started = false;
+    public static boolean started;
     /**
      * True when the one and only shutdown hook is enabled
      */
-    private static boolean shutdownHookEnabled = false;
+    private static boolean shutdownHookEnabled;
     /**
      * The framework ID
      */
@@ -78,11 +80,11 @@ public class Play {
     /**
      * tmp dir
      */
-    public static File tmpDir = null;
+    public static File tmpDir;
     /**
      * The framework root
      */
-    public static File frameworkPath = null;
+    public static File frameworkPath;
     /**
      * All loaded application classes
      */
@@ -198,22 +200,19 @@ public class Play {
         if (!Logger.configuredManually) {
             Logger.setUp(logLevel);
         }
-        Logger.recordCaller = Boolean.parseBoolean(configuration.getProperty("application.log.recordCaller", "false"));
 
-        Logger.info("Starting %s", root.getAbsolutePath());
+        logger.info("Starting {}", root.getAbsolutePath());
 
         if (configuration.getProperty("play.tmp", "tmp").equals("none")) {
             tmpDir = null;
-            Logger.debug("No tmp folder will be used (play.tmp is set to none)");
+            logger.debug("No tmp folder will be used (play.tmp is set to none)");
         } else {
             tmpDir = new File(configuration.getProperty("play.tmp", "tmp"));
             if (!tmpDir.isAbsolute()) {
                 tmpDir = new File(applicationPath, tmpDir.getPath());
             }
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("Using %s as tmp dir", Play.tmpDir);
-            }
+            logger.trace("Using {} as tmp dir", Play.tmpDir);
 
             if (!tmpDir.exists()) {
                 if (!tmpDir.mkdirs()) {
@@ -226,7 +225,7 @@ public class Play {
         try {
             mode = Mode.valueOf(configuration.getProperty("application.mode", "DEV").toUpperCase());
         } catch (IllegalArgumentException e) {
-            Logger.error("Illegal mode '%s', use either prod or dev", configuration.getProperty("application.mode"));
+            logger.error("Illegal mode '{}', use either prod or dev", configuration.getProperty("application.mode"));
             fatalServerErrorOccurred();
         }
 
@@ -275,7 +274,7 @@ public class Play {
         // Default cookie domain
         Http.Cookie.defaultDomain = configuration.getProperty("application.defaultCookieDomain", null);
         if (Http.Cookie.defaultDomain != null) {
-            Logger.info("Using default cookie domain: " + Http.Cookie.defaultDomain);
+            logger.info("Using default cookie domain: {}", Http.Cookie.defaultDomain);
         }
 
         // Plugins
@@ -289,7 +288,7 @@ public class Play {
                 return;
             }
         } else {
-            Logger.warn("You're running Play! in DEV mode");
+            logger.warn("You're running Play! in DEV mode");
         }
 
         // Plugins
@@ -356,7 +355,7 @@ public class Play {
             propsFromFile = IO.readUtf8Properties(conf.inputstream());
         } catch (RuntimeException e) {
             if (e.getCause() instanceof IOException) {
-                Logger.fatal("Cannot read " + filename);
+                logger.error("Cannot read {}", filename);
                 fatalServerErrorOccurred();
             }
         }
@@ -400,7 +399,7 @@ public class Play {
                         r = System.getenv(jp);
                     }
                     if (r == null) {
-                        Logger.warn("Cannot replace %s in configuration (%s=%s)", jp, key, value);
+                        logger.warn("Cannot replace {} in configuration ({}={})", jp, key, value);
                         continue;
                     }
                 }
@@ -417,7 +416,7 @@ public class Play {
                     String filenameToInclude = propsFromFile.getProperty(key.toString());
                     toInclude.putAll(readOneConfigurationFile(filenameToInclude));
                 } catch (Exception ex) {
-                    Logger.warn(ex, "Missing include: %s", key);
+                    logger.warn("Missing include: {}", key, ex);
                 }
             }
         }
@@ -462,7 +461,6 @@ public class Play {
             if (!Logger.configuredManually) {
                 Logger.setUp(logLevel);
             }
-            Logger.recordCaller = Boolean.parseBoolean(configuration.getProperty("application.log.recordCaller", "false"));
 
             // Locales
             langs = new ArrayList<>(Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
@@ -476,13 +474,13 @@ public class Play {
             // SecretKey
             secretKey = configuration.getProperty("application.secret", "").trim();
             if (secretKey.length() == 0) {
-                Logger.warn("No secret key defined. Sessions will not be encrypted");
+                logger.warn("No secret key defined. Sessions will not be encrypted");
             }
 
             // Default web encoding
             String _defaultWebEncoding = configuration.getProperty("application.web_encoding");
             if (_defaultWebEncoding != null) {
-                Logger.info("Using custom default web encoding: " + _defaultWebEncoding);
+                logger.info("Using custom default web encoding: {}", _defaultWebEncoding);
                 defaultWebEncoding = _defaultWebEncoding;
                 // Must update current response also, since the request/response triggering
                 // this configuration-loading in dev-mode have already been
@@ -506,7 +504,7 @@ public class Play {
                 pluginCollection.onApplicationStart();
             } catch (Exception e) {
                 if (Play.mode.isProd()) {
-                    Logger.error(e, "Can't start in PROD mode with errors");
+                    logger.error("Can't start in PROD mode with errors", e);
                 }
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
@@ -515,7 +513,7 @@ public class Play {
             }
 
             if (firstStart) {
-                Logger.info("Application '%s' is now started !", configuration.getProperty("application.name", ""));
+                logger.info("Application '{}' is now started !", configuration.getProperty("application.name", ""));
                 firstStart = false;
             }
 
@@ -548,7 +546,7 @@ public class Play {
      */
     public static synchronized void stop() {
         if (started) {
-            Logger.trace("Stopping the play application");
+            logger.trace("Stopping the play application");
             pluginCollection.onApplicationStop();
             started = false;
             Cache.stop();
@@ -565,33 +563,29 @@ public class Play {
         if (usePrecompiled) {
             if (Play.getFile("precompiled").exists()) {
                 classloader.getAllClasses();
-                Logger.info("Application is precompiled");
+                logger.info("Application is precompiled");
                 return true;
             }
-            Logger.error("Precompiled classes are missing!!");
+            logger.error("Precompiled classes are missing!!");
             fatalServerErrorOccurred();
             return false;
         }
         try {
-            Logger.info("Precompiling ...");
+            logger.info("Precompiling ...");
             long start = System.currentTimeMillis();
             classloader.getAllClasses();
 
-            if (Logger.isTraceEnabled()) {
-                Logger.trace("%sms to precompile the Java stuff", System.currentTimeMillis() - start);
-            }
+            logger.trace("{} ms to precompile the Java stuff", System.currentTimeMillis() - start);
 
             if (!lazyLoadTemplates) {
                 start = System.currentTimeMillis();
                 TemplateLoader.getAllTemplate();
 
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("%sms to precompile the templates", System.currentTimeMillis() - start);
-                }
+                logger.trace("{} ms to precompile the templates", System.currentTimeMillis() - start);
             }
             return true;
         } catch (Throwable e) {
-            Logger.error(e, "Cannot start in PROD mode with errors");
+            logger.error("Cannot start in PROD mode with errors", e);
             fatalServerErrorOccurred();
             return false;
         }
@@ -615,9 +609,9 @@ public class Play {
         } catch (RestartNeededException e) {
             if (started) {
                 if (e.getCause() != null && e.getCause() != e) {
-                    Logger.info("Restart: " + e.getMessage() + ", caused by: " + e.getCause());
+                    logger.info("Restart: " + e.getMessage() + ", caused by: " + e.getCause());
                 } else {
-                    Logger.info("Restart: " + e.getMessage());
+                    logger.info("Restart: " + e.getMessage());
                 }
             }
             start();
@@ -633,7 +627,7 @@ public class Play {
      * Allow some code to run very early in Play - Use with caution !
      */
     public static void initStaticStuff() {
-        // Play! plugings
+        // Play! plugins
         Enumeration<URL> urls = null;
         try {
             urls = Play.class.getClassLoader().getResources("play.static");
@@ -648,11 +642,11 @@ public class Play {
                     try {
                         Class.forName(line);
                     } catch (Exception e) {
-                        Logger.warn(e, "! Cannot init static: " + line);
+                        logger.warn("! Cannot init static: {}", line, e);
                     }
                 }
             } catch (Exception ex) {
-                Logger.error(ex, "Cannot load %s", url);
+                logger.error("Cannot load {}", url, ex);
             }
         }
     }
@@ -678,7 +672,7 @@ public class Play {
                 for (String m : System.getenv("MODULES").split(File.pathSeparator)) {
                     File modulePath = new File(m);
                     if (!modulePath.exists() || !modulePath.isDirectory()) {
-                        Logger.error("Module %s will not be loaded because %s does not exist", modulePath.getName(),
+                        logger.error("Module {} will not be loaded because {} does not exist", modulePath.getName(),
                                 modulePath.getAbsolutePath());
                     } else {
                         String modulePathName = modulePath.getName();
@@ -704,13 +698,13 @@ public class Play {
 
             for (File module : localModules.listFiles()) {
                 if (module == null || !module.exists()) {
-                    Logger.error("Module %s will not be loaded because %s does not exist", module.getName(), module.getAbsolutePath());
+                    logger.error("Module {} will not be loaded because {} does not exist", module.getName(), module.getAbsolutePath());
                 } else if (module.isDirectory()) {
                     addModule(appRoot, module.getName(), module);
                 } else {
                     File modulePath = new File(IO.readContentAsString(module).trim());
                     if (!modulePath.exists() || !modulePath.isDirectory()) {
-                        Logger.error("Module %s will not be loaded because %s does not exist", module.getName(), modulePath.getAbsolutePath());
+                        logger.error("Module {} will not be loaded because {} does not exist", module.getName(), modulePath.getAbsolutePath());
                     } else {
                         addModule(appRoot, module.getName(), modulePath);
                     }
@@ -762,7 +756,7 @@ public class Play {
         }
         roots.add(root);
         if (!name.startsWith("_")) {
-            Logger.info("Module %s is available (%s)", name, path.getAbsolutePath());
+            logger.info("Module %s is available (%s)", name, path.getAbsolutePath());
         }
     }
 
@@ -809,13 +803,13 @@ public class Play {
         } else {
             // Cannot quit the process while running inside an applicationServer
             String msg = "A fatal server error occurred";
-            Logger.error(msg);
+            logger.error(msg);
             throw new Error(msg);
         }
     }
 
     public static boolean useDefaultMockMailSystem() {
-        return configuration.getProperty("mail.smtp", "").equals("mock") && mode == Mode.DEV;
+        return "mock".equals(configuration.getProperty("mail.smtp", "")) && mode == Mode.DEV;
     }
 
 }

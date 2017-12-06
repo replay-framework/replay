@@ -1,6 +1,7 @@
 package play.plugins;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.data.binding.RootParamNode;
@@ -36,6 +37,8 @@ import static java.util.stream.Collectors.toList;
  * Since all the enabled-plugins-iteration is done here, the code elsewhere is cleaner.
  */
 public class PluginCollection {
+    private static final Logger logger = LoggerFactory.getLogger(PluginCollection.class);
+
     /**
      * List that holds all loaded plugins, enabled or disabled
      */
@@ -126,7 +129,7 @@ public class PluginCollection {
     }
 
     public void loadPlugins() {
-        Logger.trace("Loading plugins");
+        logger.trace("Loading plugins");
         List<URL> urls = loadPlayPluginDescriptors();
 
         // First we build one big SortedSet of all plugins to load (sorted based on index)
@@ -134,7 +137,7 @@ public class PluginCollection {
         // when loading plugins using other classes that must be enhanced.
         SortedSet<LoadingPluginInfo> pluginsToLoad = new TreeSet<>();
         for (URL url : urls) {
-            Logger.trace("Found one plugins descriptor, %s", url);
+            logger.trace("Found one plugins descriptor, {}", url);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -146,22 +149,22 @@ public class PluginCollection {
                     pluginsToLoad.add(info);
                 }
             } catch (Exception e) {
-                Logger.error(e, "Error interpreting %s", url);
+                logger.error("Error interpreting {}", url, e);
             }
         }
 
         for (LoadingPluginInfo info : pluginsToLoad) {
-            Logger.trace("Loading plugin %s", info.name);
+            logger.trace("Loading plugin {}", info.name);
             try {
                 PlayPlugin plugin = (PlayPlugin) Injector.getBeanOfType(Class.forName(info.name));
                 plugin.index = info.index;
                 if (addPlugin(plugin)) {
-                    Logger.trace("Plugin %s loaded", plugin);
+                    logger.trace("Plugin {} loaded", plugin);
                 } else {
-                    Logger.warn("Did not load plugin %s. Already loaded", plugin);
+                    logger.warn("Did not load plugin {}. Already loaded", plugin);
                 }
             } catch (Exception ex) {
-                Logger.error(ex, "Error loading plugin %s", info.toString());
+                logger.error("Error loading plugin {}", info, ex);
             }
         }
         // Now we must call onLoad for all plugins - and we must detect if a
@@ -183,7 +186,7 @@ public class PluginCollection {
           .map(f -> getResources(f))
           .flatMap(List::stream)
           .collect(toList());
-        Logger.info("Found plugin descriptors: " + pluginDescriptors);
+        logger.info("Found plugin descriptors: {}", pluginDescriptors);
         return pluginDescriptors;
     }
 
@@ -204,7 +207,7 @@ public class PluginCollection {
      *            The given plugin
      */
     protected void initializePlugin(PlayPlugin plugin) {
-        Logger.trace("Initializing plugin " + plugin);
+        logger.trace("Initializing plugin {}", plugin);
         // We're ready to call onLoad for this plugin.
         // must create a unique Play.plugins-list for this onLoad-method-call so
         // we can detect if some plugins are removed/disabled
@@ -213,8 +216,7 @@ public class PluginCollection {
         // Check for missing/removed plugins
         for (PlayPlugin enabledPlugin : getEnabledPlugins()) {
             if (!plugins.contains(enabledPlugin)) {
-                Logger.info("Detected that plugin '" + plugin + "' disabled the plugin '" + enabledPlugin
-                        + "' the old way - should use Play.disablePlugin()");
+                logger.info("Detected that plugin '{}' disabled the plugin '{}' the old way - should use Play.disablePlugin()", plugin, enabledPlugin);
                 // This enabled plugin was disabled.
                 // must disable it in pluginCollection
                 disablePlugin(enabledPlugin);
@@ -262,7 +264,7 @@ public class PluginCollection {
                     enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
                 }
 
-                Logger.trace("Plugin " + plugin + " enabled");
+                logger.trace("Plugin {} enabled", plugin);
                 return true;
             }
         }
@@ -315,7 +317,7 @@ public class PluginCollection {
                 enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
             }
 
-            Logger.trace("Plugin " + plugin + " disabled");
+            logger.trace("Plugin {} disabled", plugin);
             return true;
         }
         return false;
@@ -430,7 +432,7 @@ public class PluginCollection {
             try {
                 plugin.onInvocationException(e);
             } catch (Throwable ex) {
-                Logger.error(ex, "Failed to handle invocation exception by plugin %s", plugin.getClass().getName());
+                logger.error("Failed to handle invocation exception by plugin {}", plugin.getClass().getName(), ex);
             }
         }
     }
@@ -470,12 +472,7 @@ public class PluginCollection {
             try {
                 plugin.onApplicationStop();
             } catch (Throwable t) {
-                if (t.getMessage() == null)
-                    Logger.error(t, "Error while stopping %s", plugin);
-                else if (Logger.isDebugEnabled())
-                    Logger.debug(t, "Error while stopping %s", plugin);
-                else
-                    Logger.info("Error while stopping %s: %s", plugin, t.toString());
+                logger.error("Error while stopping {}", plugin, t);
             }
         }
     }

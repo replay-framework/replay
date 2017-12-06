@@ -2,7 +2,8 @@ package play.libs.mail.test;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Mail;
 import play.libs.mail.MailSystem;
 import play.utils.ImmediateFuture;
@@ -25,6 +26,7 @@ import java.util.concurrent.Future;
  * @author Andreas Simon &lt;a.simon@quagilis.de&gt;
  */
 public class LegacyMockMailSystem implements MailSystem {
+    private static final Logger logger = LoggerFactory.getLogger(LegacyMockMailSystem.class);
 
     Map<String, String> emails = new HashMap<>();
 
@@ -59,7 +61,7 @@ public class LegacyMockMailSystem implements MailSystem {
             content.append("\n\t").append(body);
 
             content.append("\n");
-            Logger.info(content.toString());
+            logger.info(content.toString());
 
             for (Object add : email.getToAddresses()) {
                 content.append(", ").append(add);
@@ -67,7 +69,7 @@ public class LegacyMockMailSystem implements MailSystem {
             }
 
         } catch (Exception e) {
-            Logger.error(e, "error sending mock email");
+            logger.error("error sending mock email", e);
         }
         return new ImmediateFuture();
     }

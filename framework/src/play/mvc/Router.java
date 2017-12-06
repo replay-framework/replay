@@ -4,7 +4,8 @@ import jregex.Matcher;
 import jregex.Pattern;
 import jregex.REFlags;
 import org.apache.commons.lang.StringUtils;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
@@ -27,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * The router matches HTTP requests to action invocations
  */
 public class Router {
+    private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
     static Pattern routePattern = new Pattern(
             "^({method}GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|WS|\\*)[(]?({headers}[^)]*)(\\))?\\s+({path}.*/[^\\s]*)\\s+({action}[^\\s(]+)({params}.+)?(\\s*)$");
@@ -227,9 +229,7 @@ public class Router {
         route.addFormat(headers);
         route.addParams(params);
         route.compute();
-        if (Logger.isTraceEnabled()) {
-            Logger.trace("Adding [" + route.toString() + "] with params [" + params + "] and headers [" + headers + "]");
-        }
+        logger.trace("Adding [{}] with params [{}] and headers [{}]", route, params, headers);
         return route;
     }
 
@@ -295,7 +295,7 @@ public class Router {
                     } else if (Play.modulesRoutes.containsKey(moduleName)) {
                         parse(Play.modulesRoutes.get(moduleName), newPrefix);
                     } else {
-                        Logger.error("Cannot include routes for module %s (not found)", moduleName);
+                        logger.error("Cannot include routes for module {} (not found)", moduleName);
                     }
                 } else {
                     String method = matcher.group("method");
@@ -305,7 +305,7 @@ public class Router {
                     appendRoute(method, path, action, params, headers, fileAbsolutePath, lineNumber);
                 }
             } else {
-                Logger.error("Invalid route definition : %s", line);
+                logger.error("Invalid route definition : {}", line);
             }
         }
     }
@@ -357,17 +357,13 @@ public class Router {
     }
 
     public static Route route(Http.Request request) {
-        if (Logger.isTraceEnabled()) {
-            Logger.trace("Route: " + request.path + " - " + request.querystring);
-        }
+        logger.trace("Route: {} - {}", request.path, request.querystring);
         // request method may be overridden if a x-http-method-override parameter
         // is given
         if (request.querystring != null && methodOverride.matches(request.querystring)) {
             Matcher matcher = methodOverride.matcher(request.querystring);
             if (matcher.matches()) {
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("request method %s overridden to %s ", request.method, matcher.group("method"));
-                }
+                logger.trace("request method {} overridden to {}", request.method, matcher.group("method"));
                 request.method = matcher.group("method");
             }
         }
@@ -842,20 +838,20 @@ public class Router {
                     this.path = p.substring(p.indexOf("/"));
                     this.host = p.substring(0, p.indexOf("/"));
                     if (this.host.contains("{")) {
-                        Logger.warn("Static route cannot have a dynamic host name");
+                        logger.warn("Static route cannot have a dynamic host name");
                         return;
                     }
                     this.hostPattern = new Pattern(host.replaceAll("\\.", "\\\\."));
                 }
                 if (!method.equalsIgnoreCase("*") && !method.equalsIgnoreCase("GET")) {
-                    Logger.warn("Static route only support GET method");
+                    logger.warn("Static route only support GET method");
                     return;
                 }
             }
             // staticDir
             if (action.startsWith("staticDir:")) {
                 if (!this.path.endsWith("/") && !this.path.equals("/")) {
-                    Logger.warn("The path for a staticDir route must end with / (%s)", this);
+                    logger.warn("The path for a staticDir route must end with / ({})", this);
                     this.path += "/";
                 }
                 this.pattern = new Pattern("^" + path + "({resource}.*)$");
@@ -873,10 +869,8 @@ public class Router {
                     this.host = p.substring(0, p.indexOf("/"));
                     String pattern = host.replaceAll("\\.", "\\\\.").replaceAll("\\{.*\\}", "(.*)");
 
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("pattern [" + pattern + "]");
-                        Logger.trace("host [" + host + "]");
-                    }
+                    logger.trace("pattern [{}]", pattern);
+                    logger.trace("host [{}]", host);
 
                     Matcher m = new Pattern(pattern).matcher(host);
                     this.hostPattern = new Pattern(pattern);
@@ -887,9 +881,7 @@ public class Router {
                             if (!name.equals("_")) {
                                 hostArg = new Arg();
                                 hostArg.name = name;
-                                if (Logger.isTraceEnabled()) {
-                                    Logger.trace("hostArg name [" + name + "]");
-                                }
+                                logger.trace("hostArg name [{}]", name);
                                 // The default value contains the route version
                                 // of the host ie {client}.bla.com
                                 // It is temporary and it indicates it is an url
@@ -899,9 +891,7 @@ public class Router {
                                 hostArg.defaultValue = host;
                                 hostArg.constraint = new Pattern(".*");
 
-                                if (Logger.isTraceEnabled()) {
-                                    Logger.trace("adding hostArg [" + hostArg + "]");
-                                }
+                                logger.trace("adding hostArg [{}]", hostArg);
 
                                 args.add(hostArg);
                             }
@@ -945,7 +935,7 @@ public class Router {
                 if (matcher.matches()) {
                     staticArgs.put(matcher.group(1), matcher.group(2));
                 } else {
-                    Logger.warn("Ignoring %s (static params must be specified as key:'value',...)", params);
+                    logger.warn("Ignoring {} (static params must be specified as key:'value',...)", params);
                 }
             }
         }

@@ -3,7 +3,8 @@ package play.server;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.libs.IO;
@@ -16,6 +17,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 
 public class Server {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static int httpPort;
 
@@ -38,7 +40,7 @@ public class Server {
             }
 
         } catch (Exception e) {
-            Logger.error(e, "Could not understand http.address");
+            logger.error("Could not understand http.address", e);
             Play.fatalServerErrorOccurred();
         }
 
@@ -53,20 +55,20 @@ public class Server {
 
             if (Play.mode == Mode.DEV) {
                 if (address == null) {
-                    Logger.info("Listening for HTTP on port %s (Waiting a first request to start) ...", httpPort);
+                    logger.info("Listening for HTTP on port {} (Waiting a first request to start) ...", httpPort);
                 } else {
-                    Logger.info("Listening for HTTP at %2$s:%1$s (Waiting a first request to start) ...", httpPort, address);
+                    logger.info("Listening for HTTP at {}:{} (Waiting a first request to start) ...", address, httpPort);
                 }
             } else {
                 if (address == null) {
-                    Logger.info("Listening for HTTP on port %s ...", httpPort);
+                    logger.info("Listening for HTTP on port {} ...", httpPort);
                 } else {
-                    Logger.info("Listening for HTTP at %2$s:%1$s  ...", httpPort, address);
+                    logger.info("Listening for HTTP at {}:{}  ...", address, httpPort);
                 }
             }
 
         } catch (ChannelException e) {
-            Logger.error("Could not bind on port " + httpPort, e);
+            logger.error("Could not bind on port {}", httpPort, e);
             Play.fatalServerErrorOccurred();
         }
 
@@ -109,7 +111,7 @@ public class Server {
         if (System.getProperty("precompile") == null) {
             new Server(args);
         } else {
-            Logger.info("Done.");
+            logger.info("Done.");
         }
     }
 }

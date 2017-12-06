@@ -1,6 +1,7 @@
 package play.mvc;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.libs.Codec;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
  * HTTP interface
  */
 public class Http {
+    private static final Logger logger = LoggerFactory.getLogger(Http.class);
 
     public static final String invocationType = "HttpRequest";
 
@@ -606,7 +608,7 @@ public class Http {
                             return false;
                         }
                     } catch (ParseException ex) {
-                        Logger.error("Can't parse date", ex);
+                        logger.error("Can't parse date", ex);
                     }
                     return true;
                 }
@@ -855,9 +857,9 @@ public class Http {
             if (allowMethods != null) {
                 setHeader("Access-Control-Allow-Methods", allowMethods);
             }
-            if (allowCredentials == true) {
+            if (allowCredentials) {
                 if (allowOrigin.equals("*")) {
-                    Logger.warn(
+                    logger.warn(
                             "Response.accessControl: When the allowed domain is \"*\", Allow-Credentials is likely to be ignored by the browser.");
                 }
                 setHeader("Access-Control-Allow-Credentials", "true");

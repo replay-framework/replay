@@ -1,6 +1,7 @@
 package play.libs;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.mvc.Http;
 
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
  * MimeTypes utils
  */
 public class MimeTypes {
+    private static final Logger logger = LoggerFactory.getLogger(MimeTypes.class);
 
     private static Properties mimetypes = null;
     private static Pattern extPattern;
@@ -125,12 +127,12 @@ public class MimeTypes {
         if (mimetypes != null)
             return;
         // Load default mimetypes from the framework
-        try {
-            InputStream is = MimeTypes.class.getClassLoader().getResourceAsStream("play/libs/mime-types.properties");
+        String fileName = "play/libs/mime-types.properties";
+        try (InputStream is = MimeTypes.class.getClassLoader().getResourceAsStream(fileName)) {
             mimetypes = new Properties();
             mimetypes.load(is);
         } catch (Exception ex) {
-            Logger.warn(ex.getMessage());
+            logger.error("Failed to read file {}", fileName, ex);
         }
         // Load custom mimetypes from the application configuration
         Enumeration<Object> confenum = Play.configuration.keys();

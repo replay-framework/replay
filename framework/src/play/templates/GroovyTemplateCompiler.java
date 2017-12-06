@@ -1,7 +1,8 @@
 package play.templates;
 
 import groovy.lang.Closure;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateCompilationException;
 import play.templates.GroovyInlineTags.CALL;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GroovyTemplateCompiler extends TemplateCompiler {
+    private static final Logger logger = LoggerFactory.getLogger(GroovyTemplateCompiler.class);
 
     protected List<String> extensionsClassnames = new ArrayList<>();
 
@@ -211,7 +213,7 @@ public class GroovyTemplateCompiler extends TemplateCompiler {
         } catch (NoSuchMethodException e) {
             // We find a tag that is not defined in GroovyInlineTags, lets see if it is defined somewhere else
         } catch (Exception e) {
-            Logger.debug(e, "Failed to start tag %s in template %s", tag.name, template.getName());
+            logger.debug("Failed to start tag {} in template {}", tag.name, template.getName(), e);
         }
         if (!tag.name.equals("doBody") && hasBody) {
             print("body" + tagIndex + " = {");

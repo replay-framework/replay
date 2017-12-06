@@ -2,7 +2,8 @@ package play.libs;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 
 import java.io.File;
@@ -23,6 +24,7 @@ import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
  * Files utils
  */
 public class Files {
+    private static final Logger logger = LoggerFactory.getLogger(Files.class);
 
     /**
      * Characters that are invalid in Windows OS file names (Unix only forbids '/' character)
@@ -53,7 +55,7 @@ public class Files {
                 // As the file may not exist, we only compare path
                 return 0 == aPath.compareTo(bPath);
             } catch (Exception e) {
-                Logger.error(e, "Cannot get canonical path from files");
+                logger.error("Cannot get canonical path from files {} and {}", a, b, e);
             }
         }
         return false;

@@ -2,7 +2,8 @@ package play.libs.ws;
 
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.basic.DefaultOAuthConsumer;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.libs.IO;
 import play.libs.WS.HttpResponse;
@@ -24,6 +25,7 @@ import java.util.*;
  * where the async http client can't be used.
  */
 public class WSUrlFetch implements WSImpl {
+    private static final Logger logger = LoggerFactory.getLogger(WSUrlFetch.class);
 
     private static SSLContext sslCTX = null;
 
@@ -102,9 +104,9 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse get() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("GET")), "GET"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("GET")), "GET"));
             } catch (Exception e) {
-                Logger.error(e.toString());
+                logger.error(e.toString());
                 throw new RuntimeException(e);
             }
         }
@@ -113,7 +115,7 @@ public class WSUrlFetch implements WSImpl {
         public HttpResponse patch() {
             try {
                 HttpURLConnection conn = prepare(new URL(getPreparedUrl("PATCH")), "PATCH");
-                return new HttpUrlfetchResponse(conn);
+                return new HttpUrlFetchResponse(conn);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -124,7 +126,7 @@ public class WSUrlFetch implements WSImpl {
         public HttpResponse post() {
             try {
                 HttpURLConnection conn = prepare(new URL(getPreparedUrl("POST")), "POST");
-                return new HttpUrlfetchResponse(conn);
+                return new HttpUrlFetchResponse(conn);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -134,7 +136,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse put() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("PUT")), "PUT"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("PUT")), "PUT"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -144,7 +146,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse delete() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("DELETE")), "DELETE"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("DELETE")), "DELETE"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -154,7 +156,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse options() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("OPTIONS")), "OPTIONS"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("OPTIONS")), "OPTIONS"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -164,7 +166,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse head() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("HEAD")), "HEAD"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("HEAD")), "HEAD"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -174,7 +176,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public HttpResponse trace() {
             try {
-                return new HttpUrlfetchResponse(prepare(new URL(getPreparedUrl("TRACE")), "TRACE"));
+                return new HttpUrlFetchResponse(prepare(new URL(getPreparedUrl("TRACE")), "TRACE"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -199,10 +201,8 @@ public class WSUrlFetch implements WSImpl {
             }
 
             if (keyStore != null && !keyStore.equals("")) {
-                Logger.info("Keystore configured, loading from '%s', CA validation enabled : %s", keyStore, CAValidation);
-                if (Logger.isTraceEnabled()) {
-                    Logger.trace("Keystore password : %s, SSLCTX : %s", keyStorePass, sslCTX);
-                }
+                logger.info("Keystore configured, loading from '{}', CA validation enabled : {}", keyStore, CAValidation);
+                logger.trace("Keystore password : {}, SSLCTX : {}", keyStorePass, sslCTX);
 
                 if (sslCTX == null) {
                     sslCTX = WSSSLContext.getSslContext(keyStore, keyStorePass, CAValidation);
@@ -284,7 +284,7 @@ public class WSUrlFetch implements WSImpl {
     /**
      * An HTTP response wrapper
      */
-    public static class HttpUrlfetchResponse extends HttpResponse {
+    public static class HttpUrlFetchResponse extends HttpResponse {
 
         private String body;
         private Integer status;
@@ -297,20 +297,17 @@ public class WSUrlFetch implements WSImpl {
          * @param connection
          *            The current connection
          */
-        public HttpUrlfetchResponse(HttpURLConnection connection) {
+        public HttpUrlFetchResponse(HttpURLConnection connection) {
             try {
                 this.status = connection.getResponseCode();
                 this.statusText = connection.getResponseMessage();
                 this.headersMap = connection.getHeaderFields();
-                InputStream is = null;
-                if (this.status >= HttpURLConnection.HTTP_BAD_REQUEST) {
-                    // 4xx/5xx may return a response via getErrorStream()
-                    is = connection.getErrorStream();
-                } else {
-                    is = connection.getInputStream();
-                }
-                if (is != null) {
-                    this.body = IO.readContentAsString(is, getEncoding());
+                try (InputStream is = this.status >= HttpURLConnection.HTTP_BAD_REQUEST ?
+                  // 4xx/5xx may return a response via getErrorStream()
+                  connection.getErrorStream() : connection.getInputStream()) {
+                    if (is != null) {
+                        this.body = IO.readContentAsString(is, getEncoding());
+                    }
                 }
             } catch (Exception ex) {
                 throw new RuntimeException(ex);

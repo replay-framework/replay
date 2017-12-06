@@ -7,8 +7,9 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import com.jamonapi.utils.Misc;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Invoker;
-import play.Logger;
 import play.Play;
 import play.Play.Mode;
 import play.PlayPlugin;
@@ -26,6 +27,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 public class PlayStatusPlugin extends PlayPlugin {
+    private static final Logger logger = LoggerFactory.getLogger(PlayStatusPlugin.class);
 
     /**
      * Get the application status
@@ -80,7 +82,7 @@ public class PlayStatusPlugin extends PlayPlugin {
             if (Play.standalonePlayServer) {
                 System.exit(0);
             } else {
-                Logger.error("Cannot execute @kill since Play is not running as standalone server");
+                logger.error("Cannot execute @kill since Play is not running as standalone server");
             }
         }
         if (request.path.equals("/@status") || request.path.equals("/@status.json")) {

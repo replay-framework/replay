@@ -7,7 +7,8 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.*;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.handler.stream.ChunkedInput;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
@@ -26,6 +27,7 @@ import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 
 public class FileService  {
+    private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     public static void serve(File localFile, HttpRequest nettyRequest, HttpResponse nettyResponse, ChannelHandlerContext ctx, Request request, Response response, Channel channel) throws FileNotFoundException {
         RandomAccessFile raf = new RandomAccessFile(localFile, "r");
@@ -33,17 +35,15 @@ public class FileService  {
             long fileLength = raf.length();
             
             boolean isKeepAlive = HttpHeaders.isKeepAlive(nettyRequest) && nettyRequest.getProtocolVersion().equals(HttpVersion.HTTP_1_1);
-            
-            if(Logger.isTraceEnabled()) {
-                Logger.trace("keep alive %s", String.valueOf(isKeepAlive));
-                Logger.trace("content type %s", (response.contentType != null ? response.contentType : MimeTypes.getContentType(localFile.getName(), "text/plain")));
+
+            if (logger.isTraceEnabled()) {
+                logger.trace("keep alive {}", isKeepAlive);
+                logger.trace("content type {}", response.contentType != null ? response.contentType : MimeTypes.getContentType(localFile.getName(), "text/plain"));
             }
-            
+
             if (!nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
                 // Add 'Content-Length' header only for a keep-alive connection.
-                if(Logger.isTraceEnabled()){
-                    Logger.trace("file length " + fileLength);
-                }
+                logger.trace("file length {}", fileLength);
                 nettyResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(fileLength));
             }
 
@@ -65,13 +65,13 @@ public class FileService  {
                     channel.write(nettyResponse);
                     writeFuture = channel.write(chunkedInput);
                 }else{
-                    Logger.debug("Try to write on a closed channel[keepAlive:%s]: Remote host may have closed the connection", String.valueOf(isKeepAlive)); 
+                    logger.debug("Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection", isKeepAlive);
                 }
             } else {
                 if (channel.isOpen()) {
                     writeFuture = channel.write(nettyResponse);
                 }else{
-                    Logger.debug("Try to write on a closed channel[keepAlive:%s]: Remote host may have closed the connection", String.valueOf(isKeepAlive)); 
+                    logger.debug("Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection", isKeepAlive);
                 }
                 raf.close();
             }
@@ -122,8 +122,8 @@ public class FileService  {
             fileLength = raf.length();
             this.contentType = contentType;
             initRanges();
-            if (Logger.isDebugEnabled()) {
-                Logger.debug("Invoked ByteRangeServer, found byteRanges: %s (with header Range: %s)",
+            if (logger.isDebugEnabled()) {
+                logger.debug("Invoked ByteRangeServer, found byteRanges: {} (with header Range: {})",
                         Arrays.toString(byteRanges), request.headers().get("range"));
             }
         }
@@ -151,9 +151,8 @@ public class FileService  {
         }
         
         @Override
-        public Object nextChunk() throws Exception {
-            if(Logger.isTraceEnabled())
-                Logger.trace("FileService nextChunk");
+        public Object nextChunk() {
+            logger.trace("FileService nextChunk");
             try {
                 int count = 0;
                 byte[] buffer = new byte[chunkSize];
@@ -170,20 +169,21 @@ public class FileService  {
                 
                 return wrappedBuffer(buffer);
             } catch (Exception e) {
-                Logger.error(e, "error sending file");
+                logger.error("error sending file", e);
                 throw e;
             }
         }
         
         @Override
-        public boolean hasNextChunk() throws Exception {
-            if(Logger.isTraceEnabled())
-                Logger.trace("FileService hasNextChunk() : " + (currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0));
+        public boolean hasNextChunk() {
+            if (logger.isTraceEnabled()) {
+                logger.trace("FileService hasNextChunk() : {}", currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0);
+            }
             return currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0;
         }
         
         @Override
-        public boolean isEndOfInput() throws Exception {
+        public boolean isEndOfInput() {
             return !hasNextChunk();
         }
         
@@ -230,8 +230,7 @@ public class FileService  {
                     unsatisfiable = true;
                 }
             } catch (Exception e) {
-                if(Logger.isDebugEnabled())
-                    Logger.debug(e, "byterange error");
+                logger.debug("byterange error", e);
                 unsatisfiable = true;
             }
         }
@@ -306,9 +305,8 @@ public class FileService  {
                 }
             }
             
-            public int fill(byte[] into, int offset) throws IOException {
-                if(Logger.isTraceEnabled())
-                    Logger.trace("FileService fill at " + offset);
+            public int fill(byte[] into, int offset) {
+                logger.trace("FileService fill at {}", offset);
                 int count = 0;
                 for(; offset < into.length && servedHeader < header.length; offset++, servedHeader++, count++) {
                     into[offset] = header[servedHeader];
@@ -318,8 +316,7 @@ public class FileService  {
                         raf.seek(start + servedRange);
                         long maxToRead = remaining() > (into.length - offset) ? (into.length - offset) : remaining();
                         if(maxToRead > Integer.MAX_VALUE) {
-                            if(Logger.isDebugEnabled())
-                                Logger.debug("FileService: maxToRead >= 2^32 !");
+                            logger.debug("FileService: maxToRead >= 2^32 !");
                             maxToRead = Integer.MAX_VALUE;
                         }
                         int read = raf.read(into, offset, (int) maxToRead);

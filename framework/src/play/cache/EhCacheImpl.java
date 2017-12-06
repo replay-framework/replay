@@ -2,7 +2,6 @@ package play.cache;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import play.Logger;
 
 import java.util.HashMap;
 import java.util.Map;

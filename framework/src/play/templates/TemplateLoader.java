@@ -1,6 +1,7 @@
 package play.templates;
 
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.apache.commons.io.FileUtils.copyURLToFile;
 
 public class TemplateLoader {
+    private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
     protected static Map<String, BaseTemplate> templates = new HashMap<>();
     /**
@@ -77,7 +79,7 @@ public class TemplateLoader {
                     templates.put(key, template);
                     return template;
                 } catch (Exception e) {
-                    Logger.warn(e, "Precompiled template %s not found, trying to load it dynamically...", file.relativePath());
+                    logger.warn("Precompiled template {} not found, trying to load it dynamically...", file.relativePath(), e);
                 }
             }
             BaseTemplate template = new GroovyTemplate(fileRelativePath, file.contentAsString());
@@ -281,8 +283,8 @@ public class TemplateLoader {
                     }
                 }
                 if (vf == null) {
-                    Logger.warn(
-                            "A template specified by system environment 'PLAY_YAML_TEMPLATES' does not exist or path is wrong. template: '%s'",
+                    logger.warn(
+                            "A template specified by system environment 'PLAY_YAML_TEMPLATES' does not exist or path is wrong. template: '{}'",
                             yamlTemplate);
                 }
             }
@@ -297,11 +299,9 @@ public class TemplateLoader {
             if (template != null) {
                 try {
                     template.compile();
-                    if (Logger.isTraceEnabled()) {
-                        Logger.trace("%sms to load %s", System.currentTimeMillis() - start, current.getName());
-                    }
+                    logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
                 } catch (TemplateCompilationException e) {
-                    Logger.error("Template %s does not compile at line %d", e.getTemplate().name, e.getLineNumber());
+                    logger.error("Template {} does not compile at line {}", e.getTemplate().name, e.getLineNumber());
                     throw e;
                 }
                 templates.add(template);

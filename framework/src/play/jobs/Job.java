@@ -2,9 +2,10 @@ package play.jobs;
 
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Invoker.InvocationContext;
-import play.Logger;
 import play.Play;
 import play.PlayPlugin;
 import play.exceptions.JavaExecutionException;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *            The job result type (if any)
  */
 public class Job<V> extends Invoker.Invocation implements Callable<V> {
+    private static final Logger logger = LoggerFactory.getLogger(Job.class);
 
     public static final String invocationType = "Job";
 
@@ -148,7 +150,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
         try {
             super.onException(e);
         } catch (Throwable ex) {
-            Logger.error(ex, "Error during job execution (%s)", this);
+            logger.error("Error during job execution ({})", this, ex);
             throw new UnexpectedException(unwrap(e));
         }
     }
@@ -180,7 +182,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
         try {
             if (init()) {
                 before();
-                V result = null;
+                V result;
 
                 try {
                     lastException = null;
