@@ -713,7 +713,7 @@ public class Play {
         }
 
         // Auto add special modules
-        if (Play.runingInTestMode()) {
+        if (runningInTestMode()) {
             addModule(appRoot, "_testrunner", new File(Play.frameworkPath, "modules/testrunner"));
         }
     }
@@ -789,7 +789,7 @@ public class Play {
      * 
      * @return true if testmode
      */
-    public static boolean runingInTestMode() {
+    public static boolean runningInTestMode() {
         return id.matches("test|test-?.*");
     }
 
