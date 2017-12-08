@@ -15,7 +15,10 @@ import play.templates.TemplateLoader;
 import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -697,11 +700,6 @@ public class Play {
                     }
                 }
             }
-        }
-
-        // Auto add special modules
-        if (runningInTestMode()) {
-            addModule(appRoot, "_testrunner", new File(Play.frameworkPath, "modules/testrunner"));
         }
     }
 
