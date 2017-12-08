@@ -384,8 +384,6 @@ public class Play {
                 String r;
                 if (jp.equals("application.path")) {
                     r = Play.applicationPath.getAbsolutePath();
-                } else if (jp.equals("play.path")) {
-                    r = Play.frameworkPath.getAbsolutePath();
                 } else {
                     r = System.getProperty(jp);
                     if (r == null) {
