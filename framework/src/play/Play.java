@@ -15,11 +15,8 @@ import play.templates.TemplateLoader;
 import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
@@ -165,9 +162,6 @@ public class Play {
         Play.id = id;
         Play.started = false;
         Play.applicationPath = root;
-
-        // load all play.static of exists
-        initStaticStuff();
 
         // Read the configuration file
         readConfiguration();
@@ -565,34 +559,6 @@ public class Play {
     @SuppressWarnings("unchecked")
     public static <T extends PlayPlugin> T plugin(Class<T> clazz) {
         return pluginCollection.getPluginInstance(clazz);
-    }
-
-    /**
-     * Allow some code to run very early in Play - Use with caution !
-     */
-    public static void initStaticStuff() {
-        // Play! plugins
-        Enumeration<URL> urls = null;
-        try {
-            urls = Play.class.getClassLoader().getResources("play.static");
-        } catch (Exception e) {
-        }
-        while (urls != null && urls.hasMoreElements()) {
-            URL url = urls.nextElement();
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"));
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    try {
-                        Class.forName(line);
-                    } catch (Exception e) {
-                        logger.warn("! Cannot init static: {}", line, e);
-                    }
-                }
-            } catch (Exception ex) {
-                logger.error("Cannot load {}", url, ex);
-            }
-        }
     }
 
     /**
