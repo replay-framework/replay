@@ -20,14 +20,14 @@ public class NaiveUserAgentTest {
 
   @Test
   public void resolveUrlToLocalFile() {
-    assertEquals("file:" + System.getProperty("user.dir") + "/conf/dependencies.yml", 
-        naiveUserAgent.resolveURI("dependencies.yml"));
+    assertEquals("file:" + System.getProperty("user.dir") + "/test/org/xhtmlrenderer/swing/NaiveUserAgentTest.java",
+        naiveUserAgent.resolveURI("org/xhtmlrenderer/swing/NaiveUserAgentTest.java"));
   }
 
   @Test
   public void ignoresUrlParamsWhenResolvingToLocalFile() {
-    assertEquals("file:" + System.getProperty("user.dir") + "/conf/dependencies.yml", 
-        naiveUserAgent.resolveURI("dependencies.yml?123213231"));
+    assertEquals("file:" + System.getProperty("user.dir") + "/org/xhtmlrenderer/swing/NaiveUserAgentTest.java",
+        naiveUserAgent.resolveURI("org/xhtmlrenderer/swing/NaiveUserAgentTest.java?123213231"));
   }
 
   @Test
