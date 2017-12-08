@@ -154,11 +154,6 @@ public class Play {
     public static String defaultWebEncoding = "utf-8";
 
     /**
-     * This flag indicates if the app is running in a standalone Play server or as a WAR in an applicationServer
-     */
-    public static boolean standalonePlayServer = true;
-
-    /**
      * Init the framework
      *
      * @param root
@@ -391,21 +386,19 @@ public class Play {
                 stop();
             }
 
-            if (standalonePlayServer) {
-                // Can only register shutdown-hook if running as standalone server
-                if (!shutdownHookEnabled) {
-                    // registers shutdown hook - Now there's a good chance that we can notify
-                    // our plugins that we're going down when some calls ctrl+c or just kills our process..
-                    shutdownHookEnabled = true;
-                    Thread hook = new Thread() {
-                        @Override
-                        public void run() {
-                            Play.stop();
-                        }
-                    };
-                    hook.setContextClassLoader(ClassLoader.getSystemClassLoader());
-                    Runtime.getRuntime().addShutdownHook(hook);
-                }
+            // Can only register shutdown-hook if running as standalone server
+            if (!shutdownHookEnabled) {
+                // registers shutdown hook - Now there's a good chance that we can notify
+                // our plugins that we're going down when some calls ctrl+c or just kills our process..
+                shutdownHookEnabled = true;
+                Thread hook = new Thread() {
+                    @Override
+                    public void run() {
+                        Play.stop();
+                    }
+                };
+                hook.setContextClassLoader(ClassLoader.getSystemClassLoader());
+                Runtime.getRuntime().addShutdownHook(hook);
             }
 
             // Reload configuration
@@ -739,15 +732,8 @@ public class Play {
      * Call this method when there has been a fatal error that Play cannot recover from
      */
     public static void fatalServerErrorOccurred() {
-        if (standalonePlayServer) {
-            // Just quit the process
-            System.exit(-1);
-        } else {
-            // Cannot quit the process while running inside an applicationServer
-            String msg = "A fatal server error occurred";
-            logger.error(msg);
-            throw new Error(msg);
-        }
+        // Just quit the process
+        System.exit(-1);
     }
 
     public static boolean useDefaultMockMailSystem() {
