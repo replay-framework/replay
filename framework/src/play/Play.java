@@ -79,7 +79,7 @@ public class Play {
     /**
      * The application root
      */
-    public static File applicationPath = new File(System.getProperty("application.path", "."));
+    public static File applicationPath = new File(System.getProperty("user.dir"));
     /**
      * tmp dir
      */
@@ -381,18 +381,13 @@ public class Play {
             StringBuffer newValue = new StringBuffer(100);
             while (matcher.find()) {
                 String jp = matcher.group(1);
-                String r;
-                if (jp.equals("application.path")) {
-                    r = Play.applicationPath.getAbsolutePath();
-                } else {
-                    r = System.getProperty(jp);
-                    if (r == null) {
-                        r = System.getenv(jp);
-                    }
-                    if (r == null) {
-                        logger.warn("Cannot replace {} in configuration ({}={})", jp, key, value);
-                        continue;
-                    }
+                String r = System.getProperty(jp);
+                if (r == null) {
+                    r = System.getenv(jp);
+                }
+                if (r == null) {
+                    logger.warn("Cannot replace {} in configuration ({}={})", jp, key, value);
+                    continue;
                 }
                 matcher.appendReplacement(newValue, r.replaceAll("\\\\", "\\\\\\\\"));
             }
@@ -672,12 +667,6 @@ public class Play {
                 }
             }
         }
-
-        // Load modules from modules/ directory, but get the order from the dependencies.yml file
-        // .listFiles() returns items in an OS dependant sequence, which is bad
-        // See #781
-        // the yaml parser wants `application.path` as an environment variable
-        System.setProperty("application.path", applicationPath.getAbsolutePath());
 
         File localModules = Play.getFile("modules");
         Set<String> modules = new LinkedHashSet<>();

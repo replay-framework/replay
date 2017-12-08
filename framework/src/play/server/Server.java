@@ -98,7 +98,7 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
-        File root = new File(System.getProperty("application.path", "."));
+        File root = new File(System.getProperty("user.dir"));
         if (System.getProperty("precompiled", "false").equals("true")) {
             Play.usePrecompiled = true;
         }
