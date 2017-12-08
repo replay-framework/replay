@@ -146,7 +146,6 @@ public class Play {
     public static String ctxPath = "";
     static boolean firstStart = true;
     public static boolean usePrecompiled;
-    public static boolean forceProd;
 
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
@@ -212,10 +211,8 @@ public class Play {
             fatalServerErrorOccurred();
         }
 
-        // Force the Production mode if forceProd or precompile is activate
-        // Set to the Prod mode must be done before loadModules call
-        // as some modules (e.g. DocViewer) is only available in DEV
-        if (usePrecompiled || forceProd || System.getProperty("precompile") != null) {
+        // Set to the Prod mode must be done before loadModules call as some modules (e.g. DocViewer) is only available in DEV
+        if (usePrecompiled || System.getProperty("precompile") != null) {
             mode = Mode.PROD;
         }
 
