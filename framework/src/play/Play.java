@@ -750,7 +750,7 @@ public class Play {
         }
         roots.add(root);
         if (!name.startsWith("_")) {
-            logger.info("Module %s is available (%s)", name, path.getAbsolutePath());
+            logger.info("Module {} is available ({})", name, path.getAbsolutePath());
         }
     }
 
