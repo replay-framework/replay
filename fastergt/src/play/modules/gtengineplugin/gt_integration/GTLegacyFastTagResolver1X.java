@@ -7,8 +7,8 @@ import play.modules.gtengineplugin.InternalLegacyFastTagsImpls;
 import play.template2.GTJavaBase;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTLegacyFastTagResolver;
+import play.templates.ExecutableTemplate;
 import play.templates.FastTags;
-import play.templates.GroovyTemplate;
 
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -86,13 +86,13 @@ public class GTLegacyFastTagResolver1X implements GTLegacyFastTagResolver {
             // get the class with the fasttag method on
             Class clazz = Class.forName(legacyFastTagClassName);
             // get the method
-            Method m = clazz.getMethod(legacyFastTagMethodName,Map.class, Closure.class, PrintWriter.class, GroovyTemplate.ExecutableTemplate.class, Integer.TYPE);
+            Method m = clazz.getMethod(legacyFastTagMethodName,Map.class, Closure.class, PrintWriter.class, ExecutableTemplate.class, Integer.TYPE);
             if (!Modifier.isStatic(m.getModifiers())) {
                 throw new RuntimeException("A fast-tag method must be static: " + m);
             }
 
             PrintWriter out = new PrintWriter( gtTemplate.out );
-            GroovyTemplate.ExecutableTemplate executableTemplate = new GroovyTemplate.ExecutableTemplate() {
+            ExecutableTemplate executableTemplate = new ExecutableTemplate() {
 
                 @Override
                 public Object run() {

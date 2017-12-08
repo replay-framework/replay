@@ -59,100 +59,10 @@ public class TemplateLoader {
      * @return The executable template
      */
     public static Template load(VirtualFile file) {
-        // Try with plugin
-        Template pluginProvided = Play.pluginCollection.loadTemplate(file);
-        if (pluginProvided != null) {
-            return pluginProvided;
-        }
-
-        // Use default engine
-        String fileRelativePath = file.relativePath();
-        String key = getUniqueNumberForTemplateFile(fileRelativePath);
-        if (!templates.containsKey(key) || templates.get(key).compiledTemplate == null) {
-            if (Play.usePrecompiled) {
-                BaseTemplate template = new GroovyTemplate(
-                        fileRelativePath.replaceAll("\\{(.*)\\}", "from_$1").replace(":", "_").replace("..", "parent"), "");
-                try {
-                    template.loadPrecompiled();
-                    templates.put(key, template);
-                    return template;
-                } catch (Exception e) {
-                    logger.warn("Precompiled template {} not found, trying to load it dynamically...", file.relativePath(), e);
-                }
-            }
-            BaseTemplate template = new GroovyTemplate(fileRelativePath, file.contentAsString());
-            if (template.loadFromCache()) {
-                templates.put(key, template);
-            } else {
-                templates.put(key, new GroovyTemplateCompiler().compile(file));
-            }
-        } else {
-            BaseTemplate template = templates.get(key);
-            if (Play.mode == Play.Mode.DEV && template.timestamp < file.lastModified()) {
-                templates.put(key, new GroovyTemplateCompiler().compile(file));
-            }
-        }
-        if (templates.get(key) == null) {
-            throw new TemplateNotFoundException(fileRelativePath);
-        }
-        return templates.get(key);
-    }
-
-    /**
-     * Load a template from a String
-     * 
-     * @param key
-     *            A unique identifier for the template, used for retrieving a cached template
-     * @param source
-     *            The template source
-     * @return A Template
-     */
-    public static BaseTemplate load(String key, String source) {
-        if (!templates.containsKey(key) || templates.get(key).compiledTemplate == null) {
-            BaseTemplate template = new GroovyTemplate(key, source);
-            if (template.loadFromCache()) {
-                templates.put(key, template);
-            } else {
-                templates.put(key, new GroovyTemplateCompiler().compile(template));
-            }
-        } else {
-            BaseTemplate template = new GroovyTemplate(key, source);
-            if (Play.mode == Play.Mode.DEV) {
-                templates.put(key, new GroovyTemplateCompiler().compile(template));
-            }
-        }
-        if (templates.get(key) == null) {
-            throw new TemplateNotFoundException(key);
-        }
-        return templates.get(key);
-    }
-
-    /**
-     * Clean the cache for that key Then load a template from a String
-     * 
-     * @param key
-     *            A unique identifier for the template, used for retrieving a cached template
-     * @param source
-     *            The template source
-     * @param reload
-     *            : Indicate if we must clean the cache
-     * @return A Template
-     */
-    public static BaseTemplate load(String key, String source, boolean reload) {
-        cleanCompiledCache(key);
-        return load(key, source);
-    }
-
-    /**
-     * Load template from a String, but don't cache it
-     * 
-     * @param source
-     *            The template source
-     * @return A Template
-     */
-    public static BaseTemplate loadString(String source) {
-        BaseTemplate template = new GroovyTemplate(source);
-        return new GroovyTemplateCompiler().compile(template);
+        Template template = Play.pluginCollection.loadTemplate(file);
+        if (template == null)
+            throw new TemplateNotFoundException(file.relativePath());
+        return template;
     }
 
     /**

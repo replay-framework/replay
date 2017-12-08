@@ -322,6 +322,8 @@ public class DB {
                     logger.trace("Datasource destroyed");
                 }
             }
+        } catch (NoSuchMethodException t) {
+            logger.debug("Couldn't destroy the datasource: {}", t.toString());
         } catch (Throwable t) {
             logger.error("Couldn't destroy the datasource", t);
         }

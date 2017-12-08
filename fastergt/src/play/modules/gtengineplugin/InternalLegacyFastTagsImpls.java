@@ -2,7 +2,7 @@ package play.modules.gtengineplugin;
 
 import groovy.lang.Closure;
 import play.templates.FastTags;
-import play.templates.GroovyTemplate.ExecutableTemplate;
+import play.templates.ExecutableTemplate;
 
 import java.io.PrintWriter;
 import java.util.Map;

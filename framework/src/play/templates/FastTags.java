@@ -16,7 +16,6 @@ import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
 import play.templates.BaseTemplate.RawData;
-import play.templates.GroovyTemplate.ExecutableTemplate;
 import play.utils.HTML;
 
 import java.io.PrintWriter;

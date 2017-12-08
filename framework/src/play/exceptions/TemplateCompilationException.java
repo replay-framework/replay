@@ -6,11 +6,6 @@ import play.templates.Template;
  * A exception during template compilation
  */
 public class TemplateCompilationException extends TemplateException {
-
-    public TemplateCompilationException(Template template, Integer lineNumber, String message) {
-        super(template, lineNumber, message);
-    }
-
     public TemplateCompilationException(Template template, Integer lineNumber, String message, Throwable cause) {
         super(template, lineNumber, message, cause);
     }
