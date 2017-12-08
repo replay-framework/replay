@@ -11,6 +11,10 @@ public class TemplateCompilationException extends TemplateException {
         super(template, lineNumber, message);
     }
 
+    public TemplateCompilationException(Template template, Integer lineNumber, String message, Throwable cause) {
+        super(template, lineNumber, message, cause);
+    }
+
     @Override
     public String getErrorTitle() {
         return "Template compilation error";

@@ -98,7 +98,7 @@ public class GTTemplate extends Template {
         } catch (GTCompilationExceptionWithSourceInfo e) {
             GTTemplate t = new GTTemplate(e.templateLocation);
             t.loadSource();
-            throw new TemplateCompilationException( t, e.oneBasedLineNo, e.specialMessage);
+            throw new TemplateCompilationException( t, e.oneBasedLineNo, e.specialMessage, e);
         } catch (GTRuntimeExceptionWithSourceInfo e){
             GTTemplate t = new GTTemplate(e.templateLocation);
             t.loadSource();

@@ -3,7 +3,6 @@ package play.modules.gtengineplugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
 import play.modules.gtengineplugin.gt_integration.GTFileResolver1xImpl;
 import play.modules.gtengineplugin.gt_integration.GTJavaExtensionMethodResolver1x;
@@ -12,9 +11,6 @@ import play.modules.gtengineplugin.gt_integration.PreCompilerFactory;
 import play.template2.*;
 import play.template2.compile.GTCompiler;
 import play.template2.compile.GTGroovyPimpTransformer;
-import play.template2.exceptions.GTCompilationException;
-import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
-import play.template2.exceptions.GTTemplateNotFound;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
@@ -79,17 +75,7 @@ public class TemplateLoader {
     }
 
     protected static GTJavaBase getGTTemplateInstance( GTTemplateLocation templateLocation) {
-        try {
-            return templateRepo.getTemplateInstance( templateLocation );
-        } catch ( GTTemplateNotFound e) {
-            throw new TemplateNotFoundException(e.queryPath);
-        } catch (GTCompilationExceptionWithSourceInfo e) {
-            GTTemplate t = new GTTemplate(e.templateLocation);
-            t.loadSource();
-            throw new TemplateCompilationException( t, e.oneBasedLineNo, e.specialMessage);
-        } catch (GTCompilationException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return templateRepo.getTemplateInstance( templateLocation );
     }
 
     /**

@@ -78,8 +78,8 @@ public class GroovyTemplate extends BaseTemplate {
     void directLoad(byte[] code) throws Exception {
         TClassLoader tClassLoader = new TClassLoader();
         String[] lines = new String(code, "utf-8").split("\n");
-        this.linesMatrix = (HashMap<Integer, Integer>) Java.deserialize(Codec.decodeBASE64(lines[1]));
-        this.doBodyLines = (HashSet<Integer>) Java.deserialize(Codec.decodeBASE64(lines[3]));
+        this.linesMatrix = (Map<Integer, Integer>) Java.deserialize(Codec.decodeBASE64(lines[1]));
+        this.doBodyLines = (Set<Integer>) Java.deserialize(Codec.decodeBASE64(lines[3]));
         for (int i = 4; i < lines.length; i = i + 2) {
             String className = lines[i];
             byte[] byteCode = Codec.decodeBASE64(lines[i + 1]);
@@ -176,13 +176,13 @@ public class GroovyTemplate extends BaseTemplate {
                         if (message.indexOf("@") > 0) {
                             message = message.substring(0, message.lastIndexOf("@"));
                         }
-                        throw new TemplateCompilationException(this, line, message);
+                        throw new TemplateCompilationException(this, line, message, e);
                     } else {
                         ExceptionMessage errorMessage = (ExceptionMessage) e.getErrorCollector().getLastError();
                         Exception exception = errorMessage.getCause();
                         Integer line = 0;
                         String message = exception.getMessage();
-                        throw new TemplateCompilationException(this, line, message);
+                        throw new TemplateCompilationException(this, line, message, e);
                     }
                 }
                 throw new UnexpectedException(e);
