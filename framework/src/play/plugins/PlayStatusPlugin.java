@@ -128,7 +128,6 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println();
         out.println("Play framework:");
         out.println("~~~~~~~~~~~~~~~");
-        out.println("Version: " + Play.version);
         out.println("Path: " + Play.frameworkPath);
         out.println("ID: " + (StringUtils.isEmpty(Play.id) ? "(not set)" : Play.id));
         out.println("Mode: " + Play.mode);

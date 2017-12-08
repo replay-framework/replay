@@ -30,15 +30,12 @@ public class PlayBuilder {
 
     @SuppressWarnings({ "deprecation" })
     public void build() {
-
-        Play.version = "localbuild";
         Play.configuration = configuration;
         Play.classes = new ApplicationClasses();
         Play.javaPath = new ArrayList<>();
         Play.applicationPath = new File(".");
         Play.classloader = new ApplicationClassloader();
         Play.guessFrameworkPath();
-
     }
 
     public void initMvcObject() {

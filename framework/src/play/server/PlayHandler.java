@@ -63,7 +63,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
      * versions having publicly known security bugs), so you can disable the
      * header in application.conf: <code>http.exposePlayServer = false</code>
      */
-    private static final String signature = "Play! Framework;" + Play.version + ";" + Play.mode.name().toLowerCase();
+    private static final String signature = "Play! Framework;" + Play.mode.name().toLowerCase();
     private static final boolean exposePlayServer;
 
     private static final String ACCEPT_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

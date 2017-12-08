@@ -143,10 +143,6 @@ public class Play {
      */
     public static Map<String, VirtualFile> modules = new HashMap<>(16);
     /**
-     * Framework version
-     */
-    public static String version;
-    /**
      * Context path (when several application are deployed on the same host)
      */
     public static String ctxPath = "";
@@ -296,9 +292,7 @@ public class Play {
     public static void guessFrameworkPath() {
         // Guess the framework path
         try {
-            URL versionUrl = Play.class.getResource("/play/version");
-            // Read the content of the file
-            Play.version = new LineNumberReader(new InputStreamReader(versionUrl.openStream())).readLine();
+            URL versionUrl = Play.class.getResource("/play/Play.class");
 
             // This is used only by the embedded server (Mina, Netty, Jetty etc)
             URI uri = new URI(versionUrl.toString().replace(" ", "%20"));
@@ -681,8 +675,7 @@ public class Play {
         // Load modules from modules/ directory, but get the order from the dependencies.yml file
         // .listFiles() returns items in an OS dependant sequence, which is bad
         // See #781
-        // the yaml parser wants play.version as an environment variable
-        System.setProperty("play.version", Play.version);
+        // the yaml parser wants `application.path` as an environment variable
         System.setProperty("application.path", applicationPath.getAbsolutePath());
 
         File localModules = Play.getFile("modules");
