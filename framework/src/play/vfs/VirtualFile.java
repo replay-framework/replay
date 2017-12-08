@@ -47,10 +47,6 @@ public class VirtualFile {
             if (f == null) {
                 break; // ??
             }
-            if (f.equals(Play.frameworkPath)) {
-                prefix = "{play}";
-                break;
-            }
             if (f.equals(Play.applicationPath)) {
                 prefix = "";
                 break;
@@ -238,16 +234,12 @@ public class VirtualFile {
             String module = matcher.group(2);
             if (module == null || module.equals("?") || module.equals("")) {
                 return new VirtualFile(Play.applicationPath).child(path);
-            } else {
-                if (module.equals("play")) {
-                    return new VirtualFile(Play.frameworkPath).child(path);
-                }
-                if (module.startsWith("module:")) {
-                    module = module.substring("module:".length());
-                    for (Entry<String, VirtualFile> entry : Play.modules.entrySet()) {
-                        if (entry.getKey().equals(module))
-                            return entry.getValue().child(path);
-                    }
+            }
+            else if (module.startsWith("module:")) {
+                module = module.substring("module:".length());
+                for (Entry<String, VirtualFile> entry : Play.modules.entrySet()) {
+                    if (entry.getKey().equals(module))
+                        return entry.getValue().child(path);
                 }
             }
         }

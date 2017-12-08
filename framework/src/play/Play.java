@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -84,10 +83,6 @@ public class Play {
      * tmp dir
      */
     public static File tmpDir;
-    /**
-     * The framework root
-     */
-    public static File frameworkPath;
     /**
      * All loaded application classes
      */
@@ -179,8 +174,6 @@ public class Play {
 
         // load all play.static of exists
         initStaticStuff();
-
-        guessFrameworkPath();
 
         // Read the configuration file
         readConfiguration();
@@ -290,29 +283,6 @@ public class Play {
         pluginCollection.onApplicationReady();
 
         Play.initialized = true;
-    }
-
-    public static void guessFrameworkPath() {
-        // Guess the framework path
-        try {
-            URL versionUrl = Play.class.getResource("/play/Play.class");
-
-            // This is used only by the embedded server (Mina, Netty, Jetty etc)
-            URI uri = new URI(versionUrl.toString().replace(" ", "%20"));
-            if (frameworkPath == null || !frameworkPath.exists()) {
-                if (uri.getScheme().equals("jar")) {
-                    String jarPath = uri.getSchemeSpecificPart().substring(5, uri.getSchemeSpecificPart().lastIndexOf("!"));
-                    frameworkPath = new File(jarPath).getParentFile().getParentFile().getAbsoluteFile();
-                } else if (uri.getScheme().equals("file")) {
-                    frameworkPath = new File(uri).getParentFile().getParentFile().getParentFile().getParentFile();
-                } else {
-                    throw new UnexpectedException(
-                            "Cannot find the Play! framework - trying with uri: " + uri + " scheme " + uri.getScheme());
-                }
-            }
-        } catch (Exception e) {
-            throw new UnexpectedException("Where is the framework ?", e);
-        }
     }
 
     /**

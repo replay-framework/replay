@@ -35,7 +35,6 @@ public class PlayBuilder {
         Play.javaPath = new ArrayList<>();
         Play.applicationPath = new File(".");
         Play.classloader = new ApplicationClassloader();
-        Play.guessFrameworkPath();
     }
 
     public void initMvcObject() {
