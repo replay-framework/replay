@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Play;
-import play.Play.Mode;
 import play.PlayPlugin;
 import play.mvc.Http.Header;
 import play.mvc.Http.Request;
@@ -77,10 +76,6 @@ public class PlayStatusPlugin extends PlayPlugin {
      */
     @Override
     public boolean rawInvocation(Request request, Response response) throws Exception {
-        if (Play.mode == Mode.DEV && request.path.equals("/@kill")) {
-            System.out.println("@KILLED");
-            System.exit(0);
-        }
         if (request.path.equals("/@status") || request.path.equals("/@status.json")) {
             if (!Play.started) {
                 response.print("Application is not started");
