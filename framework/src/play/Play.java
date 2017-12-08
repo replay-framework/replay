@@ -256,7 +256,7 @@ public class Play {
 
         // Done !
         if (mode == Mode.PROD) {
-            if (preCompile() && System.getProperty("precompile") == null) {
+            if (System.getProperty("precompile") == null) {
                 start();
             } else {
                 return;
@@ -491,41 +491,6 @@ public class Play {
             started = false;
             Cache.stop();
             Router.lastLoading = 0L;
-        }
-    }
-
-    /**
-     * Force all java source and template compilation.
-     *
-     * @return success ?
-     */
-    static boolean preCompile() {
-        if (usePrecompiled) {
-            if (Play.getFile("precompiled").exists()) {
-                classloader.getAllClasses();
-                logger.info("Application is precompiled");
-                return true;
-            }
-            logger.error("Precompiled classes are missing!!");
-            fatalServerErrorOccurred();
-            return false;
-        }
-        try {
-            logger.info("Precompiling ...");
-            long start = System.currentTimeMillis();
-            classloader.getAllClasses();
-
-            logger.trace("{} ms to precompile the Java stuff", System.currentTimeMillis() - start);
-
-            start = System.currentTimeMillis();
-            TemplateLoader.getAllTemplate();
-
-            logger.trace("{} ms to precompile the templates", System.currentTimeMillis() - start);
-            return true;
-        } catch (Throwable e) {
-            logger.error("Cannot start in PROD mode with errors", e);
-            fatalServerErrorOccurred();
-            return false;
         }
     }
 
