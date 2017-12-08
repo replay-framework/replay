@@ -153,10 +153,6 @@ public class Play {
     static boolean firstStart = true;
     public static boolean usePrecompiled;
     public static boolean forceProd;
-    /**
-     * Lazy load the templates on demand
-     */
-    public static boolean lazyLoadTemplates;
 
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
@@ -577,12 +573,10 @@ public class Play {
 
             logger.trace("{} ms to precompile the Java stuff", System.currentTimeMillis() - start);
 
-            if (!lazyLoadTemplates) {
-                start = System.currentTimeMillis();
-                TemplateLoader.getAllTemplate();
+            start = System.currentTimeMillis();
+            TemplateLoader.getAllTemplate();
 
-                logger.trace("{} ms to precompile the templates", System.currentTimeMillis() - start);
-            }
+            logger.trace("{} ms to precompile the templates", System.currentTimeMillis() - start);
             return true;
         } catch (Throwable e) {
             logger.error("Cannot start in PROD mode with errors", e);
