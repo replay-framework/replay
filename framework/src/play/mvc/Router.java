@@ -261,7 +261,7 @@ public class Router {
         String content = Play.usePrecompiled ? "" : routeFile.contentAsString();
         if (Play.usePrecompiled || content.indexOf("${") > -1 || content.indexOf("#{") > -1 || content.indexOf("%{") > -1) {
             // Mutable map needs to be passed in.
-            content = TemplateLoader.load(routeFile).render(new HashMap<String, Object>(16));
+            content = TemplateLoader.load(routeFile).render(new HashMap<>(16));
         }
         parse(content, prefix, fileAbsolutePath);
     }
@@ -271,7 +271,7 @@ public class Router {
         for (String line : content.split("\n")) {
             lineNumber++;
             line = line.trim().replaceAll("\\s+", " ");
-            if (line.length() == 0 || line.startsWith("#")) {
+            if (line.isEmpty() || line.startsWith("#")) {
                 continue;
             }
             Matcher matcher = routePattern.matcher(line);
@@ -413,7 +413,7 @@ public class Router {
     public static ActionDefinition reverse(String action) {
         // Note the map is not <code>Collections.EMPTY_MAP</code> because it
         // will be copied and changed.
-        return reverse(action, new HashMap<String, Object>(16));
+        return reverse(action, new HashMap<>(16));
     }
 
     public static String getFullUrl(String action, Map<String, Object> args) {
@@ -445,7 +445,7 @@ public class Router {
     public static String getFullUrl(String action) {
         // Note the map is not <code>Collections.EMPTY_MAP</code> because it
         // will be copied and changed.
-        return getFullUrl(action, new HashMap<String, Object>(16));
+        return getFullUrl(action, new HashMap<>(16));
     }
 
     public static String reverse(VirtualFile file) {
@@ -813,7 +813,7 @@ public class Router {
         Map<String, String> staticArgs = new HashMap<>(3);
         List<String> formats = new ArrayList<>(1);
         String host;
-        Arg hostArg = null;
+        Arg hostArg;
         public int routesFileLine;
         public String routesFile;
         static Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
@@ -909,7 +909,7 @@ public class Router {
                 for (Arg arg : args) {
                     if (patternString.contains("{" + arg.name + "}")) {
                         patternString = patternString.replace("{" + arg.name + "}",
-                                "({" + arg.name + "}" + arg.constraint.toString() + ")");
+                                "({" + arg.name + "}" + arg.constraint + ")");
                         actionArgs.add(arg.name);
                     }
                 }
@@ -1049,7 +1049,6 @@ public class Router {
             String name;
             Pattern constraint;
             String defaultValue;
-            Boolean optional = false;
         }
 
         @Override
