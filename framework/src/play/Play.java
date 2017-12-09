@@ -512,12 +512,9 @@ public class Play {
         return pluginCollection.getPluginInstance(clazz);
     }
 
-    public static void loadModules(VirtualFile appRoot) {
+    private static void loadModules(VirtualFile appRoot) {
         File localModules = Play.getFile("modules");
-        Set<String> modules = new LinkedHashSet<>();
         if (localModules.exists() && localModules.isDirectory()) {
-            modules.addAll(Arrays.asList());
-
             for (File module : localModules.listFiles()) {
                 if (module == null || !module.exists()) {
                     logger.error("Module {} will not be loaded because {} does not exist", module.getName(), module.getAbsolutePath());
@@ -538,18 +535,6 @@ public class Play {
     /**
      * Add a play application (as plugin)
      *
-     * @param name
-     *            the module name
-     * @param path
-     *            The application path
-     */
-    public static void addModule(String name, File path) {
-        addModule(VirtualFile.open(applicationPath), name, path);
-    }
-
-    /**
-     * Add a play application (as plugin)
-     *
      * @param appRoot
      *            the application path virtual file
      * @param name
@@ -557,7 +542,7 @@ public class Play {
      * @param path
      *            The application path
      */
-    public static void addModule(VirtualFile appRoot, String name, File path) {
+    private static void addModule(VirtualFile appRoot, String name, File path) {
         VirtualFile root = VirtualFile.open(path);
         modules.put(name, root);
         if (root.child("app").exists()) {
