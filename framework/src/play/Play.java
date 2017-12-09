@@ -168,14 +168,7 @@ public class Play {
 
         Play.classes = new ApplicationClasses();
 
-        // Configure logs
         Logger.init();
-        String logLevel = configuration.getProperty("application.log", "INFO");
-
-        // only override log-level if Logger was not configured manually
-        if (!Logger.configuredManually) {
-            Logger.setUp(logLevel);
-        }
 
         logger.info("Starting {}", root.getAbsolutePath());
 
@@ -394,13 +387,6 @@ public class Play {
 
             // Reload configuration
             readConfiguration();
-
-            // Configure logs
-            String logLevel = configuration.getProperty("application.log", "INFO");
-            // only override log-level if Logger was not configured manually
-            if (!Logger.configuredManually) {
-                Logger.setUp(logLevel);
-            }
 
             // Locales
             langs = new ArrayList<>(Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
