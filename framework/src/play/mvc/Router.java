@@ -43,15 +43,11 @@ public class Router {
 
     /**
      * Parse the routes file. This is called at startup.
-     *
-     * @param prefix
-     *            The prefix that the path of all routes in this route file start with. This prefix should not end with
-     *            a '/' character.
      */
-    public static void load(String prefix) {
+    public static void load() {
         routes.clear();
         actionRoutesCache.clear();
-        parse(Play.routes, prefix);
+        parse(Play.routes, "");
         lastLoading = System.currentTimeMillis();
         // Plugins
         Play.pluginCollection.onRoutesLoaded();
@@ -317,21 +313,17 @@ public class Router {
      * <p>
      * In DEV mode, this checks each routes file's "last modified" time to see if the routes need updated.
      * </p>
-     * 
-     * @param prefix
-     *            The prefix that the path of all routes in this route file start with. This prefix should not end with
-     *            a '/' character.
      */
-    public static void detectChanges(String prefix) {
+    public static void detectChanges() {
         if (Play.mode == Mode.PROD && lastLoading > 0) {
             return;
         }
         if (Play.routes.lastModified() > lastLoading) {
-            load(prefix);
+            load();
         } else {
             for (VirtualFile file : Play.modulesRoutes.values()) {
                 if (file.lastModified() > lastLoading) {
-                    load(prefix);
+                    load();
                     return;
                 }
             }
@@ -988,7 +980,7 @@ public class Router {
          */
         public Map<String, String> matches(String method, String path, String accept, String domain) {
             // Normalize
-            if (path.equals(Play.ctxPath)) {
+            if ("".equals(path)) {
                 path = path + "/";
             }
             // If method is HEAD and we have a GET

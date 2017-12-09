@@ -137,10 +137,7 @@ public class Play {
      * Modules
      */
     public static Map<String, VirtualFile> modules = new HashMap<>(16);
-    /**
-     * Context path (when several application are deployed on the same host)
-     */
-    public static String ctxPath = "";
+
     static boolean firstStart = true;
     public static boolean usePrecompiled;
 
@@ -203,9 +200,6 @@ public class Play {
             mode = Mode.PROD;
         }
 
-        // Context path
-        ctxPath = configuration.getProperty("http.path", ctxPath);
-
         // Build basic java source path
         VirtualFile appRoot = VirtualFile.open(applicationPath);
         roots.clear();
@@ -232,11 +226,6 @@ public class Play {
 
         // Enable a first classloader
         classloader = new ApplicationClassloader();
-
-        // Fix ctxPath
-        if ("/".equals(Play.ctxPath)) {
-            Play.ctxPath = "";
-        }
 
         // Default cookie domain
         Http.Cookie.defaultDomain = configuration.getProperty("application.defaultCookieDomain", null);
@@ -420,7 +409,7 @@ public class Play {
             Play.classloader.getAllClasses();
 
             // Routes
-            Router.detectChanges(ctxPath);
+            Router.detectChanges();
 
             // Cache
             Cache.init();
@@ -488,7 +477,7 @@ public class Play {
             return;
         }
         try {
-            Router.detectChanges(ctxPath);
+            Router.detectChanges();
             pluginCollection.detectChange();
             if (!Play.started) {
                 throw new RestartNeededException("Not started");

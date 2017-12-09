@@ -178,7 +178,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
             try {
                 if (Play.mode == Play.Mode.DEV) {
-                    Router.detectChanges(Play.ctxPath);
+                    Router.detectChanges();
                 }
                 if (Play.mode == Play.Mode.PROD
                         && staticPathsCache.containsKey(request.domain + " " + request.method + " " + request.path)) {
