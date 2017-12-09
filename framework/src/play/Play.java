@@ -512,39 +512,7 @@ public class Play {
         return pluginCollection.getPluginInstance(clazz);
     }
 
-    /**
-     * Load all modules. You can even specify the list using the MODULES environment variable.
-     */
-    public static void loadModules() {
-        loadModules(VirtualFile.open(applicationPath));
-    }
-
-    /**
-     * Load all modules. You can even specify the list using the MODULES environment variable.
-     * 
-     * @param appRoot
-     *            the application path virtual file
-     */
     public static void loadModules(VirtualFile appRoot) {
-        if (System.getenv("MODULES") != null) {
-            // Modules path is prepended with a env property
-            if (System.getenv("MODULES") != null && System.getenv("MODULES").trim().length() > 0) {
-
-                for (String m : System.getenv("MODULES").split(File.pathSeparator)) {
-                    File modulePath = new File(m);
-                    if (!modulePath.exists() || !modulePath.isDirectory()) {
-                        logger.error("Module {} will not be loaded because {} does not exist", modulePath.getName(),
-                                modulePath.getAbsolutePath());
-                    } else {
-                        String modulePathName = modulePath.getName();
-                        String moduleName = modulePathName.contains("-") ? modulePathName.substring(0, modulePathName.lastIndexOf("-"))
-                                : modulePathName;
-                        addModule(appRoot, moduleName, modulePath);
-                    }
-                }
-            }
-        }
-
         File localModules = Play.getFile("modules");
         Set<String> modules = new LinkedHashSet<>();
         if (localModules.exists() && localModules.isDirectory()) {
