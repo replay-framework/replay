@@ -46,7 +46,7 @@ public class GuicePlugin extends PlayPlugin implements BeanSource {
     try {
       modules.clear();
       logger.debug("Guice modules cleared");
-      List<Class> customInjectors = Play.classloader.getAssignableClasses(GuiceSupport.class);
+      List<Class<? extends GuiceSupport>> customInjectors = Play.classes.getAssignableClasses(GuiceSupport.class);
       if (!customInjectors.isEmpty()) {
         if (customInjectors.size() > 1) {
           logger.warn("Found multiple customer injectors: {}, using first of them", customInjectors);
@@ -55,7 +55,7 @@ public class GuicePlugin extends PlayPlugin implements BeanSource {
         return;
       }
 
-      List<Class> modulesClasses = Play.classloader.getAssignableClasses(AbstractModule.class);
+      List<Class<? extends AbstractModule>> modulesClasses = Play.classes.getAssignableClasses(AbstractModule.class);
       for (Class moduleClass : modulesClasses) {
         modules.add((Module) moduleClass.newInstance());
       }
@@ -112,7 +112,7 @@ public class GuicePlugin extends PlayPlugin implements BeanSource {
 
   private void injectAnnotated() {
     try {
-      for (Class<?> clazz : Play.classloader.getAnnotatedClasses(play.modules.guice.InjectSupport.class)) {
+      for (Class<?> clazz : Play.classes.getAnnotatedClasses(play.modules.guice.InjectSupport.class)) {
         for (Field field : clazz.getDeclaredFields()) {
           if (isInjectable(field)) {
             inject(field);

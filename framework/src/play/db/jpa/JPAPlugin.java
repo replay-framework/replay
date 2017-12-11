@@ -124,7 +124,7 @@ public class JPAPlugin extends PlayPlugin {
     private List<Class> entityClasses(String dbName) {
         List<Class> entityClasses = new ArrayList<>();
         
-        List<Class> classes = Play.classloader.getAnnotatedClasses(Entity.class);
+        List<Class> classes = Play.classes.getAnnotatedClasses(Entity.class);
         for (Class<?> clazz : classes) {
             if (clazz.isAnnotationPresent(Entity.class)) {
                 // Do we have a transactional annotation matching our dbname?
@@ -208,8 +208,7 @@ public class JPAPlugin extends PlayPlugin {
 
     private static class DynamicTypeContributor implements TypeContributor {
         @Override public void contribute(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-            List<Class> customTypes = Play.classloader.getAssignableClasses(BasicType.class);
-            for (Class<BasicType> customType : customTypes) {
+            for (Class<? extends BasicType> customType : Play.classes.getAssignableClasses(BasicType.class)) {
                 if (!isAbstract(customType.getModifiers())) {
                     typeContributions.contributeType(Injector.getBeanOfType(customType));
                 }

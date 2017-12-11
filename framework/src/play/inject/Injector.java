@@ -37,9 +37,10 @@ public class Injector {
      *            the beanSource to inject
      */
     public static void inject(BeanSource source) {
-        List<Class> classes = new ArrayList<>(Play.classloader.getAssignableClasses(PlayController.class));
-        classes.addAll(Play.classloader.getAssignableClasses(Job.class));
-        classes.addAll(Play.classloader.getAnnotatedClasses(RequireInjection.class));
+        List<Class> classes = new ArrayList<>();
+        classes.addAll(Play.classes.getAssignableClasses(PlayController.class));
+        classes.addAll(Play.classes.getAssignableClasses(Job.class));
+        classes.addAll(Play.classes.getAnnotatedClasses(RequireInjection.class));
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(Inject.class)) {

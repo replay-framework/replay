@@ -17,9 +17,9 @@ public class GTFastTagResolver1x implements GTFastTagResolver {
         synchronized (lock) {
             if (fastTagClasses == null) {
                 fastTagClasses = new ArrayList<>();
-                for (Class appClass : Play.classes.getAssignableClasses( GTFastTag.class ) ) {
+                for (Class<? extends GTFastTag> appClass : Play.classes.getAssignableClasses(GTFastTag.class) ) {
                     try {
-                        fastTagClasses.add( (GTFastTag)appClass.newInstance());
+                        fastTagClasses.add(appClass.newInstance());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

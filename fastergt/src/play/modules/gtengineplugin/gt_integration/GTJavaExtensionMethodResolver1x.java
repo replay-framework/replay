@@ -21,7 +21,7 @@ public class GTJavaExtensionMethodResolver1x implements GTJavaExtensionMethodRes
             if (methodName2ClassMapping == null) {
                 List<Class> extensionsClassnames = new ArrayList<>(5);
                 extensionsClassnames.add(JavaExtensions.class);
-                extensionsClassnames.addAll(Play.classloader.getAssignableClasses(JavaExtensions.class));
+                extensionsClassnames.addAll(Play.classes.getAssignableClasses(JavaExtensions.class));
 
                 methodName2ClassMapping = new HashMap<>();
                 for ( Class clazz : extensionsClassnames) {

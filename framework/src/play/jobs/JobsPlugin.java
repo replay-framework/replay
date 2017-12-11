@@ -96,13 +96,7 @@ public class JobsPlugin extends PlayPlugin {
 
     @Override
     public void afterApplicationStart() {
-        List<Class<?>> jobs = new ArrayList<>();
-        for (Class clazz : Play.classloader.getAllClasses()) {
-            if (Job.class.isAssignableFrom(clazz)) {
-                jobs.add(clazz);
-            }
-        }
-        for (Class<?> clazz : jobs) {
+        for (Class<?> clazz : Play.classes.getAssignableClasses(Job.class)) {
             // @OnApplicationStart
             if (clazz.isAnnotationPresent(OnApplicationStart.class)) {
                 // check if we're going to run the job sync or async
@@ -224,7 +218,7 @@ public class JobsPlugin extends PlayPlugin {
     @Override
     public void onApplicationStop() {
 
-        List<Class> jobs = Play.classloader.getAssignableClasses(Job.class);
+        List<Class<? extends Job>> jobs = Play.classes.getAssignableClasses(Job.class);
 
         for (Class clazz : jobs) {
             // @OnApplicationStop

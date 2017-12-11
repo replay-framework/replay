@@ -1,7 +1,6 @@
 package play;
 
 import play.classloading.ApplicationClasses;
-import play.classloading.ApplicationClassloader;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
@@ -10,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -34,7 +32,6 @@ public class PlayBuilder {
         Play.classes = new ApplicationClasses();
         Play.javaPath = new ArrayList<>();
         Play.applicationPath = new File(".");
-        Play.classloader = new ApplicationClassloader();
     }
 
     public void initMvcObject() {

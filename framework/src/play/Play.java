@@ -3,7 +3,6 @@ package play;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
-import play.classloading.ApplicationClassloader;
 import play.exceptions.PlayException;
 import play.exceptions.RestartNeededException;
 import play.exceptions.UnexpectedException;
@@ -84,10 +83,7 @@ public class Play {
      * All loaded application classes
      */
     public static ApplicationClasses classes;
-    /**
-     * The application classLoader
-     */
-    public static ApplicationClassloader classloader;
+
     /**
      * All paths to search for files
      */
@@ -155,16 +151,11 @@ public class Play {
      *            The framework id to use
      */
     public static void init(File root, String id) {
-        // Simple things
         Play.id = id;
         Play.started = false;
         Play.applicationPath = root;
-
-        // Read the configuration file
         readConfiguration();
-
         Play.classes = new ApplicationClasses();
-
         Logger.init();
 
         logger.info("Starting {}", root.getAbsolutePath());
@@ -187,7 +178,6 @@ public class Play {
             }
         }
 
-        // Mode
         try {
             mode = Mode.valueOf(configuration.getProperty("application.mode", "DEV").toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -215,17 +205,9 @@ public class Play {
             templatesPath.add(appRoot.child("app/views"));
         }
 
-        // Main route file
         routes = appRoot.child("conf/routes");
-
-        // Plugin route files
         modulesRoutes.clear();
-
-        // Load modules
         loadModules(appRoot);
-
-        // Enable a first classloader
-        classloader = new ApplicationClassloader();
 
         // Default cookie domain
         Http.Cookie.defaultDomain = configuration.getProperty("application.defaultCookieDomain", null);
@@ -233,10 +215,8 @@ public class Play {
             logger.info("Using default cookie domain: {}", Http.Cookie.defaultDomain);
         }
 
-        // Plugins
         pluginCollection.loadPlugins();
 
-        // Done !
         if (mode == Mode.PROD) {
             if (System.getProperty("precompile") == null) {
                 start();
@@ -247,9 +227,7 @@ public class Play {
             logger.warn("You're running Play! in DEV mode");
         }
 
-        // Plugins
         pluginCollection.onApplicationReady();
-
         Play.initialized = true;
     }
 
@@ -404,9 +382,6 @@ public class Play {
                     Http.Response.current().encoding = _defaultWebEncoding;
                 }
             }
-
-            // Try to load all classes
-            Play.classloader.getAllClasses();
 
             // Routes
             Router.detectChanges();

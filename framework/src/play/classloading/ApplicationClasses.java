@@ -5,21 +5,68 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.*;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.StringUtils.replace;
 
-/**
- * Application classes container.
- */
 public class ApplicationClasses {
     /**
      * Cache of all compiled classes
      */
     private final Map<String, Class> classes = new HashMap<>();
+    private final Map<String, Class> allClassesByNormalizedName;
+    private final Map<Class<?>, Object> assignableClasses = new HashMap<>(100);
 
-    void set(List<Class<?>> applicationClasses) {
+    public ApplicationClasses() {
+        List<Class<?>> applicationClasses = new JavaClassesScanner().allClassesInProject();
+
         for (Class<?> applicationClass : applicationClasses) {
             classes.put(applicationClass.getName(), applicationClass);
         }
+        allClassesByNormalizedName = unmodifiableMap(normalizeByName(applicationClasses));
+
+        applicationClasses.sort(comparing(Class::getName));
+    }
+
+    private Map<String, Class> normalizeByName(List<Class<?>> applicationClasses) {
+        Map<String, Class> byNormalizedName = new HashMap<>(applicationClasses.size());
+        for (Class clazz : applicationClasses) {
+            byNormalizedName.put(clazz.getName().toLowerCase(), clazz);
+            if (clazz.getName().contains("$")) {
+                byNormalizedName.put(replace(clazz.getName().toLowerCase(), "$", "."), clazz);
+            }
+        }
+        return byNormalizedName;
+    }
+
+    public <T> List<Class<? extends T>> getAssignableClasses(Class<T> aClass) {
+        if (aClass == null) {
+            return emptyList();
+        }
+
+        List<Class<? extends T>> result = (List<Class<? extends T>>) assignableClasses.get(aClass);
+        if (result == null) {
+            result = findAssignableClasses(aClass);
+            assignableClasses.put(aClass, result);
+        }
+        return result;
+    }
+
+    private <T> List<Class<? extends T>> findAssignableClasses(Class<T> clazz) {
+        return unmodifiableList(classes.values().stream()
+          .filter(applicationClass -> isSubclass(applicationClass, clazz))
+          .map(applicationClass -> (Class<T>) applicationClass)
+          .collect(toList()));
+    }
+
+    private boolean isSubclass(Class<?> subClass, Class<?> superClass) {
+        return superClass.isAssignableFrom(subClass) && !subClass.equals(superClass);
+    }
+
+    public Class<?> getClassIgnoreCase(String name) {
+        String nameLowerCased = name.toLowerCase();
+        return allClassesByNormalizedName.get(nameLowerCased);
     }
 
     /**
@@ -34,21 +81,8 @@ public class ApplicationClasses {
     }
 
     /**
-     * Retrieve all application classes assignable to this class.
-     * 
-     * @param clazz
-     *            The superclass, or the interface.
-     * @return A list of application classes.
-     */
-    public List<Class> getAssignableClasses(Class<?> clazz) {
-        return classes.values().stream().filter(applicationClass ->
-          clazz.isAssignableFrom(applicationClass) && !applicationClass.getName().equals(clazz.getName()))
-          .collect(toList());
-    }
-
-    /**
      * Retrieve all application classes with a specific annotation.
-     * 
+     *
      * @param clazz
      *            The annotation class.
      * @return A list of application classes.
