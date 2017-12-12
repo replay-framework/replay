@@ -43,9 +43,7 @@ public class JavaClassesScanner {
       }
       else if (file.getName().endsWith(".class")) {
         String className = packageName == null ? classNameOf(file) : packageName + '.' + classNameOf(file);
-        if (!className.startsWith("play.")) {
-          result.add(Class.forName(className));
-        }
+        result.add(Class.forName(className));
       }
     }
     return result;

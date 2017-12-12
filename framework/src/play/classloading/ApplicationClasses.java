@@ -6,27 +6,25 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.*;
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.replace;
 
 public class ApplicationClasses {
     /**
      * Cache of all compiled classes
      */
-    private final Map<String, Class> classes = new HashMap<>();
-    private final Map<String, Class> allClassesByNormalizedName;
+    private Map<String, Class> classes;
+    private Map<String, Class> allClassesByNormalizedName;
     private final Map<Class<?>, Object> assignableClasses = new HashMap<>(100);
 
-    public ApplicationClasses() {
-        List<Class<?>> applicationClasses = new JavaClassesScanner().allClassesInProject();
-
-        for (Class<?> applicationClass : applicationClasses) {
-            classes.put(applicationClass.getName(), applicationClass);
+    private Map<String, Class> classes() {
+        if (classes == null) {
+            List<Class<?>> applicationClasses = new JavaClassesScanner().allClassesInProject();
+            allClassesByNormalizedName = unmodifiableMap(normalizeByName(applicationClasses));
+            classes = applicationClasses.stream().collect(toMap(cl -> cl.getName(), cl -> cl));
         }
-        allClassesByNormalizedName = unmodifiableMap(normalizeByName(applicationClasses));
-
-        applicationClasses.sort(comparing(Class::getName));
+        return classes;
     }
 
     private Map<String, Class> normalizeByName(List<Class<?>> applicationClasses) {
@@ -54,7 +52,7 @@ public class ApplicationClasses {
     }
 
     private <T> List<Class<? extends T>> findAssignableClasses(Class<T> clazz) {
-        return unmodifiableList(classes.values().stream()
+        return unmodifiableList(classes().values().stream()
           .filter(applicationClass -> isSubclass(applicationClass, clazz))
           .map(applicationClass -> (Class<T>) applicationClass)
           .collect(toList()));
@@ -77,7 +75,7 @@ public class ApplicationClasses {
      * @return The ApplicationClass or null
      */
     public Class getApplicationClass(String name) {
-        return classes.get(name);
+        return classes().get(name);
     }
 
     /**
@@ -88,7 +86,7 @@ public class ApplicationClasses {
      * @return A list of application classes.
      */
     public List<Class> getAnnotatedClasses(Class<? extends Annotation> clazz) {
-        return classes.values().stream().filter(applicationClass ->
+        return classes().values().stream().filter(applicationClass ->
           applicationClass != null && applicationClass.isAnnotationPresent(clazz))
           .collect(toList());
     }
@@ -101,11 +99,11 @@ public class ApplicationClasses {
      * @return true if the class is loaded
      */
     public boolean hasClass(String name) {
-        return classes.containsKey(name);
+        return classes().containsKey(name);
     }
 
     @Override
     public String toString() {
-        return classes.toString();
+        return String.format("%s classes", classes().size());
     }
 }
