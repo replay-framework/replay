@@ -126,8 +126,7 @@ public class ActionInvokerTest {
 
     @Test
     public void invocationWrapsOtherExceptionsIntoJavaExecutionException() throws Exception {
-        Play.classes = mock(ApplicationClasses.class);
-        final Exception exception = new Exception("any");
+        Exception exception = new Exception("any");
 
         class AController extends Controller {
             public void action() throws Exception {

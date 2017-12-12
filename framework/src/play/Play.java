@@ -27,9 +27,6 @@ import java.util.regex.Pattern;
 public class Play {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Play.class);
 
-    /**
-     * 2 modes
-     */
     public enum Mode {
 
         /**
@@ -50,39 +47,17 @@ public class Play {
         }
     }
 
-    /**
-     * Is the application initialized
-     */
     public static boolean initialized;
-
-    /**
-     * Is the application started
-     */
     public static boolean started;
     /**
      * True when the one and only shutdown hook is enabled
      */
     private static boolean shutdownHookEnabled;
-    /**
-     * The framework ID
-     */
     public static String id = System.getProperty("play.id", "");
-    /**
-     * The application mode
-     */
     public static Mode mode = Mode.DEV;
-    /**
-     * The application root
-     */
     public static File applicationPath = new File(System.getProperty("user.dir"));
-    /**
-     * tmp dir
-     */
     public static File tmpDir;
-    /**
-     * All loaded application classes
-     */
-    public static ApplicationClasses classes;
+    public static final ApplicationClasses classes = new ApplicationClasses();
 
     /**
      * All paths to search for files
@@ -155,7 +130,6 @@ public class Play {
         Play.started = false;
         Play.applicationPath = root;
         readConfiguration();
-        Play.classes = new ApplicationClasses();
         Logger.init();
 
         logger.info("Starting {}", root.getAbsolutePath());
