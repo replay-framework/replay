@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
@@ -22,9 +23,14 @@ public class ApplicationClasses {
         if (classes == null) {
             List<Class<?>> applicationClasses = new JavaClassesScanner().allClassesInProject();
             allClassesByNormalizedName = unmodifiableMap(normalizeByName(applicationClasses));
-            classes = applicationClasses.stream().collect(toMap(cl -> cl.getName(), cl -> cl));
+            classes = toMapIgnoringDuplicates(applicationClasses);
         }
         return classes;
+    }
+
+    private Map<String, Class> toMapIgnoringDuplicates(List<Class<?>> applicationClasses) {
+        BinaryOperator<Class> ignoreDuplicates = (old, _new) -> old;
+        return applicationClasses.stream().collect(toMap(cl -> cl.getName(), cl -> cl, ignoreDuplicates));
     }
 
     private Map<String, Class> normalizeByName(List<Class<?>> applicationClasses) {
