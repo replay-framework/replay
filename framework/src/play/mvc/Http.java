@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.libs.Codec;
-import play.libs.F;
 import play.libs.Time;
 import play.utils.HTTP;
 import play.utils.Utils;

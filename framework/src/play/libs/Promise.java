@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 public class Promise<V> implements Future<V>, Consumer<V> {
 
     protected final CountDownLatch taskLock = new CountDownLatch(1);
-    protected boolean cancelled;
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {

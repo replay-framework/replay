@@ -3,8 +3,6 @@ package play.data.binding;
 import org.junit.Before;
 import org.junit.Test;
 import play.PlayBuilder;
-import play.data.validation.Validation;
-import play.data.validation.ValidationPlugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
