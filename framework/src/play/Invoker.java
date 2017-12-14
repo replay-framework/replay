@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -218,8 +219,8 @@ public class Invoker {
         }
 
         private void withinFilter(SupplierWithException<Void> fct) throws Exception {
-            F.Option<PlayPlugin.Filter<Void>> filters = Play.pluginCollection.composeFilters();
-            if (filters.isDefined()) {
+            Optional<PlayPlugin.Filter<Void>> filters = Play.pluginCollection.composeFilters();
+            if (filters.isPresent()) {
                 filters.get().withinFilter(fct);
             }
         }
@@ -257,7 +258,7 @@ public class Invoker {
         }
     }
 
-    /**
+    /*
      * Init executor at load time.
      */
     static {

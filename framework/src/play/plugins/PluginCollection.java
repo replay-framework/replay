@@ -7,7 +7,6 @@ import play.PlayPlugin;
 import play.data.binding.RootParamNode;
 import play.db.Model;
 import play.inject.Injector;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.results.Result;
@@ -354,21 +353,21 @@ public class PluginCollection {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> F.Option<PlayPlugin.Filter<T>> composeFilters() {
+    public <T> Optional<PlayPlugin.Filter<T>> composeFilters() {
         // Copy list of plugins here in case the list changes in the midst of
         // doing composition...
         // (Is it really necessary to do this?)
         List<PlayPlugin> pluginsWithFilters = new ArrayList<>(this.getEnabledPluginsWithFilters());
 
         if (pluginsWithFilters.isEmpty()) {
-            return F.Option.None();
+            return Optional.empty();
         } else {
             Iterator<PlayPlugin> itr = pluginsWithFilters.iterator();
             PlayPlugin.Filter<T> ret = itr.next().getFilter();
             while (itr.hasNext()) {
                 ret = ret.<T> decorate(itr.next().getFilter());
             }
-            return F.Option.Some(ret);
+            return Optional.of(ret);
         }
     }
 

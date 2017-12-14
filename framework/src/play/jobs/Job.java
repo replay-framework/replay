@@ -11,12 +11,12 @@ import play.PlayPlugin;
 import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
-import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.SupplierWithException;
 import play.libs.Time;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -168,10 +168,11 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     }
 
     private V withinFilter(SupplierWithException<V> fct) throws Exception {
-        F.Option<PlayPlugin.Filter<V>> filters = Play.pluginCollection.composeFilters();
-        if (!filters.isDefined()) {
+        Optional<PlayPlugin.Filter<V>> filters = Play.pluginCollection.composeFilters();
+        if (!filters.isPresent()) {
             return null;
-        } else {
+        }
+        else {
             return filters.get().withinFilter(fct);
         }
     }
