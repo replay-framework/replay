@@ -25,7 +25,6 @@ import play.data.validation.Validation;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
-import play.libs.F.Action;
 import play.libs.MimeTypes;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
@@ -116,23 +115,15 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.direct = null;
 
                 // Streamed output (using response.writeChunk)
-                response.onWriteChunk(new Action<Object>() {
-
-                    @Override
-                    public void invoke(Object result) {
-                        writeChunk(request, response, ctx, nettyRequest, result);
-                    }
-                });
+                response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
 
                 // Raw invocation
                 boolean raw = Play.pluginCollection.rawInvocation(request, response);
                 if (raw) {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
-
                     // Delegate to Play framework
                     Invoker.invoke(new NettyInvocation(request, response, ctx, nettyRequest, messageEvent));
-
                 }
 
             } catch (Exception ex) {

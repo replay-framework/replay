@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -879,19 +880,19 @@ public class Http {
 
         // Chunked stream
         public boolean chunked = false;
-        final List<F.Action<Object>> writeChunkHandlers = new ArrayList<>();
+        final List<Consumer<Object>> writeChunkHandlers = new ArrayList<>();
 
         public void writeChunk(Object o) {
             this.chunked = true;
             if (writeChunkHandlers.isEmpty()) {
                 throw new UnsupportedOperationException("Your HTTP server doesn't yet support chunked response stream");
             }
-            for (F.Action<Object> handler : writeChunkHandlers) {
-                handler.invoke(o);
+            for (Consumer<Object> handler : writeChunkHandlers) {
+                handler.accept(o);
             }
         }
 
-        public void onWriteChunk(F.Action<Object> handler) {
+        public void onWriteChunk(Consumer<Object> handler) {
             writeChunkHandlers.add(handler);
         }
     }

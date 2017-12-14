@@ -108,7 +108,7 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
                 try {
                     V result = Job.this.call();
                     if (smartFuture != null) {
-                        smartFuture.invoke(result);
+                        smartFuture.accept(result);
                     }
                     return result;
                 } catch (Exception e) {

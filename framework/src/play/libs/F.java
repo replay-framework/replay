@@ -2,9 +2,10 @@ package play.libs;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public class F {
-    public static class Promise<V> implements Future<V>, F.Action<V> {
+    public static class Promise<V> implements Future<V>, Consumer<V> {
 
         protected final CountDownLatch taskLock = new CountDownLatch(1);
         protected boolean cancelled;
@@ -46,13 +47,13 @@ public class F {
             }
             return result;
         }
-        protected List<F.Action<Promise<V>>> callbacks = new ArrayList<>();
+        protected List<Consumer<Promise<V>>> callbacks = new ArrayList<>();
         protected boolean invoked;
         protected V result;
         protected Throwable exception;
 
         @Override
-        public void invoke(V result) {
+        public void accept(V result) {
             invokeWithResultOrException(result, null);
         }
 
@@ -71,26 +72,10 @@ public class F {
                     return;
                 }
             }
-            for (F.Action<Promise<V>> callback : callbacks) {
-                callback.invoke(this);
+            for (Consumer<Promise<V>> callback : callbacks) {
+                callback.accept(this);
             }
         }
-
-        public void onRedeem(F.Action<Promise<V>> callback) {
-            synchronized (this) {
-                if (!invoked) {
-                    callbacks.add(callback);
-                }
-            }
-            if (invoked) {
-                callback.invoke(this);
-            }
-        }
-    }
-
-    public interface Action<T> {
-
-        void invoke(T result);
     }
 
     public abstract static class Option<T> implements Iterable<T> {

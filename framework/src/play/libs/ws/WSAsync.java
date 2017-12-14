@@ -447,7 +447,7 @@ public class WSAsync implements WSImpl {
                     @Override
                     public HttpResponse onCompleted(Response response) {
                         HttpResponse httpResponse = new HttpAsyncResponse(response);
-                        smartFuture.invoke(httpResponse);
+                        smartFuture.accept(httpResponse);
                         return httpResponse;
                     }
 
