@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <V>
  *            The job result type (if any)
  */
-public class Job<V> extends Invoker.Invocation implements Callable<V> {
+public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
 
     public static final String invocationType = "Job";
@@ -47,20 +47,11 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     }
 
     /**
-     * Here you do the job
-     */
-    public void doJob() throws Exception {
-    }
-
-    /**
      * Here you do the job and return a result
      * 
      * @return The job result
      */
-    public V doJobWithResult() throws Exception {
-        doJob();
-        return null;
-    }
+    public abstract V doJobWithResult() throws Exception;
 
     @Override
     public void execute() {
@@ -102,21 +93,18 @@ public class Job<V> extends Invoker.Invocation implements Callable<V> {
     }
 
     private Callable<V> getJobCallingCallable(final Promise<V> smartFuture) {
-        return new Callable<V>() {
-            @Override
-            public V call() throws Exception {
-                try {
-                    V result = Job.this.call();
-                    if (smartFuture != null) {
-                        smartFuture.accept(result);
-                    }
-                    return result;
-                } catch (Exception e) {
-                    if (smartFuture != null) {
-                        smartFuture.invokeWithException(e);
-                    }
-                    return null;
+        return () -> {
+            try {
+                V result = this.call();
+                if (smartFuture != null) {
+                    smartFuture.accept(result);
                 }
+                return result;
+            } catch (Exception e) {
+                if (smartFuture != null) {
+                    smartFuture.invokeWithException(e);
+                }
+                return null;
             }
         };
     }

@@ -25,7 +25,7 @@ public class JobsPlugin extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(JobsPlugin.class);
 
     public static ScheduledThreadPoolExecutor executor;
-    public static List<Job> scheduledJobs = new ArrayList<>();
+    public static List<Job<?>> scheduledJobs = new ArrayList<>();
 
     @Override
     public String getStatus() {
@@ -48,7 +48,7 @@ public class JobsPlugin extends PlayPlugin {
             out.println();
             out.println("Scheduled jobs (" + scheduledJobs.size() + "):");
             out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            for (Job job : scheduledJobs) {
+            for (Job<?> job : scheduledJobs) {
                 out.print(job);
                 if (job.getClass().isAnnotationPresent(OnApplicationStart.class)
                         && !(job.getClass().isAnnotationPresent(On.class) || job.getClass().isAnnotationPresent(Every.class))) {
@@ -121,47 +121,35 @@ public class JobsPlugin extends PlayPlugin {
                     }
                 } else {
                     // run job async
-                    try {
-                        Job<?> job = createJob(clazz);
-                        // start running job now in the background
-                        @SuppressWarnings("unchecked")
-                        Callable<Job> callable = (Callable<Job>) job;
-                        executor.submit(callable);
-                    } catch (InstantiationException | IllegalAccessException ex) {
-                        throw new UnexpectedException("Cannot instantiate Job " + clazz.getName(), ex);
-                    }
+                    Job<?> job = createJob(clazz);
+                    // start running job now in the background
+                    @SuppressWarnings("unchecked")
+                    Callable<Job> callable = (Callable<Job>) job;
+                    executor.submit(callable);
                 }
             }
 
             // @On
             if (clazz.isAnnotationPresent(On.class)) {
-                try {
-                    Job<?> job = createJob(clazz);
-                    scheduleForCRON(job);
-                } catch (InstantiationException | IllegalAccessException ex) {
-                    throw new UnexpectedException("Cannot instantiate Job " + clazz.getName(), ex);
-                }
+                Job<?> job = createJob(clazz);
+                scheduleForCRON(job);
             }
             // @Every
             if (clazz.isAnnotationPresent(Every.class)) {
-                try {
-                    Job job = createJob(clazz);
-                    String value = clazz.getAnnotation(Every.class).value();
-                    if (value.startsWith("cron.")) {
-                        value = Play.configuration.getProperty(value, "never");
-                    }
-                    value = Expression.evaluate(value, value).toString();
-                    if (!"never".equalsIgnoreCase(value)) {
-                        executor.scheduleWithFixedDelay(job, Time.parseDuration(value), Time.parseDuration(value), TimeUnit.SECONDS);
-                    }
-                } catch (InstantiationException | IllegalAccessException ex) {
-                    throw new UnexpectedException("Cannot instantiate Job " + clazz.getName(), ex);
+                Job job = createJob(clazz);
+                String value = clazz.getAnnotation(Every.class).value();
+                if (value.startsWith("cron.")) {
+                    value = Play.configuration.getProperty(value, "never");
+                }
+                value = Expression.evaluate(value, value).toString();
+                if (!"never".equalsIgnoreCase(value)) {
+                    executor.scheduleWithFixedDelay(job, Time.parseDuration(value), Time.parseDuration(value), TimeUnit.SECONDS);
                 }
             }
         }
     }
 
-    private Job<?> createJob(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+    private Job<?> createJob(Class<?> clazz) {
         Job<?> job = (Job<?>) Injector.getBeanOfType(clazz);
         if (!job.getClass().equals(clazz)) {
             throw new RuntimeException("Enhanced job are not allowed: " + clazz.getName() + " vs. " + job.getClass().getName());
@@ -220,7 +208,7 @@ public class JobsPlugin extends PlayPlugin {
 
         List<Class<? extends Job>> jobs = Play.classes.getAssignableClasses(Job.class);
 
-        for (Class clazz : jobs) {
+        for (Class<? extends Job> clazz : jobs) {
             // @OnApplicationStop
             if (clazz.isAnnotationPresent(OnApplicationStop.class)) {
                 try {

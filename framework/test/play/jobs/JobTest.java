@@ -66,5 +66,8 @@ public class JobTest {
   }
 
   @On("0 0 10 * * ?")
-  private static class TestJob extends Job<Void> {}
+  private static class TestJob extends SimpleJob {
+    @Override public void doJob() {
+    }
+  }
 }
