@@ -11,7 +11,7 @@ import play.PlayPlugin;
 import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
-import play.libs.F.Promise;
+import play.libs.Promise;
 import play.libs.SupplierWithException;
 import play.libs.Time;
 

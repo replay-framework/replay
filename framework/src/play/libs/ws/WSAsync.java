@@ -17,7 +17,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.libs.F.Promise;
+import play.libs.Promise;
 import play.libs.MimeTypes;
 import play.libs.OAuth.ServiceInfo;
 import play.libs.WS.HttpResponse;

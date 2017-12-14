@@ -9,7 +9,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import play.Play;
 import play.PlayPlugin;
-import play.libs.F.Promise;
 import play.libs.OAuth.ServiceInfo;
 import play.libs.ws.WSAsync;
 import play.libs.ws.WSUrlFetch;
