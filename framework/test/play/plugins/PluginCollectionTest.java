@@ -105,6 +105,7 @@ public class PluginCollectionTest {
 
     @Test
     public void reversedListOfPlugins_forEmptyList() {
+        Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/missing-file");
         PluginCollection pc = new PluginCollection();
         pc.loadPlugins();
 
