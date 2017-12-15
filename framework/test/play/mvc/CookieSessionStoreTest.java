@@ -7,9 +7,7 @@ import play.Play;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CookieSessionStoreTest {
   @Before
@@ -52,9 +50,6 @@ public class CookieSessionStoreTest {
 
     Http.Cookie sessionCookie = Http.Response.current().cookies.get(Scope.COOKIE_PREFIX + "_SESSION");
     assertNotNull(sessionCookie);
-    System.out.println("sessionCookie.value");
-    System.out.println(sessionCookie.value);
-    System.out.println("sessionCookie.value");
     assertTrue(sessionCookie.value.contains("username"));
     assertTrue(sessionCookie.value.contains("Bob"));
   }

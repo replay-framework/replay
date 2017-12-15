@@ -27,6 +27,8 @@ import java.util.Map;
  * All application Scopes
  */
 public class Scope {
+    static SessionDataEncoder encoder = new SessionDataEncoder();
+
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
@@ -64,16 +66,12 @@ public class Scope {
         Map<String, String> out = new HashMap<>();
 
         public static Flash restore() {
-            try {
-                Flash flash = new Flash();
-                Http.Cookie cookie = Http.Request.current().cookies.get(COOKIE_PREFIX + "_FLASH");
-                if (cookie != null) {
-                    CookieDataCodec.decode(flash.data, cookie.value);
-                }
-                return flash;
-            } catch (Exception e) {
-                throw new UnexpectedException("Flash corrupted", e);
+            Flash flash = new Flash();
+            Http.Cookie cookie = Http.Request.current().cookies.get(COOKIE_PREFIX + "_FLASH");
+            if (cookie != null) {
+                flash.data = encoder.decode(cookie.value);
             }
+            return flash;
         }
 
         void save() {
@@ -88,7 +86,7 @@ public class Scope {
                 return;
             }
             try {
-                String flashData = CookieDataCodec.encode(out);
+                String flashData = encoder.encode(out);
                 Http.Response.current().setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
