@@ -47,11 +47,13 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
   private static final int DEFAULT_IMAGE_CACHE_SIZE = 16;
   private static final Logger logger = LoggerFactory.getLogger(NaiveUserAgent.class);
 
+  private final FileSearcher fileSearcher;
+
   /**
    * a (simple) LRU cache
    */
-  protected LinkedHashMap<String, ImageResource> _imageCache;
-  private int _imageCacheCapacity;
+  private final LinkedHashMap<String, ImageResource> _imageCache;
+  private final int _imageCacheCapacity;
   private String _baseURL;
 
 
@@ -59,7 +61,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
    * Creates a new instance of NaiveUserAgent with a max image cache of 16 images.
    */
   public NaiveUserAgent() {
-    this(DEFAULT_IMAGE_CACHE_SIZE);
+    this(DEFAULT_IMAGE_CACHE_SIZE, new FileSearcher());
   }
 
   /**
@@ -68,6 +70,11 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
    * @param imgCacheSize Number of images to hold in cache before LRU images are released.
    */
   public NaiveUserAgent(final int imgCacheSize) {
+    this(imgCacheSize, new FileSearcher());
+  }
+
+  NaiveUserAgent(final int imgCacheSize, FileSearcher fileSearcher) {
+    this.fileSearcher = fileSearcher;
     this._imageCacheCapacity = imgCacheSize;
 
     // note we do *not* override removeEldestEntry() here--users of this class must call shrinkImageCache().
@@ -304,7 +311,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
     try {
       // try to find it in play
       String filePath = uri.replaceFirst("\\?.*", "");
-      VirtualFile file = Play.getVirtualFile(filePath);
+      VirtualFile file = fileSearcher.searchFor(filePath);
       logger.debug("Resolved uri {} to file {}", uri, file == null ? null : file.getRealFile().getAbsolutePath());
       if (file != null && file.exists())
         return file.getRealFile().getCanonicalFile().toURI().toURL().toExternalForm();

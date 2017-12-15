@@ -2,32 +2,39 @@ package org.xhtmlrenderer.swing;
 
 import org.junit.Before;
 import org.junit.Test;
-import play.Play;
+import play.vfs.VirtualFile;
 
-import static java.util.Arrays.asList;
+import java.io.File;
+import java.net.URI;
+
 import static org.junit.Assert.assertEquals;
-import static play.vfs.VirtualFile.fromRelativePath;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NaiveUserAgentTest {
 
-  private NaiveUserAgent naiveUserAgent = new NaiveUserAgent();
+  FileSearcher fileSearcher = mock(FileSearcher.class);
+  NaiveUserAgent naiveUserAgent = new NaiveUserAgent(16, fileSearcher);
 
   @Before
   public void setUp() {
-    Play.roots = asList(fromRelativePath("src"), fromRelativePath("test"), fromRelativePath("conf"));
     naiveUserAgent.setBaseURL("http://myserver.com");
   }
 
   @Test
-  public void resolveUrlToLocalFile() {
-    assertEquals("file:" + System.getProperty("user.dir") + "/test/org/xhtmlrenderer/swing/NaiveUserAgentTest.java",
-        naiveUserAgent.resolveURI("org/xhtmlrenderer/swing/NaiveUserAgentTest.java"));
+  public void resolveUrlToLocalFile() throws Exception {
+    URI uri = getClass().getResource("NaiveUserAgentTest.class").toURI();
+    when(fileSearcher.searchFor("org/blah/NaiveUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
+
+    assertEquals(uri.toURL().toString(), naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class"));
   }
 
   @Test
-  public void ignoresUrlParamsWhenResolvingToLocalFile() {
-    assertEquals("file:" + System.getProperty("user.dir") + "/org/xhtmlrenderer/swing/NaiveUserAgentTest.java",
-        naiveUserAgent.resolveURI("org/xhtmlrenderer/swing/NaiveUserAgentTest.java?123213231"));
+  public void ignoresUrlParamsWhenResolvingToLocalFile() throws Exception {
+    URI uri = getClass().getResource("NaiveUserAgentTest.class").toURI();
+    when(fileSearcher.searchFor("org/blah/NaiveUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
+
+    assertEquals(uri.toURL().toString(), naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class?123213231"));
   }
 
   @Test
