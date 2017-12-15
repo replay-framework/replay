@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 public class JobsPluginTest {
   JobsPlugin plugin = new JobsPlugin();
 
-  @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")
   @Test
   public void runScheduledJobOnceNow() {
     Job<?> job = mock(Job.class);
