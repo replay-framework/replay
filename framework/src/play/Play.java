@@ -3,9 +3,6 @@ package play;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
-import play.exceptions.PlayException;
-import play.exceptions.RestartNeededException;
-import play.exceptions.UnexpectedException;
 import play.libs.IO;
 import play.mvc.Http;
 import play.mvc.Router;
@@ -49,10 +46,6 @@ public class Play {
 
     public static boolean initialized;
     public static boolean started;
-    /**
-     * True when the one and only shutdown hook is enabled
-     */
-    private static boolean shutdownHookEnabled;
     public static String id = System.getProperty("play.id", "");
     public static Mode mode = Mode.DEV;
     public static File applicationPath = new File(System.getProperty("user.dir"));
@@ -109,7 +102,6 @@ public class Play {
      */
     public static Map<String, VirtualFile> modules = new HashMap<>(16);
 
-    static boolean firstStart = true;
     public static boolean usePrecompiled;
 
     /**
@@ -190,18 +182,6 @@ public class Play {
         }
 
         pluginCollection.loadPlugins();
-
-        if (mode == Mode.PROD) {
-            if (System.getProperty("precompile") == null) {
-                start();
-            } else {
-                return;
-            }
-        } else {
-            logger.warn("You're running Play! in DEV mode");
-        }
-
-        pluginCollection.onApplicationReady();
         Play.initialized = true;
     }
 
@@ -302,147 +282,91 @@ public class Play {
     }
 
     /**
-     * Start the application. Recall to restart !
+     * Start the application
+     *
+     * @throws IllegalArgumentException if the application is already started
      */
     public static synchronized void start() {
+        if (started) {
+            throw new IllegalArgumentException("Play is already started");
+        }
+
         try {
-
-            if (started) {
-                stop();
-            }
-
-            // Can only register shutdown-hook if running as standalone server
-            if (!shutdownHookEnabled) {
-                // registers shutdown hook - Now there's a good chance that we can notify
-                // our plugins that we're going down when some calls ctrl+c or just kills our process..
-                shutdownHookEnabled = true;
-                Thread hook = new Thread() {
-                    @Override
-                    public void run() {
-                        Play.stop();
-                    }
-                };
-                hook.setContextClassLoader(ClassLoader.getSystemClassLoader());
-                Runtime.getRuntime().addShutdownHook(hook);
-            }
-
-            // Reload configuration
+            registerShutdownHook();
             readConfiguration();
-
-            // Locales
-            langs = new ArrayList<>(Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
-            if (langs.size() == 1 && langs.get(0).trim().length() == 0) {
-                langs = new ArrayList<>(16);
-            }
-
-            // Clean templates
+            initLangs();
             TemplateLoader.cleanCompiledCache();
-
-            // SecretKey
-            secretKey = configuration.getProperty("application.secret", "").trim();
-            if (secretKey.length() == 0) {
-                logger.warn("No secret key defined. Sessions will not be encrypted");
-            }
-
-            // Default web encoding
-            String _defaultWebEncoding = configuration.getProperty("application.web_encoding");
-            if (_defaultWebEncoding != null) {
-                logger.info("Using custom default web encoding: {}", _defaultWebEncoding);
-                defaultWebEncoding = _defaultWebEncoding;
-                // Must update current response also, since the request/response triggering
-                // this configuration-loading in dev-mode have already been
-                // set up with the previous encoding
-                if (Http.Response.current() != null) {
-                    Http.Response.current().encoding = _defaultWebEncoding;
-                }
-            }
-
-            // Routes
+            initSecretKey();
+            initDefaultWebEncoding();
             Router.detectChanges();
-
-            // Cache
             Cache.init();
+            pluginCollection.onApplicationStart();
 
-            // Plugins
-            try {
-                pluginCollection.onApplicationStart();
-            } catch (Exception e) {
-                if (Play.mode.isProd()) {
-                    logger.error("Can't start in PROD mode with errors", e);
-                }
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new UnexpectedException(e);
-            }
-
-            if (firstStart) {
-                logger.info("Application '{}' is now started !", configuration.getProperty("application.name", ""));
-                firstStart = false;
-            }
-
-            // We made it
             started = true;
             startedAt = System.currentTimeMillis();
+            logger.info("Application '{}' is now started !", configuration.getProperty("application.name", ""));
 
-            // Plugins
             pluginCollection.afterApplicationStart();
-
-        } catch (PlayException e) {
+        } catch (RuntimeException e) {
+            Play.stop();
             started = false;
-            try {
-                Cache.stop();
-            } catch (Exception ignored) {
-            }
             throw e;
-        } catch (Exception e) {
-            started = false;
-            try {
-                Cache.stop();
-            } catch (Exception ignored) {
-            }
-            throw new UnexpectedException(e);
         }
     }
 
     /**
-     * Stop the application
+     * Can only register shutdown-hook if running as standalone server
+     * registers shutdown hook - Now there's a good chance that we can notify
+     * our plugins that we're going down when some calls ctrl+c or just kills our process..
      */
+    private static void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    }
+
+    private static void initLangs() {
+        langs = new ArrayList<>(Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
+        if (langs.size() == 1 && langs.get(0).trim().length() == 0) {
+            langs = new ArrayList<>(16);
+        }
+    }
+
+    private static void initSecretKey() {
+        secretKey = configuration.getProperty("application.secret", "").trim();
+        if (secretKey.isEmpty()) {
+            logger.warn("No secret key defined. Sessions will not be encrypted");
+        }
+    }
+
+    private static void initDefaultWebEncoding() {
+        String _defaultWebEncoding = configuration.getProperty("application.web_encoding");
+        if (_defaultWebEncoding != null) {
+            logger.info("Using custom default web encoding: {}", _defaultWebEncoding);
+            defaultWebEncoding = _defaultWebEncoding;
+            // Must update current response also, since the request/response triggering
+            // this configuration-loading in dev-mode have already been
+            // set up with the previous encoding
+            if (Http.Response.current() != null) {
+                Http.Response.current().encoding = _defaultWebEncoding;
+            }
+        }
+    }
+
     public static synchronized void stop() {
         if (started) {
-            logger.trace("Stopping the play application");
+            logger.info("Stopping the play application");
             pluginCollection.onApplicationStop();
             started = false;
             Cache.stop();
             Router.lastLoading = 0L;
         }
+        else {
+            logger.warn("Cannot stop because Play is not started");
+        }
     }
 
-    /**
-     * Detect sources modifications
-     */
     public static synchronized void detectChanges() {
-        if (mode == Mode.PROD) {
-            return;
-        }
-        try {
-            Router.detectChanges();
-            pluginCollection.detectChange();
-            if (!Play.started) {
-                throw new RestartNeededException("Not started");
-            }
-        } catch (PlayException e) {
-            throw e;
-        } catch (RestartNeededException e) {
-            if (started) {
-                if (e.getCause() != null && e.getCause() != e) {
-                    logger.info("Restart: " + e.getMessage() + ", caused by: " + e.getCause());
-                } else {
-                    logger.info("Restart: " + e.getMessage());
-                }
-            }
-            start();
-        }
+        Router.detectChanges();
+        pluginCollection.detectChange();
     }
 
     @SuppressWarnings("unchecked")

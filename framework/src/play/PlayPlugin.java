@@ -255,9 +255,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         Play.pluginCollection.onEvent(message, context);
     }
 
-    public void onApplicationReady() {
-    }
-
     @Override
     public int compareTo(PlayPlugin o) {
         int res = Integer.compare(index, o.index);

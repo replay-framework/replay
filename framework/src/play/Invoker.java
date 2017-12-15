@@ -161,12 +161,11 @@ public class Invoker {
          * @return true if successful
          */
         public boolean init() {
-            Play.detectChanges();
             if (!Play.started) {
-                if (Play.mode == Mode.PROD) {
-                    throw new UnexpectedException("Application is not started");
-                }
-                Play.start();
+                throw new IllegalStateException("Application is not started");
+            }
+            if (Play.mode.isDev()) {
+                Play.detectChanges();
             }
             InvocationContext.current.set(getInvocationContext());
             return true;

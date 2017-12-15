@@ -140,7 +140,12 @@ public abstract class Cache {
      * Stop the cache system.
      */
     public static void stop() {
-        cacheImpl.stop();
+        try {
+            cacheImpl.stop();
+        }
+        catch (Exception e) {
+            logger.error("Failed to stop the cache", e);
+        }
     }
 
     /**

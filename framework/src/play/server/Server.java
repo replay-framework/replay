@@ -97,7 +97,7 @@ public class Server {
         IO.write(pid.getBytes(), pidfile);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         File root = new File(System.getProperty("user.dir"));
         if (System.getProperty("precompiled", "false").equals("true")) {
             Play.usePrecompiled = true;
@@ -109,6 +109,7 @@ public class Server {
         Play.init(root, System.getProperty("play.id", ""));
 
         if (System.getProperty("precompile") == null) {
+            Play.start();
             new Server(args);
         } else {
             logger.info("Done.");

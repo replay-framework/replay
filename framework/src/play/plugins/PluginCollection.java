@@ -442,12 +442,6 @@ public class PluginCollection {
         }
     }
 
-    public void onApplicationReady() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.onApplicationReady();
-        }
-    }
-
     public void onConfigurationRead() {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.onConfigurationRead();
