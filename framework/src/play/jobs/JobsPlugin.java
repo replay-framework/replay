@@ -59,8 +59,8 @@ public class JobsPlugin extends PlayPlugin {
                 if (job.getClass().isAnnotationPresent(On.class)) {
 
                     String cron = job.getClass().getAnnotation(On.class).value();
-                    if (cron != null && cron.startsWith("cron.")) {
-                        cron = Play.configuration.getProperty(cron);
+                    if (cron.startsWith("cron.")) {
+                        cron = requireNotNull(Play.configuration.getProperty(cron), cron, job.getClass(), On.class);
                     }
                     out.print(" run with cron expression " + cron + ".");
                 }
@@ -139,7 +139,7 @@ public class JobsPlugin extends PlayPlugin {
                 Job job = createJob(clazz);
                 String value = clazz.getAnnotation(Every.class).value();
                 if (value.startsWith("cron.")) {
-                    value = Play.configuration.getProperty(value, "never");
+                    value = requireNotNull(Play.configuration.getProperty(value), value, clazz, Every.class);
                 }
                 value = Expression.evaluate(value, value).toString();
                 if (!"never".equalsIgnoreCase(value)) {
@@ -171,7 +171,7 @@ public class JobsPlugin extends PlayPlugin {
         }
         String cron = job.getClass().getAnnotation(On.class).value();
         if (cron.startsWith("cron.")) {
-            cron = Play.configuration.getProperty(cron);
+            cron = requireNotNull(Play.configuration.getProperty(cron), cron, job.getClass(), On.class);
         }
         cron = Expression.evaluate(cron, cron).toString();
         if (cron == null || cron.isEmpty() || "never".equalsIgnoreCase(cron)) {
@@ -276,5 +276,13 @@ public class JobsPlugin extends PlayPlugin {
     public static Future<?> runScheduledJobOnceNow(Job<?> job) {
         job.runOnce = true;
         return executor.submit((Callable<?>) job);
+    }
+
+    static String requireNotNull(String value, String cronSettingName, Class<?> clazz, Class<?> annotation) {
+        if (value == null) {
+            throw new IllegalArgumentException(String.format("Misconfigured setting '%s' in class '%s' annotation '@%s'",
+              cronSettingName, clazz.getName(), annotation.getSimpleName()));
+        }
+        return value;
     }
 }
