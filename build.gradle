@@ -14,6 +14,8 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'maven'
 
+  archivesBaseName = 'replay-' + project.name
+
   [compileJava, compileTestJava]*.options.collect {options -> options.encoding = 'UTF-8'}
   [compileJava, compileTestJava]*.options.collect {options -> options.debug = true}
   compileJava.options.debugOptions.debugLevel = "source,lines,vars"
@@ -77,8 +79,8 @@ subprojects {
 def fetchDependencies(destination, dependencies) {
   delete destination
   new File(destination).mkdirs()
-  dependencies.grep{it.name.endsWith(".jar")}.toSet().each {
-    Files.createSymbolicLink(Paths.get("${destination}/${it.name}"), Paths.get(it.path));
+  dependencies.grep{it.name.endsWith(".jar")}.grep{!it.name.contains("replay-")}.toSet().each {
+      Files.createSymbolicLink(Paths.get("${destination}/${it.name}"), Paths.get(it.path));
   }
 }
 
