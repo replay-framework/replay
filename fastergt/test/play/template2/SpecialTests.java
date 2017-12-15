@@ -6,7 +6,7 @@ import play.template2.exceptions.GTRuntimeExceptionWithSourceInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SpecialTests {
     @Test

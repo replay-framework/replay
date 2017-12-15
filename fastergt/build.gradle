@@ -2,7 +2,4 @@ dependencies {
   compile project(':framework')
   compile('org.eclipse.jdt:org.eclipse.jdt.core:3.13.0') {transitive = false}
   testCompile project(':framework').sourceSets.test.compileClasspath
-
-  testCompile('org.easytesting:fest-assert:1.4')
-  testCompile('com.novocode:junit-interface:0.11')
 }

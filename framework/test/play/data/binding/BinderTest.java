@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static java.math.BigDecimal.TEN;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 

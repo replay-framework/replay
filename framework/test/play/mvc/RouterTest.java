@@ -8,7 +8,7 @@ import play.mvc.results.RenderStatic;
 
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

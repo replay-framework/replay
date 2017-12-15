@@ -1,6 +1,5 @@
 dependencies {
   compile project(':framework')
   compile('com.google.guava:guava:23.0')
-  testCompile('org.assertj:assertj-core:3.8.0')
   testCompile project(':framework').sourceSets.test.compileClasspath
 }

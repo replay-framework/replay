@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 public class RendererTest {
   TimeZone originalTimeZone = TimeZone.getDefault();
@@ -26,7 +26,7 @@ public class RendererTest {
     Date dateTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(("11.07.2013 05:50:13"));
     try {
       new Renderer().json(dateTime);
-      fail();
+      fail("expected RenderJson");
     }
     catch (RenderJson json) {
       assertThat(json.getJson()).isEqualTo("\"2013-07-11T05:50:13\"");

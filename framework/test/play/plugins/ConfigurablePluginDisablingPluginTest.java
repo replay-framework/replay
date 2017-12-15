@@ -6,54 +6,43 @@ import play.Play;
 import play.PlayBuilder;
 import play.PlayPlugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Created by IntelliJ IDEA.
- * User: mortenkjetland
- * Date: 3/2/11
- * Time: 9:02 PM
- * To change this template use File | Settings | File Templates.
- */
 public class ConfigurablePluginDisablingPluginTest {
 
     @Before
     public void before(){
-        //each test must begin with empty memory..
         ConfigurablePluginDisablingPlugin.previousDisabledPlugins.clear();
     }
 
 
     @Test
-    public void verify_without_config() throws Exception {
+    public void verify_without_config() {
 
         Properties config = new Properties();
-        config.put("some.setting", "some value");
+        config.setProperty("some.setting", "some value");
 
         PluginCollection pc = new PluginCollection();
         TestPlugin p = new TestPlugin();
         pc.addPlugin( p );
 
-        internalTest(config, pc, Arrays.asList(p));
+        internalTest(config, pc, p);
         
     }
 
-    private void internalTest(Properties config, PluginCollection pc, List<? extends PlayPlugin> correctPluginListAfter) {
+    private void internalTest(Properties config, PluginCollection pc, PlayPlugin... correctPluginListAfter) {
         Play.configuration = config;
         Play.pluginCollection = pc;
         ConfigurablePluginDisablingPlugin plugin = new ConfigurablePluginDisablingPlugin();
         plugin.onConfigurationRead();
 
-        assertThat(pc.getEnabledPlugins()).containsOnly(correctPluginListAfter.toArray());
+        assertThat(pc.getEnabledPlugins()).containsOnly(correctPluginListAfter);
     }
 
     @Test
-    public void verify_disableing_plugins() throws Exception {
+    public void verify_disabling_plugins() {
 
 
         PluginCollection pc = new PluginCollection();
@@ -64,15 +53,15 @@ public class ConfigurablePluginDisablingPluginTest {
 
 
         Properties config = new Properties();
-        config.put("some.setting", "some value");
-        config.put("plugins.disable", "play.plugins.TestPlugin");
+        config.setProperty("some.setting", "some value");
+        config.setProperty("plugins.disable", "play.plugins.TestPlugin");
 
-        internalTest(config, pc, Arrays.asList(p2));
+        internalTest(config, pc, p2);
 
     }
 
     @Test
-    public void verify_disableing_many_plugins() throws Exception {
+    public void verify_disableing_many_plugins() {
 
 
         PluginCollection pc = new PluginCollection();
@@ -83,17 +72,17 @@ public class ConfigurablePluginDisablingPluginTest {
 
 
         Properties config = new Properties();
-        config.put("some.setting", "some value");
-        config.put("plugins.disable", "play.plugins.TestPlugin");
-        config.put("plugins.disable.2", "play.plugins.TestPlugin2");
+        config.setProperty("some.setting", "some value");
+        config.setProperty("plugins.disable", "play.plugins.TestPlugin");
+        config.setProperty("plugins.disable.2", "play.plugins.TestPlugin2");
 
-        internalTest(config, pc, new ArrayList<PlayPlugin>());
+        internalTest(config, pc);
 
     }
 
 
     @Test
-    public void verify_disableing_missing_plugins() throws Exception {
+    public void verify_disableing_missing_plugins() {
 
         PluginCollection pc = new PluginCollection();
         TestPlugin p = new TestPlugin();
@@ -103,15 +92,15 @@ public class ConfigurablePluginDisablingPluginTest {
 
 
         Properties config = new Properties();
-        config.put("some.setting", "some value");
-        config.put("plugins.disable", "play.plugins.TestPlugin_XX");
+        config.setProperty("some.setting", "some value");
+        config.setProperty("plugins.disable", "play.plugins.TestPlugin_XX");
 
-        internalTest(config, pc, Arrays.asList(p,p2));
+        internalTest(config, pc, p, p2);
 
     }
 
     @Test
-    public void verify_reenabling_disabled_plugins() throws Exception {
+    public void verify_re_enabling_disabled_plugins() {
 
 
         PluginCollection pc = new PluginCollection();
@@ -122,16 +111,16 @@ public class ConfigurablePluginDisablingPluginTest {
 
 
         Properties config = new Properties();
-        config.put("some.setting", "some value");
-        config.put("plugins.disable", "play.plugins.TestPlugin");
+        config.setProperty("some.setting", "some value");
+        config.setProperty("plugins.disable", "play.plugins.TestPlugin");
 
-        internalTest(config, pc, Arrays.asList(p2));
+        internalTest(config, pc, p2);
 
         //remove the disabling from config
         config = new Properties();
-        config.put("some.setting", "some value");
+        config.setProperty("some.setting", "some value");
 
-        internalTest(config, pc, Arrays.asList(p,p2));
+        internalTest(config, pc, p, p2);
 
     }
 
@@ -155,7 +144,6 @@ class TestPlugin extends PlayPlugin {
 }
 
 class TestPlugin2 extends PlayPlugin {
-
     //included constructor on purpose
     public TestPlugin2() {
     }
