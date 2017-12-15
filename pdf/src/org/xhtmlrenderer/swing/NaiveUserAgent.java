@@ -52,7 +52,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
   /**
    * a (simple) LRU cache
    */
-  private final LinkedHashMap<String, ImageResource> _imageCache;
+  protected final LinkedHashMap<String, ImageResource> _imageCache;
   private final int _imageCacheCapacity;
   private String _baseURL;
 

@@ -7,6 +7,7 @@ import play.vfs.VirtualFile;
 import java.io.File;
 import java.net.URI;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,5 +41,12 @@ public class NaiveUserAgentTest {
   @Test
   public void resolvesToExternalUrlIfLocalFileNotFound() {
     assertEquals("http://myserver.com/favicon.ico", naiveUserAgent.resolveURI("/favicon.ico"));
+  }
+
+  @Test
+  public void _imageCache_shouldNotBePrivate() {
+    assertThat(naiveUserAgent._imageCache)
+      .as("it's directly accessed by ITextUserAgent.java:69")
+      .isNotNull();
   }
 }
