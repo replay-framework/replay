@@ -1,13 +1,11 @@
 package play.libs;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 public class Promise<V> implements Future<V>, Consumer<V> {
 
-    protected final CountDownLatch taskLock = new CountDownLatch(1);
+    private final CountDownLatch taskLock = new CountDownLatch(1);
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -44,7 +42,6 @@ public class Promise<V> implements Future<V>, Consumer<V> {
         }
         return result;
     }
-    protected List<Consumer<Promise<V>>> callbacks = new ArrayList<>();
     protected boolean invoked;
     protected V result;
     protected Throwable exception;
@@ -65,12 +62,7 @@ public class Promise<V> implements Future<V>, Consumer<V> {
                 this.result = result;
                 this.exception = t;
                 taskLock.countDown();
-            } else {
-                return;
             }
-        }
-        for (Consumer<Promise<V>> callback : callbacks) {
-            callback.accept(this);
         }
     }
 }
