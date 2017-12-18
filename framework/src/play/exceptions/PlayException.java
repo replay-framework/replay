@@ -55,8 +55,4 @@ public abstract class PlayException extends RuntimeException {
         }
         return null;
     }
-
-    public String getMoreHTML() {
-        return null;
-    }
 }
