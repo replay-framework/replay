@@ -1,6 +1,7 @@
 package play.utils;
 
 import org.junit.Test;
+import play.mvc.Http;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,5 +38,13 @@ public class HTTPTest {
         HTTP.ContentTypeWithEncoding defaultContentType = HTTP.parseContentType(null);
         assertThat(defaultContentType.encoding).isEqualTo(null);
         assertThat(defaultContentType.contentType).isEqualTo("text/html");
+    }
+
+    @Test @SuppressWarnings("deprecation")
+    public void setHeader() {
+        Http.Request request = new Http.Request();
+        request.setHeader("X-Forwared-For", "127.0.0.1");
+
+        assertThat(request.headers.get("x-forwared-for").value()).isEqualTo("127.0.0.1");
     }
 }

@@ -618,6 +618,11 @@ public class Http {
         public void setCookie(String key, String value) {
             cookies.put(key, new Http.Cookie(key, value));
         }
+
+        public void setHeader(String key, String value) {
+            key = key.toLowerCase();
+            headers.put(key, new Http.Header(key, value));
+        }
     }
 
     /**
