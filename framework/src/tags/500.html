@@ -105,12 +105,6 @@
         <h2>In ${exception.sourceFile} (around line ${exception.lineNumber})</h2>
     </div>
     #{/if}
-	%{ moreHtml = exception.moreHTML }%
-	#{if moreHtml}
-		<div id="specific" class="block">
-			${moreHtml.raw()}
-		</div>
-	#{/if}
     <div id="more" class="block">
         This exception has been logged with id <strong>${exception.id}</strong>
     </div>
