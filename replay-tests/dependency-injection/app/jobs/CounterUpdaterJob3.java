@@ -1,14 +1,13 @@
 package jobs;
 
-import play.jobs.Job;
 import play.jobs.On;
-import play.jobs.OnApplicationStart;
+import play.jobs.SimpleJob;
 import services.Counter;
 
 import javax.inject.Inject;
 
 @On("cron.counterUpdater")
-public class CounterUpdaterJob3 extends Job<Void> {
+public class CounterUpdaterJob3 extends SimpleJob {
   @Inject
   private Counter counter;
 

@@ -1,14 +1,13 @@
 package jobs;
 
 import play.jobs.Every;
-import play.jobs.Job;
-import play.jobs.On;
+import play.jobs.SimpleJob;
 import services.Counter;
 
 import javax.inject.Inject;
 
 @Every("1s")
-public class CounterUpdaterJob extends Job<Void> {
+public class CounterUpdaterJob extends SimpleJob {
   @Inject
   private Counter counter;
 
