@@ -1,15 +1,4 @@
-#{if exception instanceof play.exceptions.PlayException}
-${exception.errorTitle} 
-${exception.errorDescription.replace('<strong>', '').replace('</strong>', '')}
- 
-#{if exception.lineNumber && play.Play.mode.name() == 'DEV'}
-----------
-In ${exception.sourceFile} (around line ${exception.lineNumber})
-
-#{/if}
- 
-This exception has been logged with id ${exception.id}
-#{/if}
-#{else}
 ${exception.message}
-#{/else}
+#{if exception instanceof play.exceptions.PlayException}
+  This error code is ${exception.id}
+#{/if}

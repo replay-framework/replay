@@ -3,17 +3,12 @@ package play.modules.gtengineplugin;
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import play.Play;
-import play.exceptions.JavaExecutionException;
-import play.exceptions.TemplateCompilationException;
-import play.exceptions.TemplateExecutionException;
-import play.exceptions.TemplateNotFoundException;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.template2.GTJavaBase;
 import play.template2.GTRenderingResult;
 import play.template2.GTTemplateLocation;
-import play.template2.exceptions.*;
 import play.templates.Template;
 
 import java.io.ByteArrayOutputStream;
@@ -79,43 +74,15 @@ public class GTTemplate extends Template {
     }
 
     protected GTRenderingResult renderGTTemplate(Map<String, Object> args) {
-
+        GTJavaBase gtTemplate = getGTTemplateInstance();
+        Monitor monitor = MonitorFactory.start(this.name);
         try {
-
-            GTJavaBase gtTemplate = getGTTemplateInstance();
-            Monitor monitor = MonitorFactory.start(this.name);
-            try {
-                gtTemplate.renderTemplate(args);
-            } finally {
-                monitor.stop();
-            }
+            gtTemplate.renderTemplate(args);
             return gtTemplate;
-
-        } catch ( GTTemplateNotFoundWithSourceInfo e) {
-            GTTemplate t = new GTTemplate(e.templateLocation);
-            t.loadSource();
-            throw new TemplateNotFoundException(e.queryPath, t, e.lineNo);
-        } catch (GTCompilationExceptionWithSourceInfo e) {
-            GTTemplate t = new GTTemplate(e.templateLocation);
-            t.loadSource();
-            throw new TemplateCompilationException( t, e.oneBasedLineNo, e.specialMessage, e);
-        } catch (GTRuntimeExceptionWithSourceInfo e){
-            GTTemplate t = new GTTemplate(e.templateLocation);
-            t.loadSource();
-            Throwable cause = e.getCause();
-            throw new TemplateExecutionException( t, e.lineNo, cause.getMessage(), cause);
-        } catch ( GTRuntimeException e) {
-            Throwable cause = e.getCause();
-            this.loadSource();
-            if (cause != null) {
-                throw new TemplateExecutionException(this, 0, cause.getMessage(), cause);
-            } else {
-                throw new TemplateExecutionException(this, 0, e.getMessage(), e);
-            }
-        } catch (GTAppClassException e) {
-            throw new JavaExecutionException(e.lineNo, e.getCause());
         }
-
+        finally {
+            monitor.stop();
+        }
     }
 
     @Override

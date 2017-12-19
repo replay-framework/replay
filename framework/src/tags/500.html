@@ -26,92 +26,17 @@
     #header {
         background: #fcd2da;
     }
-    #header p {
-        color: #333;
-    }
-    #source {
-        background: #f6f6f6;
-    }
-    #source h2 {
-        font-weight: normal;
-        font-size: 18px;
-        margin: 0 0 10px 0;
-    }
-    #source .lineNumber {
-        float: left;
-        display: block;
-        width: 40px;
-        text-align: right;
-        margin-right: 10px;
-        font-size: 14px;
-        font-family: monospace;
-        background: #333;
-        color: #fff;
-    }
-    #source .line {
-        clear: both;
-        color: #333;
-        margin-bottom: 1px;
-    }
-    #source pre {
-        font-size: 14px;
-        margin: 0;
-        overflow-x: hidden;
-    }
-    #source .error {
-        color: #c00 !important;
-    }
-    #source .error .lineNumber {
-        background: #c00;
-    }
-    #source a {
-        text-decoration: none;
-    }
-    #source a:hover * {
-        cursor: pointer !important;
-    }
-    #source a:hover pre {
-        background: #FAFFCF !important;
-    }
-	#source em {
-		font-style: normal;
-		text-decoration: underline;
-		font-weight: bold;
-	}
-	#source strong {
-		font-style: normal;
-		font-weight: bold;
-	}
 </style>
 
+<div id="header" class="block">
+    <h1>
+        ${exception?.message}
+    </h1>
+</div>
+
 #{if exception instanceof play.exceptions.PlayException}
-    <div id="header" class="block">
-        <h1>
-            ${exception.errorTitle} 
-        </h1>
-        #{if play.Play.mode.name() == 'DEV'}
-        <p>
-            ${exception.errorDescription.raw()}
-        </p>
-        #{/if}
-        #{if play.Play.mode.name() == 'PROD'}
-        <p>
-            Error details are not displayed when Play! is in PROD mode. Check server logs for detail.
-        </p>
-        #{/if}
-    </div>
-    #{if exception.lineNumber && play.Play.mode.name() == 'DEV'}
-    <div id="source" class="block">
-        <h2>In ${exception.sourceFile} (around line ${exception.lineNumber})</h2>
-    </div>
-    #{/if}
     <div id="more" class="block">
-        This exception has been logged with id <strong>${exception.id}</strong>
+        This error code is <strong>${exception.id}</strong>
     </div>
 #{/if}
-#{else}
-    <div id="header" class="block">
-        <h1>${exception?.message}</h1>
-    </div>
-#{/else}
 

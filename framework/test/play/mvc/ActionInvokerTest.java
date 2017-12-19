@@ -2,11 +2,8 @@ package play.mvc;
 
 import org.junit.Before;
 import org.junit.Test;
-import play.Play;
 import play.PlayBuilder;
-import play.classloading.ApplicationClasses;
 import play.data.binding.CachedBoundActionMethodArgs;
-import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.mvc.results.Forbidden;
@@ -16,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static play.mvc.ActionInvokerTest.TestInterceptor.aftersCounter;
 import static play.mvc.ActionInvokerTest.TestInterceptor.beforesCounter;
 
@@ -121,25 +117,6 @@ public class ActionInvokerTest {
         }
         catch (Result e) {
             assertEquals(result, e);
-        }
-    }
-
-    @Test
-    public void invocationWrapsOtherExceptionsIntoJavaExecutionException() throws Exception {
-        Exception exception = new Exception("any");
-
-        class AController extends Controller {
-            public void action() throws Exception {
-                throw exception;
-            }
-        }
-
-        try {
-            ActionInvoker.invoke(AController.class.getMethod("action"), new AController());
-            fail();
-        }
-        catch (JavaExecutionException e) {
-            assertEquals(exception, e.getCause());
         }
     }
 

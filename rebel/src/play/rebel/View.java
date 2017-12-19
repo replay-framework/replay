@@ -49,7 +49,7 @@ public class View extends Result {
     try {
       renderView(response);
     }
-    catch (Exception e) {
+    catch (IOException e) {
       throw new UnexpectedException(e);
     }
     finally {

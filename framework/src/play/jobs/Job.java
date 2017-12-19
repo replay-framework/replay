@@ -8,7 +8,6 @@ import play.Invoker;
 import play.Invoker.InvocationContext;
 import play.Play;
 import play.PlayPlugin;
-import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.libs.Promise;
@@ -173,35 +172,25 @@ public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
                 before();
                 V result;
 
-                try {
-                    lastException = null;
-                    lastRun = System.currentTimeMillis();
-                    monitor = MonitorFactory.start(this + ".doJob()");
+                lastException = null;
+                lastRun = System.currentTimeMillis();
+                monitor = MonitorFactory.start(this + ".doJob()");
 
-                    // If we have a plugin, get him to execute the job within the filter.
-                    final AtomicBoolean executed = new AtomicBoolean(false);
-                    result = this.withinFilter(() -> {
-                        executed.set(true);
-                        return doJobWithResult();
-                    });
+                // If we have a plugin, get him to execute the job within the filter.
+                final AtomicBoolean executed = new AtomicBoolean(false);
+                result = this.withinFilter(() -> {
+                    executed.set(true);
+                    return doJobWithResult();
+                });
 
-                    // No filter function found => we need to execute anyway( as before the use of withinFilter )
-                    if (!executed.get()) {
-                        result = doJobWithResult();
-                    }
-
-                    monitor.stop();
-                    monitor = null;
-                    wasError = false;
-                } catch (PlayException e) {
-                    throw e;
-                } catch (Exception e) {
-                    StackTraceElement element = PlayException.getInterestingStackTraceElement(e);
-                    if (element != null) {
-                        throw new JavaExecutionException(element.getLineNumber(), e);
-                    }
-                    throw e;
+                // No filter function found => we need to execute anyway( as before the use of withinFilter )
+                if (!executed.get()) {
+                    result = doJobWithResult();
                 }
+
+                monitor.stop();
+                monitor = null;
+                wasError = false;
                 after();
                 return result;
             }

@@ -13,7 +13,6 @@ import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
 import play.data.parsing.UrlEncodedParser;
 import play.exceptions.ActionNotFoundException;
-import play.exceptions.JavaExecutionException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
@@ -74,7 +73,7 @@ public class ActionInvoker {
             request.resolved = true;
 
         } catch (ActionNotFoundException e) {
-            logger.error("{} action not found", e.getAction(), e);
+            logger.error(e.getMessage(), e);
             throw new NotFound(String.format("%s action not found", e.getAction()));
         }
 
@@ -140,8 +139,8 @@ public class ActionInvoker {
                 if (cacheKey != null) {
                     Cache.set(cacheKey, actionResult, actionMethod.getAnnotation(CacheFor.class).value());
                 }
-            } catch (JavaExecutionException e) {
-                invokeControllerCatchMethods(e.getCause());
+            } catch (Exception e) {
+                invokeControllerCatchMethods(e);
                 throw e;
             }
 
@@ -173,10 +172,7 @@ public class ActionInvoker {
             // @Finally
             handleFinallies(request, null);
 
-        } catch (JavaExecutionException e) {
-            handleFinallies(request, e.getCause());
-            throw e;
-        } catch (PlayException e) {
+        } catch (RuntimeException e) {
             handleFinallies(request, e);
             throw e;
         } catch (Throwable e) {
@@ -429,14 +425,12 @@ public class ActionInvoker {
         } catch (InvocationTargetException ex) {
             Throwable originalThrowable = ex.getTargetException();
 
-            if (originalThrowable instanceof Result || originalThrowable instanceof PlayException)
+            if (originalThrowable instanceof Exception)
                 throw (Exception) originalThrowable;
+            if (originalThrowable instanceof RuntimeException)
+                throw (RuntimeException) originalThrowable;
 
-            StackTraceElement element = PlayException.getInterestingStackTraceElement(originalThrowable);
-            if (element != null) {
-                throw new JavaExecutionException(element.getLineNumber(), originalThrowable);
-            }
-            throw new JavaExecutionException(originalThrowable);
+            throw new PlayException(originalThrowable);
         }
     }
 

@@ -349,7 +349,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
         }
 
-        throw new GTTemplateRuntimeException("Cannot convert object-reference to Iterator");
+        throw new GTTemplateRuntimeException("Cannot convert object-reference to Iterator: " + o);
     }
 
     /**

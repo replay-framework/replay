@@ -8,7 +8,7 @@ import play.cache.Cache;
 import play.data.validation.Error;
 import play.data.validation.Validation;
 import play.exceptions.TagInternalException;
-import play.exceptions.TemplateExecutionException;
+import play.exceptions.TemplateException;
 import play.exceptions.TemplateNotFoundException;
 import play.libs.Codec;
 import play.mvc.Http;
@@ -75,7 +75,7 @@ public class FastTags {
     public static void _jsRoute(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         Object arg = args.get("arg");
         if (!(arg instanceof ActionDefinition)) {
-            throw new TemplateExecutionException(template.template, fromLine,
+            throw new TemplateException(template.template, fromLine,
                     "Wrong parameter type, try #{jsRoute @Application.index() /}", new TagInternalException("Wrong parameter type"));
         }
         ActionDefinition action = (ActionDefinition) arg;
@@ -258,8 +258,7 @@ public class FastTags {
 
     public static void _ifError(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         if (args.get("arg") == null) {
-            throw new TemplateExecutionException(template.template, fromLine, "Please specify the error key", new TagInternalException(
-                    "Please specify the error key"));
+            throw new TemplateException(template.template, fromLine, "Please specify the error key");
         }
         if (Validation.hasError(args.get("arg").toString())) {
             body.call();
@@ -271,8 +270,7 @@ public class FastTags {
 
     public static void _errorClass(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         if (args.get("arg") == null) {
-            throw new TemplateExecutionException(template.template, fromLine, "Please specify the error key", new TagInternalException(
-                    "Please specify the error key"));
+            throw new TemplateException(template.template, fromLine, "Please specify the error key");
         }
         if (Validation.hasError(args.get("arg").toString())) {
             out.print("hasError");
@@ -281,8 +279,7 @@ public class FastTags {
 
     public static void _error(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         if (args.get("arg") == null && args.get("key") == null) {
-            throw new TemplateExecutionException(template.template, fromLine, "Please specify the error key", new TagInternalException(
-                    "Please specify the error key"));
+            throw new TemplateException(template.template, fromLine, "Please specify the error key");
         }
         String key = args.get("arg") == null ? args.get("key") + "" : args.get("arg") + "";
         Error error = Validation.error(key);
@@ -331,8 +328,7 @@ public class FastTags {
     public static void _get(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         Object name = args.get("arg");
         if (name == null) {
-            throw new TemplateExecutionException(template.template, fromLine, "Specify a variable name", new TagInternalException(
-                    "Specify a variable name"));
+            throw new TemplateException(template.template, fromLine, "Specify a variable name");
         }
         Object value = BaseTemplate.layoutData.get().get(name);
         if (value != null) {
@@ -371,8 +367,7 @@ public class FastTags {
     public static void _extends(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         try {
             if (!args.containsKey("arg") || args.get("arg") == null) {
-                throw new TemplateExecutionException(template.template, fromLine, "Specify a template name", new TagInternalException(
-                        "Specify a template name"));
+                throw new TemplateException(template.template, fromLine, "Specify a template name");
             }
             String name = args.get("arg").toString();
             if (name.startsWith("./")) {
@@ -393,8 +388,7 @@ public class FastTags {
     public static void _include(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         try {
             if (!args.containsKey("arg") || args.get("arg") == null) {
-                throw new TemplateExecutionException(template.template, fromLine, "Specify a template name", new TagInternalException(
-                        "Specify a template name"));
+                throw new TemplateException(template.template, fromLine, "Specify a template name");
             }
             String name = args.get("arg").toString();
             if (name.startsWith("./")) {
@@ -419,8 +413,7 @@ public class FastTags {
     public static void _render(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         try {
             if (!args.containsKey("arg") || args.get("arg") == null) {
-                throw new TemplateExecutionException(template.template, fromLine, "Specify a template name", new TagInternalException(
-                        "Specify a template name"));
+                throw new TemplateException(template.template, fromLine, "Specify a template name");
             }
             String name = args.get("arg").toString();
             if (name.startsWith("./")) {

@@ -82,7 +82,7 @@ public class JPA {
     public static EntityManager newEntityManager(String key) {
         JPAPlugin jpaPlugin = Play.plugin(JPAPlugin.class);
         if (jpaPlugin == null) {
-            throw new JPAException("No JPA Plugin.");
+            throw new JPAException("No JPA Plugin");
         }
 
         EntityManager em = jpaPlugin.em(key);
@@ -367,21 +367,7 @@ public class JPA {
                     if (JPA.get().get(name).readonly || manager.getTransaction().getRollbackOnly()) {
                         manager.getTransaction().rollback();
                     } else {
-                        try {
-                            manager.getTransaction().commit();
-                        } catch (Throwable e) {
-                            for (int i = 0; i < 10; i++) {
-                                if (e instanceof PersistenceException && e.getCause() != null) {
-                                    e = e.getCause();
-                                    break;
-                                }
-                                e = e.getCause();
-                                if (e == null) {
-                                    break;
-                                }
-                            }
-                            throw new JPAException("Cannot commit", e);
-                        }
+                        manager.getTransaction().commit();
                     }
                 }
             } finally {
@@ -404,23 +390,8 @@ public class JPA {
                 } catch (Exception e) {
                     logger.error("Why the driver complains here?", e);
                 }
-                // Commit the transaction
                 if (manager.getTransaction().isActive()) {
-                    try {
-                        manager.getTransaction().rollback();
-                    } catch (Throwable e) {
-                        for (int i = 0; i < 10; i++) {
-                            if (e instanceof PersistenceException && e.getCause() != null) {
-                                e = e.getCause();
-                                break;
-                            }
-                            e = e.getCause();
-                            if (e == null) {
-                                break;
-                            }
-                        }
-                        throw new JPAException("Cannot commit", e);
-                    }
+                    manager.getTransaction().rollback();
                 }
 
             } finally {

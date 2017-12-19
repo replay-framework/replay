@@ -41,18 +41,18 @@ public abstract class ExecutableTemplate extends Script {
         String templateName = tag.replace(".", "/");
         String callerExtension = (extension != null) ? extension : "tag";
 
-        BaseTemplate tagTemplate = null;
+        BaseTemplate tagTemplate;
         try {
             tagTemplate = (BaseTemplate) TemplateLoader.load("tags/" + templateName + "." + callerExtension);
         } catch (TemplateNotFoundException e) {
             try {
                 tagTemplate = (BaseTemplate) TemplateLoader.load("tags/" + templateName + ".tag");
             } catch (TemplateNotFoundException ex) {
-                if (callerExtension.equals("tag")) {
-                    throw new TemplateNotFoundException("tags/" + templateName + ".tag", template, fromLine);
+                if ("tag".equals(callerExtension)) {
+                    throw new TemplateNotFoundException(String.format("tags/%s.tag", templateName), template, fromLine);
                 }
                 throw new TemplateNotFoundException(
-                        "tags/" + templateName + "." + callerExtension + " or tags/" + templateName + ".tag", template, fromLine);
+                        String.format("tags/%s.%s or tags/%s.tag", templateName, callerExtension, templateName), template, fromLine);
             }
         }
         TagContext.enterTag(tag);
@@ -77,7 +77,7 @@ public abstract class ExecutableTemplate extends Script {
         try {
             tagTemplate.internalRender(args);
         } catch (TagInternalException e) {
-            throw new TemplateExecutionException(template, fromLine, e.getMessage(), template.cleanStackTrace(e));
+            throw new TemplateException(template, fromLine, e.getMessage(), e);
         } catch (TemplateNotFoundException e) {
             throw new TemplateNotFoundException(e.getPath(), template, fromLine);
         }

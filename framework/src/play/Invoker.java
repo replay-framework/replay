@@ -202,8 +202,8 @@ public class Invoker {
          */
         public void onException(Throwable e) {
             Play.pluginCollection.onInvocationException(e);
-            if (e instanceof PlayException) {
-                throw (PlayException) e;
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
             }
             throw new UnexpectedException(e);
         }

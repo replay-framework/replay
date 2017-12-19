@@ -3,7 +3,6 @@ package play.templates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.exceptions.TemplateCompilationException;
 import play.exceptions.TemplateNotFoundException;
 import play.vfs.VirtualFile;
 
@@ -169,13 +168,8 @@ public class TemplateLoader {
             long start = System.currentTimeMillis();
             Template template = load(current);
             if (template != null) {
-                try {
-                    template.compile();
-                    logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
-                } catch (TemplateCompilationException e) {
-                    logger.error("Template {} does not compile at line {}", e.getTemplate().name, e.getLineNumber());
-                    throw e;
-                }
+                template.compile();
+                logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
                 templates.add(template);
             }
         } else if (current.isDirectory() && !current.getName().startsWith(".")) {

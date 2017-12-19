@@ -818,7 +818,7 @@ public class WS extends PlayPlugin {
                 return new JsonParser().parse(json);
             } catch (Exception e) {
                 logger.error("Bad JSON: \n{}", json);
-                throw new RuntimeException("Cannot parse JSON (check logs)", e);
+                throw new RuntimeException("Cannot parse JSON", e);
             }
         }
 

@@ -22,7 +22,6 @@ import play.Invoker.InvocationContext;
 import play.Play;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.validation.Validation;
-import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
 import play.libs.MimeTypes;
@@ -683,8 +682,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         String encoding = response.encoding;
 
         try {
-            if (!(e instanceof PlayException)) {
-                e = new play.exceptions.UnexpectedException(e);
+            if (!(e instanceof RuntimeException)) {
+                e = new UnexpectedException(e);
             }
 
             // Flush some cookies
@@ -732,8 +731,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
                 logger.error("Error during the 500 response generation", ex);
                 try {
-                    String errorHtml = "Internal Error (check logs)";
-                    byte[] bytes = errorHtml.getBytes(encoding);
+                    byte[] bytes = "Internal Error".getBytes(encoding);
                     ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
                     setContentLength(nettyResponse, bytes.length);
                     nettyResponse.setContent(buf);
@@ -745,8 +743,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             }
         } catch (Throwable exxx) {
             try {
-                String errorHtml = "Internal Error (check logs)";
-                byte[] bytes = errorHtml.getBytes(encoding);
+                byte[] bytes = "Internal Error".getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
                 setContentLength(nettyResponse, bytes.length);
                 nettyResponse.setContent(buf);
@@ -804,8 +801,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             logger.error("serveStatic for request {} {}", request.method, request.url, ez);
             try {
                 HttpResponse errorResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
-                String errorHtml = "Internal Error (check logs)";
-                byte[] bytes = errorHtml.getBytes(response.encoding);
+                byte[] bytes = "Internal Error".getBytes(response.encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
                 setContentLength(nettyResponse, bytes.length);
                 errorResponse.setContent(buf);
