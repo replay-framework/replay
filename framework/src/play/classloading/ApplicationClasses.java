@@ -22,10 +22,16 @@ public class ApplicationClasses {
     private Map<String, Class> classes() {
         if (classes == null) {
             List<Class<?>> applicationClasses = new JavaClassesScanner().allClassesInProject();
-            allClassesByNormalizedName = unmodifiableMap(normalizeByName(applicationClasses));
             classes = toMapIgnoringDuplicates(applicationClasses);
         }
         return classes;
+    }
+
+    private Map<String, Class> allClassesByNormalizedName() {
+        if (allClassesByNormalizedName == null) {
+            allClassesByNormalizedName = unmodifiableMap(normalizeByName(classes()));
+        }
+        return allClassesByNormalizedName;
     }
 
     private Map<String, Class> toMapIgnoringDuplicates(List<Class<?>> applicationClasses) {
@@ -33,9 +39,9 @@ public class ApplicationClasses {
         return applicationClasses.stream().collect(toMap(cl -> cl.getName(), cl -> cl, ignoreDuplicates));
     }
 
-    private Map<String, Class> normalizeByName(List<Class<?>> applicationClasses) {
+    private Map<String, Class> normalizeByName(Map<String, Class> applicationClasses) {
         Map<String, Class> byNormalizedName = new HashMap<>(applicationClasses.size());
-        for (Class clazz : applicationClasses) {
+        for (Class clazz : applicationClasses.values()) {
             byNormalizedName.put(clazz.getName().toLowerCase(), clazz);
             if (clazz.getName().contains("$")) {
                 byNormalizedName.put(replace(clazz.getName().toLowerCase(), "$", "."), clazz);
@@ -70,7 +76,7 @@ public class ApplicationClasses {
 
     public Class<?> getClassIgnoreCase(String name) {
         String nameLowerCased = name.toLowerCase();
-        return allClassesByNormalizedName.get(nameLowerCased);
+        return allClassesByNormalizedName().get(nameLowerCased);
     }
 
     /**

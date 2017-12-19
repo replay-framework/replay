@@ -41,6 +41,7 @@ subprojects {
   dependencies {
     compile('com.codeborne.replay:replay-framework:1.6-SNAPSHOT')
     compile('com.codeborne.replay:replay-rebel:1.6-SNAPSHOT')
+    compile('com.codeborne.replay:replay-fastergt:1.6-SNAPSHOT')
 
     testCompile('org.assertj:assertj-core:3.8.0')
     testCompile('com.codeborne:selenide:4.8')
