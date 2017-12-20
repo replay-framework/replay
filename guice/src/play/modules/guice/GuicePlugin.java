@@ -1,5 +1,6 @@
 package play.modules.guice;
 
+import com.google.inject.Module;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import org.slf4j.Logger;
