@@ -25,6 +25,7 @@ import play.utils.Utils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.Error;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -425,10 +426,12 @@ public class ActionInvoker {
         } catch (InvocationTargetException ex) {
             Throwable originalThrowable = ex.getTargetException();
 
-            if (originalThrowable instanceof Exception)
-                throw (Exception) originalThrowable;
             if (originalThrowable instanceof RuntimeException)
                 throw (RuntimeException) originalThrowable;
+            if (originalThrowable instanceof Exception)
+                throw (Exception) originalThrowable;
+            if (originalThrowable instanceof Error)
+                throw (Error) originalThrowable;
 
             throw new PlayException(originalThrowable);
         }
