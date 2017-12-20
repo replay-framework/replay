@@ -26,12 +26,6 @@ public class GTGroovyBase extends Script {
         }
     }
 
-    // Method used by groovy scripts to convert from string to class
-    // Must lookup the class in the current live classloader - Must return null if not found
-    public final Class<?> _(String clazzName) {
-        return _resolveClass(clazzName);
-    }
-    
     protected Class<?> _resolveClass(String clazzName) {
         throw new GTException("Not implemented by default. Must be overridden by framework impl");
     }

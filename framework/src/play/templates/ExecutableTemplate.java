@@ -19,16 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class ExecutableTemplate extends Script {
-    private static SafeFormatters safeFormatters = new SafeFormatters();
-
     // Leave this field public to allow custom creation of TemplateExecutionException from different pkg
     public BaseTemplate template;
-    private String extension;
 
     @Override
     public Object getProperty(String property) {
         try {
-            if (property.equals("actionBridge")) {
+            if ("actionBridge".equals(property)) {
                 return new ActionBridge(this);
             }
             return super.getProperty(property);
@@ -39,20 +36,15 @@ public abstract class ExecutableTemplate extends Script {
 
     public void invokeTag(Integer fromLine, String tag, Map<String, Object> attrs, Closure body) {
         String templateName = tag.replace(".", "/");
-        String callerExtension = (extension != null) ? extension : "tag";
 
         BaseTemplate tagTemplate;
         try {
-            tagTemplate = (BaseTemplate) TemplateLoader.load("tags/" + templateName + "." + callerExtension);
+            tagTemplate = (BaseTemplate) TemplateLoader.load("tags/" + templateName + ".tag");
         } catch (TemplateNotFoundException e) {
             try {
                 tagTemplate = (BaseTemplate) TemplateLoader.load("tags/" + templateName + ".tag");
             } catch (TemplateNotFoundException ex) {
-                if ("tag".equals(callerExtension)) {
-                    throw new TemplateNotFoundException(String.format("tags/%s.tag", templateName), template, fromLine);
-                }
-                throw new TemplateNotFoundException(
-                        String.format("tags/%s.%s or tags/%s.tag", templateName, callerExtension, templateName), template, fromLine);
+                throw new TemplateNotFoundException(String.format("tags/%s.tag", templateName), template, fromLine);
             }
         }
         TagContext.enterTag(tag);
@@ -85,29 +77,13 @@ public abstract class ExecutableTemplate extends Script {
     }
 
     /**
-     * @param className
-     *            The class name
-     * @return The given class
-     * @throws Exception
-     *             if problem occured when loading the class
-     * @deprecated '_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
-     *             use {@link #__loadClass} instead
-     */
-    @Deprecated
-    public Class _(String className) throws Exception {
-        return __loadClass(className);
-    }
-
-    /**
      * Load the class from Pay Class loader
      *
      * @param className
      *            the class name
      * @return the given class
-     * @throws Exception
-     *             if problem occured when loading the class
      */
-    public Class __loadClass(String className) throws Exception {
+    public Class __loadClass(String className) {
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
@@ -125,11 +101,6 @@ public abstract class ExecutableTemplate extends Script {
     public String __safeFaster(Object val) {
         if (val instanceof BaseTemplate.RawData) {
             return ((BaseTemplate.RawData) val).data;
-        } else if (extension != null) {
-            SafeFormatter formatter = safeFormatters.get(extension);
-            if (formatter != null) {
-                return formatter.format(template, val);
-            }
         }
         return (val != null) ? val.toString() : "";
     }
