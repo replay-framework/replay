@@ -1,6 +1,5 @@
 package play.db;
 
-import com.sun.rowset.CachedRowSetImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.jpa.HibernateEntityManager;
 import org.slf4j.Logger;
@@ -9,8 +8,6 @@ import play.db.jpa.JPA;
 import play.exceptions.DatabaseException;
 
 import javax.sql.DataSource;
-import javax.sql.RowSet;
-import javax.sql.rowset.CachedRowSet;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -248,7 +245,7 @@ public class DB {
      *            the SQL statement
      * @return The ResultSet object; false if it is an update count or there are no more results
      */
-    public static RowSet executeQuery(String SQL) {
+    public static ResultSet executeQuery(String SQL) {
         return executeQuery(DEFAULT, SQL);
     }
 
@@ -261,21 +258,12 @@ public class DB {
      *            the SQL statement
      * @return The rowSet of the query
      */
-    public static RowSet executeQuery(String name, String SQL) {
+    public static ResultSet executeQuery(String name, String SQL) {
         Statement statement = null;
         ResultSet rs = null;
         try {
             statement = getConnection(name).createStatement();
-            if (statement != null) {
-                rs = statement.executeQuery(SQL);
-            }
-
-            // Need to use a CachedRowSet that caches its rows in memory, which
-            // makes it possible to operate without always being connected to
-            // its data source
-            CachedRowSet rowset = new CachedRowSetImpl();
-            rowset.populate(rs);
-            return rowset;
+            return statement.executeQuery(SQL);
         } catch (SQLException ex) {
             throw new DatabaseException(ex.getMessage(), ex);
         } finally {
