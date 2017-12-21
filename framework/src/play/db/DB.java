@@ -93,17 +93,6 @@ public class DB {
         return getDataSource(DEFAULT);
     }
 
-    public static Connection getConnection(String name, boolean autocommit) {
-        try {
-            Connection connection = getDataSource(name).getConnection();
-            connection.setAutoCommit(autocommit);
-            return connection;
-        } catch (Exception e) {
-            // Exception
-            throw new DatabaseException(e.getMessage());
-        }
-    }
-
     private static Connection getLocalConnection(String name) {
         Map<String, Connection> map = localConnection.get();
         if (map != null) {
@@ -191,9 +180,8 @@ public class DB {
                 throw new DatabaseException("No database found. Check the configuration of your application.", e);
             }
             throw e;
-        } catch (Exception e) {
-            // Exception
-            throw new DatabaseException(e.getMessage());
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
         }
     }
 
@@ -201,94 +189,16 @@ public class DB {
         return getConnection(DEFAULT);
     }
 
-    /**
-     * Execute an SQL update
-     *
-     * @param name
-     *            the DB name
-     * @param SQL
-     *            the SQL statement
-     * @return true if the next result is a ResultSet object; false if it is an update count or there are no more
-     *         results
-     */
-    public static boolean execute(String name, String SQL) {
-        Statement statement = null;
-        try {
-            statement = getConnection(name).createStatement();
-            if (statement != null) {
-                return statement.execute(SQL);
-            }
-        } catch (SQLException ex) {
-            throw new DatabaseException(ex.getMessage(), ex);
-        } finally {
-            safeCloseStatement(statement);
+    public static void execute(String SQL) {
+        execute(DEFAULT, SQL);
+    }
+
+    public static void execute(String name, String SQL) {
+        try (Statement statement = getConnection(name).createStatement()) {
+            statement.execute(SQL);
         }
-        return false;
-    }
-
-    /**
-     * Execute an SQL update
-     *
-     * @param SQL
-     *            the SQL statement
-     * @return true if the next result is a ResultSet object; false if it is an update count or there are no more
-     *         results
-     */
-    public static boolean execute(String SQL) {
-        return execute(DEFAULT, SQL);
-    }
-
-    /**
-     * Execute an SQL query
-     *
-     * @param SQL
-     *            the SQL statement
-     * @return The ResultSet object; false if it is an update count or there are no more results
-     */
-    public static ResultSet executeQuery(String SQL) {
-        return executeQuery(DEFAULT, SQL);
-    }
-
-    /**
-     * Execute an SQL query
-     * 
-     * @param name
-     *            the DB name
-     * @param SQL
-     *            the SQL statement
-     * @return The rowSet of the query
-     */
-    public static ResultSet executeQuery(String name, String SQL) {
-        Statement statement = null;
-        ResultSet rs = null;
-        try {
-            statement = getConnection(name).createStatement();
-            return statement.executeQuery(SQL);
-        } catch (SQLException ex) {
-            throw new DatabaseException(ex.getMessage(), ex);
-        } finally {
-            safeCloseResultSet(rs);
-            safeCloseStatement(statement);
-        }
-    }
-
-    public static void safeCloseResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException ex) {
-                throw new DatabaseException(ex.getMessage(), ex);
-            }
-        }
-    }
-
-    public static void safeCloseStatement(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException ex) {
-                throw new DatabaseException(ex.getMessage(), ex);
-            }
+        catch (SQLException ex) {
+            throw new DatabaseException(ex);
         }
     }
 
@@ -317,12 +227,6 @@ public class DB {
         }
     }
 
-    /**
-     * Destroy the datasource
-     */
-    public static void destroy() {
-        destroy(DEFAULT);
-    }
 
     /**
      * Destroy all datasources
