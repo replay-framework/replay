@@ -1,5 +1,6 @@
 package play;
 
+import org.apache.log4j.Log4jJava9Support;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -22,5 +23,7 @@ public class Logger {
         } else {
             PropertyConfigurator.configure(log4jConf);
         }
+
+        Log4jJava9Support.initMDC();
     }
 }
