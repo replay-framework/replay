@@ -117,7 +117,7 @@ public class Play {
      * @param id
      *            The framework id to use
      */
-    public static void init(File root, String id) {
+    public void init(File root, String id) {
         Play.id = id;
         Play.started = false;
         Play.applicationPath = root;
@@ -188,7 +188,7 @@ public class Play {
     /**
      * Read application.conf and resolve overridden key using the play id mechanism.
      */
-    public static void readConfiguration() {
+    private void readConfiguration() {
         confs = new HashSet<>();
         configuration = readOneConfigurationFile("application.conf");
         extractHttpPort();
@@ -286,7 +286,7 @@ public class Play {
      *
      * @throws IllegalArgumentException if the application is already started
      */
-    public static synchronized void start() {
+    public synchronized void start() {
         if (started) {
             throw new IllegalArgumentException("Play is already started");
         }
@@ -308,7 +308,7 @@ public class Play {
 
             pluginCollection.afterApplicationStart();
         } catch (RuntimeException e) {
-            Play.stop();
+            stop();
             started = false;
             throw e;
         }
@@ -319,8 +319,8 @@ public class Play {
      * registers shutdown hook - Now there's a good chance that we can notify
      * our plugins that we're going down when some calls ctrl+c or just kills our process..
      */
-    private static void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     private static void initLangs() {
@@ -351,7 +351,7 @@ public class Play {
         }
     }
 
-    public static synchronized void stop() {
+    public synchronized void stop() {
         if (started) {
             logger.info("Stopping the play application");
             pluginCollection.onApplicationStop();
@@ -374,7 +374,7 @@ public class Play {
         return pluginCollection.getPluginInstance(clazz);
     }
 
-    private static void loadModules(VirtualFile appRoot) {
+    private void loadModules(VirtualFile appRoot) {
         File localModules = Play.getFile("modules");
         if (localModules.exists() && localModules.isDirectory()) {
             for (File module : localModules.listFiles()) {
@@ -404,7 +404,7 @@ public class Play {
      * @param path
      *            The application path
      */
-    private static void addModule(VirtualFile appRoot, String name, File path) {
+    private void addModule(VirtualFile appRoot, String name, File path) {
         VirtualFile root = VirtualFile.open(path);
         modules.put(name, root);
         if (root.child("app").exists()) {

@@ -21,7 +21,7 @@ public class Server {
 
     public static int httpPort;
 
-    public static final String PID_FILE = "server.pid";
+    private static final String PID_FILE = "server.pid";
 
     public Server(String[] args) {
 
@@ -106,7 +106,8 @@ public class Server {
             writePID(root);
         }
 
-        Play.init(root, System.getProperty("play.id", ""));
+        Play play = new Play();
+        play.init(root, System.getProperty("play.id", ""));
 
         // TODO Remove support for "precompile"
         if (System.getProperty("precompile") != null) {
@@ -116,10 +117,10 @@ public class Server {
 
         if (Play.mode.isDev()) {
             new Server(args);
-            Play.start();
+            play.start();
         }
         else {
-            Play.start();
+            play.start();
             new Server(args);
         }
     }

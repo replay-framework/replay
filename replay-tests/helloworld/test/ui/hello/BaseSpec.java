@@ -11,11 +11,13 @@ import java.io.File;
 import static org.openqa.selenium.net.PortProber.findFreePort;
 
 public class BaseSpec {
+  Play play = new Play();
+
   @Before
   public void setUp() throws InterruptedException {
     Thread playStarter = new Thread(() -> {
-      Play.init(new File(System.getProperty("application.path", ".")), "test");
-      Play.start();
+      play.init(new File(System.getProperty("application.path", ".")), "test");
+      play.start();
 
       int port = findFreePort();
       new Server(new String[]{"--http.port=" + port});
@@ -33,6 +35,6 @@ public class BaseSpec {
 
   @After
   public void tearDown() {
-    Play.stop();
+    play.stop();
   }
 }
