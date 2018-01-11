@@ -3,7 +3,6 @@ package play;
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import play.Play.Mode;
-import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
 import play.libs.SupplierWithException;
@@ -20,6 +19,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
  * Run some code in a Play! context
  */
@@ -32,7 +33,7 @@ public class Invoker {
 
     /**
      * Run the code in a new thread took from a thread pool.
-     * 
+     *
      * @param invocation
      *            The code to run
      * @return The future object, to know when the task is completed
@@ -46,7 +47,7 @@ public class Invoker {
 
     /**
      * Run the code in a new thread after a delay
-     * 
+     *
      * @param invocation
      *            The code to run
      * @param millis
@@ -111,7 +112,7 @@ public class Invoker {
         /**
          * Returns the InvocationType for this invocation - Ie: A plugin can use this to find out if it runs in the
          * context of a background Job
-         * 
+         *
          * @return the InvocationType for this invocation
          */
         public String getInvocationType() {
@@ -157,10 +158,15 @@ public class Invoker {
 
         /**
          * Init the call (especially useful in DEV mode to detect changes)
-         * 
+         *
          * @return true if successful
          */
         public boolean init() {
+            if (Play.mode.isDev()) {
+                for (long start = currentTimeMillis(); !Play.started && currentTimeMillis() - start < 60000; ) {
+                    try {Thread.sleep(100);} catch (InterruptedException e) {break;}
+                }
+            }
             if (!Play.started) {
                 throw new IllegalStateException("Application is not started");
             }

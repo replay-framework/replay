@@ -108,11 +108,19 @@ public class Server {
 
         Play.init(root, System.getProperty("play.id", ""));
 
-        if (System.getProperty("precompile") == null) {
+        // TODO Remove support for "precompile"
+        if (System.getProperty("precompile") != null) {
+            logger.info("precompile done.");
+            return;
+        }
+
+        if (Play.mode.isDev()) {
+            new Server(args);
+            Play.start();
+        }
+        else {
             Play.start();
             new Server(args);
-        } else {
-            logger.info("Done.");
         }
     }
 }
