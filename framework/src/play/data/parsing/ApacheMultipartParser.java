@@ -500,11 +500,11 @@ public class ApacheMultipartParser extends DataParser {
     }
 
     @Override
-    public Map<String, String[]> parse(InputStream body) {
+    public Map<String, String[]> parse(Request request) {
         Map<String, String[]> result = new HashMap<>();
         try {
-            FileItemIteratorImpl iter = new FileItemIteratorImpl(body, Request.current().headers.get("content-type").value(),
-                    Request.current().encoding);
+            FileItemIteratorImpl iter = new FileItemIteratorImpl(request.body, request.headers.get("content-type").value(),
+                    request.encoding);
             while (iter.hasNext()) {
                 FileItemStream item = iter.next();
                 FileItem fileItem = new AutoFileItem(item);
@@ -518,7 +518,7 @@ public class ApacheMultipartParser extends DataParser {
                     }
                     if (fileItem.isFormField()) {
                         // must resolve encoding
-                        String _encoding = Request.current().encoding; // this is our default
+                        String _encoding = request.encoding; // this is our default
                         String _contentType = fileItem.getContentType();
                         if (_contentType != null) {
                             HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);

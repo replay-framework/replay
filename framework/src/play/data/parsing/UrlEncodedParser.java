@@ -28,25 +28,26 @@ public class UrlEncodedParser extends DataParser {
     
     boolean forQueryString = false;
     
-    public static Map<String, String[]> parse(String urlEncoded) {
+    public static Map<String, String[]> parse(String urlEncoded, String encoding) {
         try {
-            String encoding = Http.Request.current().encoding;
-            return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )));
+            return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )), encoding);
         } catch (UnsupportedEncodingException ex) {
             throw new UnexpectedException(ex);
         }
     }
     
-    public static Map<String, String[]> parseQueryString(InputStream is) {
+    public static Map<String, String[]> parseQueryString(InputStream is, String encoding) {
         UrlEncodedParser parser = new UrlEncodedParser();
         parser.forQueryString = true;
-        return parser.parse(is);
+        return parser.parse(is, encoding);
     }
 
     @Override
-    public Map<String, String[]> parse(InputStream is) {
-        // Encoding is either retrieved from contentType or it is the default encoding
-        String encoding = Http.Request.current().encoding;
+    public Map<String, String[]> parse(Http.Request request) {
+        return parse(request.body, request.encoding);
+    }
+
+    public Map<String, String[]> parse(InputStream is, String encoding) {
         try {
             Map<String, String[]> params = new LinkedHashMap<>();
             ByteArrayOutputStream os = new ByteArrayOutputStream();

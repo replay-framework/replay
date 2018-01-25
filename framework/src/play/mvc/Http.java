@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Collections.emptyMap;
+
 /**
  * HTTP interface
  */
@@ -238,7 +240,7 @@ public class Http {
         /**
          * Additional HTTP params extracted from route
          */
-        public Map<String, String> routeArgs;
+        public Map<String, String> routeArgs = emptyMap();
         /**
          * Format (html,xml,json,text)
          */
@@ -250,7 +252,7 @@ public class Http {
         /**
          * Bind to thread
          */
-        public static final ThreadLocal<Request> current = new ThreadLocal<>();
+        private static final ThreadLocal<Request> current = new ThreadLocal<>();
         /**
          * The really invoker Java method
          */
@@ -290,7 +292,7 @@ public class Http {
         /**
          * Params
          */
-        public final Scope.Params params = new Scope.Params();
+        public final Scope.Params params = new Scope.Params(this);
 
         /**
          * Deprecate the default constructor to encourage the use of createRequest() when creating new requests.
@@ -515,8 +517,14 @@ public class Http {
          * 
          * @return the current request
          */
+        @Deprecated
         public static Request current() {
             return current.get();
+        }
+
+        @Deprecated
+        public static void setCurrent(Request request) {
+            current.set(request);
         }
 
         /**
@@ -662,15 +670,21 @@ public class Http {
         /**
          * Bind to thread
          */
-        public static final ThreadLocal<Response> current = new ThreadLocal<>();
+        private static final ThreadLocal<Response> current = new ThreadLocal<>();
 
         /**
          * Retrieve the current response
          * 
          * @return the current response
          */
+        @Deprecated
         public static Response current() {
             return current.get();
+        }
+
+        @Deprecated
+        public static void setCurrent(Response response) {
+            current.set(response);
         }
 
         /**
@@ -872,7 +886,7 @@ public class Http {
 
         public void print(Object o) {
             try {
-                out.write(o.toString().getBytes(Response.current().encoding));
+                out.write(o.toString().getBytes(encoding));
             } catch (IOException ex) {
                 throw new UnexpectedException("Encoding problem ?", ex);
             }

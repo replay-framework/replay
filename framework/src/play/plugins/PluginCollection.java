@@ -7,8 +7,12 @@ import play.PlayPlugin;
 import play.data.binding.RootParamNode;
 import play.db.Model;
 import play.inject.Injector;
-import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
 import play.mvc.Router;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
@@ -506,9 +510,9 @@ public class PluginCollection {
         return null;
     }
 
-    public void beforeActionInvocation(Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.beforeActionInvocation(actionMethod);
+            plugin.beforeActionInvocation(request, response, session, renderArgs, actionMethod);
         }
     }
 
@@ -518,9 +522,9 @@ public class PluginCollection {
         }
     }
 
-    public void afterActionInvocation() {
+    public void afterActionInvocation(Request request, Response response, Flash flash) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.afterActionInvocation();
+            plugin.afterActionInvocation(request, response, flash);
         }
     }
 
@@ -530,7 +534,7 @@ public class PluginCollection {
         }
     }
 
-    public void routeRequest(Http.Request request) {
+    public void routeRequest(Request request) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.routeRequest(request);
         }
@@ -548,9 +552,9 @@ public class PluginCollection {
         }
     }
 
-    public boolean rawInvocation(Http.Request request, Http.Response response) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session) throws Exception {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.rawInvocation(request, response)) {
+            if (plugin.rawInvocation(request, response, session)) {
                 return true;
             }
         }

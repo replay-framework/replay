@@ -29,20 +29,20 @@ public class FastTagsTest {
         // force line.separator be the same on any platform
         // or use String.format in expected code with the placeholder '%n' for any expected line separation.
         System.setProperty("line.separator","\n");
-        Http.Response.current.set(new Http.Response());
+        Http.Response.setCurrent(new Http.Response());
         Http.Response.current().encoding = "UTF-8";
 
         Scope.Session.current.set(new Scope.Session());
         Scope.Session.current().put("___AT", "1234");
     }
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // restore line.separator
         System.setProperty("line.separator", backupSystemLineBreak);
     }
 
     @Test
-    public void _form_simple() throws Exception {
+    public void _form_simple() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -60,7 +60,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_withName() throws Exception {
+    public void _form_withName() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -79,7 +79,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_post() throws Exception {
+    public void _form_post() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "POST";
@@ -98,7 +98,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_starIsPost() throws Exception {
+    public void _form_starIsPost() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.star = true;
@@ -117,7 +117,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_argMethodOverridesActionDefinitionMethod() throws Exception {
+    public void _form_argMethodOverridesActionDefinitionMethod() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -137,7 +137,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_customArgs() throws Exception {
+    public void _form_customArgs() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -156,7 +156,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_actionAsActionArg() throws Exception {
+    public void _form_actionAsActionArg() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -174,7 +174,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_customEnctype() throws Exception {
+    public void _form_customEnctype() {
         final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
         actionDefinition.url = "/foo/bar";
         actionDefinition.method = "GET";
@@ -193,7 +193,7 @@ public class FastTagsTest {
     }
 
     @Test
-    public void _form_argAsUrlInsteadOfActionDefinition() throws Exception {
+    public void _form_argAsUrlInsteadOfActionDefinition() {
         Map<String, ?> args = new HashMap<String, Object>() {{
             put("arg", "/foo/bar");
         }};

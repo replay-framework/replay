@@ -100,10 +100,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             try {
                 // Reset request object and response object for the current
                 // thread.
-                Http.Request.current.set(new Http.Request());
+                Http.Request.setCurrent(new Http.Request());
 
                 final Response response = new Response();
-                Http.Response.current.set(response);
+                Http.Response.setCurrent(response);
 
                 final Request request = parseRequest(ctx, nettyRequest, messageEvent);
 
@@ -117,7 +117,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
 
                 // Raw invocation
-                boolean raw = Play.pluginCollection.rawInvocation(request, response);
+                boolean raw = Play.pluginCollection.rawInvocation(request, response, Scope.Session.current());
                 if (raw) {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
@@ -156,10 +156,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         public boolean init() {
             logger.trace("init: begin");
 
-            Request.current.set(request);
-            Response.current.set(response);
+            Request.setCurrent(request);
+            Response.setCurrent(response);
 
-            Scope.Params.current.set(request.params);
+            Scope.Params.setCurrent(request.params);
             Scope.RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
             Scope.Session.current.set(null);

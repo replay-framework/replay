@@ -8,6 +8,7 @@ import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
 import play.data.parsing.DataParser;
 import play.data.parsing.DataParsers;
+import play.data.parsing.UrlEncodedParser;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
@@ -16,10 +17,11 @@ import play.libs.Codec;
 import play.libs.Crypto;
 import play.utils.Utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -65,29 +67,29 @@ public class Scope {
         Map<String, String> data = new HashMap<>();
         Map<String, String> out = new HashMap<>();
 
-        public static Flash restore() {
+        public static Flash restore(Http.Request request) {
             Flash flash = new Flash();
-            Http.Cookie cookie = Http.Request.current().cookies.get(COOKIE_PREFIX + "_FLASH");
+            Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_FLASH");
             if (cookie != null) {
                 flash.data = encoder.decode(cookie.value);
             }
             return flash;
         }
 
-        void save() {
-            if (Http.Response.current() == null) {
+        public void save(Http.Request request, Http.Response response) {
+            if (request == null) {
                 // Some request like WebSocket don't have any response
                 return;
             }
             if (out.isEmpty()) {
-                if (Http.Request.current().cookies.containsKey(COOKIE_PREFIX + "_FLASH") || !SESSION_SEND_ONLY_IF_CHANGED) {
-                    Http.Response.current().setCookie(COOKIE_PREFIX + "_FLASH", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
+                if (request.cookies.containsKey(COOKIE_PREFIX + "_FLASH") || !SESSION_SEND_ONLY_IF_CHANGED) {
+                    response.setCookie(COOKIE_PREFIX + "_FLASH", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
                 }
                 return;
             }
             try {
                 String flashData = encoder.encode(out);
-                Http.Response.current().setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
+                response.setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
             }
@@ -183,7 +185,7 @@ public class Scope {
         }
 
         Map<String, String> data = new HashMap<>(); // ThreadLocal access
-        boolean changed = false;
+        boolean changed;
         public static final ThreadLocal<Session> current = new ThreadLocal<>();
 
         public static Session current() {
@@ -286,19 +288,31 @@ public class Scope {
      * HTTP params
      */
     public static class Params {
-        // ThreadLocal access
+        private static final ThreadLocal<Params> current = new ThreadLocal<>();
 
-        public static final ThreadLocal<Params> current = new ThreadLocal<>();
-
+        @Deprecated
         public static Params current() {
             return current.get();
         }
 
+        @Deprecated
+        public static void setCurrent(Params params) {
+            current.set(params);
+        }
+
+        public Params(Http.Request request) {
+            if (request == null) {
+                throw new UnexpectedException("Current request undefined");
+            }
+            this.request = request;
+        }
+
+        private final Http.Request request;
         boolean requestIsParsed;
         public Map<String, String[]> data = new LinkedHashMap<>();
 
-        boolean rootParamsNodeIsGenerated = false;
-        private RootParamNode rootParamNode = null;
+        boolean rootParamsNodeIsGenerated;
+        private RootParamNode rootParamNode;
 
         public RootParamNode getRootParamNode() {
             checkAndParse();
@@ -309,30 +323,31 @@ public class Scope {
             return rootParamNode;
         }
 
-        public RootParamNode getRootParamNodeFromRequest() {
-            return ParamNode.convert(data);
-        }
-
         public void checkAndParse() {
             if (!requestIsParsed) {
-                Http.Request request = Http.Request.current();
-                if (request == null) {
-                    throw new UnexpectedException("Current request undefined");
-                } else {
-                    String contentType = request.contentType;
-                    if (contentType != null) {
-                        DataParser dataParser = DataParsers.forContentType(contentType);
-                        if (dataParser != null) {
-                            _mergeWith(dataParser.parse(request.body));
-                        }
-                    }
+                __mergeWith(request.routeArgs);
+
+                if (request.querystring != null) {
                     try {
-                        request.body.close();
-                    } catch (Exception e) {
-                        //
+                        _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
                     }
-                    requestIsParsed = true;
+                    catch (UnsupportedEncodingException e) {
+                        throw new IllegalArgumentException(e);
+                    }
                 }
+                String contentType = request.contentType;
+                if (contentType != null) {
+                    DataParser dataParser = DataParsers.forContentType(contentType);
+                    if (dataParser != null) {
+                        _mergeWith(dataParser.parse(request));
+                    }
+                }
+                try {
+                    request.body.close();
+                } catch (Exception e) {
+                    //
+                }
+                requestIsParsed = true;
             }
         }
 
@@ -359,13 +374,7 @@ public class Scope {
 
         public void removeStartWith(String prefix) {
             checkAndParse();
-            Iterator<Map.Entry<String, String[]>> iterator = data.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, String[]> entry = iterator.next();
-                if (entry.getKey().startsWith(prefix)) {
-                    iterator.remove();
-                }
-            }
+            data.entrySet().removeIf(entry -> entry.getKey().startsWith(prefix));
             // make sure rootsParamsNode is regenerated if needed
             rootParamsNodeIsGenerated = false;
         }
@@ -452,9 +461,9 @@ public class Scope {
             }
         }
 
-        public String urlEncode() {
+        public String urlEncode(Http.Response response) {
             checkAndParse();
-            String encoding = Http.Response.current().encoding;
+            String encoding = response.encoding;
             StringBuilder ue = new StringBuilder();
             for (String key : data.keySet()) {
                 if (key.equals("body")) {

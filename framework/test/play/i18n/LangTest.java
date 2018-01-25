@@ -50,58 +50,58 @@ public class LangTest {
         Play.langs = Arrays.asList("no", "en", "en_GB", "fr");
         Lang.current.set(null);
 
-        Http.Response.current.set( new Http.Response());
+        Http.Response.setCurrent( new Http.Response());
 
         // check default when missing request
-        Http.Request.current.set(null);
+        Http.Request.setCurrent(null);
         assertThat(Lang.get()).isEqualTo("no");
 
         // check default when missing info in request
         Http.Request req = newRequest();
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
         // check only with accept-language,  without cookie value
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "no"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("no"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "en"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "en-GB"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en", "GB"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en-GB"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en", "GB"));
 
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "x,en-US"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
@@ -110,7 +110,7 @@ public class LangTest {
         // space in accept language header
         req = newRequest();
         req.headers.put("accept-language", new Http.Header("accept-language", "nl, en;q=0.8"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
         // check with cookie value
@@ -122,7 +122,7 @@ public class LangTest {
         cookie.value = "x";//not found in cookie
         req.cookies.put(cookie.name, cookie);
         req.headers.put("accept-language", new Http.Header("accept-language", "en"));
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
@@ -130,7 +130,7 @@ public class LangTest {
         cookie.name = "PLAY_LANG";
         cookie.value = "en";
         req.cookies.put(cookie.name, cookie);
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
@@ -138,7 +138,7 @@ public class LangTest {
         cookie.name = "PLAY_LANG";
         cookie.value = "en_q";
         req.cookies.put(cookie.name, cookie);
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
@@ -146,7 +146,7 @@ public class LangTest {
         cookie.name = "PLAY_LANG";
         cookie.value = "en_GB";
         req.cookies.put(cookie.name, cookie);
-        Http.Request.current.set(req);
+        Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en", "GB"));
 

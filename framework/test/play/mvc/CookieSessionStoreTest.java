@@ -55,8 +55,8 @@ public class CookieSessionStoreTest {
   }
 
   private static void mockRequestAndResponse() {
-    Http.Request.current.set(new Http.Request());
-    Http.Response.current.set(new Http.Response());
+    Http.Request.setCurrent(new Http.Request());
+    Http.Response.setCurrent(new Http.Response());
   }
 
   private void setSendOnlyIfChangedConstant(boolean value) {

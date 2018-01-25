@@ -8,6 +8,9 @@ import play.libs.SupplierWithException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router.Route;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
@@ -93,10 +96,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @param response
      *            The Play response
      * @return true if this plugin has managed this request
-     * @throws java.lang.Exception
-     *             if cannot enhance the class
      */
-    public boolean rawInvocation(Request request, Response response) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session) throws Exception {
         return false;
     }
 
@@ -162,11 +163,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     /**
      * Called before an 'action' invocation, ie an HTTP request processing.
-     * 
-     * @param actionMethod
-     *            name of the method
      */
-    public void beforeActionInvocation(Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
     }
 
     /**
@@ -193,7 +191,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     /**
      * Called at the end of the action invocation.
      */
-    public void afterActionInvocation() {
+    public void afterActionInvocation(Request request, Response response, Flash flash) {
     }
 
     /**

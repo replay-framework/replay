@@ -20,7 +20,7 @@ public class MimeTypesTest {
       }
     
     @Test
-    public void contentTypeShouldReturnResponseCharsetWhenAvailable() throws Exception {
+    public void contentTypeShouldReturnResponseCharsetWhenAvailable() {
         String oldEncoding = Response.current().encoding;
         try {
             Response.current().encoding = "my-response-encoding";
@@ -33,15 +33,15 @@ public class MimeTypesTest {
     }
 
     @Test
-    public void contentTypeShouldReturnDefaultCharsetInAbsenceOfResponse() throws Exception {
+    public void contentTypeShouldReturnDefaultCharsetInAbsenceOfResponse() {
         Response originalResponse = Response.current();
         try {
-            Response.current.set(null);
+            Response.setCurrent(null);
             assertEquals("text/xml; charset=" + play.Play.defaultWebEncoding,
                          MimeTypes.getContentType("test.xml"));
         }
         finally {
-            Response.current.set(originalResponse);
+            Response.setCurrent(originalResponse);
         }
     }
 }

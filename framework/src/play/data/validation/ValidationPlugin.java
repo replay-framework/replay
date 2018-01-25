@@ -8,7 +8,11 @@ import play.exceptions.UnexpectedException;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
 import play.mvc.Http.Cookie;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
 import play.mvc.Scope;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.utils.Java;
 
@@ -34,7 +38,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void beforeActionInvocation(Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
         try {
             Validation.current.set(restore());
             boolean verify = false;
@@ -101,7 +105,7 @@ public class ValidationPlugin extends PlayPlugin {
     static Validation restore() {
         try {
             Validation validation = new Validation();
-            Http.Cookie cookie = Http.Request.current().cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
+            Http.Cookie cookie = Request.current().cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
             if (cookie != null) {
                 String errorsData = URLDecoder.decode(cookie.value, "utf-8");
                 Matcher matcher = errorsParser.matcher(errorsData);
@@ -120,14 +124,14 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     static void save() {
-        if (Http.Response.current() == null) {
+        if (Response.current() == null) {
             // Some request like WebSocket don't have any response
             return;
         }
         if (Validation.errors().isEmpty()) {
             // Only send "delete cookie" header when the cookie was present in the request
-            if(Http.Request.current().cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS") || !Scope.SESSION_SEND_ONLY_IF_CHANGED) {
-                Http.Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", "", null, "/", 0, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
+            if(Request.current().cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS") || !Scope.SESSION_SEND_ONLY_IF_CHANGED) {
+                Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", "", null, "/", 0, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
             }
             return;
         }
@@ -147,7 +151,7 @@ public class ValidationPlugin extends PlayPlugin {
                 }
             }
             String errorsData = URLEncoder.encode(errors.toString(), "utf-8");
-            Http.Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", errorsData, null, "/", null, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
+            Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", errorsData, null, "/", null, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
         } catch (Exception e) {
             throw new UnexpectedException("Errors serializationProblem", e);
         }
@@ -155,12 +159,12 @@ public class ValidationPlugin extends PlayPlugin {
 
     static void clear() {
         try {
-            if (Http.Response.current() != null && Http.Response.current().cookies != null) {
+            if (Response.current() != null && Response.current().cookies != null) {
                 Cookie cookie = new Cookie();
                 cookie.name = Scope.COOKIE_PREFIX + "_ERRORS";
                 cookie.value = "";
                 cookie.sendOnError = true;
-                Http.Response.current().cookies.put(cookie.name, cookie);
+                Response.current().cookies.put(cookie.name, cookie);
             }
         } catch (Exception e) {
             throw new UnexpectedException("Errors serializationProblem", e);
