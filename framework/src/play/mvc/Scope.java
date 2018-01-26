@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.data.binding.Binder;
-import play.data.binding.ParamNode;
-import play.data.binding.RootParamNode;
 import play.data.parsing.DataParser;
 import play.data.parsing.DataParsers;
 import play.data.parsing.UrlEncodedParser;
@@ -312,16 +310,6 @@ public class Scope {
         public Map<String, String[]> data = new LinkedHashMap<>();
 
         boolean rootParamsNodeIsGenerated;
-        private RootParamNode rootParamNode;
-
-        public RootParamNode getRootParamNode() {
-            checkAndParse();
-            if (!rootParamsNodeIsGenerated) {
-                rootParamNode = ParamNode.convert(data);
-                rootParamsNodeIsGenerated = true;
-            }
-            return rootParamNode;
-        }
 
         public void checkAndParse() {
             if (!requestIsParsed) {
@@ -382,19 +370,6 @@ public class Scope {
                 return data.get(key)[0];
             }
             return null;
-        }
-
-        @SuppressWarnings("unchecked")
-        public <T> T get(String key, Class<T> type) {
-            try {
-                checkAndParse();
-                // TODO: This is used by the test, but this is not the most convenient.
-                return (T) Binder.bind(getRootParamNode(), key, type, type, null);
-            } catch (RuntimeException e) {
-                logger.error("Failed to get {} of type {}", key, type, e);
-                Validation.addError(key, "validation.invalid");
-                return null;
-            }
         }
 
         @SuppressWarnings("unchecked")
