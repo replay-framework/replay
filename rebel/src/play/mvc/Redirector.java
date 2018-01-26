@@ -15,21 +15,23 @@ import java.util.Objects;
 import static java.util.Arrays.asList;
 
 /**
- * @deprecated Please RETURN (not throw) `play.mvc.results.Result`
+ * This class is deprecated.
+ *
+ * Please RETURN (not throw) `play.mvc.results.Result`
  */
 @Singleton
-@Deprecated
 public class Redirector {
 
+  @Deprecated
   public void to(String action, Parameter... parameters) {
     to(action, asList(parameters));
   }
-  
-  public void to(String action, List<Parameter> parameters) {
+
+  void to(String action, List<Parameter> parameters) {
     to(action, toMap(parameters));
   }
-  
-  public void to(String action, Map<String, Object> parameters) {
+
+  void to(String action, Map<String, Object> parameters) {
     if ((action.startsWith("/") || action.startsWith("http://") || action.startsWith("https://")) && parameters.isEmpty()) {
       toUrl(action);
     }
@@ -37,28 +39,21 @@ public class Redirector {
     throw new RedirectToAction(action, parameters);
   }
 
+  @Deprecated
   public void toUrl(String url) {
     throw new Redirect(url, false);
   }
 
-  public void toUrl(Url url) {
+  void toUrl(Url url) {
     toUrl(url.toString());
   }
 
-  public void toUrl(String url, Map<String, Object> parameters) {
-    toUrl(new Url(url, parameters));
-  }
-
+  @Deprecated
   public void toUrl(String url, String paramName, @Nullable Object paramValue) {
     toUrl(new Url(url, paramName, paramValue));
   }
 
-  public void toUrl(String url,
-                    String param1Name, @Nullable Object param1value,
-                    String param2name, @Nullable Object param2value) {
-    toUrl(new Url(url, param1Name, param1value, param2name, param2value));
-  }
-
+  @Deprecated
   public void toUrl(String url,
                     String param1Name, @Nullable Object param1value,
                     String param2name, @Nullable Object param2value,
@@ -69,6 +64,7 @@ public class Redirector {
         param3name, param3value));
   }
 
+  @Deprecated
   public void toUrl(String url,
                     String param1Name, @Nullable Object param1value,
                     String param2name, @Nullable Object param2value,
@@ -81,20 +77,7 @@ public class Redirector {
         param4name, param4value));
   }
 
-  public void toUrl(String url,
-                    String param1Name, @Nullable Object param1value,
-                    String param2name, @Nullable Object param2value,
-                    String param3name, @Nullable Object param3value,
-                    String param4name, @Nullable Object param4value,
-                    String param5name, @Nullable Object param5value) {
-    toUrl(new Url(url,
-        param1Name, param1value,
-        param2name, param2value,
-        param3name, param3value,
-        param4name, param4value,
-        param5name, param5value));
-  }
-
+  @Deprecated
   public Builder with(String name, Object value) {
     return new Builder(name, value);
   }
@@ -141,15 +124,17 @@ public class Redirector {
   public class Builder {
     private final Map<String, Object> parameters = new HashMap<>();
 
-    public Builder(String name, Object value) {
+    private Builder(String name, Object value) {
       with(name, value);
     }
 
+    @Deprecated
     public final Builder with(String name, Object value) {
       Unbinder.unBind(parameters, value, name, NO_ANNOTATIONS);
       return this;
     }
 
+    @Deprecated
     public void to(String action) {
       Redirector.this.to(action, parameters);
     }
