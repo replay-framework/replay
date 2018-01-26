@@ -31,7 +31,7 @@ public class Redirector {
     to(action, toMap(parameters));
   }
 
-  void to(String action, Map<String, Object> parameters) {
+  protected void to(String action, Map<String, Object> parameters) {
     if ((action.startsWith("/") || action.startsWith("http://") || action.startsWith("https://")) && parameters.isEmpty()) {
       toUrl(action);
     }
