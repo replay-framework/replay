@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -119,7 +120,7 @@ public class Http {
          *
          * This feature can be used to allow sharing session/cookies between multiple sub domains.
          */
-        public static String defaultDomain = null;
+        public static String defaultDomain;
 
         /**
          * Cookie name
@@ -136,7 +137,7 @@ public class Http {
         /**
          * for HTTPS ?
          */
-        public boolean secure = false;
+        public boolean secure;
         /**
          * Cookie value
          */
@@ -148,11 +149,11 @@ public class Http {
         /**
          * Don't use
          */
-        public boolean sendOnError = false;
+        public boolean sendOnError;
         /**
          * See http://www.owasp.org/index.php/HttpOnly
          */
-        public boolean httpOnly = false;
+        public boolean httpOnly;
 
         public Cookie() {
         }
@@ -184,8 +185,8 @@ public class Http {
          * URL path (excluding scheme, host and port), starting with '/'<br>
          * 
          * <b>Example:</b><br>
-         * With this full URL <code>http://localhost:9000/path0/path1</code> <br>
-         * =&gt; <b>url</b> will be <code>/path0/path1</code>
+         * With this full URL {@code http://localhost:9000/path0/path1} <br>
+         * =&gt; <b>url</b> will be {@code /path0/path1}
          */
         public String url;
         /**
@@ -228,11 +229,11 @@ public class Http {
         /**
          * HTTP Headers
          */
-        public Map<String, Http.Header> headers = null;
+        public Map<String, Http.Header> headers;
         /**
          * HTTP Cookies
          */
-        public Map<String, Http.Cookie> cookies = null;
+        public Map<String, Http.Cookie> cookies;
         /**
          * Body stream
          */
@@ -244,7 +245,7 @@ public class Http {
         /**
          * Format (html,xml,json,text)
          */
-        public String format = null;
+        public String format;
         /**
          * Full action (ex: Application.index)
          */
@@ -353,7 +354,7 @@ public class Http {
 
             // must try to extract encoding-info from contentType
             if (_contentType == null) {
-                newRequest.contentType = "text/html".intern();
+                newRequest.contentType = "text/html";
             } else {
 
                 HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
@@ -402,7 +403,7 @@ public class Http {
                 } else {
                     this.secure = isRequestSecure();
                     if (Play.configuration.containsKey("XForwardedHost")) {
-                        this.host = (String) Play.configuration.get("XForwardedHost");
+                        this.host = (String) Play.configuration.getProperty("XForwardedHost");
                     } else if (this.headers.get("x-forwarded-host") != null) {
                         this.host = this.headers.get("x-forwarded-host").value();
                     }
@@ -412,7 +413,7 @@ public class Http {
                 }
             }
 
-            if (Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false").toLowerCase().equals("true")
+            if ("true".equals(Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false").toLowerCase())
                     && this.host != null && !this.host.equals(_host)) {
                 if (this.host.contains(":")) {
                     String[] hosts = this.host.split(":");
@@ -433,7 +434,7 @@ public class Http {
             // Acceleration Server"
             // and Squid when using Squid as a SSL frontend.
             Header frontEndHttpsHeader = headers.get("front-end-https");
-            return ("https".equals(Play.configuration.get("XForwardedProto"))
+            return ("https".equals(Play.configuration.getProperty("XForwardedProto"))
                     || (xForwardedProtoHeader != null && "https".equals(xForwardedProtoHeader.value()))
                     || (xForwardedSslHeader != null && "on".equals(xForwardedSslHeader.value()))
                     || (frontEndHttpsHeader != null && "on".equals(frontEndHttpsHeader.value().toLowerCase())));
@@ -455,17 +456,17 @@ public class Http {
                 // split(":") may split the string into
                 // 3 parts....username, part1 of password and part2 of password
                 // so don't use split here
-                String decoded = new String(Codec.decodeBASE64(data));
+                String decoded = new String(Codec.decodeBASE64(data), UTF_8);
                 // splitting on ONLY first : allows user's password to contain a
                 // :
-                int indexOf = decoded.indexOf(":");
+                int indexOf = decoded.indexOf(':');
                 if (indexOf < 0)
                     return;
 
                 String username = decoded.substring(0, indexOf);
                 String thePasswd = decoded.substring(indexOf + 1);
-                user = username.length() > 0 ? username : null;
-                password = thePasswd.length() > 0 ? thePasswd : null;
+                user = !username.isEmpty() ? username : null;
+                password = !thePasswd.isEmpty() ? thePasswd : null;
             }
         }
 
@@ -480,34 +481,34 @@ public class Http {
             }
 
             if (headers.get("accept") == null) {
-                format = "html".intern();
+                format = "html";
                 return;
             }
 
             String accept = headers.get("accept").value();
 
-            if (accept.indexOf("application/xhtml") != -1 || accept.indexOf("text/html") != -1 || accept.startsWith("*/*")) {
-                format = "html".intern();
+            if (accept.contains("application/xhtml") || accept.contains("text/html") || accept.startsWith("*/*")) {
+                format = "html";
                 return;
             }
 
-            if (accept.indexOf("application/xml") != -1 || accept.indexOf("text/xml") != -1) {
-                format = "xml".intern();
+            if (accept.contains("application/xml") || accept.contains("text/xml")) {
+                format = "xml";
                 return;
             }
 
-            if (accept.indexOf("text/plain") != -1) {
-                format = "txt".intern();
+            if (accept.contains("text/plain")) {
+                format = "txt";
                 return;
             }
 
-            if (accept.indexOf("application/json") != -1 || accept.indexOf("text/javascript") != -1) {
-                format = "json".intern();
+            if (accept.contains("application/json") || accept.contains("text/javascript")) {
+                format = "json";
                 return;
             }
 
             if (accept.endsWith("*/*")) {
-                format = "html".intern();
+                format = "html";
                 return;
             }
         }
@@ -562,7 +563,7 @@ public class Http {
 
         @Override
         public String toString() {
-            return method + " " + path + (querystring != null && querystring.length() > 0 ? "?" + querystring : "");
+            return method + " " + path + (querystring != null && !querystring.isEmpty() ? "?" + querystring : "");
         }
 
         /**
@@ -572,28 +573,24 @@ public class Http {
          * @return Language codes in order of preference, e.g. "en-us,en-gb,en,de".
          */
         public List<String> acceptLanguage() {
-            final Pattern qpattern = Pattern.compile("q=([0-9\\.]+)");
+            final Pattern qpattern = Pattern.compile("q=([0-9.]+)");
             if (!headers.containsKey("accept-language")) {
                 return Collections.emptyList();
             }
             String acceptLanguage = headers.get("accept-language").value();
             List<String> languages = Arrays.asList(acceptLanguage.split(","));
-            Collections.sort(languages, new Comparator<String>() {
-
-                @Override
-                public int compare(String lang1, String lang2) {
-                    double q1 = 1.0;
-                    double q2 = 1.0;
-                    Matcher m1 = qpattern.matcher(lang1);
-                    Matcher m2 = qpattern.matcher(lang2);
-                    if (m1.find()) {
-                        q1 = Double.parseDouble(m1.group(1));
-                    }
-                    if (m2.find()) {
-                        q2 = Double.parseDouble(m2.group(1));
-                    }
-                    return (int) (q2 - q1);
+            languages.sort((lang1, lang2) -> {
+                double q1 = 1.0;
+                double q2 = 1.0;
+                Matcher m1 = qpattern.matcher(lang1);
+                Matcher m2 = qpattern.matcher(lang2);
+                if (m1.find()) {
+                    q1 = Double.parseDouble(m1.group(1));
                 }
+                if (m2.find()) {
+                    q2 = Double.parseDouble(m2.group(1));
+                }
+                return (int) (q2 - q1);
             });
             List<String> result = new ArrayList<>(10);
             for (String lang : languages) {
@@ -876,7 +873,7 @@ public class Http {
                 setHeader("Access-Control-Allow-Methods", allowMethods);
             }
             if (allowCredentials) {
-                if (allowOrigin.equals("*")) {
+                if ("*".equals(allowOrigin)) {
                     logger.warn(
                             "Response.accessControl: When the allowed domain is \"*\", Allow-Credentials is likely to be ignored by the browser.");
                 }
@@ -897,7 +894,7 @@ public class Http {
         }
 
         // Chunked stream
-        public boolean chunked = false;
+        public boolean chunked;
         final List<Consumer<Object>> writeChunkHandlers = new ArrayList<>();
 
         public void writeChunk(Object o) {
