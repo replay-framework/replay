@@ -23,8 +23,8 @@ public class ScopeTest {
     }
 
     private static void mockRequestAndResponse() {
-        Request.setCurrent(null);
-        Response.setCurrent(null);
+        Request.removeCurrent();
+        Response.removeCurrent();
     }
 
     @Test

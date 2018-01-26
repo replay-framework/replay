@@ -8,11 +8,10 @@ import play.utils.FastRuntimeException;
  */
 public abstract class Result extends FastRuntimeException {
 
-    public Result() {
-        super();
+    protected Result() {
     }
 
-    public Result(String description) {
+    protected Result(String description) {
         super(description);
     }
 
@@ -21,14 +20,4 @@ public abstract class Result extends FastRuntimeException {
     protected void setContentTypeIfNotSet(Http.Response response, String contentType) {
         response.setContentTypeIfNotSet(contentType);
     }
-
-    /**
-     * The encoding that should be used when writing this response to the client
-     * 
-     * @return The encoding of the response
-     */
-    protected String getEncoding() {
-        return Http.Response.current().encoding;
-    }
-
 }

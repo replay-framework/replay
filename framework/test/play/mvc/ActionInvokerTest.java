@@ -23,7 +23,7 @@ public class ActionInvokerTest {
     @Before
     public void setUp() throws Exception {
         new PlayBuilder().build();
-        Http.Request.setCurrent(null);
+        Http.Request.removeCurrent();
         CachedBoundActionMethodArgs.init();
         beforesCounter = 0;
         aftersCounter = 0;

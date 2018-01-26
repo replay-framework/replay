@@ -16,6 +16,7 @@ import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
 import play.mvc.Router.Route;
+import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.*;
@@ -79,26 +80,29 @@ public class ActionInvoker {
 
     }
 
-    private static void initActionContext(Http.Request request, Http.Response response) {
+    private static void initActionContext(Http.Request request, Http.Response response, Session session, Flash flash) {
         Http.Request.setCurrent(request);
         Http.Response.setCurrent(response);
 
         Scope.Params.setCurrent(request.params);
         RenderArgs.current.set(new RenderArgs());
         Scope.RouteArgs.current.set(new Scope.RouteArgs());
-        Session.current.set(Session.restore());
-        Scope.Flash.current.set(Scope.Flash.restore(request));
+
+        Session.current.set(session);
+        Flash.current.set(flash);
         CachedBoundActionMethodArgs.init();
     }
 
     public static void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
+        Session session = Session.restore(request);
+        Flash flash = Flash.restore(request);
+        initActionContext(request, response, session, flash);
 
         try {
-            initActionContext(request, response);
             Method actionMethod = request.invokedMethod;
 
-            Play.pluginCollection.beforeActionInvocation(request, response, Session.current(), RenderArgs.current(), actionMethod);
+            Play.pluginCollection.beforeActionInvocation(request, response, session, RenderArgs.current(), actionMethod);
 
             // Monitoring
             monitor = MonitorFactory.start(request.action + "()");
@@ -119,7 +123,7 @@ public class ActionInvoker {
                     if ("".equals(cacheKey)) {
                         cacheKey = "urlcache:" + request.url + request.querystring;
                     }
-                    actionResult = (Result) Cache.get(cacheKey);
+                    actionResult = Cache.get(cacheKey);
                 }
 
                 if (actionResult == null) {
@@ -154,12 +158,12 @@ public class ActionInvoker {
 
             // OK there is a result to apply
             // Save session & flash scope now
-            Session.current().save();
-            Scope.Flash.current().save(request, response);
+            session.save(request, response);
+            flash.save(request, response);
 
             result.apply(request, response);
 
-            Play.pluginCollection.afterActionInvocation(request, response, Scope.Flash.current());
+            Play.pluginCollection.afterActionInvocation(request, response, flash);
 
             // @Finally
             handleFinallies(request, null);
@@ -216,7 +220,7 @@ public class ActionInvoker {
      * @return The method or null
      */
     public static Method findActionMethod(String name, Class clazz) {
-        while (!clazz.getName().equals("java.lang.Object")) {
+        while (!"java.lang.Object".equals(clazz.getName())) {
             for (Method m : clazz.getDeclaredMethods()) {
                 if (m.getName().equalsIgnoreCase(name) && Modifier.isPublic(m.getModifiers())) {
                     // Check that it is not an interceptor
@@ -301,11 +305,9 @@ public class ActionInvoker {
      * caughtException-value is sent as argument to @Finally-method if method
      * has one argument which is Throwable
      *
-     * @param request
      * @param caughtException
      *            If @Finally-methods are called after an error, this variable
      *            holds the caught error
-     * @throws PlayException
      */
     static void handleFinallies(Http.Request request, Throwable caughtException) throws PlayException {
 
@@ -399,7 +401,7 @@ public class ActionInvoker {
             request.controllerInstance = Injector.getBeanOfType(request.controllerClass);
         }
 
-        Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(method, request.controllerInstance);
+        Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(request, method);
 
         Object methodClassInstance = isStatic ? null :
             (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
@@ -451,7 +453,7 @@ public class ActionInvoker {
         return new Object[] { controllerClass, actionMethod };
     }
 
-    public static Object[] getActionMethodArgs(Method method, Object o) throws Exception {
+    public static Object[] getActionMethodArgs(Http.Request request, Method method) throws Exception {
         String[] paramsNames = Java.parameterNames(method);
         if (paramsNames == null && method.getParameterTypes().length > 0) {
             throw new UnexpectedException("Parameter names not found for method " + method);
@@ -473,9 +475,9 @@ public class ActionInvoker {
 
             // In case of simple params, we don't want to parse the body.
             if (type.equals(String.class) || Number.class.isAssignableFrom(type) || type.isPrimitive()) {
-                params.put(paramsNames[i], Scope.Params.current().getAll(paramsNames[i]));
+                params.put(paramsNames[i], request.params.getAll(paramsNames[i]));
             } else {
-                params.putAll(Scope.Params.current().all());
+                params.putAll(request.params.all());
             }
             if (logger.isTraceEnabled()) {
                 logger.trace("getActionMethodArgs name [{}] annotation [{}]", paramsNames[i], Utils.join(method.getParameterAnnotations()[i], " "));

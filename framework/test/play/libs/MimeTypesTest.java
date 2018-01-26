@@ -36,7 +36,7 @@ public class MimeTypesTest {
     public void contentTypeShouldReturnDefaultCharsetInAbsenceOfResponse() {
         Response originalResponse = Response.current();
         try {
-            Response.setCurrent(null);
+            Response.removeCurrent();
             assertEquals("text/xml; charset=" + play.Play.defaultWebEncoding,
                          MimeTypes.getContentType("test.xml"));
         }

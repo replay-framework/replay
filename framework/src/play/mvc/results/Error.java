@@ -61,7 +61,7 @@ public class Error extends Result {
             errorHtml = getMessage();
         }
         try {
-            response.out.write(errorHtml.getBytes(getEncoding()));
+            response.out.write(errorHtml.getBytes(response.encoding));
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }

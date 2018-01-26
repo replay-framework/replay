@@ -33,7 +33,7 @@ public class RenderTemplate extends Result {
     public void apply(Request request, Response response) {
         try {
             String contentType = MimeTypes.getContentType(name, "text/plain");
-            response.out.write(content.getBytes(getEncoding()));
+            response.out.write(content.getBytes(response.encoding));
             setContentTypeIfNotSet(response, contentType);
         } catch (Exception e) {
             throw new UnexpectedException(e);

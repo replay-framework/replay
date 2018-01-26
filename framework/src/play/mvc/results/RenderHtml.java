@@ -19,7 +19,7 @@ public class RenderHtml extends Result {
     public void apply(Request request, Response response) {
         try {
             setContentTypeIfNotSet(response, "text/html");
-            response.out.write(html.getBytes(getEncoding()));
+            response.out.write(html.getBytes(response.encoding));
         } catch(Exception e) {
             throw new UnexpectedException(e);
         }

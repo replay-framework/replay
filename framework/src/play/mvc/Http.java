@@ -528,6 +528,10 @@ public class Http {
             current.set(request);
         }
 
+        public static void removeCurrent() {
+            current.remove();
+        }
+
         /**
          * Useful because we sometime use a lazy request loader
          * 
@@ -682,6 +686,10 @@ public class Http {
         @Deprecated
         public static void setCurrent(Response response) {
             current.set(response);
+        }
+
+        public static void removeCurrent() {
+            current.remove();
         }
 
         /**

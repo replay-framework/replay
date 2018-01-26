@@ -1,7 +1,6 @@
 package play.mvc.results;
 
 import play.exceptions.UnexpectedException;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 
@@ -19,8 +18,8 @@ public class RenderText extends Result {
     @Override
     public void apply(Request request, Response response) {
         try {
-            setContentTypeIfNotSet(response, "text/plain; charset=" + Http.Response.current().encoding);
-            response.out.write(text.getBytes(getEncoding()));
+            setContentTypeIfNotSet(response, "text/plain; charset=" + response.encoding);
+            response.out.write(text.getBytes(response.encoding));
         } catch(Exception e) {
             throw new UnexpectedException(e);
         }

@@ -93,8 +93,10 @@ public class Scope {
             }
         } // ThreadLocal access
 
+        @Deprecated
         public static final ThreadLocal<Flash> current = new ThreadLocal<>();
 
+        @Deprecated
         public static Flash current() {
             return current.get();
         }
@@ -178,16 +180,23 @@ public class Scope {
         static final String ID_KEY = "___ID";
         static final String TS_KEY = "___TS";
 
-        public static Session restore() {
-            return sessionStore.restore();
+        public static Session restore(Http.Request request) {
+            return sessionStore.restore(request);
         }
 
         Map<String, String> data = new HashMap<>(); // ThreadLocal access
         boolean changed;
+
+        @Deprecated
         public static final ThreadLocal<Session> current = new ThreadLocal<>();
 
+        @Deprecated
         public static Session current() {
             return current.get();
+        }
+
+        public static void removeCurrent() {
+            current.remove();
         }
 
         public String getId() {
@@ -213,8 +222,8 @@ public class Scope {
             changed = true;
         }
 
-        void save() {
-            sessionStore.save(this);
+        void save(Http.Request request, Http.Response response) {
+            sessionStore.save(this, request, response);
         }
 
         public void put(String key, String value) {
@@ -451,7 +460,7 @@ public class Scope {
             return ue.toString();
         }
 
-        public void flash(String... params) {
+        public void flash(Flash flash, String... params) {
             if (params.length == 0) {
                 for (String key : all().keySet()) {
                     if (data.get(key).length > 1) {
@@ -464,9 +473,9 @@ public class Scope {
                             sb.append(d);
                             coma = true;
                         }
-                        Flash.current().put(key, sb.toString());
+                        flash.put(key, sb.toString());
                     } else {
-                        Flash.current().put(key, get(key));
+                        flash.put(key, get(key));
                     }
                 }
             } else {
@@ -481,9 +490,9 @@ public class Scope {
                             sb.append(d);
                             coma = true;
                         }
-                        Flash.current().put(key, sb.toString());
+                        flash.put(key, sb.toString());
                     } else {
-                        Flash.current().put(key, get(key));
+                        flash.put(key, get(key));
                     }
                 }
             }
@@ -501,10 +510,17 @@ public class Scope {
     public static class RenderArgs {
 
         public Map<String, Object> data = new HashMap<>(); // ThreadLocal access
+
+        @Deprecated
         public static final ThreadLocal<RenderArgs> current = new ThreadLocal<>();
 
+        @Deprecated
         public static RenderArgs current() {
             return current.get();
+        }
+
+        public static void removeCurrent() {
+            current.remove();
         }
 
         public void put(String key, Object arg) {
@@ -532,8 +548,11 @@ public class Scope {
     public static class RouteArgs {
 
         public Map<String, Object> data = new HashMap<>(); // ThreadLocal access
+
+        @Deprecated
         public static final ThreadLocal<RouteArgs> current = new ThreadLocal<>();
 
+        @Deprecated
         public static RouteArgs current() {
             return current.get();
         }

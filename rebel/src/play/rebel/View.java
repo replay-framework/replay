@@ -98,7 +98,7 @@ public class View extends Result {
     this.content = template.render(templateBinding);
     this.renderTime = System.currentTimeMillis() - start;
     String contentType = MimeTypes.getContentType(template.name, "text/plain");
-    response.out.write(content.getBytes(getEncoding()));
+    response.out.write(content.getBytes(response.encoding));
     setContentTypeIfNotSet(response, contentType);
   }
 

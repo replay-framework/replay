@@ -55,11 +55,10 @@ public class RenderJson extends Result {
     }
 
     @Override
-    public void apply(Request request, Response response) {
+    public void apply(Request request, Response httpResponse) {
         try {
-            String encoding = getEncoding();
-            setContentTypeIfNotSet(response, "application/json; charset=" + encoding);
-            response.out.write(json.getBytes(encoding));
+            setContentTypeIfNotSet(httpResponse, "application/json; charset=" + httpResponse.encoding);
+            httpResponse.out.write(json.getBytes(httpResponse.encoding));
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }

@@ -53,7 +53,7 @@ public class LangTest {
         Http.Response.setCurrent( new Http.Response());
 
         // check default when missing request
-        Http.Request.setCurrent(null);
+        Http.Request.removeCurrent();
         assertThat(Lang.get()).isEqualTo("no");
 
         // check default when missing info in request
