@@ -1,6 +1,7 @@
 package play.mvc.results;
 
 import play.Play;
+import play.exceptions.TemplateNotFoundException;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http;
@@ -46,13 +47,16 @@ public class NotFound extends Result {
         binding.put("flash", Scope.Flash.current());
         binding.put("params", Scope.Params.current());
         binding.put("play", new Play());
-        String errorHtml = "Not found";
+
+        String errorHtml;
         try {
             errorHtml = TemplateLoader.load("errors/404." + (format == null ? "html" : format)).render(binding);
-        } catch(Exception e) {
+        } catch (TemplateNotFoundException e) {
+            errorHtml = "Not found";
         }
+
         try {
-            response.out.write(errorHtml.getBytes(getEncoding()));
+            response.out.write(errorHtml.getBytes(response.encoding));
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }
