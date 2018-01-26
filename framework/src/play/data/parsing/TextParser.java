@@ -3,27 +3,22 @@ package play.data.parsing;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TextParser extends DataParser {
+import static org.apache.commons.io.IOUtils.toByteArray;
 
+public class TextParser extends DataParser {
     @Override
     public Map<String, String[]> parse(Http.Request request) {
         try {
             Map<String, String[]> params = new HashMap<>();
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            int b;
-            while ((b = request.body.read()) != -1) {
-                os.write(b);
-            }
-            byte[] data = os.toByteArray();
+            byte[] data = toByteArray(request.body);
             params.put("body", new String[] {new String(data, request.encoding)});
+            request.body.reset();
             return params;
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }
     }
-
 }

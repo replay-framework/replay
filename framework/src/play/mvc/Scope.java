@@ -342,11 +342,6 @@ public class Scope {
                         _mergeWith(dataParser.parse(request));
                     }
                 }
-                try {
-                    request.body.close();
-                } catch (Exception e) {
-                    //
-                }
                 requestIsParsed = true;
             }
         }
