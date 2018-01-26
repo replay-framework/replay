@@ -1,6 +1,10 @@
 package play.mvc.results;
 
-import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.utils.FastRuntimeException;
 
 /**
@@ -15,9 +19,9 @@ public abstract class Result extends FastRuntimeException {
         super(description);
     }
 
-    public abstract void apply(Http.Request request, Http.Response response);
+    public abstract void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash);
 
-    protected void setContentTypeIfNotSet(Http.Response response, String contentType) {
+    protected void setContentTypeIfNotSet(Response response, String contentType) {
         response.setContentTypeIfNotSet(contentType);
     }
 }

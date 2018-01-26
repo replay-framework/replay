@@ -3,8 +3,10 @@ package play.rebel;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
-import play.mvc.Http;
-import play.mvc.Scope;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
@@ -44,16 +46,15 @@ public class View extends Result {
   }
 
   @Override
-  public void apply(Http.Request request, Http.Response response) {
+  public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     try {
-      renderView(response);
+      renderView(request, response, session, renderArgs, flash);
     }
     catch (IOException e) {
       throw new UnexpectedException(e);
     }
     finally {
       // we need to store session if authenticity token has been generated during rendering html
-      Session session = Session.current();
       if (isChanged(session)) {
         save(session);
       }
@@ -82,17 +83,17 @@ public class View extends Result {
     }
   }
 
-  private void renderView(Http.Response response) throws IOException {
+  private void renderView(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws IOException {
     long start = System.currentTimeMillis();
     Template template = resolveTemplate();
 
     Map<String, Object> templateBinding = new HashMap<>();
-    templateBinding.putAll(Scope.RenderArgs.current().data);
+    templateBinding.putAll(renderArgs.data);
     templateBinding.putAll(arguments);
-    templateBinding.put("session", Session.current());
-    templateBinding.put("request", Http.Request.current());
-    templateBinding.put("flash", Scope.Flash.current());
-    templateBinding.put("params", Scope.Params.current());
+    templateBinding.put("session", session);
+    templateBinding.put("request", request);
+    templateBinding.put("flash", flash);
+    templateBinding.put("params", request.params);
     templateBinding.put("errors", Validation.errors());
 
     this.content = template.render(templateBinding);
@@ -115,7 +116,7 @@ public class View extends Result {
   }
 
   public Map<String, Object> getArguments() {
-    Map<String, Object> combinedArguments = new HashMap<>(Scope.RenderArgs.current().data);
+    Map<String, Object> combinedArguments = new HashMap<>(RenderArgs.current().data);
     combinedArguments.putAll(arguments);
     return combinedArguments;
   }

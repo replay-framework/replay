@@ -97,7 +97,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            The Play response
      * @return true if this plugin has managed this request
      */
-    public boolean rawInvocation(Request request, Response response, Session session) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
         return false;
     }
 

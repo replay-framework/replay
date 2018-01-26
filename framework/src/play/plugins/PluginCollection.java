@@ -552,9 +552,9 @@ public class PluginCollection {
         }
     }
 
-    public boolean rawInvocation(Request request, Response response, Session session) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            if (plugin.rawInvocation(request, response, session)) {
+            if (plugin.rawInvocation(request, response, session, renderArgs, flash)) {
                 return true;
             }
         }

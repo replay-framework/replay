@@ -80,12 +80,12 @@ public class ActionInvoker {
 
     }
 
-    private static void initActionContext(Http.Request request, Http.Response response, Session session, Flash flash) {
+    private static void initActionContext(Http.Request request, Http.Response response, Session session, RenderArgs renderArgs, Flash flash) {
         Http.Request.setCurrent(request);
         Http.Response.setCurrent(response);
 
         Scope.Params.setCurrent(request.params);
-        RenderArgs.current.set(new RenderArgs());
+        RenderArgs.current.set(renderArgs);
         Scope.RouteArgs.current.set(new Scope.RouteArgs());
 
         Session.current.set(session);
@@ -97,12 +97,13 @@ public class ActionInvoker {
         Monitor monitor = null;
         Session session = Session.restore(request);
         Flash flash = Flash.restore(request);
-        initActionContext(request, response, session, flash);
+        RenderArgs renderArgs = new RenderArgs();
+        initActionContext(request, response, session, renderArgs, flash);
 
         try {
             Method actionMethod = request.invokedMethod;
 
-            Play.pluginCollection.beforeActionInvocation(request, response, session, RenderArgs.current(), actionMethod);
+            Play.pluginCollection.beforeActionInvocation(request, response, session, renderArgs, actionMethod);
 
             // Monitoring
             monitor = MonitorFactory.start(request.action + "()");
@@ -161,7 +162,7 @@ public class ActionInvoker {
             session.save(request, response);
             flash.save(request, response);
 
-            result.apply(request, response);
+            result.apply(request, response, session, renderArgs, flash);
 
             Play.pluginCollection.afterActionInvocation(request, response, flash);
 

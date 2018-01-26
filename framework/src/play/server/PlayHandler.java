@@ -31,6 +31,9 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.mvc.Scope;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.templates.JavaExtensions;
@@ -117,7 +120,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
 
                 // Raw invocation
-                boolean raw = Play.pluginCollection.rawInvocation(request, response, Scope.Session.current());
+                boolean raw = Play.pluginCollection.rawInvocation(request, response, Session.current(), RenderArgs.current(), Flash.current());
                 if (raw) {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
@@ -160,10 +163,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Response.setCurrent(response);
 
             Scope.Params.setCurrent(request.params);
-            Scope.RenderArgs.current.set(null);
+            RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
-            Scope.Session.current.set(null);
-            Scope.Flash.current.set(null);
+            Session.current.set(null);
+            Flash.current.set(null);
             CachedBoundActionMethodArgs.init();
 
             try {
@@ -653,9 +656,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         } else {
             binding.put("exception", e);
         }
-        binding.put("session", Scope.Session.current());
+        binding.put("session", Session.current());
         binding.put("request", Http.Request.current());
-        binding.put("flash", Scope.Flash.current());
+        binding.put("flash", Flash.current());
         binding.put("params", Scope.Params.current());
         binding.put("play", new Play());
         try {
