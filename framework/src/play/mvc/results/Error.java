@@ -1,6 +1,9 @@
 package play.mvc.results;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
+import play.exceptions.TemplateNotFoundException;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http;
@@ -15,6 +18,7 @@ import java.util.Map;
  * 500 Error
  */
 public class Error extends Result {
+    private static final Logger logger = LoggerFactory.getLogger(Error.class);
 
     private final int status;
 
@@ -40,15 +44,21 @@ public class Error extends Result {
         binding.put("exception", this);
         binding.put("result", this);
         binding.put("session", Scope.Session.current());
-        binding.put("request", Http.Request.current());
+        binding.put("request", request);
+        binding.put("response", response);
         binding.put("flash", Scope.Flash.current());
         binding.put("params", Scope.Params.current());
         binding.put("play", new Play());
-        String errorHtml = getMessage();
+        
+        String templatePath = "errors/" + this.status + "." + (format == null ? "html" : format);
+        String errorHtml;
         try {
-            errorHtml = TemplateLoader.load("errors/" + this.status + "." + (format == null ? "html" : format)).render(binding);
+            errorHtml = TemplateLoader.load(templatePath).render(binding);
+        } catch (TemplateNotFoundException noTemplateInDesiredFormat) {
+            errorHtml = getMessage();
         } catch (Exception e) {
-            // no template in desired format, just display the default response
+            logger.error("Failed to render {}", templatePath, e);
+            errorHtml = getMessage();
         }
         try {
             response.out.write(errorHtml.getBytes(getEncoding()));
