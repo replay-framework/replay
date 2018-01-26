@@ -15,7 +15,6 @@ import play.templates.TemplateLoader;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +55,7 @@ public class View extends Result {
     finally {
       // we need to store session if authenticity token has been generated during rendering html
       if (isChanged(session)) {
-        save(session);
+        session.save(request, response);
       }
     }
   }
@@ -66,17 +65,6 @@ public class View extends Result {
       Field field = Session.class.getDeclaredField("changed");
       field.setAccessible(true);
       return (boolean) field.get(session);
-    }
-    catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
-  private void save(Session session) {
-    try {
-      Method method = Session.class.getDeclaredMethod("save");
-      method.setAccessible(true);
-      method.invoke(session);
     }
     catch (Exception e) {
       throw new IllegalArgumentException(e);

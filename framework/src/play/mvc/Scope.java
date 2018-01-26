@@ -222,7 +222,7 @@ public class Scope {
             changed = true;
         }
 
-        void save(Http.Request request, Http.Response response) {
+        public void save(Http.Request request, Http.Response response) {
             sessionStore.save(this, request, response);
         }
 
