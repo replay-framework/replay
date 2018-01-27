@@ -4,6 +4,7 @@ import play.Play;
 import play.jobs.Job;
 import play.mvc.PlayController;
 import play.templates.FastTags;
+import play.templates.JavaExtensions;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -42,6 +43,7 @@ public class Injector {
         classes.addAll(Play.classes.getAssignableClasses(PlayController.class));
         classes.addAll(Play.classes.getAssignableClasses(Job.class));
         classes.addAll(Play.classes.getAssignableClasses(FastTags.class));
+        classes.addAll(Play.classes.getAssignableClasses(JavaExtensions.class));
 
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
