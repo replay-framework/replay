@@ -26,7 +26,7 @@ public class View extends Result {
   private static TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
   private final String templateName;
-  private final Map<String, Object> arguments = new HashMap<>();
+  private final Map<String, Object> arguments;
   private String content;
   private long renderTime;
 
@@ -35,13 +35,12 @@ public class View extends Result {
   }
 
   public View(String templateName) {
-    this(templateName, emptyMap());
+    this(templateName, new HashMap<>());
   }
 
   public View(String templateName, Map<String, Object> arguments) {
     this.templateName = templateName;
-    this.arguments.putAll(Scope.RenderArgs.current().data);
-    this.arguments.putAll(arguments);
+    this.arguments = arguments;
   }
 
   @Override
@@ -88,6 +87,7 @@ public class View extends Result {
     Template template = resolveTemplate();
 
     Map<String, Object> templateBinding = new HashMap<>();
+    templateBinding.putAll(Scope.RenderArgs.current().data);
     templateBinding.putAll(arguments);
     templateBinding.put("session", Session.current());
     templateBinding.put("request", Http.Request.current());
@@ -115,7 +115,9 @@ public class View extends Result {
   }
 
   public Map<String, Object> getArguments() {
-    return arguments;
+    Map<String, Object> combinedArguments = new HashMap<>(Scope.RenderArgs.current().data);
+    combinedArguments.putAll(arguments);
+    return combinedArguments;
   }
 
   public long getRenderTime() {
