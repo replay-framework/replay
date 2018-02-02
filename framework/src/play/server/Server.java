@@ -84,12 +84,6 @@ public class Server {
         Play play = new Play();
         play.init(root, System.getProperty("play.id", ""));
 
-        // TODO Remove support for "precompile"
-        if (System.getProperty("precompile") != null) {
-            logger.info("precompile done.");
-            return;
-        }
-
         if (Play.mode.isDev()) {
             new Server().start();
             play.start();

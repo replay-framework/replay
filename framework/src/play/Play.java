@@ -160,7 +160,7 @@ public class Play {
         }
 
         // Set to the Prod mode must be done before loadModules call as some modules (e.g. DocViewer) is only available in DEV
-        if (usePrecompiled || System.getProperty("precompile") != null) {
+        if (usePrecompiled) {
             mode = Mode.PROD;
         }
 
