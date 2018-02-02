@@ -6,10 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
-import play.libs.IO;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -21,8 +19,6 @@ public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static int httpPort;
-
-    private static final String PID_FILE = "server.pid";
 
     public Server() {
         this(parseInt(Play.configuration.getProperty("http.port", "9000")));
@@ -79,22 +75,10 @@ public class Server {
         }
     }
 
-    private static void writePID(File root) {
-        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-        File pidfile = new File(root, PID_FILE);
-        if (pidfile.exists()) {
-            throw new RuntimeException("The " + PID_FILE + " already exists. Is the server already running?");
-        }
-        IO.write(pid.getBytes(), pidfile);
-    }
-
     public static void main(String[] args) {
         File root = new File(System.getProperty("user.dir"));
         if (System.getProperty("precompiled", "false").equals("true")) {
             Play.usePrecompiled = true;
-        }
-        if (System.getProperty("writepid", "false").equals("true")) {
-            writePID(root);
         }
 
         Play play = new Play();
