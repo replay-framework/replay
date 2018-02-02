@@ -13,8 +13,9 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Properties;
 import java.util.concurrent.Executors;
+
+import static java.lang.Integer.parseInt;
 
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -23,33 +24,23 @@ public class Server {
 
     private static final String PID_FILE = "server.pid";
 
-    public Server(String[] args) {
+    public Server() {
+        this(parseInt(Play.configuration.getProperty("http.port", "9000")));
+    }
 
+    public Server(int port) {
+        httpPort = port;
+    }
+
+    public void start() {
         System.setProperty("file.encoding", "utf-8");
-        Properties p = Play.configuration;
-
-        httpPort = Integer.parseInt(getOpt(args, "http.port", p.getProperty("http.port", "9000")));
-
-        InetAddress address = null;
-
-        try {
-            if (p.getProperty("http.address") != null) {
-                address = InetAddress.getByName(p.getProperty("http.address"));
-            } else if (System.getProperties().containsKey("http.address")) {
-                address = InetAddress.getByName(System.getProperty("http.address"));
-            }
-
-        } catch (Exception e) {
-            logger.error("Could not understand http.address", e);
-            Play.fatalServerErrorOccurred();
-        }
 
         ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
         );
         try {
+            InetAddress address = address();
             bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
-
             bootstrap.bind(new InetSocketAddress(address, httpPort));
             bootstrap.setOption("child.tcpNoDelay", true);
 
@@ -71,21 +62,26 @@ public class Server {
             logger.error("Could not bind on port {}", httpPort, e);
             Play.fatalServerErrorOccurred();
         }
-
-        if (Play.mode == Mode.DEV || Play.runningInTestMode()) {
-           // print this line to STDOUT - not using logger, so auto test runner will not block if logger is misconfigured (see #1222)
-           System.out.println("~ Server is up and running");
-        }
     }
 
-    private String getOpt(String[] args, String arg, String defaultValue) {
-        String s = "--" + arg + "=";
-        for (String a : args) {
-            if (a.startsWith(s)) {
-                return a.substring(s.length());
+    private InetAddress address() {
+        InetAddress address = null;
+
+        try {
+            if (Play.configuration.getProperty("http.address") != null) {
+                address = InetAddress.getByName(Play.configuration.getProperty("http.address"));
             }
+            else if (System.getProperties().containsKey("http.address")) {
+                address = InetAddress.getByName(System.getProperty("http.address"));
+            }
+
         }
-        return defaultValue; 
+        catch (Exception e) {
+            logger.error("Could not understand http.address", e);
+            Play.fatalServerErrorOccurred();
+        }
+
+        return address;
     }
 
     private static void writePID(File root) {
@@ -116,12 +112,14 @@ public class Server {
         }
 
         if (Play.mode.isDev()) {
-            new Server(args);
+            new Server().start();
             play.start();
         }
         else {
             play.start();
-            new Server(args);
+            new Server().start();
         }
+
+        logger.info("~ Server is up and running on port " + httpPort);
     }
 }
