@@ -13,7 +13,14 @@ import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -146,9 +153,10 @@ public class Play {
 
         try {
             mode = Mode.valueOf(configuration.getProperty("application.mode", "DEV").toUpperCase());
-        } catch (IllegalArgumentException e) {
-            logger.error("Illegal mode '{}', use either prod or dev", configuration.getProperty("application.mode"));
-            fatalServerErrorOccurred();
+        }
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+              String.format("Illegal mode '%s', use either prod or dev", configuration.getProperty("application.mode")), e);
         }
 
         // Set to the Prod mode must be done before loadModules call as some modules (e.g. DocViewer) is only available in DEV
@@ -216,10 +224,10 @@ public class Play {
 
         try {
             propsFromFile = IO.readUtf8Properties(conf.inputstream());
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e) {
             if (e.getCause() instanceof IOException) {
-                logger.error("Cannot read {}", filename);
-                fatalServerErrorOccurred();
+                throw new RuntimeException("Cannot read configuration file " + filename, e);
             }
         }
         confs.add(conf);
@@ -455,14 +463,6 @@ public class Play {
      */
     public static boolean runningInTestMode() {
         return id.matches("test|test-?.*");
-    }
-
-    /**
-     * Call this method when there has been a fatal error that Play cannot recover from
-     */
-    public static void fatalServerErrorOccurred() {
-        // Just quit the process
-        System.exit(-1);
     }
 
     public static boolean useDefaultMockMailSystem() {

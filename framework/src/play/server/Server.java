@@ -1,7 +1,6 @@
 package play.server;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 
 import static java.lang.Integer.parseInt;
@@ -38,50 +38,45 @@ public class Server {
         ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
         );
-        try {
-            InetAddress address = address();
-            bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
-            bootstrap.bind(new InetSocketAddress(address, httpPort));
-            bootstrap.setOption("child.tcpNoDelay", true);
+        InetAddress address = address();
+        bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
+        bootstrap.bind(new InetSocketAddress(address, httpPort));
+        bootstrap.setOption("child.tcpNoDelay", true);
 
-            if (Play.mode == Mode.DEV) {
-                if (address == null) {
-                    logger.info("Listening for HTTP on port {} (Waiting a first request to start) ...", httpPort);
-                } else {
-                    logger.info("Listening for HTTP at {}:{} (Waiting a first request to start) ...", address, httpPort);
-                }
+        if (Play.mode == Mode.DEV) {
+            if (address == null) {
+                logger.info("Listening for HTTP on port {} (Waiting a first request to start) ...", httpPort);
             } else {
-                if (address == null) {
-                    logger.info("Listening for HTTP on port {} ...", httpPort);
-                } else {
-                    logger.info("Listening for HTTP at {}:{}  ...", address, httpPort);
-                }
+                logger.info("Listening for HTTP at {}:{} (Waiting a first request to start) ...", address, httpPort);
             }
-
-        } catch (ChannelException e) {
-            logger.error("Could not bind on port {}", httpPort, e);
-            Play.fatalServerErrorOccurred();
+        } else {
+            if (address == null) {
+                logger.info("Listening for HTTP on port {} ...", httpPort);
+            } else {
+                logger.info("Listening for HTTP at {}:{}  ...", address, httpPort);
+            }
         }
     }
 
     private InetAddress address() {
-        InetAddress address = null;
+        if (Play.configuration.getProperty("http.address") != null) {
+            return address(Play.configuration.getProperty("http.address"));
+        }
 
+        if (System.getProperties().containsKey("http.address")) {
+            return address(System.getProperty("http.address"));
+        }
+
+        return null;
+    }
+
+    private InetAddress address(String host) {
         try {
-            if (Play.configuration.getProperty("http.address") != null) {
-                address = InetAddress.getByName(Play.configuration.getProperty("http.address"));
-            }
-            else if (System.getProperties().containsKey("http.address")) {
-                address = InetAddress.getByName(System.getProperty("http.address"));
-            }
-
+            return InetAddress.getByName(host);
         }
-        catch (Exception e) {
-            logger.error("Could not understand http.address", e);
-            Play.fatalServerErrorOccurred();
+        catch (UnknownHostException e) {
+            throw new RuntimeException("Cannot resolve address " + host, e);
         }
-
-        return address;
     }
 
     private static void writePID(File root) {
