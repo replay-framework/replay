@@ -119,19 +119,17 @@ public class Play {
     /**
      * Init the framework
      *
-     * @param root
-     *            The application path
-     * @param id
-     *            The framework id to use
+     * @param id The framework id to use
      */
-    public void init(File root, String id) {
+    public void init(String id) {
+        Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
         Play.id = id;
         Play.started = false;
-        Play.applicationPath = root;
+        Play.applicationPath = new File(System.getProperty("user.dir"));
         readConfiguration();
         Logger.init();
 
-        logger.info("Starting {}", root.getAbsolutePath());
+        logger.info("Starting {}", applicationPath.getAbsolutePath());
 
         if (configuration.getProperty("play.tmp", "tmp").equals("none")) {
             tmpDir = null;

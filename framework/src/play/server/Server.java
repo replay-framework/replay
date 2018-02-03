@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -76,13 +75,8 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        File root = new File(System.getProperty("user.dir"));
-        if (System.getProperty("precompiled", "false").equals("true")) {
-            Play.usePrecompiled = true;
-        }
-
         Play play = new Play();
-        play.init(root, System.getProperty("play.id", ""));
+        play.init(System.getProperty("play.id", ""));
 
         if (Play.mode.isDev()) {
             new Server().start();
