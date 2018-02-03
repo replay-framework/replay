@@ -16,7 +16,7 @@ public class BaseSpec {
   @Before
   public void setUp() throws InterruptedException {
     Thread playStarter = new Thread(() -> {
-      play.init(new File(System.getProperty("application.path", ".")), "test");
+      play.init("test");
       play.start();
 
       int port = findFreePort();
