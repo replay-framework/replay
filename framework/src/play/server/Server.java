@@ -73,20 +73,4 @@ public class Server {
             throw new RuntimeException("Cannot resolve address " + host, e);
         }
     }
-
-    public static void main(String[] args) {
-        Play play = new Play();
-        play.init(System.getProperty("play.id", ""));
-
-        if (Play.mode.isDev()) {
-            new Server().start();
-            play.start();
-        }
-        else {
-            play.start();
-            new Server().start();
-        }
-
-        logger.info("~ Server is up and running on port " + httpPort);
-    }
 }
