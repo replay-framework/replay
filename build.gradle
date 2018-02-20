@@ -9,7 +9,7 @@ ext {
 subprojects {
 
   group='com.codeborne.replay'
-  version='1.6-SNAPSHOT'
+  version='1.6-git'
 
   apply plugin: 'java'
   apply plugin: 'maven'
