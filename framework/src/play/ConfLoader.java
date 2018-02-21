@@ -6,17 +6,20 @@ import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
 public class ConfLoader {
     private org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
 
     public Properties readOneConfigurationFile(String filename) {
-        VirtualFile conf = Play.getVirtualFile("conf/" + filename);
+        VirtualFile conf = VirtualFile.open(Play.applicationPath + "/conf/" + filename);
         if (Play.confs.contains(conf)) {
             throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
         }
@@ -32,10 +35,30 @@ public class ConfLoader {
         }
         Play.confs.add(conf);
 
+        addInheritedConfKeys(propsFromFile);
+
         propsFromFile = resolveEnvironmentOverrides(propsFromFile);
         resolveVariables(propsFromFile);
         resolveIncludes(propsFromFile);
         return propsFromFile;
+    }
+
+    protected void addInheritedConfKeys(Properties propsFromFile) {
+      String currentConf = "%" + Play.id;
+      String inheritedConf = propsFromFile.getProperty(currentConf);
+      if (isNotEmpty(inheritedConf)) {
+        int numInherited = 0;
+        for (String key : new ArrayList<>(propsFromFile.stringPropertyNames())) {
+          if (key.startsWith(inheritedConf)) {
+            String newKey = key.replace(inheritedConf, currentConf);
+            if (!propsFromFile.containsKey(newKey)) {
+              propsFromFile.setProperty(newKey, propsFromFile.getProperty(key));
+              numInherited++;
+            }
+          }
+        }
+        logger.info("Inherited " + numInherited + " configuration parameters from " + inheritedConf);
+      }
     }
 
     protected Properties resolveEnvironmentOverrides(Properties propsFromFile) {
