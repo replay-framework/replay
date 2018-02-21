@@ -1,6 +1,5 @@
 package play;
 
-import groovy.util.MapEntry;
 import org.slf4j.LoggerFactory;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +32,13 @@ public class ConfLoader {
         }
         Play.confs.add(conf);
 
-        // OK, check for instance specifics configuration
+        propsFromFile = resolveEnvironmentOverrides(propsFromFile);
+        resolveVariables(propsFromFile);
+        resolveIncludes(propsFromFile);
+        return propsFromFile;
+    }
+
+    protected Properties resolveEnvironmentOverrides(Properties propsFromFile) {
         Properties newConfiguration = new OrderSafeProperties();
         Pattern pattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
@@ -52,11 +56,7 @@ public class ConfLoader {
                 }
             }
         }
-
-        propsFromFile = newConfiguration;
-        resolveVariables(propsFromFile);
-        resolveIncludes(propsFromFile);
-        return propsFromFile;
+        return newConfiguration;
     }
 
     protected void resolveVariables(Properties propsFromFile) {
@@ -82,7 +82,7 @@ public class ConfLoader {
         }
     }
 
-    private void resolveIncludes(Properties propsFromFile) {
+    protected void resolveIncludes(Properties propsFromFile) {
         Map<Object, Object> toInclude = new HashMap<>(16);
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
             if (e.getKey().toString().startsWith("@include.")) {
@@ -97,7 +97,7 @@ public class ConfLoader {
         propsFromFile.putAll(toInclude);
     }
 
-    static void extractHttpPort() {
+    void extractHttpPort() {
         String javaCommand = System.getProperty("sun.java.command", "");
         jregex.Matcher m = new jregex.Pattern(".* --http.port=({port}\\d+)").matcher(javaCommand);
         if (m.matches()) {
