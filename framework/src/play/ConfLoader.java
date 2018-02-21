@@ -1,5 +1,6 @@
 package play;
 
+import groovy.util.MapEntry;
 import org.slf4j.LoggerFactory;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,18 +37,18 @@ public class ConfLoader {
         // OK, check for instance specifics configuration
         Properties newConfiguration = new OrderSafeProperties();
         Pattern pattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
-        for (Object key : propsFromFile.keySet()) {
-            Matcher matcher = pattern.matcher(key + "");
+        for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
+            Matcher matcher = pattern.matcher((e.getKey()).toString());
             if (!matcher.matches()) {
-                newConfiguration.put(key, propsFromFile.get(key).toString().trim());
+                newConfiguration.put(e.getKey(), e.getValue().toString().trim());
             }
         }
-        for (Object key : propsFromFile.keySet()) {
-            Matcher matcher = pattern.matcher(key + "");
+        for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
+            Matcher matcher = pattern.matcher(e.getKey().toString());
             if (matcher.matches()) {
                 String instance = matcher.group(1);
                 if (instance.equals(Play.id)) {
-                    newConfiguration.put(matcher.group(2), propsFromFile.get(key).toString().trim());
+                    newConfiguration.put(matcher.group(2), e.getValue().toString().trim());
                 }
             }
         }
@@ -59,8 +61,8 @@ public class ConfLoader {
 
     protected void resolveVariables(Properties propsFromFile) {
         Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
-        for (Object key : propsFromFile.keySet()) {
-            String value = propsFromFile.getProperty(key.toString());
+        for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
+            String value = e.getValue().toString();
             Matcher matcher = pattern.matcher(value);
             StringBuffer newValue = new StringBuffer(100);
             while (matcher.find()) {
@@ -70,25 +72,25 @@ public class ConfLoader {
                     r = System.getenv(jp);
                 }
                 if (r == null) {
-                    logger.warn("Cannot replace {} in configuration ({}={})", jp, key, value);
+                    logger.warn("Cannot replace {} in configuration ({}={})", jp, e.getKey(), value);
                     continue;
                 }
                 matcher.appendReplacement(newValue, r.replaceAll("\\\\", "\\\\\\\\"));
             }
             matcher.appendTail(newValue);
-            propsFromFile.setProperty(key.toString(), newValue.toString());
+            propsFromFile.setProperty(e.getKey().toString(), newValue.toString());
         }
     }
 
     private void resolveIncludes(Properties propsFromFile) {
         Map<Object, Object> toInclude = new HashMap<>(16);
-        for (Object key : propsFromFile.keySet()) {
-            if (key.toString().startsWith("@include.")) {
+        for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
+            if (e.getKey().toString().startsWith("@include.")) {
                 try {
-                    String filenameToInclude = propsFromFile.getProperty(key.toString());
+                    String filenameToInclude = e.getValue().toString();
                     toInclude.putAll(readOneConfigurationFile(filenameToInclude));
                 } catch (Exception ex) {
-                    logger.warn("Missing include: {}", key, ex);
+                    logger.warn("Missing include: {}", e.getKey(), ex);
                 }
             }
         }
