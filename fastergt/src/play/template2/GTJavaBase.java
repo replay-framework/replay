@@ -13,7 +13,13 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.commons.lang.StringEscapeUtils.escapeJavaScript;
 
 
 public abstract class GTJavaBase extends GTRenderingResult {
@@ -197,21 +203,32 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
 
     // We know that o is never null
-    public String objectToString( Object o) {
-        Class rawDataClass = getRawDataClass();
-        if (rawDataClass != null && rawDataClass.isAssignableFrom(o.getClass())) {
+    public String objectToString(Object o) {
+        if (isRawData(o)) {
             return convertRawDataToString(o);
-        } else if (!templateLocation.relativePath.endsWith(".html")) {
-            if ( templateLocation.relativePath.endsWith(".xml")) {
-                return escapeXML(o.toString());
-            } else if ( templateLocation.relativePath.endsWith(".csv")) {
-                return escapeCsv(o.toString());
-            } else {
-                return o.toString();
-            }
-        } else {
-            return escapeHTML( o.toString());
         }
+
+        String objectAsString = o.toString();
+        if (templateLocation.relativePath.endsWith(".xml")) {
+            return escapeXML(objectAsString);
+        }
+        if (templateLocation.relativePath.endsWith(".csv")) {
+            return escapeCsv(objectAsString);
+        }
+        if (!templateLocation.relativePath.endsWith(".html")) {
+            return objectAsString;
+        }
+        if (binding.hasVariable("__inside_script_tag") && "true".equals(binding.getVariable("__inside_script_tag"))) {
+            return escapeJavaScript(objectAsString);
+        }
+        else {
+            return escapeHTML(objectAsString);
+        }
+    }
+
+    private boolean isRawData(Object o) {
+        Class rawDataClass = getRawDataClass();
+        return rawDataClass != null && rawDataClass.isAssignableFrom(o.getClass());
     }
 
     public boolean evaluateCondition(Object test) {
