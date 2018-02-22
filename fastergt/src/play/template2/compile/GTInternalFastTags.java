@@ -271,7 +271,7 @@ public class GTInternalFastTags extends GTFastTag {
     }
 
 
-    public static void tag_inlineScript(GTJavaBase template, Map<String, Object> args, GTContentRenderer content) {
+    public static void tag_secureInlineJavaScript(GTJavaBase template, Map<String, Object> args, GTContentRenderer content) {
         content.setRuntimeProperty("__inside_script_tag", "true");
 
         try {
