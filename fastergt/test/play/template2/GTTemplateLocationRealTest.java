@@ -12,8 +12,8 @@ public class GTTemplateLocationRealTest {
       "<script>38</script>\n";
 
     String expectedHtml =
-      "#{secureInlineJavaScript}<script>42</script>#{/secureInlineJavaScript}\n" +
-      "#{secureInlineJavaScript}<script>38</script>#{/secureInlineJavaScript}\n";
+      "<script>#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
+      "<script>#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
 
     assertEquals(expectedHtml,
       new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
@@ -26,22 +26,8 @@ public class GTTemplateLocationRealTest {
       "<script type=\"application/javascript\">38</script>\n";
 
     String expectedHtml =
-      "#{secureInlineJavaScript}<script id=\"some-id\">42</script>#{/secureInlineJavaScript}\n" +
-      "#{secureInlineJavaScript}<script type=\"application/javascript\">38</script>#{/secureInlineJavaScript}\n";
-
-    assertEquals(expectedHtml,
-      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
-  }
-
-  @Test
-  public void ignoresScriptWithEmptyBody() {
-    String originalHtml =
-      "<script id=\"some-id\">42</script>\n" +
-      "<script src=\"public/javascript/some.js\"></script>\n";
-
-    String expectedHtml =
-      "#{secureInlineJavaScript}<script id=\"some-id\">42</script>#{/secureInlineJavaScript}\n" +
-      "<script src=\"public/javascript/some.js\"></script>\n";
+      "<script id=\"some-id\">#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
+      "<script type=\"application/javascript\">#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
 
     assertEquals(expectedHtml,
       new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
@@ -60,13 +46,13 @@ public class GTTemplateLocationRealTest {
       "</html>\n";
 
     String expectedHtml = "<html>\n" +
-      "#{secureInlineJavaScript}<script>\n" +
+      "<script>#{secureInlineJavaScript}\n" +
       " var foo = 42;\n" +
-      "</script>#{/secureInlineJavaScript}\n" +
-      "#{secureInlineJavaScript}<script id=\"some-id\" type=\"application/javascript\">\n" +
+      "#{/secureInlineJavaScript}</script>\n" +
+      "<script id=\"some-id\" type=\"application/javascript\">#{secureInlineJavaScript}\n" +
       " var bar = 38;\n" +
-      "</script>#{/secureInlineJavaScript}\n" +
-      "<script src=\"/public/javascripts/actual-documents.js\" ></script>\n" +
+      "#{/secureInlineJavaScript}</script>\n" +
+      "<script src=\"/public/javascripts/actual-documents.js\" >#{secureInlineJavaScript}#{/secureInlineJavaScript}</script>\n" +
       "</html>\n";
 
     assertEquals(expectedHtml,

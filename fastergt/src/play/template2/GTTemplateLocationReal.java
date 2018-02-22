@@ -7,7 +7,7 @@ import static java.util.regex.Pattern.DOTALL;
 
 public class GTTemplateLocationReal extends GTTemplateLocation {
 
-    private static final Pattern scriptBlockRegex = Pattern.compile("(<script.*?>.*?\\S.*?</script>)", DOTALL);
+    private static final Pattern scriptBlockRegex = Pattern.compile("<script(.*?)>(.*?)</script>", DOTALL);
     public final URL realFileURL;
 
     public GTTemplateLocationReal(String relativePath, URL realFileURL) {
@@ -22,7 +22,7 @@ public class GTTemplateLocationReal extends GTTemplateLocation {
     }
 
     String addInlineScriptTag(String originalHtml) {
-        return scriptBlockRegex.matcher(originalHtml).replaceAll("#{secureInlineJavaScript}$1#{/secureInlineJavaScript}");
+        return scriptBlockRegex.matcher(originalHtml).replaceAll("<script$1>#{secureInlineJavaScript}$2#{/secureInlineJavaScript}</script>");
     }
 
     @Override
