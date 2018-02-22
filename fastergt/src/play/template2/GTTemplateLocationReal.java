@@ -7,7 +7,7 @@ import static java.util.regex.Pattern.DOTALL;
 
 public class GTTemplateLocationReal extends GTTemplateLocation {
 
-    private static final Pattern inlineScript = Pattern.compile("(<script>.*?</script>)", DOTALL);
+    private static final Pattern inlineScript = Pattern.compile("(<script.*?>.*?</script>)", DOTALL);
     public final URL realFileURL;
 
     public GTTemplateLocationReal(String relativePath, URL realFileURL) {
