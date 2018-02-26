@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
  * hello=Bonjour, %s !
  * </pre>
  * 
- * <code>
- * Messages.get( "hello", "World"); // =&gt; "Bonjour, World !"
- * </code>
+ * {@code
+ * Messages.get( "hello", "World"); // => "Bonjour, World !"
+ * }
  * 
  */
 public class Messages {
@@ -31,7 +31,7 @@ public class Messages {
 
     public static Map<String, Properties> locales = new HashMap<>();
 
-    private static final Pattern recursive = Pattern.compile("&\\{(.*?)\\}");
+    private static final Pattern recursive = Pattern.compile("&\\{(.*?)}");
 
     /**
      * Given a message code, translate it using current locale. If there is no message in the current locale for the
@@ -54,7 +54,7 @@ public class Messages {
      *            the locale code, e.g. fr, fr_FR
      * @param keys
      *            the keys to get messages from. Wildcards can be used at the end: {'title', 'login.*'}
-     * @return messages as a {@link java.util.Properties java.util.Properties}
+     * @return messages as a {@link Properties java.util.Properties}
      */
     public static Properties find(String locale, Set<String> keys) {
         Properties result = new Properties();
@@ -128,10 +128,10 @@ public class Messages {
         return sb.toString();
     }
 
-    static Pattern formatterPattern = Pattern.compile("%((\\d+)\\$)?([-#+ 0,(]+)?(\\d+)?([.]\\d+)?([bBhHsScCdoxXeEfgGaAtT])");
+    private static final Pattern formatterPattern = Pattern.compile("%((\\d+)\\$)?([-#+ 0,(]+)?(\\d+)?([.]\\d+)?([bBhHsScCdoxXeEfgGaAtT])");
 
     @SuppressWarnings("unchecked")
-    static Object[] coolStuff(String pattern, Object[] args) {
+    private static Object[] coolStuff(String pattern, Object[] args) {
         // when invoked with a null argument we get a null args instead of an
         // array with a null value.
 
@@ -184,7 +184,7 @@ public class Messages {
      * 
      * @param locale
      *            the locale code eg. fr, fr_FR
-     * @return messages as a {@link java.util.Properties java.util.Properties}
+     * @return messages as a {@link Properties java.util.Properties}
      */
     public static Properties all(String locale) {
         if (locale == null || "".equals(locale)) {
