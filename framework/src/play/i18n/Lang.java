@@ -25,15 +25,21 @@ public class Lang {
      * Retrieve the current language or null
      *
      * @return The current language (fr, ja, it ...) or null
+     *
+     * @deprecated This method depends on current HTTP request, and thus can be used only from web controllers.
      */
+    @Deprecated
     public static String get() {
+        return get(Http.Request.current(), Response.current());
+    }
+
+    public static String get(Http.Request currentRequest, Response currentResponse) {
         String locale = current.get();
         if (locale == null) {
             // don't have current locale for this request - must try to resolve it
-            Http.Request currentRequest = Http.Request.current();
             if (currentRequest != null) {
                 // we have a current request - lets try to resolve language from it
-                resolveFrom(currentRequest);
+                resolveFrom(currentRequest, currentResponse);
             } else {
                 // don't have current request - just use default
                 setDefaultLocale();
@@ -70,19 +76,24 @@ public class Lang {
     }
 
 
+    @Deprecated
+    public static void change(String locale) {
+        change(locale, Response.current());
+    }
+
     /**
      * Change language for next requests
      *
      * @param locale (e.g. "fr", "ja", "it", "en_ca", "fr_be", ...)
+     * @param response current http response
      */
-    public static void change(String locale) {
+    public static void change(String locale, Response response) {
         String closestLocale = findClosestMatch(Collections.singleton(locale));
         if (closestLocale == null) {
             // Give up
             return;
         }
         if (set(closestLocale)) {
-            Response response = Response.current();
             if (response != null) {
                 // We have a current response in scope - set the language-cookie to store the selected language for the next requests
                 response.setCookie(Play.configuration.getProperty("application.lang.cookie", "PLAY_LANG"), locale, null, "/", null, Scope.COOKIE_SECURE);
@@ -147,7 +158,7 @@ public class Lang {
      *
      * @param request current request
      */
-    private static void resolveFrom(Request request) {
+    private static void resolveFrom(Request request, Response response) {
         // Check a cookie
         String cn = Play.configuration.getProperty("application.lang.cookie", "PLAY_LANG");
         if (request.cookies.containsKey(cn)) {
@@ -158,7 +169,7 @@ public class Lang {
                     return;
                 }
                 // could not use locale from cookie - clear the locale-cookie
-                Response.current().setCookie(cn, "", null, "/", null, Scope.COOKIE_SECURE);
+                response.setCookie(cn, "", null, "/", null, Scope.COOKIE_SECURE);
 
             }
 
@@ -181,12 +192,17 @@ public class Lang {
         }
     }
 
+    @Deprecated
+    public static Locale getLocale() {
+        return getLocale(Http.Request.current(), Response.current());
+    }
+
     /**
      * @return the default locale if the Locale cannot be found otherwise the locale
      * associated to the current Lang.
      */
-    public static Locale getLocale() {
-        return getLocaleOrDefault(get());
+    public static Locale getLocale(Http.Request currentRequest, Response currentResponse) {
+        return getLocaleOrDefault(get(currentRequest, currentResponse));
     }
 
     public static Locale getLocaleOrDefault(String localeStr) {

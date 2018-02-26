@@ -4,21 +4,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
-import play.exceptions.UnexpectedException;
 import play.libs.IO;
 import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class MessagesPlugin extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(MessagesPlugin.class);
 
-    static Long lastLoading = 0L;
+    private static Long lastLoading = 0L;
 
-    private static List<String> includeMessageFilenames = new ArrayList<>();
+    private static final List<String> includeMessageFilenames = new ArrayList<>();
 
     @Override
     public void onApplicationStart() {
@@ -55,23 +59,22 @@ public class MessagesPlugin extends PlayPlugin {
         lastLoading = System.currentTimeMillis();
     }
 
-    static Properties read(VirtualFile vf) {
+    Properties read(VirtualFile vf) {
         if (vf != null) {
             return read(vf.getRealFile());
         }
         return null;
     }
 
-    static Properties read(File file) {
+    Properties read(File file) {
         Properties propsFromFile = null;
         if (file != null && !file.isDirectory()) {
-            InputStream inStream = null;
-            try {
-                inStream = new FileInputStream(file);
-            } catch (Exception e) {
-                throw new UnexpectedException(e);
+            try (InputStream inStream = new FileInputStream(file)) {
+                propsFromFile = IO.readUtf8Properties(inStream);
             }
-            propsFromFile = IO.readUtf8Properties(inStream);
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             // Include
             Map<Object, Object> toInclude = new HashMap<>(16);
@@ -99,7 +102,7 @@ public class MessagesPlugin extends PlayPlugin {
         return propsFromFile;
     }
 
-    private static File getIncludeFile(File file, String filenameToInclude) {
+    private File getIncludeFile(File file, String filenameToInclude) {
         if (file != null && filenameToInclude != null && !filenameToInclude.isEmpty()) {
             // Test absolute path
             File fileToInclude = new File(filenameToInclude);
