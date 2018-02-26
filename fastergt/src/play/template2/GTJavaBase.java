@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Formattable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -298,7 +299,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
     // must be overridden by play framework
     public abstract boolean validationHasError(String key);
 
-    // Implement this method to do the actuall message-resolving
+    // Implement this method to do the actual message-resolving
     protected abstract String resolveMessage(Object key, Object[] args);
 
     public void clearElseFlag() {
@@ -317,30 +318,36 @@ public abstract class GTJavaBase extends GTRenderingResult {
             return false;
         }
     }
-    
+
     protected String handleMessageTag(Object _args) {
+        List argsList = (List) _args;
 
-        List argsList = (List)_args;
-
-        if (argsList.isEmpty()) {
-            throw new GTTemplateRuntimeException("It looks like you don't have anything in your Message tag");
+        switch (argsList.size()) {
+            case 0: throw new GTTemplateRuntimeException("It looks like you don't have anything in your Message tag");
+            case 1: return resolveMessage(assertKeyNonNull(argsList.get(0)), emptyArray);
+            default: return resolveMessage(assertKeyNonNull(argsList.get(0)), messageArguments(argsList));
         }
-        Object key = argsList.get(0);
-        if (key==null) {
+    }
+
+    private Object assertKeyNonNull(Object key) {
+        if (key == null) {
             throw new GTTemplateRuntimeException("You are trying to resolve a message with an expression " +
-                    "that is resolved to null - " +
-                    "have you forgotten quotes around the message-key?");
+              "that is resolved to null - " +
+              "have you forgotten quotes around the message-key?");
         }
-        if (argsList.size() == 1) {
-            return resolveMessage(key, emptyArray);
-        } else {
-            // extract args from val
-            Object[] args = new Object[argsList.size()-1];
-            for( int i=1;i<argsList.size();i++) {
-                args[i-1] = argsList.get(i);
-            }
-            return resolveMessage(key, args);
+        return key;
+    }
+
+    private Object[] messageArguments(List argsList) {
+        Object[] args = new Object[argsList.size() - 1];
+        for (int i = 1; i < argsList.size(); i++) {
+            args[i - 1] = escapeMessageArgument(argsList.get(i));
         }
+        return args;
+    }
+
+    private Object escapeMessageArgument(Object arg) {
+        return arg instanceof Formattable ? arg : objectToString(arg);
     }
 
     protected Iterator convertToIterator(final Object o) {
