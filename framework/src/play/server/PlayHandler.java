@@ -5,9 +5,23 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.jboss.netty.handler.codec.http.*;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.handler.codec.http.HttpMessage;
+import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jboss.netty.handler.codec.http.HttpRequest;
+import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.jboss.netty.handler.codec.http.cookie.Cookie;
 import org.jboss.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -42,16 +56,25 @@ import play.utils.HTTP;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
 
@@ -128,6 +151,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     Invoker.invoke(new NettyInvocation(request, response, ctx, nettyRequest, messageEvent));
                 }
 
+            } catch (IllegalArgumentException ex) {
+                logger.warn("Exception on request. serving 403 back", ex);
+                serve403(ex, ctx, nettyRequest);
             } catch (Exception ex) {
                 logger.warn("Exception on request. serving 500 back", ex);
                 serve500(ex, ctx, nettyRequest);
@@ -368,10 +394,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         // Decide whether to close the connection or not.
 
-        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.status));
-        if (exposePlayServer) {
-            nettyResponse.headers().set(SERVER, signature);
-        }
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
 
         if (response.contentType != null) {
             nettyResponse.headers().set(CONTENT_TYPE,
@@ -618,33 +641,27 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    public static void serve404(NotFound e, ChannelHandlerContext ctx, Request request, HttpRequest nettyRequest) {
-        logger.trace("serve404: begin");
-        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
-        if (exposePlayServer) {
-            nettyResponse.headers().set(SERVER, signature);
-        }
+    private static void serve403(Exception e, ChannelHandlerContext ctx, HttpRequest nettyRequest) {
+        logger.trace("serve403: begin");
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.FORBIDDEN);
+        nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
+        printResponse(ctx, nettyResponse, e.getMessage() + '\n');
+        logger.trace("serve403: end");
+    }
 
-        nettyResponse.headers().set(CONTENT_TYPE, "text/html");
+    private static void serve404(NotFound e, ChannelHandlerContext ctx, Request request, HttpRequest nettyRequest) {
+        logger.trace("serve404: begin");
+        String format = defaultString(request.format, "txt");
+        String contentType = MimeTypes.getContentType("404." + format, "text/plain");
+
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
+        nettyResponse.headers().set(CONTENT_TYPE, contentType);
+
         Map<String, Object> binding = getBindingForErrors(e, false);
 
-        String format = Request.current().format;
-        if (format == null) {
-            format = "txt";
-        }
-        nettyResponse.headers().set(CONTENT_TYPE, (MimeTypes.getContentType("404." + format, "text/plain")));
 
         String errorHtml = TemplateLoader.load("errors/404." + format).render(binding);
-        try {
-            byte[] bytes = errorHtml.getBytes(Response.current().encoding);
-            ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
-            setContentLength(nettyResponse, bytes.length);
-            nettyResponse.setContent(buf);
-            ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
-            writeFuture.addListener(ChannelFutureListener.CLOSE);
-        } catch (UnsupportedEncodingException fex) {
-            logger.error("(encoding ?)", fex);
-        }
+        printResponse(ctx, nettyResponse, errorHtml);
         logger.trace("serve404: end");
     }
 
@@ -670,14 +687,24 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         return binding;
     }
 
+    private static void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorHtml) {
+        try {
+            byte[] bytes = errorHtml.getBytes(Response.current().encoding);
+            ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
+            setContentLength(nettyResponse, bytes.length);
+            nettyResponse.setContent(buf);
+            ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
+            writeFuture.addListener(ChannelFutureListener.CLOSE);
+        } catch (UnsupportedEncodingException fex) {
+            logger.error("(encoding ?)", fex);
+        }
+    }
+
     // TODO: add request and response as parameter
     public static void serve500(Exception e, ChannelHandlerContext ctx, HttpRequest nettyRequest) {
         logger.trace("serve500: begin");
 
-        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
-        if (exposePlayServer) {
-            nettyResponse.headers().set(SERVER, signature);
-        }
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR);
 
         Request request = Request.current();
         Response response = Response.current();
@@ -763,14 +790,19 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serve500: end");
     }
 
+    private static HttpResponse createHttpResponse(HttpResponseStatus status) {
+        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
+        if (exposePlayServer) {
+            nettyResponse.headers().set(SERVER, signature);
+        }
+        return nettyResponse;
+    }
+
     public void serveStatic(RenderStatic renderStatic, ChannelHandlerContext ctx, Request request, Response response,
             HttpRequest nettyRequest, MessageEvent e) {
         logger.trace("serveStatic: begin");
 
-        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.status));
-        if (exposePlayServer) {
-            nettyResponse.headers().set(SERVER, signature);
-        }
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
         try {
             VirtualFile file = Play.getVirtualFile(renderStatic.file);
             if (file != null && file.exists() && file.isDirectory()) {

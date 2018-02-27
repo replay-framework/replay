@@ -1,6 +1,6 @@
 package play.utils;
 
-import org.apache.commons.lang.StringUtils;
+import play.Play;
 import play.libs.IO;
 
 import java.io.InputStream;
@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class HTTP {
 
@@ -23,27 +26,26 @@ public class HTTP {
 
     public static ContentTypeWithEncoding parseContentType(String contentType) {
         if (contentType == null) {
-            return new ContentTypeWithEncoding("text/html".intern(), null);
-        } else {
-            String[] contentTypeParts = contentType.split(";");
-            String _contentType = contentTypeParts[0].trim().toLowerCase();
-            String _encoding = null;
-            // check for encoding-info
-            if (contentTypeParts.length >= 2) {
-                String[] encodingInfoParts = contentTypeParts[1].split(("="));
-                if (encodingInfoParts.length == 2 && encodingInfoParts[0].trim().equalsIgnoreCase("charset")) {
-                    // encoding-info was found in request
-                    _encoding = encodingInfoParts[1].trim();
-
-                    if (StringUtils.isNotBlank(_encoding) && ((_encoding.startsWith("\"") && _encoding.endsWith("\""))
-                            || (_encoding.startsWith("'") && _encoding.endsWith("'")))) {
-                        _encoding = _encoding.substring(1, _encoding.length() - 1).trim();
-                    }
-                }
-            }
-            return new ContentTypeWithEncoding(_contentType, _encoding);
+            return new ContentTypeWithEncoding("text/html", Play.defaultWebEncoding);
         }
 
+        String[] contentTypeParts = contentType.split(";");
+        String _contentType = contentTypeParts[0].trim().toLowerCase();
+        String _encoding = null;
+        // check for encoding-info
+        if (contentTypeParts.length >= 2) {
+            String[] encodingInfoParts = contentTypeParts[1].split(("="));
+            if (encodingInfoParts.length == 2 && encodingInfoParts[0].trim().equalsIgnoreCase("charset")) {
+                // encoding-info was found in request
+                _encoding = encodingInfoParts[1].trim();
+
+                if (isNotBlank(_encoding) && ((_encoding.startsWith("\"") && _encoding.endsWith("\""))
+                        || (_encoding.startsWith("'") && _encoding.endsWith("'")))) {
+                    _encoding = _encoding.substring(1, _encoding.length() - 1).trim();
+                }
+            }
+        }
+        return new ContentTypeWithEncoding(_contentType, defaultString(_encoding, Play.defaultWebEncoding));
     }
 
     private static final Map<String, String> lower2UppercaseHttpHeaders = initLower2UppercaseHttpHeaders();

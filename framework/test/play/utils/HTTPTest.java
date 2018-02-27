@@ -36,7 +36,7 @@ public class HTTPTest {
         assertThat(simpleQuotedCharsetContentType.contentType).isEqualTo("text/html");
 
         HTTP.ContentTypeWithEncoding defaultContentType = HTTP.parseContentType(null);
-        assertThat(defaultContentType.encoding).isEqualTo(null);
+        assertThat(defaultContentType.encoding).isEqualTo("utf-8");
         assertThat(defaultContentType.contentType).isEqualTo("text/html");
     }
 

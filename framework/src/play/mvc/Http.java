@@ -168,6 +168,7 @@ public class Http {
      * An HTTP Request
      */
     public static class Request implements Serializable {
+        private static final Pattern IP_REGEX = Pattern.compile("[\\d.:/a-zA-Z]+");
 
         /**
          * Server host
@@ -346,26 +347,14 @@ public class Http {
                 InputStream _body, String _url, String _host, boolean _isLoopback, int _port, String _domain, boolean _secure,
                 Map<String, Http.Header> _headers, Map<String, Http.Cookie> _cookies) {
             Request newRequest = new Request();
-
             newRequest.remoteAddress = _remoteAddress;
             newRequest.method = _method;
             newRequest.path = _path;
             newRequest.querystring = _querystring;
 
-            // must try to extract encoding-info from contentType
-            if (_contentType == null) {
-                newRequest.contentType = "text/html";
-            } else {
-
-                HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
-                newRequest.contentType = contentTypeEncoding.contentType;
-                // check for encoding-info
-                if (contentTypeEncoding.encoding != null) {
-                    // encoding-info was found in request
-                    newRequest.encoding = contentTypeEncoding.encoding;
-                }
-            }
-
+            HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
+            newRequest.contentType = contentTypeEncoding.contentType;
+            newRequest.encoding = contentTypeEncoding.encoding;
             newRequest.body = _body;
             newRequest.url = _url;
             newRequest.host = _host;
@@ -373,24 +362,28 @@ public class Http {
             newRequest.port = _port;
             newRequest.domain = _domain;
             newRequest.secure = _secure;
-
-            if (_headers == null) {
-                _headers = new HashMap<>(16);
-            }
-            newRequest.headers = _headers;
-
-            if (_cookies == null) {
-                _cookies = new HashMap<>(16);
-            }
-            newRequest.cookies = _cookies;
-
+            newRequest.headers = _headers != null ? _headers : new HashMap<>(16);
+            newRequest.cookies = _cookies != null ? _cookies : new HashMap<>(16);
             newRequest.parseXForwarded();
-
             newRequest.resolveFormat();
-
             newRequest.authorizationInit();
-
+            validateXForwarded(newRequest.headers.get("x-forwarded-for"));
             return newRequest;
+        }
+
+        static void validateXForwarded(Header xForwardedFor) {
+            if (xForwardedFor == null) return;
+
+            String[] ips = xForwardedFor.value().trim().split(",+");
+            for (String ip : ips) {
+                if (!isValidIp(ip.trim())) {
+                    throw new IllegalArgumentException("Unacceptable X-Forwarded-For format: " + xForwardedFor.value());
+                }
+            }
+        }
+
+        private static boolean isValidIp(String ip) {
+            return IP_REGEX.matcher(ip).matches();
         }
 
         protected void parseXForwarded() {
