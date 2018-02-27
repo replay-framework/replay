@@ -29,22 +29,6 @@
     #header p {
         color: #333;
     }
-    #routes {
-        background: #f6f6f6;
-    }
-    #routes h2 {
-        font-weight: normal;
-        font-size: 18px;
-        margin: 0 0 10px 0;
-    }
-    #routes ol {
-     
-    }
-    #routes li {
-        font-size: 14px;
-        font-family: monospace;  
-        color: #333;
-    }
 </style>
 
 <div id="header" class="block">
@@ -55,13 +39,3 @@
         ${result.message}
     </p>
 </div>
-<div id="routes" class="block">
-    <h2>These routes have been tried, in this order :</h2>
-    <ol>
-        #{list items:play.mvc.Router.routes, as:'route'}
-            <li>${route.method.pad(10).raw()}${(route.host + route.path).pad(50).raw()}${route.action} <!-- ${route.hostPattern}${route.pattern} to ${route.actionPattern} --></li>
-        #{/list}
-    </ol>
-</div>
-
-
