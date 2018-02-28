@@ -3,21 +3,19 @@ package play;
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import play.Play.Mode;
+import play.db.jpa.JPA;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
-import play.libs.SupplierWithException;
 import play.utils.PThreadFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -222,13 +220,6 @@ public class Invoker {
             InvocationContext.current.remove();
         }
 
-        private void withinFilter(SupplierWithException<Void> fct) throws Exception {
-            Optional<PlayPlugin.Filter<Void>> filters = Play.pluginCollection.composeFilters();
-            if (filters.isPresent()) {
-                filters.get().withinFilter(fct);
-            }
-        }
-
         /**
          * It's time to execute.
          */
@@ -241,16 +232,10 @@ public class Invoker {
                 preInit();
                 if (init()) {
                     before();
-                    final AtomicBoolean executed = new AtomicBoolean(false);
-                    this.withinFilter(() -> {
-                        executed.set(true);
+                    JPA.withinFilter(() -> {
                         execute();
                         return null;
                     });
-                    // No filter function found => we need to execute anyway( as before the use of withinFilter )
-                    if (!executed.get()) {
-                        execute();
-                    }
                     after();
                     onSuccess();
                 }

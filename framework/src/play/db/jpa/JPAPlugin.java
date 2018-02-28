@@ -21,12 +21,21 @@ import play.db.DB;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
-import play.libs.SupplierWithException;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.emptyList;
@@ -288,27 +297,6 @@ public class JPAPlugin extends PlayPlugin {
        for(String emfKey: JPA.emfs.keySet()) {
            JPA.closeTx(emfKey);
        }
-    }
-
-    public class TransactionalFilter extends Filter<Object> {
-      public TransactionalFilter(String name) {
-        super(name);
-      }
-      @Override
-      public Object withinFilter(SupplierWithException<Object> fct) throws Exception {
-        return JPA.withinFilter(fct);
-      }
-    }
-
-    private TransactionalFilter txFilter = new TransactionalFilter("TransactionalFilter");
-
-    @Override
-    public Filter<Object> getFilter() {
-      return txFilter;
-    }
-
-    public static EntityManager createEntityManager() {
-      return JPA.createEntityManager(JPA.DEFAULT);
     }
 
     @Override

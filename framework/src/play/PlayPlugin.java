@@ -3,8 +3,6 @@ package play;
 import com.google.gson.JsonObject;
 import play.data.binding.RootParamNode;
 import play.db.Model;
-import play.libs.FunctionWithException;
-import play.libs.SupplierWithException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -261,76 +259,4 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
         int otherHashCode = System.identityHashCode(o);
         return Integer.compare(thisHashCode, otherHashCode);
     }
-
-    /**
-     * Class that define a filter. A filter is a class that wrap a certain behavior around an action. You can access
-     * your Request and Response object within the filter. See the JPA plugin for an example. The JPA plugin wraps a
-     * transaction around an action. The filter applies a transaction to the current Action.
-     */
-    public abstract static class Filter<T> {
-        private final String name;
-
-        protected Filter(String name) {
-            this.name = name;
-        }
-
-        public abstract T withinFilter(SupplierWithException<T> fct) throws Exception;
-
-        /**
-         * Surround innerFilter with this. (innerFilter after this)
-         * 
-         * @param innerFilter
-         *            filter to be wrapped.
-         * @return a new Filter object. newFilter.withinFilter(x) is
-         *         outerFilter.withinFilter(innerFilter.withinFilter(x))
-         */
-        public Filter<T> decorate(final Filter<T> innerFilter) {
-            final Filter<T> outerFilter = this;
-            return new Filter<T>(this.name) {
-                @Override
-                public T withinFilter(SupplierWithException<T> fct) throws Exception {
-                    return compose(outerFilter.asFunction(), innerFilter.asFunction()).apply(fct);
-                }
-            };
-        }
-
-        /**
-         * Compose two second order functions whose input is a zero param function that returns type T...
-         * 
-         * @param outer
-         *            Function that will wrap inner -- ("outer after inner")
-         * @param inner
-         *            Function to be wrapped by outer function -- ("outer after inner")
-         * @return A function that computes outer(inner(x)) on application.
-         */
-        private static <T> FunctionWithException<SupplierWithException<T>, T> compose(final FunctionWithException<SupplierWithException<T>, T> outer,
-                                                                                      final FunctionWithException<SupplierWithException<T>, T> inner) {
-
-            return arg -> outer.apply(() -> inner.apply(arg));
-        }
-
-        private final FunctionWithException<SupplierWithException<T>, T> _asFunction = arg -> withinFilter(arg);
-
-        public FunctionWithException<SupplierWithException<T>, T> asFunction() {
-            return _asFunction;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public final boolean hasFilter() {
-        return this.getFilter() != null;
-    }
-
-    /**
-     * Return the filter implementation for this plugin.
-     * 
-     * @return filter object of this plugin
-     */
-    public Filter getFilter() {
-        return null;
-    }
-
 }

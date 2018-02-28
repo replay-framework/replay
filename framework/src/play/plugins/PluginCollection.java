@@ -26,10 +26,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -70,17 +68,6 @@ public class PluginCollection {
      * have to create it all the time
      */
     protected List<PlayPlugin> enabledPlugins_readOnlyCopy = createReadonlyCopy(enabledPlugins);
-
-    /**
-     * List of all enabled plugins with filters
-     */
-    protected List<PlayPlugin> enabledPluginsWithFilters = new ArrayList<>();
-
-    /**
-     * Readonly copy of enabledPluginsWithFilters - updated each time enabledPluginsWithFilters is updated. Using this
-     * cached copy so we don't have to create it all the time
-     */
-    protected List<PlayPlugin> enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
 
     /**
      * Using readonly list to crash if someone tries to modify the copy.
@@ -267,13 +254,6 @@ public class PluginCollection {
                 enabledPlugins.add(plugin);
                 Collections.sort(enabledPlugins);
                 enabledPlugins_readOnlyCopy = createReadonlyCopy(enabledPlugins);
-
-                if (plugin.hasFilter()) {
-                    enabledPluginsWithFilters.add(plugin);
-                    Collections.sort(enabledPluginsWithFilters);
-                    enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
-                }
-
                 logger.trace("Plugin {} enabled", plugin);
                 return true;
             }
@@ -318,15 +298,8 @@ public class PluginCollection {
      * @return true if plugin was enabled and now is disabled
      */
     public synchronized boolean disablePlugin(PlayPlugin plugin) {
-        // try to disable it?
         if (enabledPlugins.remove(plugin)) {
-            // plugin was removed
             enabledPlugins_readOnlyCopy = createReadonlyCopy(enabledPlugins);
-
-            if (enabledPluginsWithFilters.remove(plugin)) {
-                enabledPluginsWithFilters_readOnlyCopy = createReadonlyCopy(enabledPluginsWithFilters);
-            }
-
             logger.trace("Plugin {} disabled", plugin);
             return true;
         }
@@ -352,34 +325,6 @@ public class PluginCollection {
      */
     public List<PlayPlugin> getEnabledPlugins() {
         return enabledPlugins_readOnlyCopy;
-    }
-
-    /**
-     * Returns new readonly list of all enabled plugins that define filters.
-     * 
-     * @return List of plugins
-     */
-    public List<PlayPlugin> getEnabledPluginsWithFilters() {
-        return enabledPluginsWithFilters_readOnlyCopy;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> Optional<PlayPlugin.Filter<T>> composeFilters() {
-        // Copy list of plugins here in case the list changes in the midst of
-        // doing composition...
-        // (Is it really necessary to do this?)
-        List<PlayPlugin> pluginsWithFilters = new ArrayList<>(this.getEnabledPluginsWithFilters());
-
-        if (pluginsWithFilters.isEmpty()) {
-            return Optional.empty();
-        } else {
-            Iterator<PlayPlugin> itr = pluginsWithFilters.iterator();
-            PlayPlugin.Filter<T> ret = itr.next().getFilter();
-            while (itr.hasNext()) {
-                ret = ret.<T> decorate(itr.next().getFilter());
-            }
-            return Optional.of(ret);
-        }
     }
 
     /**

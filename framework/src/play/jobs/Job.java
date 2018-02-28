@@ -6,20 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Invoker.InvocationContext;
-import play.Play;
-import play.PlayPlugin;
+import play.db.jpa.JPA;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.libs.Promise;
-import play.libs.SupplierWithException;
 import play.libs.Time;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A job is an asynchronously executed unit of work
@@ -154,40 +150,16 @@ public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
         call();
     }
 
-    private V withinFilter(SupplierWithException<V> fct) throws Exception {
-        Optional<PlayPlugin.Filter<V>> filters = Play.pluginCollection.composeFilters();
-        if (!filters.isPresent()) {
-            return null;
-        }
-        else {
-            return filters.get().withinFilter(fct);
-        }
-    }
-
     @Override
     public V call() {
         Monitor monitor = null;
         try {
             if (init()) {
                 before();
-                V result;
-
                 lastException = null;
                 lastRun = System.currentTimeMillis();
                 monitor = MonitorFactory.start(this + ".doJob()");
-
-                // If we have a plugin, get him to execute the job within the filter.
-                final AtomicBoolean executed = new AtomicBoolean(false);
-                result = this.withinFilter(() -> {
-                    executed.set(true);
-                    return doJobWithResult();
-                });
-
-                // No filter function found => we need to execute anyway( as before the use of withinFilter )
-                if (!executed.get()) {
-                    result = doJobWithResult();
-                }
-
+                V result = JPA.withinFilter(() -> doJobWithResult());
                 monitor.stop();
                 monitor = null;
                 wasError = false;
