@@ -18,7 +18,6 @@ import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
 import play.db.Configuration;
 import play.db.DB;
-import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
 
@@ -298,12 +297,4 @@ public class JPAPlugin extends PlayPlugin {
            JPA.closeTx(emfKey);
        }
     }
-
-    @Override
-    public Model.Factory modelFactory(Class<? extends Model> modelClass) {
-        if (modelClass.isAnnotationPresent(Entity.class)) {
-            return new JPAModelLoader(modelClass);
-        }
-        return null;
-    }  
 }

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.data.binding.RootParamNode;
-import play.db.Model;
 import play.inject.Injector;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -437,16 +436,6 @@ public class PluginCollection {
             Object result = plugin.bind(rootParamNode, name, clazz, type, annotations);
             if (result != null) {
                 return result;
-            }
-        }
-        return null;
-    }
-
-    public Model.Factory modelFactory(Class<? extends Model> modelClass) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            Model.Factory factory = plugin.modelFactory(modelClass);
-            if (factory != null) {
-                return factory;
             }
         }
         return null;

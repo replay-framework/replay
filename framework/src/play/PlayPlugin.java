@@ -2,7 +2,6 @@ package play;
 
 import com.google.gson.JsonObject;
 import play.data.binding.RootParamNode;
-import play.db.Model;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -212,15 +211,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            the current request
      */
     public void routeRequest(Request request) {
-    }
-
-    /**
-     * @param modelClass
-     *            class of the model
-     * @return the Model factory
-     */
-    public Model.Factory modelFactory(Class<? extends Model> modelClass) {
-        return null;
     }
 
     /**
