@@ -547,12 +547,6 @@ public class PluginCollection {
         }
     }
 
-    public void onRoutesLoaded() {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.onRoutesLoaded();
-        }
-    }
-
     public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             if (plugin.rawInvocation(request, response, session, renderArgs, flash)) {

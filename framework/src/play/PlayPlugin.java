@@ -197,12 +197,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Called after routes loading.
-     */
-    public void onRoutesLoaded() {
-    }
-
-    /**
      * Event may be sent by plugins or other components
      * 
      * @param message

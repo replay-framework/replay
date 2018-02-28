@@ -49,8 +49,6 @@ public class Router {
         actionRoutesCache.clear();
         parse(Play.routes, "");
         lastLoading = System.currentTimeMillis();
-        // Plugins
-        Play.pluginCollection.onRoutesLoaded();
     }
 
     /**
