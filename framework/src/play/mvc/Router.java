@@ -11,7 +11,6 @@ import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
-import play.templates.TemplateLoader;
 import play.utils.Default;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
@@ -20,7 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -250,18 +253,22 @@ public class Router {
      * plugin route file denoted by that <i>name</i>, if found.
      *
      * @param routeFile
-     * @param prefix
-     *            The prefix that the path of all routes in this route file start with. This prefix should not end with
-     *            a '/' character.
+     * @param prefix    The prefix that the path of all routes in this route file start with. This prefix should not end with
+     *                  a '/' character.
      */
     static void parse(VirtualFile routeFile, String prefix) {
         String fileAbsolutePath = routeFile.getRealFile().getAbsolutePath();
-        String content = Play.usePrecompiled ? "" : routeFile.contentAsString();
-        if (Play.usePrecompiled || content.indexOf("${") > -1 || content.indexOf("#{") > -1 || content.indexOf("%{") > -1) {
-            // Mutable map needs to be passed in.
-            content = TemplateLoader.load(routeFile).render(new HashMap<>(16));
-        }
+        String content = routeFile.contentAsString();
+        assertDoesNotContain(fileAbsolutePath, content, "${");
+        assertDoesNotContain(fileAbsolutePath, content, "#{");
+        assertDoesNotContain(fileAbsolutePath, content, "%{");
         parse(content, prefix, fileAbsolutePath);
+    }
+
+    private static void assertDoesNotContain(String fileAbsolutePath, String content, String substring) {
+        if (content.contains(substring)) {
+            throw new IllegalArgumentException("Routes file " + fileAbsolutePath + " cannot contain " + substring);
+        }
     }
 
     static void parse(String content, String prefix, String fileAbsolutePath) {

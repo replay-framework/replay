@@ -150,16 +150,6 @@ public class TemplateLoader {
         for (VirtualFile virtualFile : Play.templatesPath) {
             scan(res, virtualFile);
         }
-        for (VirtualFile root : Play.roots) {
-            VirtualFile vf = root.child("conf/routes");
-            if (vf != null && vf.exists()) {
-                Template template = load(vf);
-                if (template != null) {
-                    template.compile();
-                }
-            }
-        }
-
         return res;
     }
 
