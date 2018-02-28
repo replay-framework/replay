@@ -15,17 +15,19 @@ import play.exceptions.ActionNotFoundException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
-import play.mvc.Router.Route;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-import play.mvc.results.*;
+import play.mvc.results.NoResult;
+import play.mvc.results.NotFound;
+import play.mvc.results.RenderBinary;
+import play.mvc.results.RenderHtml;
+import play.mvc.results.Result;
 import play.utils.Java;
 import play.utils.Utils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.Error;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -53,8 +55,6 @@ public class ActionInvoker {
         // Route and resolve format if not already done
         if (request.action == null) {
             Play.pluginCollection.routeRequest(request);
-            Route route = Router.route(request);
-            Play.pluginCollection.onRequestRouting(route);
         }
         request.resolveFormat();
 

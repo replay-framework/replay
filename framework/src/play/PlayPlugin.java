@@ -7,7 +7,6 @@ import play.libs.FunctionWithException;
 import play.libs.SupplierWithException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
-import play.mvc.Router.Route;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
@@ -177,15 +176,6 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     public void onInvocationSuccess() {
-    }
-
-    /**
-     * Called when the request has been routed.
-     *
-     * @param route
-     *            The route selected.
-     */
-    public void onRequestRouting(Route route) {
     }
 
     /**

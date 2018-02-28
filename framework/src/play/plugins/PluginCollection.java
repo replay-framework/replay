@@ -9,7 +9,6 @@ import play.db.Model;
 import play.inject.Injector;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
-import play.mvc.Router;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
@@ -24,7 +23,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.util.Collections.list;
 import static java.util.Objects.hash;
@@ -537,12 +544,6 @@ public class PluginCollection {
     public void routeRequest(Request request) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.routeRequest(request);
-        }
-    }
-
-    public void onRequestRouting(Router.Route route) {
-        for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.onRequestRouting(route);
         }
     }
 
