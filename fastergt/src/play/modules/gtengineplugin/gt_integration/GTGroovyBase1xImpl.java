@@ -12,7 +12,6 @@ import play.mvc.Http;
 import play.mvc.Router;
 import play.template2.GTGroovyBase;
 import play.template2.GTJavaBase;
-import play.template2.exceptions.GTRuntimeExceptionForwarder;
 import play.utils.Java;
 
 import java.lang.reflect.Method;
@@ -73,7 +72,6 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
         @Override
         @SuppressWarnings("unchecked")
         public Object invokeMethod(String name, Object param) {
-            try{
                 try {
                     if (controller == null) {
                         controller = Http.Request.current().controller;
@@ -127,9 +125,6 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
                 } catch (Exception e) {
                     throw new UnexpectedException(e);
                 }
-            } catch (Exception e) {
-                throw new GTRuntimeExceptionForwarder(e);
-            }
         }
 
         static boolean isSimpleParam(Class type) {

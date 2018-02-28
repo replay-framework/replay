@@ -4,7 +4,6 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MetaMethod;
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import play.template2.exceptions.GTRuntimeExceptionForwarder;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -369,9 +368,9 @@ public abstract class GTJavaExtensionsInvoker {
             }
 
         } catch (InvocationTargetException e) {
-            throw new GTRuntimeExceptionForwarder(e.getCause());
+            throw new RuntimeException("Failed to call method " + jeClazz.getName() + '.' + methodName, e.getCause());
         } catch (Exception e) {
-            throw new GTRuntimeExceptionForwarder(e);
+            throw new RuntimeException("Failed to call method " + jeClazz.getName() + '.' + methodName, e);
         }
     }
 }

@@ -559,14 +559,7 @@ public class GTPreCompiler {
             sc.gprintln("");
             sc.gprintln("");
             sc.gprintln("Object " + methodName + "() {", sc.currentLineNo);
-            sc.gprintln(" try{");
-
             sc.gprintln("  return " + expression + ";");
-
-            sc.gprintln(" }catch(Throwable e){");
-            // So we have a stacktrace even if an Exception (eg: play.mvc.results.Redirect) without stacktrace is thrown
-            sc.gprintln("  throw new play.template2.exceptions.GTRuntimeExceptionForwarder(e);");
-            sc.gprintln(" }");
             sc.gprintln( "}");
 
             expression2GroovyMethodLookup.put(expression, methodName);
@@ -701,15 +694,7 @@ public class GTPreCompiler {
             sc.gprintln("");
             sc.gprintln("");
             sc.gprintln("Map<String, Object> " + methodName + "() {", srcLine);
-            sc.gprintln(" try{");
-
             sc.gprintln("  return [" + tagArgString + "];", srcLine);
-
-            sc.gprintln(" }catch(Throwable e){");
-            // So we have a stacktrace even if an Exception (eg: play.mvc.results.Redirect) without stacktrace is thrown
-            sc.gprintln("  throw new play.template2.exceptions.GTRuntimeExceptionForwarder(e);");
-            sc.gprintln(" }");
-
             sc.gprintln("}", srcLine);
 
             tagArgs2GroovyMethodLookup.put(tagArgString, methodName);
@@ -719,11 +704,11 @@ public class GTPreCompiler {
         return " Map tagArgs = (Map)g."+methodName+"();\n";
     }
 
-    private static Pattern validCodeString = Pattern.compile("^[A-Za-z_1234567890@]+$");
+    private static final Pattern validCodeString = Pattern.compile("^[A-Za-z_1234567890@]+$");
 
     protected static String fixStringForCode( String s, SourceContext sc) {
         // some tags (tag-files) can contain dots int the name - must remove them
-        s = s.replaceAll("\\.","_1").replaceAll("-", "_2").replaceAll("@", "_3");
+        s = s.replace(".","_1").replace("-", "_2").replace("@", "_3");
 
         // validate that s now only has chars usable as variableName/Method-name in code
         if (!validCodeString.matcher(s).find()) {
@@ -935,19 +920,12 @@ public class GTPreCompiler {
                 sc.gprintln("");
                 sc.gprintln("void " + groovyMethodName + "(java.io.PrintWriter out){", s.startLine);
 
-                int tryStartLine = s.startLine;
-                sc.gprintln(" try{");
-
                 int lineNo = s.startLine;
                 //gout.append(sc.pimpStart+"");
                 for ( String line : s.scriptSource.split("\\r?\\n",-1)) { // we can ignore \r here - have no meaning in groovy source file
                     sc.gprintln(line, lineNo++);
                 }
 
-                sc.gprintln(" }catch(Throwable e){", tryStartLine);
-                // So we have a stacktrace even if an Exception (eg: play.mvc.results.Redirect) without stacktrace is thrown
-                sc.gprintln("  throw new play.template2.exceptions.GTRuntimeExceptionForwarder(e);");
-                sc.gprintln(" }");
                 sc.gprintln("}", lineNo);
 
                 // then generate call to that method from java

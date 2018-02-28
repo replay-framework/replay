@@ -1,7 +1,11 @@
 package play.template2;
 
 import play.template2.compile.GTPreCompiler;
-import play.template2.exceptions.*;
+import play.template2.exceptions.GTAppClassException;
+import play.template2.exceptions.GTException;
+import play.template2.exceptions.GTRuntimeException;
+import play.template2.exceptions.GTRuntimeExceptionWithSourceInfo;
+import play.template2.exceptions.GTTemplateRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,17 +136,6 @@ public class GTExceptionFixer {
     }
 
     public GTException fixException(Throwable e) {
-
-        while ( e instanceof GTRuntimeExceptionForwarder) {
-            Throwable cause = e.getCause();
-            if ( cause != null && cause.getStackTrace().length == 0) {
-                // This is probably a fast-play-exception without stacktrace - eg: play.mvc.results.Redirect
-                // We must use the stackTrace from GTRuntimeExceptionForwarder - need this to show correct template-src-location
-                cause.setStackTrace( e.getStackTrace() );
-            }
-            e = cause;
-        }
-        
         StackTraceElement[] seList = e.getStackTrace();
 
         if ( e instanceof GTTemplateRuntimeException) {
