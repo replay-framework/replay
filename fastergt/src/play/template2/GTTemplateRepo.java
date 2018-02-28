@@ -108,13 +108,13 @@ public class GTTemplateRepo {
     }
 
 
-    public boolean templateExists( GTTemplateLocation templateLocation) {
-
+    public boolean templateExists(GTTemplateLocation templateLocation) {
+        if (templateLocation == null) return false;
         try {
-            getTemplateInstance( templateLocation, false);
+            getTemplateInstance(templateLocation, false);
             return true;
-        } catch( Exception e) {
-            // nop
+        }
+        catch (GTTemplateNotFound e) {
             return false;
         }
     }
