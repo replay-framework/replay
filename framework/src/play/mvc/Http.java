@@ -168,7 +168,7 @@ public class Http {
      * An HTTP Request
      */
     public static class Request implements Serializable {
-        private static final Pattern IP_REGEX = Pattern.compile("[\\d.:/a-zA-Z]+");
+        private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-zA-Z]*");
 
         /**
          * Server host
@@ -374,16 +374,9 @@ public class Http {
         static void validateXForwarded(Header xForwardedFor) {
             if (xForwardedFor == null) return;
 
-            String[] ips = xForwardedFor.value().trim().split(",+");
-            for (String ip : ips) {
-                if (!isValidIp(ip.trim())) {
-                    throw new IllegalArgumentException("Unacceptable X-Forwarded-For format: " + xForwardedFor.value());
-                }
+            if (!IP_REGEX.matcher(xForwardedFor.value()).matches()) {
+                throw new IllegalArgumentException("Unacceptable X-Forwarded-For format: " + xForwardedFor.value());
             }
-        }
-
-        private static boolean isValidIp(String ip) {
-            return IP_REGEX.matcher(ip).matches();
         }
 
         protected void parseXForwarded() {

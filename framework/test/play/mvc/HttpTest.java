@@ -8,6 +8,7 @@ import static play.mvc.Http.Request.validateXForwarded;
 public class HttpTest {
   @Test
   public void validatesXForwardedFor() {
+    validateXForwarded(header(""));
     validateXForwarded(header("0.0.0.0 "));
     validateXForwarded(header("192.168.1.1 "));
     validateXForwarded(header("255.255.255.255 "));
@@ -18,11 +19,16 @@ public class HttpTest {
     validateXForwarded(header("2001:0db8:0000:85a3:0000:0000:ac1f:800 "));
     validateXForwarded(header("0000:0000:0000:0000:0000:0000:0000:0000/128"));
     validateXForwarded(header(" ::1/128, 2001:db8::/48, 192.168.1.1/12 "));
+    validateXForwarded(header("192.168.224.0 1"));
+    validateXForwarded(header("192.168. 224.0"));
+    validateXForwarded(header("2001:0000:1234:0000:0000:C1C0:ABCD:0876 0"));
 
     assertInvalidHeader("1.2.3.4'\"><b>xss</b>");
-    assertInvalidHeader("192.168.224.0 1");
-    assertInvalidHeader("192.168. 224.0");
-    assertInvalidHeader("2001:0000:1234:0000:0000:C1C0:ABCD:0876 0");
+    assertInvalidHeader("\"");
+    assertInvalidHeader("\\");
+    assertInvalidHeader(">");
+    assertInvalidHeader("<");
+    assertInvalidHeader("'");
   }
 
   private void assertInvalidHeader(String ip) {
