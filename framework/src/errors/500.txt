@@ -1,4 +1,1 @@
 ${exception.message}
-#{if exception instanceof play.exceptions.PlayException}
-  This error code is ${exception.id}
-#{/if}

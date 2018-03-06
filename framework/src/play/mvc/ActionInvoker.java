@@ -425,7 +425,7 @@ public class ActionInvoker {
             if (originalThrowable instanceof Error)
                 throw (Error) originalThrowable;
 
-            throw new PlayException(originalThrowable);
+            throw new RuntimeException(originalThrowable);
         }
     }
 
