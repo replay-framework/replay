@@ -1,5 +1,5 @@
 dependencies {
-  compile('com.codeborne.replay:replay-guice:1.6-SNAPSHOT')
+  compile('com.codeborne.replay:replay-guice:1.6-git')
 }
 
 repositories {
