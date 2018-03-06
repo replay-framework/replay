@@ -197,8 +197,8 @@ public class ValidationTest {
         Messages.defaults = new Properties();
         Messages.defaults.setProperty("validation.error.missingName", "%s is invalid, given: '%s'");
         Validation.current.set(new Validation());
-        Http.Response.current.set(new Http.Response());
-        Http.Request.current.set(new Http.Request());
+        Http.Response.setCurrent(new Http.Response());
+        Http.Request.setCurrent(new Http.Request());
         Play.configuration = new Properties();
         Validation.addError("user.name", "validation.error.missingName", "");
         Validation.keep();

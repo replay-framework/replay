@@ -10,12 +10,13 @@ import play.mvc.results.Status;
 import play.utils.Utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.apache.commons.io.IOUtils.toByteArray;
 
 /**
  * Parse url-encoded requests.
@@ -26,38 +27,32 @@ public class UrlEncodedParser extends DataParser {
     // Sets the maximum count of accepted POST params - protection against Hash collision DOS attacks
     private static final int maxParams = Integer.parseInt(Play.configuration.getProperty("http.maxParams", "1000")); // 0 == no limit
     
-    boolean forQueryString = false;
+    boolean forQueryString;
     
-    public static Map<String, String[]> parse(String urlEncoded) {
+    public static Map<String, String[]> parse(String urlEncoded, String encoding) {
         try {
-            String encoding = Http.Request.current().encoding;
-            return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )));
+            return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )), encoding);
         } catch (UnsupportedEncodingException ex) {
             throw new UnexpectedException(ex);
         }
     }
     
-    public static Map<String, String[]> parseQueryString(InputStream is) {
+    public static Map<String, String[]> parseQueryString(InputStream is, String encoding) {
         UrlEncodedParser parser = new UrlEncodedParser();
         parser.forQueryString = true;
-        return parser.parse(is);
+        return parser.parse(is, encoding);
     }
 
     @Override
-    public Map<String, String[]> parse(InputStream is) {
-        // Encoding is either retrieved from contentType or it is the default encoding
-        String encoding = Http.Request.current().encoding;
+    public Map<String, String[]> parse(Http.Request request) {
+        return parse(request.body, request.encoding);
+    }
+
+    public Map<String, String[]> parse(InputStream is, String encoding) {
         try {
             Map<String, String[]> params = new LinkedHashMap<>();
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ( (bytesRead = is.read(buffer)) > 0 ) {
-                os.write( buffer, 0, bytesRead);
-            }
-
-            String data = new String(os.toByteArray(), encoding);
-            if (data.length() == 0) {
+            String data = new String(toByteArray(is), encoding);
+            if (data.isEmpty()) {
                 //data is empty - can skip the rest
                 return new HashMap<>(0);
             }
@@ -87,7 +82,7 @@ public class UrlEncodedParser extends DataParser {
             for (String keyValue : keyValues) {
                 // split this key-value on the first '='
                 int i = keyValue.indexOf('=');
-                String key=null;
+                String key;
                 String value=null;
                 if ( i > 0) {
                     key = keyValue.substring(0,i);
@@ -95,7 +90,7 @@ public class UrlEncodedParser extends DataParser {
                 } else {
                     key = keyValue;
                 }
-                if (key.length()>0) {
+                if (!key.isEmpty()) {
                     Utils.Maps.mergeValueInMap(params, key, value);
                 }
             }

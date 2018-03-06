@@ -1,7 +1,11 @@
 package play.modules.pdf;
 
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
-import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
 import play.templates.Template;
@@ -37,7 +41,7 @@ public class PdfResult extends Result {
     return pdfTemplate;
   }
 
-  @Override public void apply(Http.Request request, Http.Response response) {
+  @Override public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     PDFDocument document = helper.createSinglePDFDocuments(pdfTemplate);
     response.setHeader("Content-Disposition", (inline ? "inline" : "attachment") + "; filename=\"" + document.filename + "\"");
     setContentTypeIfNotSet(response, "application/pdf");

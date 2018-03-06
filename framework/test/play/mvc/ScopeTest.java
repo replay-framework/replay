@@ -15,20 +15,22 @@ import static org.junit.Assert.*;
 
 public class ScopeTest {
 
+    Request request = new Request();
+
     @org.junit.Before
     public void playBuilderBefore() {
         new PlayBuilder().build();
     }
 
     private static void mockRequestAndResponse() {
-        Request.current.set(new Request());
-        Response.current.set(new Response());
+        Request.removeCurrent();
+        Response.removeCurrent();
     }
 
     @Test
     public void testParamsPut() {
         mockRequestAndResponse();
-        Params params = new Params();
+        Params params = new Params(request);
         params.put("param1", "test");
         params.put("param1.test", "test2");
 
@@ -50,7 +52,7 @@ public class ScopeTest {
     @Test
     public void testParamsRemove() {
         mockRequestAndResponse();
-        Params params = new Params();
+        Params params = new Params(request);
         params.put("param1", "test");
         params.put("param1.test", "test2");
 
@@ -76,7 +78,7 @@ public class ScopeTest {
     @Test
     public void testParamsRemove2() {
         mockRequestAndResponse();
-        Params params = new Params();
+        Params params = new Params(request);
         params.put("param1", "test");
         params.put("param1.test", "test2");
 
@@ -102,7 +104,7 @@ public class ScopeTest {
     @Test
     public void testParamsRemoveStartWith() {
         mockRequestAndResponse();
-        Params params = new Params();
+        Params params = new Params(request);
         params.put("param1", "test");
         params.put("param1.test", "test2");
 
@@ -126,35 +128,35 @@ public class ScopeTest {
     }
 
     @Test
-    public void sessionPutWithNullObject() throws Exception {
+    public void sessionPutWithNullObject() {
         Session session = new Session();
         session.put("hello", (Object) null);
         assertNull(session.get("hello"));
     }
 
     @Test
-    public void sessionPutWithObject() throws Exception {
+    public void sessionPutWithObject() {
         Session session = new Session();
         session.put("hello", 123);
         assertEquals("123", session.get("hello"));
     }
 
     @Test
-    public void sessionPutWithNullString() throws Exception {
+    public void sessionPutWithNullString() {
         Session session = new Session();
-        session.put("hello", (String) null);
+        session.put("hello", null);
         assertNull(session.get("hello"));
     }
 
     @Test
-    public void sessionPutWithString() throws Exception {
+    public void sessionPutWithString() {
         Session session = new Session();
         session.put("hello", "world");
         assertEquals("world", session.get("hello"));
     }
 
     @Test
-    public void flashErrorFormat() throws Exception {
+    public void flashErrorFormat() {
         Flash flash = new Flash();
         flash.error("Your name is %s", "Hello");
 
@@ -174,7 +176,7 @@ public class ScopeTest {
     }
 
     @Test
-    public void flashSuccessFormat() throws Exception {
+    public void flashSuccessFormat() {
         Flash flash = new Flash();
         flash.success("Your name is %s", "Hello");
 

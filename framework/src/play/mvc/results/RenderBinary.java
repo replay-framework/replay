@@ -6,6 +6,9 @@ import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -135,7 +138,7 @@ public class RenderBinary extends Result {
     }
 
     @Override
-    public void apply(Request request, Response response) {
+    public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
         if (name != null) {
             setContentTypeIfNotSet(response, MimeTypes.getContentType(name));
         }
@@ -163,7 +166,7 @@ public class RenderBinary extends Result {
             String contentDisposition = "%s; filename=\"%s\"";
             response.setHeader("Content-Disposition", String.format(contentDisposition, dispositionType(), name));
         } else {
-            String encoding = getEncoding();
+            String encoding = response.encoding;
             String contentDisposition = "%1$s; filename*=" + encoding + "''%2$s; filename=\"%2$s\"";
             response.setHeader("Content-Disposition", String.format(contentDisposition, dispositionType(), encoder.encode(name, encoding)));
         }

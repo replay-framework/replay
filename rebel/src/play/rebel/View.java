@@ -3,8 +3,10 @@ package play.rebel;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
-import play.mvc.Http;
-import play.mvc.Scope;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
@@ -13,7 +15,6 @@ import play.templates.TemplateLoader;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,18 +45,17 @@ public class View extends Result {
   }
 
   @Override
-  public void apply(Http.Request request, Http.Response response) {
+  public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     try {
-      renderView(response);
+      renderView(request, response, session, renderArgs, flash);
     }
     catch (IOException e) {
       throw new UnexpectedException(e);
     }
     finally {
       // we need to store session if authenticity token has been generated during rendering html
-      Session session = Session.current();
       if (isChanged(session)) {
-        save(session);
+        session.save(request, response);
       }
     }
   }
@@ -71,34 +71,23 @@ public class View extends Result {
     }
   }
 
-  private void save(Session session) {
-    try {
-      Method method = Session.class.getDeclaredMethod("save");
-      method.setAccessible(true);
-      method.invoke(session);
-    }
-    catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
-  private void renderView(Http.Response response) throws IOException {
+  private void renderView(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws IOException {
     long start = System.currentTimeMillis();
     Template template = resolveTemplate();
 
     Map<String, Object> templateBinding = new HashMap<>();
-    templateBinding.putAll(Scope.RenderArgs.current().data);
+    templateBinding.putAll(renderArgs.data);
     templateBinding.putAll(arguments);
-    templateBinding.put("session", Session.current());
-    templateBinding.put("request", Http.Request.current());
-    templateBinding.put("flash", Scope.Flash.current());
-    templateBinding.put("params", Scope.Params.current());
+    templateBinding.put("session", session);
+    templateBinding.put("request", request);
+    templateBinding.put("flash", flash);
+    templateBinding.put("params", request.params);
     templateBinding.put("errors", Validation.errors());
 
     this.content = template.render(templateBinding);
     this.renderTime = System.currentTimeMillis() - start;
     String contentType = MimeTypes.getContentType(template.name, "text/plain");
-    response.out.write(content.getBytes(getEncoding()));
+    response.out.write(content.getBytes(response.encoding));
     setContentTypeIfNotSet(response, contentType);
   }
 
@@ -115,7 +104,7 @@ public class View extends Result {
   }
 
   public Map<String, Object> getArguments() {
-    Map<String, Object> combinedArguments = new HashMap<>(Scope.RenderArgs.current().data);
+    Map<String, Object> combinedArguments = new HashMap<>(RenderArgs.current().data);
     combinedArguments.putAll(arguments);
     return combinedArguments;
   }

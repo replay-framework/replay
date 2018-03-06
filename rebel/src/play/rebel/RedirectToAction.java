@@ -1,8 +1,12 @@
 package play.rebel;
 
-import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
 import play.mvc.Redirector;
 import play.mvc.Router;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.Redirect;
 
 import java.util.Map;
@@ -24,16 +28,16 @@ public class RedirectToAction extends Redirect {
     this(action, toMap(asList(args)));
   }
 
-  @Override public void apply(Http.Request request, Http.Response response) {
-    this.url = url(action, parameters);
-    super.apply(request, response);
+  @Override public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+    this.url = url(request, action, parameters);
+    super.apply(request, response, session, renderArgs, flash);
   }
 
-  private static String url(String action, Map<String, Object> parameters) {
+  private static String url(Request request, String action, Map<String, Object> parameters) {
     if (action.startsWith("@")) {
       action = action.substring(1);
       if (!action.contains(".")) {
-        action = Http.Request.current().controller + "." + action;
+        action = request.controller + "." + action;
       }
     }
 

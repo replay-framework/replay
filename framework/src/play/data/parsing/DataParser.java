@@ -1,6 +1,7 @@
 package play.data.parsing;
 
-import java.io.InputStream;
+import play.mvc.Http;
+
 import java.util.Map;
 
 /**
@@ -8,6 +9,6 @@ import java.util.Map;
  */
 public abstract class DataParser {
 
-    public abstract Map<String, String[]> parse(InputStream is);
+    public abstract Map<String, String[]> parse(Http.Request request);
 
 }

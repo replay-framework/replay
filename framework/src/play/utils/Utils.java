@@ -1,7 +1,6 @@
 package play.utils;
 
 import play.Play;
-import play.mvc.Scope;
 import play.vfs.VirtualFile;
 
 import java.lang.annotation.Annotation;
@@ -39,22 +38,6 @@ public class Utils {
         return (values == null) ? "" : join(Arrays.asList(values), separator);
     }
 
-    public static String getSimpleNames(Annotation[] values) {
-        if (values == null) {
-            return "";
-        }
-        List<Annotation> a = Arrays.asList(values);
-        Iterator<Annotation> iter = a.iterator();
-        if (!iter.hasNext()) {
-            return "";
-        }
-        StringBuilder toReturn = new StringBuilder("@" + iter.next().annotationType().getSimpleName());
-        while (iter.hasNext()) {
-            toReturn.append(", @").append(iter.next().annotationType().getSimpleName());
-        }
-        return toReturn.toString();
-    }
-
     /**
      * Get the list of annotations in string
      * 
@@ -84,7 +67,7 @@ public class Utils {
     public static class Maps {
 
         public static void mergeValueInMap(Map<String, String[]> map, String name, String value) {
-            String[] newValues = null;
+            String[] newValues;
             String[] oldValues = map.get(name);
             if (oldValues == null) {
                 newValues = new String[1];
@@ -130,40 +113,6 @@ public class Utils {
         return httpFormatter.get();
     }
 
-    public static Map<String, String[]> filterMap(Map<String, String[]> map, String prefix) {
-        Map<String, String[]> newMap = new HashMap<>();
-        for (String key : map.keySet()) {
-            if (!key.startsWith(prefix + ".")) {
-                newMap.put(key, map.get(key));
-            }
-        }
-        return newMap;
-    }
-
-    public static Map<String, String> filterParams(Scope.Params params, String prefix) {
-        return filterParams(params.all(), prefix);
-    }
-
-    public static Map<String, String> filterParams(Map<String, String[]> params, String prefix, String separator) {
-        Map<String, String> filteredMap = new LinkedHashMap<>();
-        prefix += ".";
-        for (Map.Entry<String, String[]> e : params.entrySet()) {
-            if (e.getKey().startsWith(prefix)) {
-                filteredMap.put(e.getKey().substring(prefix.length()), Utils.join(e.getValue(), separator));
-            }
-        }
-        return filteredMap;
-    }
-
-    public static Map<String, String> filterParams(Map<String, String[]> params, String prefix) {
-        return filterParams(params, prefix, ", ");
-    }
-
-    public static void kill(String pid) throws Exception {
-        String command = OS.isWindows() ? "taskkill /F /PID " + pid : "kill " + pid;
-        Runtime.getRuntime().exec(command).waitFor();
-    }
-
     public static class AlternativeDateFormat {
 
         Locale locale;
@@ -198,9 +147,9 @@ public class Utils {
         public static AlternativeDateFormat getDefaultFormatter() {
             if (dateformat.get() == null) {
                 dateformat.set(new AlternativeDateFormat(Locale.US, "yyyy-MM-dd'T'HH:mm:ss'Z'", // ISO8601 + timezone
-                        "yyyy-MM-dd'T'HH:mm:ss", // ISO8601
-                        "yyyy-MM-dd HH:mm:ss", "yyyyMMdd HHmmss", "yyyy-MM-dd", "yyyyMMdd'T'HHmmss", "yyyyMMddHHmmss", "dd'/'MM'/'yyyy",
-                        "dd-MM-yyyy", "dd'/'MM'/'yyyy HH:mm:ss", "dd-MM-yyyy HH:mm:ss", "ddMMyyyy HHmmss", "ddMMyyyy"));
+                  "yyyy-MM-dd'T'HH:mm:ss", // ISO8601
+                  "yyyy-MM-dd HH:mm:ss", "yyyyMMdd HHmmss", "yyyy-MM-dd", "yyyyMMdd'T'HHmmss", "yyyyMMddHHmmss", "dd'/'MM'/'yyyy",
+                  "dd-MM-yyyy", "dd'/'MM'/'yyyy HH:mm:ss", "dd-MM-yyyy HH:mm:ss", "ddMMyyyy HHmmss", "ddMMyyyy"));
             }
             return dateformat.get();
         }

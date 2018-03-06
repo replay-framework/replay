@@ -16,6 +16,7 @@ import java.util.*;
 public class Lang {
     private static final Logger logger = LoggerFactory.getLogger(Lang.class);
 
+    @Deprecated
     static final ThreadLocal<String> current = new ThreadLocal<>();
 
     private static Map<String, Locale> cache = new HashMap<>();

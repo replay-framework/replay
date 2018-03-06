@@ -6,6 +6,9 @@ import play.PlayPlugin;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 
 public class DBBrowserPlugin extends PlayPlugin {
 
@@ -19,7 +22,7 @@ public class DBBrowserPlugin extends PlayPlugin {
     }
 
     @Override
-    public boolean rawInvocation(Request request, Response response) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
         if (request.path.equals("/@db")) {
             response.status = Http.StatusCode.FOUND;
             String serverOptions[] = new String[] { };

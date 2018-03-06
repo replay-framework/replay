@@ -201,9 +201,6 @@ public class Validation {
                         if (annotation.annotationType().getName().startsWith("play.data.validation")) {
                             Validator validator = new Validator(annotation);
                             validators.add(validator);
-                            if (annotation.annotationType().equals(Equals.class)) {
-                                validator.params.put("equalsTo", name + "." + ((Equals) annotation).value());
-                            }
                             if (annotation.annotationType().equals(InFuture.class)) {
                                 validator.params.put("reference", ((InFuture) annotation).value());
                             }
@@ -233,9 +230,6 @@ public class Validation {
                 if (annotation.annotationType().getName().startsWith("play.data.validation")) {
                     Validator validator = new Validator(annotation);
                     validators.add(validator);
-                    if (annotation.annotationType().equals(Equals.class)) {
-                        validator.params.put("equalsTo", name + "." + ((Equals) annotation).value());
-                    }
                     if (annotation.annotationType().equals(InFuture.class)) {
                         validator.params.put("reference", ((InFuture) annotation).value());
                     }
@@ -362,13 +356,6 @@ public class Validation {
 
     public static ValidationResult isTrue(String key, Object o) {
         IsTrueCheck check = new IsTrueCheck();
-        return applyCheck(check, key, o);
-    }
-
-    public static ValidationResult equals(String key, Object o, String otherName, Object to) {
-        EqualsCheck check = new EqualsCheck();
-        check.otherKey = otherName;
-        check.otherValue = to;
         return applyCheck(check, key, o);
     }
 
