@@ -1,7 +1,7 @@
 package play.mvc;
 
-import org.jboss.netty.handler.codec.http.cookie.Cookie;
-import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;

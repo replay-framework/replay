@@ -86,6 +86,7 @@ public class PluginCollectionTest {
     @Test
     public void canLoadPlayPluginsFromMultipleDescriptors() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins,play.plugins.sample");
+
         PluginCollection pc = new PluginCollection();
         assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(2);
         assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
