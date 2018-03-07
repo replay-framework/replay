@@ -13,7 +13,14 @@ import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,19 +119,17 @@ public class Play {
     /**
      * Init the framework
      *
-     * @param root
-     *            The application path
-     * @param id
-     *            The framework id to use
+     * @param id The framework id to use
      */
-    public static void init(File root, String id) {
+    public void init(String id) {
+        Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
         Play.id = id;
         Play.started = false;
-        Play.applicationPath = root;
+        Play.applicationPath = new File(System.getProperty("user.dir"));
         readConfiguration();
         Logger.init();
 
-        logger.info("Starting {}", root.getAbsolutePath());
+        logger.info("Starting {}", applicationPath.getAbsolutePath());
 
         if (configuration.getProperty("play.tmp", "tmp").equals("none")) {
             tmpDir = null;
@@ -146,13 +151,14 @@ public class Play {
 
         try {
             mode = Mode.valueOf(configuration.getProperty("application.mode", "DEV").toUpperCase());
-        } catch (IllegalArgumentException e) {
-            logger.error("Illegal mode '{}', use either prod or dev", configuration.getProperty("application.mode"));
-            fatalServerErrorOccurred();
+        }
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+              String.format("Illegal mode '%s', use either prod or dev", configuration.getProperty("application.mode")), e);
         }
 
         // Set to the Prod mode must be done before loadModules call as some modules (e.g. DocViewer) is only available in DEV
-        if (usePrecompiled || System.getProperty("precompile") != null) {
+        if (usePrecompiled) {
             mode = Mode.PROD;
         }
 
@@ -188,7 +194,7 @@ public class Play {
     /**
      * Read application.conf and resolve overridden key using the play id mechanism.
      */
-    public static void readConfiguration() {
+    private void readConfiguration() {
         confs = new HashSet<>();
         ConfLoader confLoader = new ConfLoader();
         configuration = confLoader.readOneConfigurationFile("application.conf");
@@ -202,7 +208,7 @@ public class Play {
      *
      * @throws IllegalArgumentException if the application is already started
      */
-    public static synchronized void start() {
+    public synchronized void start() {
         if (started) {
             throw new IllegalArgumentException("Play is already started");
         }
@@ -224,7 +230,7 @@ public class Play {
 
             pluginCollection.afterApplicationStart();
         } catch (RuntimeException e) {
-            Play.stop();
+            stop();
             started = false;
             throw e;
         }
@@ -235,8 +241,8 @@ public class Play {
      * registers shutdown hook - Now there's a good chance that we can notify
      * our plugins that we're going down when some calls ctrl+c or just kills our process..
      */
-    private static void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     private static void initLangs() {
@@ -267,7 +273,7 @@ public class Play {
         }
     }
 
-    public static synchronized void stop() {
+    public synchronized void stop() {
         if (started) {
             logger.info("Stopping the play application");
             pluginCollection.onApplicationStop();
@@ -290,7 +296,7 @@ public class Play {
         return pluginCollection.getPluginInstance(clazz);
     }
 
-    private static void loadModules(VirtualFile appRoot) {
+    private void loadModules(VirtualFile appRoot) {
         File localModules = Play.getFile("modules");
         if (localModules.exists() && localModules.isDirectory()) {
             for (File module : localModules.listFiles()) {
@@ -320,7 +326,7 @@ public class Play {
      * @param path
      *            The application path
      */
-    private static void addModule(VirtualFile appRoot, String name, File path) {
+    private void addModule(VirtualFile appRoot, String name, File path) {
         VirtualFile root = VirtualFile.open(path);
         modules.put(name, root);
         if (root.child("app").exists()) {
@@ -371,14 +377,6 @@ public class Play {
      */
     public static boolean runningInTestMode() {
         return id.matches("test|test-?.*");
-    }
-
-    /**
-     * Call this method when there has been a fatal error that Play cannot recover from
-     */
-    public static void fatalServerErrorOccurred() {
-        // Just quit the process
-        System.exit(-1);
     }
 
     public static boolean useDefaultMockMailSystem() {

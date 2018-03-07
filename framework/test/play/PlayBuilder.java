@@ -38,14 +38,14 @@ public class PlayBuilder {
             Request request = Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null,
                     null);
             request.body = new ByteArrayInputStream(new byte[0]);
-            Request.current.set(request);
+            Request.setCurrent(request);
         }
 
         if (Response.current() == null) {
             Response response = new Response();
             response.out = new ByteArrayOutputStream();
             response.direct = null;
-            Response.current.set(response);
+            Response.setCurrent(response);
         }
 
         if (RenderArgs.current() == null) {

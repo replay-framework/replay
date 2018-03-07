@@ -79,19 +79,6 @@ public class JPA {
         bindForCurrentThread(dbName, entityManager, readonly);
     }
 
-    public static EntityManager newEntityManager(String key) {
-        JPAPlugin jpaPlugin = Play.plugin(JPAPlugin.class);
-        if (jpaPlugin == null) {
-            throw new JPAException("No JPA Plugin");
-        }
-
-        EntityManager em = jpaPlugin.em(key);
-        if (em == null) {
-            throw new JPAException("No JPA EntityManagerFactory configured for name [" + key + "]");
-        }
-        return em;
-    }
-
     /**
      * Get the EntityManager for specified persistence unit for this thread.
      * 
@@ -182,6 +169,10 @@ public class JPA {
 
     public static EntityManager newEntityManager() {
         return createEntityManager();
+    }
+
+    public static EntityManager newEntityManager(String key) {
+        return createEntityManager(key);
     }
 
     public static EntityManager createEntityManager() {

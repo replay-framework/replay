@@ -6,6 +6,9 @@ import com.google.gson.JsonSerializer;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -55,11 +58,10 @@ public class RenderJson extends Result {
     }
 
     @Override
-    public void apply(Request request, Response response) {
+    public void apply(Request request, Response httpResponse, Session session, RenderArgs renderArgs, Flash flash) {
         try {
-            String encoding = getEncoding();
-            setContentTypeIfNotSet(response, "application/json; charset=" + encoding);
-            response.out.write(json.getBytes(encoding));
+            setContentTypeIfNotSet(httpResponse, "application/json; charset=" + httpResponse.encoding);
+            httpResponse.out.write(json.getBytes(httpResponse.encoding));
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }

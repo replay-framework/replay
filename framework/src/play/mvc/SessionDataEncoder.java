@@ -34,11 +34,7 @@ public class SessionDataEncoder {
           map.put(URLDecoder.decode(splitted[0], "utf-8"), URLDecoder.decode(splitted[1], "utf-8"));
         }
         catch (Exception e) {
-          StringBuilder sb = new StringBuilder(1024);
-          for (Map.Entry<String, Http.Cookie> cookie : Http.Request.current().cookies.entrySet()) {
-            sb.append("\n").append(cookie.getKey()).append("=").append(cookie.getValue().value);
-          }
-          logger.error("!!! Cookie parsing failed: " + e + ",\ncookie.key=" + splitted[0] + "\n  Request: " + Http.Request.current() + "\n  Data: " + data + "\n  All cookies: " + sb);
+          logger.error("!!! Cookie parsing failed: " + e + ",\ncookie.key=" + splitted[0] + "\n  Data: " + data);
         }
       }
     }

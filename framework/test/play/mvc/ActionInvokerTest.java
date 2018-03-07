@@ -18,11 +18,12 @@ import static play.mvc.ActionInvokerTest.TestInterceptor.beforesCounter;
 
 public class ActionInvokerTest {
     private Object[] noArgs = new Object[0];
+    Http.Request request = new Http.Request();
 
     @Before
     public void setUp() throws Exception {
         new PlayBuilder().build();
-        Http.Request.current.set(new Http.Request());
+        Http.Request.removeCurrent();
         CachedBoundActionMethodArgs.init();
         beforesCounter = 0;
         aftersCounter = 0;
@@ -35,28 +36,27 @@ public class ActionInvokerTest {
 
     @Test
     public void invokeStaticJavaMethod() throws Exception {
-        Http.Request.current().controllerClass = TestController.class;
-        assertEquals("static", ActionInvoker.invokeControllerMethod(TestController.class.getMethod("staticJavaMethod"), noArgs));
+        request.controllerClass = TestController.class;
+        assertEquals("static", ActionInvoker.invokeControllerMethod(request, TestController.class.getMethod("staticJavaMethod"), noArgs));
     }
 
     @Test
     public void invokeNonStaticJavaMethod() throws Exception {
-        Http.Request.current().controllerClass = TestController.class;
-        assertEquals("non-static-parent", ActionInvoker.invokeControllerMethod(TestController.class.getMethod("nonStaticJavaMethod"), noArgs));
+        request.controllerClass = TestController.class;
+        assertEquals("non-static-parent", ActionInvoker.invokeControllerMethod(request, TestController.class.getMethod("nonStaticJavaMethod"), noArgs));
     }
 
     @Test
     public void invokeNonStaticJavaMethodInChildController() throws Exception {
-        Http.Request.current().controllerClass = TestChildController.class;
-        assertEquals("non-static-child", ActionInvoker.invokeControllerMethod(TestChildController.class.getMethod("nonStaticJavaMethod"), noArgs));
+        request.controllerClass = TestChildController.class;
+        assertEquals("non-static-child", ActionInvoker.invokeControllerMethod(request, TestChildController.class.getMethod("nonStaticJavaMethod"), noArgs));
     }
 
     @Test
     public void invokeNonStaticJavaMethodWithNonStaticWith() throws Exception {
-        Http.Request request = Http.Request.current();
         request.controllerClass = TestControllerWithWith.class;
         executeMethod("handleBefores", Http.Request.class, request);
-        assertEquals("non-static", ActionInvoker.invokeControllerMethod(TestControllerWithWith.class.getMethod("nonStaticJavaMethod")));
+        assertEquals("non-static", ActionInvoker.invokeControllerMethod(request, TestControllerWithWith.class.getMethod("nonStaticJavaMethod")));
         executeMethod("handleAfters", Http.Request.class, request);
         assertEquals(1, beforesCounter);
         assertEquals(1, aftersCounter);
@@ -70,16 +70,16 @@ public class ActionInvokerTest {
 
     @Test
     public void controllerInstanceIsPreservedForAllControllerMethodInvocations() throws Exception {
-        Http.Request.current().controllerClass = FullCycleTestController.class;
+        request.controllerClass = FullCycleTestController.class;
 
-        Controller controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(FullCycleTestController.class.getMethod("before"), noArgs);
-        assertSame(controllerInstance, Http.Request.current().controllerInstance);
+        Controller controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, FullCycleTestController.class.getMethod("before"), noArgs);
+        assertSame(controllerInstance, request.controllerInstance);
 
-        controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(FullCycleTestController.class.getMethod("action"), noArgs);
-        assertSame(controllerInstance, Http.Request.current().controllerInstance);
+        controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, FullCycleTestController.class.getMethod("action"), noArgs);
+        assertSame(controllerInstance, request.controllerInstance);
 
-        controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(FullCycleTestController.class.getMethod("after"), noArgs);
-        assertSame(controllerInstance, Http.Request.current().controllerInstance);
+        controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, FullCycleTestController.class.getMethod("after"), noArgs);
+        assertSame(controllerInstance, request.controllerInstance);
     }
 
     @Test

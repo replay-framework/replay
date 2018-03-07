@@ -30,6 +30,7 @@ import play.mvc.Http.Header;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
@@ -59,8 +60,7 @@ public class Plugin extends PlayPlugin {
      * Extend play format processing
      */
     @Override
-    public void beforeActionInvocation(Method actionMethod) {
-        Request request = Request.current();
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
         Header h = request.headers.get("user-agent");
         if (null == h) return;
         String userAgent = h.value();

@@ -1,6 +1,10 @@
 package play.mvc.results;
 
-import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.utils.FastRuntimeException;
 
 /**
@@ -8,27 +12,16 @@ import play.utils.FastRuntimeException;
  */
 public abstract class Result extends FastRuntimeException {
 
-    public Result() {
-        super();
+    protected Result() {
     }
 
-    public Result(String description) {
+    protected Result(String description) {
         super(description);
     }
 
-    public abstract void apply(Http.Request request, Http.Response response);
+    public abstract void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash);
 
-    protected void setContentTypeIfNotSet(Http.Response response, String contentType) {
+    protected void setContentTypeIfNotSet(Response response, String contentType) {
         response.setContentTypeIfNotSet(contentType);
     }
-
-    /**
-     * The encoding that should be used when writing this response to the client
-     * 
-     * @return The encoding of the response
-     */
-    protected String getEncoding() {
-        return Http.Response.current().encoding;
-    }
-
 }

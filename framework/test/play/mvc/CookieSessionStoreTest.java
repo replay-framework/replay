@@ -10,6 +10,9 @@ import java.lang.reflect.Modifier;
 import static org.junit.Assert.*;
 
 public class CookieSessionStoreTest {
+  Http.Request request = new Http.Request();
+  Http.Response response = new Http.Response();
+
   @Before
   public void setUp() {
     Play.configuration.setProperty(Scope.COOKIE_EXPIRATION_SETTING, "15mn");
@@ -20,12 +23,10 @@ public class CookieSessionStoreTest {
     CookieSessionStore cookieSessionStore = new CookieSessionStore();
     setSendOnlyIfChangedConstant(false);
 
-    mockRequestAndResponse();
-
     // Change nothing in the session
-    Scope.Session session = cookieSessionStore.restore();
-    cookieSessionStore.save(session);
-    assertNotNull(Http.Response.current().cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
+    Scope.Session session = cookieSessionStore.restore(request);
+    cookieSessionStore.save(session, request, response);
+    assertNotNull(response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
   }
 
   @Test
@@ -35,28 +36,21 @@ public class CookieSessionStoreTest {
     Play.secretKey = "0112358";
 
     setSendOnlyIfChangedConstant(true);
-    mockRequestAndResponse();
 
     // Change nothing in the session
-    Scope.Session session = cookieSessionStore.restore();
-    cookieSessionStore.save(session);
-    assertNull(Http.Response.current().cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
+    Scope.Session session = cookieSessionStore.restore(request);
+    cookieSessionStore.save(session, request, response);
+    assertNull(response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
 
-    mockRequestAndResponse();
     // Change the session
-    session = cookieSessionStore.restore();
+    session = cookieSessionStore.restore(request);
     session.put("username", "Bob");
-    cookieSessionStore.save(session);
+    cookieSessionStore.save(session, request, response);
 
-    Http.Cookie sessionCookie = Http.Response.current().cookies.get(Scope.COOKIE_PREFIX + "_SESSION");
+    Http.Cookie sessionCookie = response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION");
     assertNotNull(sessionCookie);
     assertTrue(sessionCookie.value.contains("username"));
     assertTrue(sessionCookie.value.contains("Bob"));
-  }
-
-  private static void mockRequestAndResponse() {
-    Http.Request.current.set(new Http.Request());
-    Http.Response.current.set(new Http.Response());
   }
 
   private void setSendOnlyIfChangedConstant(boolean value) {
@@ -77,7 +71,7 @@ public class CookieSessionStoreTest {
     }
   }
 
-  @After
+  @org.junit.After
   public void restoreDefault() {
     boolean SESSION_SEND_ONLY_IF_CHANGED = Play.configuration.getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase().equals("true");
     setSendOnlyIfChangedConstant(SESSION_SEND_ONLY_IF_CHANGED);

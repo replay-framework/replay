@@ -24,15 +24,7 @@ public class ConfLoader {
             throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
         }
 
-        Properties propsFromFile = null;
-        try {
-            propsFromFile = IO.readUtf8Properties(conf.inputstream());
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof IOException) {
-                logger.error("Cannot read {}", filename);
-                Play.fatalServerErrorOccurred();
-            }
-        }
+        Properties propsFromFile = IO.readUtf8Properties(conf.inputstream());
         Play.confs.add(conf);
 
         addInheritedConfKeys(propsFromFile);

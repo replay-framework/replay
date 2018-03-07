@@ -37,11 +37,11 @@ public class RouterTest {
                 null
         );
 
-        Http.Request.current.set( request );
+        Http.Request.setCurrent(request);
         assertThat(Router.getBaseUrl()).isEqualTo("http://localhost");
 
         // test without current request
-        Http.Request.current.remove();
+        Http.Request.removeCurrent();
         // application.baseUrl without trailing /
         Play.configuration.setProperty("application.baseUrl", "http://a");
         assertThat(Router.getBaseUrl()).isEqualTo("http://a");

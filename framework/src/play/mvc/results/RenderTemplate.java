@@ -4,6 +4,9 @@ import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 import play.templates.Template;
 
 import java.util.Map;
@@ -30,10 +33,10 @@ public class RenderTemplate extends Result {
     }
 
     @Override
-    public void apply(Request request, Response response) {
+    public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
         try {
             String contentType = MimeTypes.getContentType(name, "text/plain");
-            response.out.write(content.getBytes(getEncoding()));
+            response.out.write(content.getBytes(response.encoding));
             setContentTypeIfNotSet(response, contentType);
         } catch (Exception e) {
             throw new UnexpectedException(e);

@@ -5,6 +5,7 @@ import play.exceptions.UnexpectedException;
 import play.libs.Crypto;
 import play.libs.Time;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static play.mvc.Scope.*;
 import static play.mvc.Scope.Session.TS_KEY;
 
@@ -16,20 +17,20 @@ public class CookieSessionStore implements SessionStore {
     private final String COOKIE_EXPIRE = Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING);
 
     @Override
-    public Session restore() {
+    public Session restore(Http.Request request) {
         try {
             Session session = new Session();
-            Http.Cookie cookie = Http.Request.current().cookies.get(COOKIE_PREFIX + "_SESSION");
+            Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_SESSION");
             int duration = Time.parseDuration(COOKIE_EXPIRE);
-            long expiration = (duration * 1000l);
+            long expiration = duration * 1000L;
 
-            if (cookie != null && Play.started && cookie.value != null && !cookie.value.trim().equals("")) {
+            if (cookie != null && Play.started && cookie.value != null && !cookie.value.trim().isEmpty()) {
                 String value = cookie.value;
-                int firstDashIndex = value.indexOf("-");
+                int firstDashIndex = value.indexOf('-');
                 if (firstDashIndex > -1) {
                     String sign = value.substring(0, firstDashIndex);
                     String data = value.substring(firstDashIndex + 1);
-                    if (CookieDataCodec.safeEquals(sign, Crypto.sign(data, Play.secretKey.getBytes()))) {
+                    if (CookieDataCodec.safeEquals(sign, Crypto.sign(data, Play.secretKey.getBytes(UTF_8)))) {
                         CookieDataCodec.decode(session.data, data);
                     }
                 }
@@ -59,13 +60,13 @@ public class CookieSessionStore implements SessionStore {
 
             return session;
         } catch (Exception e) {
-            throw new UnexpectedException("Corrupted HTTP session from " + Http.Request.current().remoteAddress, e);
+            throw new UnexpectedException("Corrupted HTTP session from " + request.remoteAddress, e);
         }
     }
 
     @Override
-    public void save(Session session) {
-        if (Http.Response.current() == null) {
+    public void save(Session session, Http.Request request, Http.Response response) {
+        if (response == null) {
             // Some request like WebSocket don't have any response
             return;
         }
@@ -76,19 +77,19 @@ public class CookieSessionStore implements SessionStore {
         }
         if (session.isEmpty()) {
             // The session is empty: delete the cookie
-            if (Http.Request.current().cookies.containsKey(COOKIE_PREFIX + "_SESSION") || !SESSION_SEND_ONLY_IF_CHANGED) {
-                Http.Response.current().setCookie(COOKIE_PREFIX + "_SESSION", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
+            if (request.cookies.containsKey(COOKIE_PREFIX + "_SESSION") || !SESSION_SEND_ONLY_IF_CHANGED) {
+                response.setCookie(COOKIE_PREFIX + "_SESSION", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
             }
             return;
         }
         try {
             String sessionData = CookieDataCodec.encode(session.data);
-            String sign = Crypto.sign(sessionData, Play.secretKey.getBytes());
+            String sign = Crypto.sign(sessionData, Play.secretKey.getBytes(UTF_8));
             if (COOKIE_EXPIRE == null) {
-                Http.Response.current().setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/", null, COOKIE_SECURE,
+                response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/", null, COOKIE_SECURE,
                         SESSION_HTTPONLY);
             } else {
-                Http.Response.current().setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/",
+                response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/",
                         Time.parseDuration(COOKIE_EXPIRE), COOKIE_SECURE, SESSION_HTTPONLY);
             }
         } catch (Exception e) {

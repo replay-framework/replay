@@ -15,6 +15,9 @@ import play.PlayPlugin;
 import play.mvc.Http.Header;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
+import play.mvc.Scope.RenderArgs;
+import play.mvc.Scope.Session;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -75,7 +78,7 @@ public class PlayStatusPlugin extends PlayPlugin {
      * you would be required to start play with a -DstatusKey=yourkey
      */
     @Override
-    public boolean rawInvocation(Request request, Response response) throws Exception {
+    public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
         if (request.path.equals("/@status") || request.path.equals("/@status.json")) {
             if (!Play.started) {
                 response.print("Application is not started");
@@ -98,7 +101,7 @@ public class PlayStatusPlugin extends PlayPlugin {
             }
             return true;
         }
-        return super.rawInvocation(request, response);
+        return super.rawInvocation(request, response, session, renderArgs, flash);
     }
 
     /**
