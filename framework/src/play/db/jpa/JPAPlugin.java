@@ -99,14 +99,6 @@ public class JPAPlugin extends PlayPlugin {
         return null;
     }
 
-    public EntityManager em(String key) {
-        EntityManagerFactory emf = JPA.emfs.get(key);
-        if(emf == null) {
-            return null;
-        }
-        return emf.createEntityManager();
-    }
-
     /**
      * Reads the configuration file and initialises required JPA EntityManagerFactories.
      */

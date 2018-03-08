@@ -89,15 +89,15 @@ public class Mail {
         if (email.getFromAddress() == null && !StringUtils.isEmpty(from)) {
             email.setFrom(from);
         } else if (email.getFromAddress() == null) {
-            throw new MailException("Please define a 'from' email address", new NullPointerException());
+            throw new MailException("Please define a 'from' email address");
         }
         if ((email.getToAddresses() == null || email.getToAddresses().isEmpty())
                 && (email.getCcAddresses() == null || email.getCcAddresses().isEmpty())
                 && (email.getBccAddresses() == null || email.getBccAddresses().isEmpty())) {
-            throw new MailException("Please define a recipient email address", new NullPointerException());
+            throw new MailException("Please define a recipient email address");
         }
         if (email.getSubject() == null) {
-            throw new MailException("Please define a subject", new NullPointerException());
+            throw new MailException("Please define a subject");
         }
         if (email.getReplyToAddresses() == null || email.getReplyToAddresses().isEmpty()) {
             email.addReplyTo(email.getFromAddress().getAddress());
