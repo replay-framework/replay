@@ -156,20 +156,7 @@ public class ActionInvoker {
             throw new NoResult();
 
         } catch (Result result) {
-            Play.pluginCollection.onActionInvocationResult(result);
-
-            // OK there is a result to apply
-            // Save session & flash scope now
-            session.save(request, response);
-            flash.save(request, response);
-
-            result.apply(request, response, session, renderArgs, flash);
-
-            Play.pluginCollection.afterActionInvocation(request, response, flash);
-
-            // @Finally
-            handleFinallies(request, null);
-
+            applyResult(request, response, session, flash, renderArgs, result);
         } catch (RuntimeException e) {
             handleFinallies(request, e);
             throw e;
@@ -183,6 +170,35 @@ public class ActionInvoker {
                 monitor.stop();
             }
         }
+    }
+
+    private static void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
+        Play.pluginCollection.onActionInvocationResult(result);
+
+        // OK there is a result to apply
+        // Save session & flash scope now
+        session.save(request, response);
+        flash.save(request, response);
+
+        try {
+            result.apply(request, response, session, renderArgs, flash);
+        }
+        catch (Result anotherResult) {
+            if (result == anotherResult) {
+                // avoid endless recursion
+                throw new IllegalArgumentException("result is rethrown: " + anotherResult);
+            }
+            else {
+                // There is a weird ExcelPlugin that throws RenderExcel from inside ViewResult.apply().
+                // In this case, we need to call RenderExcel.apply()
+                applyResult(request, response, session, flash, renderArgs, anotherResult);
+            }
+        }
+
+        Play.pluginCollection.afterActionInvocation(request, response, flash);
+
+        // @Finally
+        handleFinallies(request, null);
     }
 
     private static void invokeControllerCatchMethods(Http.Request request, Throwable throwable) throws Exception {
