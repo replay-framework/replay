@@ -83,13 +83,10 @@ public class Plugin extends PlayPlugin {
      */
     private static final URLCodec encoder = new URLCodec();
     @Override
-    public void onActionInvocationResult(Result result) {
-        Request request = Request.current();
+    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
         if (null == request.format || !request.format.matches("(csv|xls|xlsx)"))
             return;
 
-        Response response = Response.current();
-        RenderArgs renderArgs = RenderArgs.current();
         if (!response.headers.containsKey("Content-Disposition")) {
             String fileName = renderArgs.get(RenderExcel.RA_FILENAME,
                     String.class);

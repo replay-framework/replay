@@ -197,16 +197,17 @@ public class ValidationTest {
         Messages.defaults = new Properties();
         Messages.defaults.setProperty("validation.error.missingName", "%s is invalid, given: '%s'");
         Validation.current.set(new Validation());
-        Http.Response.setCurrent(new Http.Response());
-        Http.Request.setCurrent(new Http.Request());
+
         Play.configuration = new Properties();
         Validation.addError("user.name", "validation.error.missingName", "");
         Validation.keep();
-        ValidationPlugin.save();
+        Http.Request request = new Http.Request();
+        Http.Response response = new Http.Response();
+        ValidationPlugin.save(request, response);
 
-        Http.Request.current().cookies = Http.Response.current().cookies;
+        request.cookies = response.cookies;
 
-        Validation restored = ValidationPlugin.restore();
+        Validation restored = ValidationPlugin.restore(request);
         assertEquals("user.name is invalid, given: ''", restored.errors.get(0).message());
     }
 }

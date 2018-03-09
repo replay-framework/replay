@@ -169,7 +169,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @param result
      *            The result object for the request.
      */
-    public void onActionInvocationResult(Result result) {
+    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
     }
 
     public void onInvocationSuccess() {

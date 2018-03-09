@@ -39,7 +39,7 @@ public class ValidationPlugin extends PlayPlugin {
 
     @Override
     public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
-        Validation.current.set(restore());
+        Validation.current.set(restore(request));
         boolean verify = false;
         for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
             if (annotations.length > 0) {
@@ -54,21 +54,19 @@ public class ValidationPlugin extends PlayPlugin {
         ArrayList<Error> errors = new ArrayList<>();
         String[] paramNames = Java.parameterNames(actionMethod);
         for (ConstraintViolation violation : violations) {
+            String key = paramNames[((MethodParameterContext) violation.getContext()).getParameterIndex()];
+            String[] variables = violation.getMessageVariables() == null ? new String[0]
+              : violation.getMessageVariables().values().toArray(new String[0]);
             errors.add(new Error(
-                    paramNames[((MethodParameterContext) violation
-                            .getContext()).getParameterIndex()], violation
-                            .getMessage(),
-                    violation.getMessageVariables() == null ? new String[0]
-                            : violation.getMessageVariables().values()
-                                    .toArray(new String[0]), violation
-                            .getSeverity()));
+              key, violation.getMessage(), variables, violation.getSeverity())
+            );
         }
         Validation.current.get().errors.addAll(errors);
     }
 
     @Override
-    public void onActionInvocationResult(Result result) {
-        save();
+    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
+        save(request, response);
     }
 
     @Override
@@ -98,10 +96,10 @@ public class ValidationPlugin extends PlayPlugin {
 
     private static final Pattern errorsParser = Pattern.compile("\u0000([^:]*):([^\u0000]*)\u0000");
 
-    static Validation restore() {
+    static Validation restore(Request request) {
         try {
             Validation validation = new Validation();
-            Http.Cookie cookie = Request.current().cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
+            Http.Cookie cookie = request.cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
             if (cookie != null) {
                 String errorsData = URLDecoder.decode(cookie.value, "utf-8");
                 Matcher matcher = errorsParser.matcher(errorsData);
@@ -119,15 +117,15 @@ public class ValidationPlugin extends PlayPlugin {
         }
     }
 
-    static void save() {
-        if (Response.current() == null) {
+    static void save(Request request, Response response) {
+        if (response == null) {
             // Some request like WebSocket don't have any response
             return;
         }
         if (Validation.errors().isEmpty()) {
             // Only send "delete cookie" header when the cookie was present in the request
-            if(Request.current().cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS") || !Scope.SESSION_SEND_ONLY_IF_CHANGED) {
-                Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", "", null, "/", 0, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
+            if (request.cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS") || !Scope.SESSION_SEND_ONLY_IF_CHANGED) {
+                response.setCookie(Scope.COOKIE_PREFIX + "_ERRORS", "", null, "/", 0, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
             }
             return;
         }
@@ -147,7 +145,7 @@ public class ValidationPlugin extends PlayPlugin {
                 }
             }
             String errorsData = URLEncoder.encode(errors.toString(), "utf-8");
-            Response.current().setCookie(Scope.COOKIE_PREFIX + "_ERRORS", errorsData, null, "/", null, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
+            response.setCookie(Scope.COOKIE_PREFIX + "_ERRORS", errorsData, null, "/", null, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
         } catch (Exception e) {
             throw new UnexpectedException("Errors serializationProblem", e);
         }

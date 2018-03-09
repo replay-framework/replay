@@ -173,7 +173,7 @@ public class ActionInvoker {
     }
 
     private static void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
-        Play.pluginCollection.onActionInvocationResult(result);
+        Play.pluginCollection.onActionInvocationResult(request, response, renderArgs, result);
 
         // OK there is a result to apply
         // Save session & flash scope now
