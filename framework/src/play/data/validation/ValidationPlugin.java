@@ -39,35 +39,31 @@ public class ValidationPlugin extends PlayPlugin {
 
     @Override
     public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
-        try {
-            Validation.current.set(restore());
-            boolean verify = false;
-            for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
-                if (annotations.length > 0) {
-                    verify = true;
-                    break;
-                }
+        Validation.current.set(restore());
+        boolean verify = false;
+        for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
+            if (annotations.length > 0) {
+                verify = true;
+                break;
             }
-            if (!verify) {
-                return;
-            }
-            List<ConstraintViolation> violations = new Validator().validateAction(request, actionMethod);
-            ArrayList<Error> errors = new ArrayList<>();
-            String[] paramNames = Java.parameterNames(actionMethod);
-            for (ConstraintViolation violation : violations) {
-                errors.add(new Error(
-                        paramNames[((MethodParameterContext) violation
-                                .getContext()).getParameterIndex()], violation
-                                .getMessage(),
-                        violation.getMessageVariables() == null ? new String[0]
-                                : violation.getMessageVariables().values()
-                                        .toArray(new String[0]), violation
-                                .getSeverity()));
-            }
-            Validation.current.get().errors.addAll(errors);
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
         }
+        if (!verify) {
+            return;
+        }
+        List<ConstraintViolation> violations = new Validator().validateAction(request, actionMethod);
+        ArrayList<Error> errors = new ArrayList<>();
+        String[] paramNames = Java.parameterNames(actionMethod);
+        for (ConstraintViolation violation : violations) {
+            errors.add(new Error(
+                    paramNames[((MethodParameterContext) violation
+                            .getContext()).getParameterIndex()], violation
+                            .getMessage(),
+                    violation.getMessageVariables() == null ? new String[0]
+                            : violation.getMessageVariables().values()
+                                    .toArray(new String[0]), violation
+                            .getSeverity()));
+        }
+        Validation.current.get().errors.addAll(errors);
     }
 
     @Override
@@ -91,16 +87,16 @@ public class ValidationPlugin extends PlayPlugin {
 
     // ~~~~~~
     static class Validator extends Guard {
-        public List<ConstraintViolation> validateAction(Http.Request request, Method actionMethod) throws Exception {
+        public List<ConstraintViolation> validateAction(Http.Request request, Method actionMethod) {
             List<ConstraintViolation> violations = new ArrayList<>();
-            Object instance = null;
             Object[] rArgs = ActionInvoker.getActionMethodArgs(request, actionMethod);
             validateMethodParameters(null, actionMethod, rArgs, violations);
             validateMethodPre(null, actionMethod, rArgs, violations);
             return violations;
         }
     }
-    static Pattern errorsParser = Pattern.compile("\u0000([^:]*):([^\u0000]*)\u0000");
+
+    private static final Pattern errorsParser = Pattern.compile("\u0000([^:]*):([^\u0000]*)\u0000");
 
     static Validation restore() {
         try {
