@@ -129,8 +129,8 @@ public class Unbinder {
                                     && TypeUnbinder.class.isAssignableFrom(toInstantiateBinder)) {
                                 TypeUnbinder<?> myInstance = (TypeUnbinder<?>) toInstantiateBinder.newInstance();
                                 isExtendedTypeBinder = myInstance.unBind(result, src, srcClazz, name, annotations);
-                            }    
-                        }             
+                            }
+                        }
                     }
                 }
             }

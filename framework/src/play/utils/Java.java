@@ -27,10 +27,8 @@ public class Java {
      * @param method
      *            The given method
      * @return Array of parameter names
-     * @throws Exception
-     *             if problem occurred during invoking
      */
-    public static String[] parameterNames(Method method) throws Exception {
+    public static String[] parameterNames(Method method) {
         Parameter[] parameters = method.getParameters();
         String[] names = new String[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
@@ -62,7 +60,7 @@ public class Java {
         }
     }
 
-    public static Object deserialize(byte[] b) throws Exception {
+    public static Object deserialize(byte[] b) throws IOException, ClassNotFoundException {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(b)) {
             try (ObjectInputStream oi = new ObjectInputStream(bais)) {
                 return oi.readObject();
@@ -170,17 +168,14 @@ class JavaWithCaching {
     private void sortByPriority(List<Method> methods, final Class<? extends Annotation> annotationType) {
         try {
             final Method priority = annotationType.getMethod("priority");
-            sort(methods, new Comparator<Method>() {
-                @Override
-                public int compare(Method m1, Method m2) {
-                    try {
-                        Integer priority1 = (Integer) priority.invoke(m1.getAnnotation(annotationType));
-                        Integer priority2 = (Integer) priority.invoke(m2.getAnnotation(annotationType));
-                        return priority1.compareTo(priority2);
-                    } catch (Exception e) {
-                        // should not happen
-                        throw new RuntimeException(e);
-                    }
+            sort(methods, (m1, m2) -> {
+                try {
+                    Integer priority1 = (Integer) priority.invoke(m1.getAnnotation(annotationType));
+                    Integer priority2 = (Integer) priority.invoke(m2.getAnnotation(annotationType));
+                    return priority1.compareTo(priority2);
+                } catch (Exception e) {
+                    // should not happen
+                    throw new RuntimeException(e);
                 }
             });
         } catch (NoSuchMethodException e) {

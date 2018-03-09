@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,19 +20,15 @@ public class BeanWrapper {
     private static final Logger logger = LoggerFactory.getLogger(BeanWrapper.class);
 
     static final int notwritableField = Modifier.FINAL | Modifier.NATIVE | Modifier.STATIC;
-    static final int notaccessibleMethod = Modifier.NATIVE | Modifier.STATIC;
+    private static final int notaccessibleMethod = Modifier.NATIVE | Modifier.STATIC;
 
-    private Class<?> beanClass;
-
-    /** 
+    /**
      * a cache for our properties and setters
      */
     private Map<String, Property> wrappers = new HashMap<>();
 
     public BeanWrapper(Class<?> forClass) {
         logger.trace("Bean wrapper for class {}", forClass.getName());
-
-        this.beanClass = forClass;
 
         registerSetters(forClass);
         registerFields(forClass);
@@ -55,12 +54,6 @@ public class BeanWrapper {
     private boolean isSetter(Method method) {
         return method.getName().startsWith("set") && method.getName().length() > 3 &&
           method.getParameterTypes().length == 1 && (method.getModifiers() & notaccessibleMethod) == 0;
-    }
-
-    protected Object newBeanInstance() throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        Constructor<?> constructor = beanClass.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        return constructor.newInstance();
     }
 
     private void registerFields(Class<?> clazz) {
@@ -165,12 +158,7 @@ public class BeanWrapper {
         }
     }
 
-    public Object bind(String name, Type type, Map<String, String[]> params, String prefix, Annotation[] annotations) throws Exception {
-        Object instance = newBeanInstance();
-        return bind(name, type, params, prefix, instance, annotations);
-    }
-
-    public Object bind(String name, Type type, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) {
+    public Object bind(String name, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) {
         RootParamNode paramNode = RootParamNode.convert( params);
         // when looking at the old code in BeanBinder and Binder.bindInternal, I
         // think it is correct to use 'name+prefix'

@@ -42,7 +42,7 @@ public class BeanWrapperTest {
     }
 
     @Test
-    public void testBind() throws Exception {
+    public void testBind() {
 
         new PlayBuilder().build();
         ValidationBuilder.build();
@@ -52,22 +52,15 @@ public class BeanWrapperTest {
         m.put("b.i", new String[]{"2"});
 
         Bean b = new Bean();
-        new BeanWrapper(Bean.class).bind("b", null, m, "", b, null);
+        new BeanWrapper(Bean.class).bind("b", m, "", b, null);
         assertThat(b.a).isEqualTo("a1");
         assertThat(b.b).isEqualTo("b1");
         assertThat(b.i).isEqualTo(2);
 
         b = new Bean();
-        new BeanWrapper(Bean.class).bind("", null, m, "b", b, null);
+        new BeanWrapper(Bean.class).bind("", m, "b", b, null);
         assertThat(b.a).isEqualTo("a1");
         assertThat(b.b).isEqualTo("b1");
         assertThat(b.i).isEqualTo(2);
-
-        b = (Bean)new BeanWrapper(Bean.class).bind("b", null, m, "", null);
-        assertThat(b.a).isEqualTo("a1");
-        assertThat(b.b).isEqualTo("b1");
-        assertThat(b.i).isEqualTo(2);
-
-
     }
 }

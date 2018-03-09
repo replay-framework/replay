@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class FilesTest {
 
     @Test
-    public void testSanitizeFileName() throws Exception {
+    public void testSanitizeFileName() {
         // File names to test are on odd indexes and expected results are on even indexes, ex:
         // test_file_name, expected_file_name
         String[] FILE_NAMES = { null, null, "", "", "a", "a", "test.file", "test.file", "validfilename-,^&'@{}[],$=!-#()%.+~_.&&&",

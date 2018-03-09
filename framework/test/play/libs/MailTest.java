@@ -85,7 +85,7 @@ public class MailTest {
     }
 
     @Test
-    public void mailSystemShouldBeSubstitutable() throws Exception {
+    public void mailSystemShouldBeSubstitutable() {
         Mail.useMailSystem(spyingMailSystem);
 
         Mail.send(simpleEmail);

@@ -3,6 +3,7 @@ package play.utils;
 import org.junit.Test;
 import play.libs.IO;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrderSafePropertiesTest {
 
     @Test
-    public void verifyThatEscaping_properties_content_giveSameResultAs_java_util_properties() throws Exception {
+    public void verifyThatEscaping_properties_content_giveSameResultAs_java_util_properties() throws IOException {
         // see info about escaping - http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html - "public void load(InputStream inStream)"
         Properties javaP = new Properties();
         Properties playP = new OrderSafeProperties();
@@ -22,20 +23,20 @@ public class OrderSafePropertiesTest {
     }
 
     @Test
-    public void verifyCorrectOrder() throws Exception{
+    public void verifyCorrectOrder() throws IOException {
         InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties");
         assertThat(in).isNotNull();
         Properties p = new OrderSafeProperties();
         p.load(in);
         in.close();
 
-        // check order using keyet
+        // check order using keySet
         int order = 0;
         for (Object _key : p.keySet()) {
             String key = (String)_key;
             if( !key.startsWith("_")) {
 
-                String value = (String)p.get(key);
+                String value = p.getProperty(key);
 
                 int currentOrder = Integer.parseInt(value);
                 order++;
@@ -59,19 +60,17 @@ public class OrderSafePropertiesTest {
     }
 
     @Test
-    public void verifyUTF8() throws Exception {
-
-        InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties");
-        assertThat(in).isNotNull();
-        Properties p = new OrderSafeProperties();
-        p.load(in);
-        in.close();
-
-        verifyPropertiesContent(p);
+    public void verifyUTF8() throws IOException {
+        try (InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties")) {
+            assertThat(in).isNotNull();
+            Properties p = new OrderSafeProperties();
+            p.load(in);
+            verifyPropertiesContent(p);
+        }
     }
 
     @Test
-    public void verifyUTF8_via_readUtf8Properties() throws Exception {
+    public void verifyUTF8_via_readUtf8Properties() {
 
         InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties");
         assertThat(in).isNotNull();
@@ -91,7 +90,6 @@ public class OrderSafePropertiesTest {
         assertThat(p.getProperty("_check_7.ยินดีต้อนรับ")).isEqualTo("ยินดีต้อนรับ");
         assertThat(p.getProperty("_check_8")).isEqualTo("х");// Unicode Character 'CYRILLIC SMALL LETTER HA' (U+0445)
 
-        // test from Lyubomir Ivanov
         String cyrillic_bulgarian_caps  = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ";
         String cyrillic_bulgarian_small = "абвгдежзийклмнопрстуфхцчшщъьюя";
         String cyrillic_bulgarian_old   = "ѣѢѫѪѭѬ";

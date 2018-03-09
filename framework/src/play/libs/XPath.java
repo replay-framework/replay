@@ -1,5 +1,6 @@
 package play.libs;
 
+import org.jaxen.JaxenException;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -29,7 +30,7 @@ public class XPath {
     public static List<Node> selectNodes(String path, Object node, Map<String, String> namespaces) {
         try {
             return getDOMXPath(path, namespaces).selectNodes(node);
-        } catch (Exception e) {
+        } catch (JaxenException e) {
             throw new RuntimeException(e);
         }
     }
@@ -88,7 +89,7 @@ public class XPath {
                 return null;
             }
             return ((Text) rnode).getData();
-        } catch (Exception e) {
+        } catch (JaxenException e) {
             throw new RuntimeException(e);
         }
     }
@@ -106,7 +107,7 @@ public class XPath {
         return selectText(path, node, null);
     }
 
-    private static DOMXPath getDOMXPath(String path, Map<String, String> namespaces) throws Exception {
+    private static DOMXPath getDOMXPath(String path, Map<String, String> namespaces) throws JaxenException {
         DOMXPath xpath = new DOMXPath(path);
         if (namespaces != null) {
             for (String prefix : namespaces.keySet()) {

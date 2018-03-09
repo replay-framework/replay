@@ -20,7 +20,7 @@ public class XMLTest {
     private Document document;
     
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         document = XML.getDocument(ORIGINAL_DOCUMENT); 
     }
 
@@ -29,7 +29,7 @@ public class XMLTest {
     }
     
     @Test
-    public void serializeShouldReturnWellFormedXml() throws Exception {
+    public void serializeShouldReturnWellFormedXml() {
         String outputDocument = XML.serialize(document);
         assertEquals(
                 stripPreamble(ORIGINAL_DOCUMENT),

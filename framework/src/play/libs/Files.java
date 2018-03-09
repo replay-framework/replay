@@ -157,7 +157,7 @@ public class Files {
                     zipDirectory(directory, directory, zos);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new UnexpectedException(e);
         }
     }
@@ -213,7 +213,7 @@ public class Files {
         return changed ? new String(chars) : fileName;
     }
 
-    static void zipDirectory(File root, File directory, ZipOutputStream zos) throws Exception {
+    static void zipDirectory(File root, File directory, ZipOutputStream zos) throws IOException {
         for (File item : directory.listFiles()) {
             if (item.isDirectory()) {
                 zipDirectory(root, item, zos);

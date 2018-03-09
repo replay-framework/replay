@@ -13,6 +13,7 @@ import play.Play;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
     public StreamChunkAggregator() { }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws IOException {
         Object msg = e.getMessage();
         if (!(msg instanceof HttpMessage) && !(msg instanceof HttpChunk)) {
             ctx.sendUpstream(e);

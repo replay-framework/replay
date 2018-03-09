@@ -471,7 +471,7 @@ public class ActionInvoker {
         return new Object[] { controllerClass, actionMethod };
     }
 
-    public static Object[] getActionMethodArgs(Http.Request request, Method method) throws Exception {
+    public static Object[] getActionMethodArgs(Http.Request request, Method method) {
         String[] paramsNames = Java.parameterNames(method);
         if (paramsNames == null && method.getParameterTypes().length > 0) {
             throw new UnexpectedException("Parameter names not found for method " + method);

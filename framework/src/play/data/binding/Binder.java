@@ -497,10 +497,10 @@ public abstract class Binder {
      * @param clazz
      *            class of the object
      * @return The binding object
-     * @throws Exception
+     * @throws ParseException
      *             if problem occurred during binding
      */
-    public static Object directBind(String value, Class<?> clazz) throws Exception {
+    public static Object directBind(String value, Class<?> clazz) throws ParseException {
         return directBind(null, value, clazz, null);
     }
 
@@ -517,10 +517,10 @@ public abstract class Binder {
      *            The class of the object
      * 
      * @return The binding object
-     * @throws Exception
+     * @throws ParseException
      *             if problem occurred during binding
      */
-    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz) throws Exception {
+    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz) throws ParseException {
         return directBind(name, annotations, value, clazz, null);
     }
 
@@ -536,10 +536,10 @@ public abstract class Binder {
      * @param type
      *            type to bind
      * @return The binding object
-     * @throws Exception
+     * @throws ParseException
      *             if problem occurred during binding
      */
-    public static Object directBind(Annotation[] annotations, String value, Class<?> clazz, Type type) throws Exception {
+    public static Object directBind(Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
         return directBind(null, annotations, value, clazz, type);
     }
 

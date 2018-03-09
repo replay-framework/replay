@@ -30,7 +30,7 @@ public class FlashPolicyHandler extends FrameDecoder {
     }
 
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
+    protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) {
         if (buffer.readableBytes() < 2) {
             return null;
         }

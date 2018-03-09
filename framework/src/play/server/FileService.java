@@ -188,7 +188,7 @@ public class FileService  {
         }
         
         @Override
-        public void close() throws Exception {
+        public void close() throws IOException {
             raf.close();
         }
         
@@ -201,13 +201,13 @@ public class FileService  {
                 String headerValue = request.headers().get("range").trim().substring("bytes=".length());
                 String[] rangesValues = headerValue.split(",");
                 ArrayList<long[]> ranges = new ArrayList<>(rangesValues.length);
-                for(int i = 0; i < rangesValues.length; i++) {
-                    String rangeValue = rangesValues[i];
+                for (String rangeValue : rangesValues) {
                     long start, end;
-                    if(rangeValue.startsWith("-")) {
+                    if (rangeValue.startsWith("-")) {
                         end = fileLength - 1;
                         start = fileLength - 1 - Long.parseLong(rangeValue.substring("-".length()));
-                    } else {
+                    }
+                    else {
                         String[] range = rangeValue.split("-");
                         start = Long.parseLong(range[0]);
                         end = range.length > 1 ? Long.parseLong(range[1]) : fileLength - 1;
@@ -215,8 +215,8 @@ public class FileService  {
                     if (end > fileLength - 1) {
                         end = fileLength - 1;
                     }
-                    if(start <= end){
-                        ranges.add(new long[] { start, end });
+                    if (start <= end) {
+                        ranges.add(new long[]{start, end});
                     }
                 }
                 long[][] reducedRanges = reduceRanges(ranges.toArray(new long[0][]));

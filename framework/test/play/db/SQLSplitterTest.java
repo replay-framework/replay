@@ -1,10 +1,12 @@
 package play.db;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 
 public class SQLSplitterTest {
@@ -96,17 +98,18 @@ public class SQLSplitterTest {
         assertEquals(3, SQLSplitter.splitSQL("a;\nb;\nc;").size());
     }
 
-    String readFile(String filename) throws Exception {
-        File src = new File(getClass().getResource(filename).toURI());
-        byte[] srcbytes = new byte[(int) src.length()];
-
-        new FileInputStream(src).read(srcbytes);
-        return new String(srcbytes, "UTF-8");
+    String readFile(String filename) {
+        try {
+            return IOUtils.toString(getClass().getResource(filename), UTF_8);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void verifyTestSplitting() throws Exception {
-        java.util.ArrayList<CharSequence> srcArrList = SQLSplitter.splitSQL(readFile("/play/db/test.sql"));
+    public void verifyTestSplitting() {
+        List<CharSequence> srcArrList = SQLSplitter.splitSQL(readFile("/play/db/test.sql"));
         CharSequence[] srcArr = new CharSequence[(int) srcArrList.size()];
         srcArr = srcArrList.toArray(srcArr);
 

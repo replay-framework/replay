@@ -300,11 +300,9 @@ public class ApacheMultipartParser extends DataParser {
          *
          * @param file
          *            The {@code File} into which the uploaded item should be stored.
-         * @throws Exception
-         *             if an error occurs.
          */
         @Override
-        public void write(File file) throws Exception {
+        public void write(File file) throws IOException, FileUploadException {
             if (isInMemory()) {
                 FileUtils.writeByteArrayToFile(file, get());
             } else {

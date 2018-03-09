@@ -22,7 +22,7 @@ public class FastTagsTest {
     final String backupSystemLineBreak = System.getProperty("line.separator");
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         //if you render html into out
         // and expect results with line breaks
         // take into account that your tests will fail on other platforms
@@ -35,6 +35,7 @@ public class FastTagsTest {
         Scope.Session.current.set(new Scope.Session());
         Scope.Session.current().put("___AT", "1234");
     }
+
     @After
     public void tearDown() {
         // restore line.separator
