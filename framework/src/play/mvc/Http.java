@@ -168,7 +168,7 @@ public class Http {
      * An HTTP Request
      */
     public static class Request implements Serializable {
-        private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-zA-Z]*");
+        private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-fA-F]*");
 
         /**
          * Server host
