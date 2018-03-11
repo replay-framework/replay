@@ -14,12 +14,24 @@ import org.hibernate.type.Type;
 import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.EntityManager;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PersistenceException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A super class for JPA entities
@@ -340,12 +352,4 @@ public class JPABase implements Serializable, play.db.Model {
             return best;
         }
     }
-
-    //
-
-    @Deprecated
-    public Object getEntityId() {
-        return _key();
-    }
-
 }

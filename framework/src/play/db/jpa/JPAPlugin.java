@@ -29,6 +29,7 @@ import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +49,7 @@ public class JPAPlugin extends PlayPlugin {
     public static boolean autoTxs = true;
   
     @Override
-    public Object bind(RootParamNode rootParamNode, String name, Class clazz, java.lang.reflect.Type type, Annotation[] annotations) {
-        // TODO need to be more generic in order to work with JPASupport
+    public Object bind(RootParamNode rootParamNode, String name, Class clazz, Type type, Annotation[] annotations) {
         if (JPABase.class.isAssignableFrom(clazz)) {
 
             ParamNode paramNode = rootParamNode.getChild(name, true);
@@ -63,7 +63,7 @@ public class JPAPlugin extends PlayPlugin {
             for (String keyName : keyNames) {
                 ids[i++] = paramNode.getChild(keyName, true);
             }
-            if (ids != null && ids.length > 0) {
+            if (ids.length > 0) {
                 try {
                     EntityManager em = JPA.em(dbName);
                     StringBuilder q = new StringBuilder().append("from ").append(clazz.getName()).append(" o where");
@@ -133,14 +133,14 @@ public class JPAPlugin extends PlayPlugin {
                     entityClasses.add(clazz);
                 } else if (pu == null && JPA.DEFAULT.equals(dbName)) {
                     entityClasses.add(clazz);
-                }                    
+                }
             }
         }
 
         // Add entities
         String[] moreEntities = Play.configuration.getProperty("jpa.entities", "").split(", ");
         for (String entity : moreEntities) {
-            if (entity.trim().equals("")) {
+            if (entity.trim().isEmpty()) {
                 continue;
             }
             try {
@@ -214,10 +214,6 @@ public class JPAPlugin extends PlayPlugin {
                 }
             }
         }
-    }
-
-    public static String getDefaultDialect(String driver) {
-        return getDefaultDialect(new Configuration("default"), driver);
     }
 
     public static String getDefaultDialect(Configuration dbConfig, String driver) {

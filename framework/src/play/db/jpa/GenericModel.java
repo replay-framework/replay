@@ -8,12 +8,26 @@ import play.data.binding.ParamNode;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 
-import javax.persistence.*;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.NoResultException;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Query;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * A super class for JPA entities
@@ -21,29 +35,6 @@ import java.util.*;
 @MappedSuperclass
 @SuppressWarnings("unchecked")
 public class GenericModel extends JPABase {
-
-    /**
-     * Create a new model
-     * 
-     * @param type
-     *            the class of the object
-     * @param name
-     *            name of the object
-     * @param params
-     *            parameters used to create the new object
-     * @param annotations
-     *            annotations on the model
-     * @param <T>
-     *            The entity class
-     * @return The created entity
-     * @deprecated use method {{@link #create(ParamNode, String, Class, Annotation[]) }}
-     */
-    @Deprecated
-    public static <T extends JPABase> T create(Class<?> type, String name, Map<String, String[]> params, Annotation[] annotations) {
-        ParamNode rootParamNode = ParamNode.convert(params);
-        return (T) create(rootParamNode, name, type, annotations);
-    }
-
     /**
      * Create a new model
      * 
@@ -68,30 +59,6 @@ public class GenericModel extends JPABase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Edit a model
-     * 
-     * @param o
-     *            Object to edit
-     * @param name
-     *            name of the object
-     * @param params
-     *            list of parameters
-     * @param annotations
-     *            annotations on the model
-     * @param <T>
-     *            class of the entity
-     * @return the entity
-     * 
-     * @see GenericModel#edit(ParamNode, String, Object, Annotation[])
-     * @deprecated use method {{@link GenericModel#edit(ParamNode, String, Object, Annotation[]) }}
-     */
-    @Deprecated
-    public static <T extends JPABase> T edit(Object o, String name, Map<String, String[]> params, Annotation[] annotations) {
-        ParamNode rootParamNode = ParamNode.convert(params);
-        return (T) edit(rootParamNode, name, o, annotations);
     }
 
     /**
@@ -130,7 +97,7 @@ public class GenericModel extends JPABase {
      *            class of the entity
      * @return the entity
      */
-    public static <T extends JPABase> T edit(String dbName, ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
+    private static <T extends JPABase> T edit(String dbName, ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
         // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
         // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
         ParamNode paramNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name, true);
@@ -260,25 +227,6 @@ public class GenericModel extends JPABase {
     /**
      * Edit a model
      * 
-     * @param name
-     *            name of the entity
-     * @param params
-     *            list of parameters
-     * @param <T>
-     *            class of the entity
-     * @return the entity
-     * 
-     * @deprecated use method {{@link #edit(ParamNode, String)}}
-     */
-    @Deprecated
-    public <T extends GenericModel> T edit(String name, Map<String, String[]> params) {
-        ParamNode rootParamNode = ParamNode.convert(params);
-        return (T) edit(rootParamNode, name, this, null);
-    }
-
-    /**
-     * Edit a model
-     * 
      * @param rootParamNode
      *            parameters used to create the new object
      * @param name
@@ -293,24 +241,6 @@ public class GenericModel extends JPABase {
     }
 
     /**
-     * Edit a model
-     * 
-     * @param dbName
-     *            the db name
-     * @param rootParamNode
-     *            parameters used to create the new object
-     * @param name
-     *            name of the entity
-     * @param <T>
-     *            class of the entity
-     * @return the entity
-     */
-    public <T extends GenericModel> T edit(String dbName, ParamNode rootParamNode, String name) {
-        edit(dbName, rootParamNode, name, this, null);
-        return (T) this;
-    }
-
-    /**
      * store (ie insert) the entity.
      * 
      * @param <T>
@@ -319,31 +249,6 @@ public class GenericModel extends JPABase {
      */
     public <T extends JPABase> T save() {
         _save();
-        return (T) this;
-    }
-
-    /**
-     * store (ie insert) the entity.
-     * 
-     * @return true if successful
-     */
-    public boolean create() {
-        if (!em(JPA.getDBName(this.getClass())).contains(this)) {
-            _save();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Refresh the entity state.
-     * 
-     * @param <T>
-     *            class of the entity
-     * @return The given entity
-     */
-    public <T extends JPABase> T refresh() {
-        em(JPA.getDBName(this.getClass())).refresh(this);
         return (T) this;
     }
 
@@ -370,9 +275,6 @@ public class GenericModel extends JPABase {
         return (T) this;
     }
 
-    /**
-     * A JPAQuery
-     */
     public static class JPAQuery {
 
         public Query query;
@@ -505,59 +407,4 @@ public class GenericModel extends JPABase {
             }
         }
     }
-
-    // ----- THIS CODE IS DEPRECATED AND WILL BE REMOVED IN NEXT VERSIONs
-    @PostLoad
-    @SuppressWarnings("deprecation")
-    public void _setupAttachment() {
-        Class c = this.getClass();
-        while (!c.equals(Object.class)) {
-            for (Field field : c.getDeclaredFields()) {
-                if (FileAttachment.class.isAssignableFrom(field.getType())) {
-                    try {
-                        field.setAccessible(true);
-                        FileAttachment attachment = (FileAttachment) field.get(this);
-                        if (attachment != null) {
-                            attachment.model = this;
-                            attachment.name = field.getName();
-                        } else {
-                            attachment = new FileAttachment();
-                            attachment.model = this;
-                            attachment.name = field.getName();
-                            field.set(this, attachment);
-                        }
-                    } catch (Exception ex) {
-                        throw new UnexpectedException(ex);
-                    }
-                }
-            }
-            c = c.getSuperclass();
-        }
-    }
-
-    @PostPersist
-    @PostUpdate
-    @SuppressWarnings("deprecation")
-    public void _saveAttachment() {
-        Class c = this.getClass();
-        while (!c.equals(Object.class)) {
-            for (Field field : c.getDeclaredFields()) {
-                if (field.getType().equals(FileAttachment.class)) {
-                    try {
-                        field.setAccessible(true);
-                        FileAttachment attachment = (FileAttachment) field.get(this);
-                        if (attachment != null) {
-                            attachment.model = this;
-                            attachment.name = field.getName();
-                            attachment.save();
-                        }
-                    } catch (Exception ex) {
-                        throw new UnexpectedException(ex);
-                    }
-                }
-            }
-            c = c.getSuperclass();
-        }
-    }
-    // -----
 }

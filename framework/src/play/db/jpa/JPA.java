@@ -43,27 +43,11 @@ public class JPA {
     /**
      * Clear a DB context
      * 
-     * @deprecated Use clearContext instead
-     * @since 1.3.0
-     * @see #clearContext(String)
-     */
-    @Deprecated
-    static void clearContext() {
-        get().clear();
-    }
-
-    /**
-     * Clear a DB context
-     * 
      * @param name
      *            the DB name
      */
     static void clearContext(String name) {
         get().remove(name);
-    }
-
-    static void createContext(EntityManager entityManager, boolean readonly) {
-        createContext(JPA.DEFAULT, entityManager, readonly);
     }
 
     static void createContext(String dbName, EntityManager entityManager, boolean readonly) {
@@ -126,17 +110,6 @@ public class JPA {
         return em(DEFAULT);
     }
 
-    /*
-     * Tell to JPA do not commit the current transaction
-     */
-    public static void setRollbackOnly() {
-        setRollbackOnly(DEFAULT);
-    }
-
-    public static void setRollbackOnly(String em) {
-        get(em).entityManager.getTransaction().setRollbackOnly();
-    }
-
     /**
      * @return true if an entityManagerFactory has started
      */
@@ -163,21 +136,11 @@ public class JPA {
         return em(em).createQuery(query).executeUpdate();
     }
 
-    // * Build a new entityManager.
-    // * (In most case you want to use the local entityManager with em)
-
-    public static EntityManager newEntityManager() {
-        return createEntityManager();
-    }
-
-    public static EntityManager newEntityManager(String key) {
-        return createEntityManager(key);
-    }
-
-    public static EntityManager createEntityManager() {
-        return createEntityManager(JPA.DEFAULT);
-    }
-
+    /**
+     * Build a new entityManager
+     *
+     * (In most case you want to use the local entityManager with em)
+     */
     public static EntityManager createEntityManager(String name) {
         if (isEnabled(name)) {
             return emfs.get(name).createEntityManager();
@@ -252,7 +215,7 @@ public class JPA {
                 // this is probably not the best, but there is no way we can know where to go from
                 // at this stage
                 for (String name : emfs.keySet()) {
-                    EntityManager localEm = JPA.newEntityManager(name);
+                    EntityManager localEm = JPA.createEntityManager(name);
                     JPA.bindForCurrentThread(name, localEm, readOnly);
 
                     if (!readOnly) {

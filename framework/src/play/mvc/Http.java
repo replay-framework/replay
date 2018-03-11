@@ -426,14 +426,6 @@ public class Http {
                     || (frontEndHttpsHeader != null && "on".equals(frontEndHttpsHeader.value().toLowerCase())));
         }
 
-        /**
-         * Deprecated to encourage users to use createRequest() instead.
-         */
-        @Deprecated
-        public void _init() {
-            authorizationInit();
-        }
-
         protected void authorizationInit() {
             Header header = headers.get("authorization");
             if (header != null && header.value().startsWith("Basic ")) {

@@ -343,11 +343,6 @@ public class WS extends PlayPlugin {
             return this;
         }
 
-        @Deprecated
-        public WSRequest oauth(ServiceInfo oauthInfo, OAuth.TokenPair oauthTokens) {
-            return this.oauth(oauthInfo, oauthTokens.token, oauthTokens.secret);
-        }
-
         /**
          * Indicate if the WS should continue when hitting a 301 or 302
          * 

@@ -96,38 +96,8 @@ public class OAuth {
         return Response.success(consumer.getToken(), consumer.getTokenSecret());
     }
 
-    /**
-     * Request the unauthorized token and secret. They can then be read with getTokens()
-     * 
-     * @return the url to redirect the user to get the verifier and continue the process
-     * @deprecated use retrieveRequestToken() instead
-     */
-    @Deprecated
-    public TokenPair requestUnauthorizedToken() {
-        Response response = retrieveRequestToken();
-        return new TokenPair(response.token, response.secret);
-    }
-
-    /**
-     * @param tokenPair
-     *            The token / secret pair
-     * @return the url
-     * @deprecated use retrieveAccessToken() instead
-     */
-    @Deprecated
-    public TokenPair requestAccessToken(TokenPair tokenPair) {
-        Response response = retrieveAccessToken(tokenPair.token, tokenPair.secret);
-        return new TokenPair(response.token, response.secret);
-    }
-
     public String redirectUrl(String token) {
         return oauth.signpost.OAuth.addQueryParameters(provider.getAuthorizationWebsiteUrl(), oauth.signpost.OAuth.OAUTH_TOKEN, token);
-    }
-
-    @Deprecated
-    public String redirectUrl(TokenPair tokenPair) {
-        return oauth.signpost.OAuth.addQueryParameters(provider.getAuthorizationWebsiteUrl(), oauth.signpost.OAuth.OAUTH_TOKEN,
-                tokenPair.token);
     }
 
     /**
@@ -222,21 +192,4 @@ public class OAuth {
             return "OAuth.Error: " + type + " - " + details;
         }
     }
-
-    @Deprecated
-    public static class TokenPair {
-        public String token;
-        public String secret;
-
-        public TokenPair(String token, String secret) {
-            this.token = token;
-            this.secret = secret;
-        }
-
-        @Override
-        public String toString() {
-            return token + " - " + secret;
-        }
-    }
-
 }

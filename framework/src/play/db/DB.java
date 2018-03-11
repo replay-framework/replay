@@ -10,7 +10,6 @@ import play.exceptions.DatabaseException;
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -67,6 +66,7 @@ public class DB {
      */
     @Deprecated
     public static DataSource datasource = null;
+
     /**
      * The method used to destroy the datasource
      * 

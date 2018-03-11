@@ -38,19 +38,6 @@ public class Utils {
         return (values == null) ? "" : join(Arrays.asList(values), separator);
     }
 
-    /**
-     * Get the list of annotations in string
-     * 
-     * @param values
-     *            Annotations to format
-     * @return The string representation of the annotations
-     * @deprecated Use Utils.join(values, " ");
-     */
-    @Deprecated
-    public static String toString(Annotation[] values) {
-        return join(values, " ");
-    }
-
     public static String open(String file, Integer line) {
         if (Play.configuration.containsKey("play.editor")) {
             VirtualFile vfile = VirtualFile.fromRelativePath(file);
