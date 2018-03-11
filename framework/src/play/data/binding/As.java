@@ -1,5 +1,7 @@
 package play.data.binding;
 
+import play.mvc.Http;
+
 import java.lang.annotation.*;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -17,13 +19,13 @@ public @interface As {
 
     final class DEFAULT implements TypeBinder<Object>, TypeUnbinder<Object> {
         @Override
-        public Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+        public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             throw new UnsupportedOperationException("Not supported.");
         }
 
         @Override
         public boolean unBind(Map<String, Object> result, Object src, Class<?> srcClazz, String name,
-                Annotation[] annotations) throws Exception {
+                Annotation[] annotations) {
             throw new UnsupportedOperationException("Not supported.");   
         }
     }

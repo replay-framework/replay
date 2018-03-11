@@ -1,5 +1,7 @@
 package play.data.binding;
 
+import play.mvc.Http;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -21,6 +23,6 @@ public interface TypeBinder<T> {
      * @return  the 'bound' object for example a date object if the value was '12/12/2002'
      * @throws ParseException if parameter has invalid format (e.g. date)
      */
-    Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException;
+    Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException;
 
 }

@@ -1,6 +1,7 @@
 package play.data.binding.types;
 
 import play.data.binding.TypeBinder;
+import play.mvc.Http;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -12,7 +13,7 @@ import java.util.Locale;
 public class LocaleBinder implements TypeBinder<Locale> {
 
     @Override
-    public Locale bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+    public Locale bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
         if( value == null )
             return null;
         if (value.length() == 2) {

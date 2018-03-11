@@ -20,6 +20,7 @@ import play.db.Configuration;
 import play.db.DB;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
+import play.mvc.Http;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -49,7 +50,7 @@ public class JPAPlugin extends PlayPlugin {
     public static boolean autoTxs = true;
   
     @Override
-    public Object bind(RootParamNode rootParamNode, String name, Class clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class clazz, Type type, Annotation[] annotations) {
         if (JPABase.class.isAssignableFrom(clazz)) {
 
             ParamNode paramNode = rootParamNode.getChild(name, true);
@@ -81,20 +82,20 @@ public class JPAPlugin extends PlayPlugin {
                     for (ParamNode id : ids) {
                         if (id.getValues() == null || id.getValues().length == 0 || id.getFirstValue(null)== null || id.getFirstValue(null).trim().length() <= 0 ) {
                              // We have no ids, it is a new entity
-                            return GenericModel.create(rootParamNode, name, clazz, annotations);
+                            return GenericModel.create(request, rootParamNode, name, clazz, annotations);
                         }
-                        query.setParameter(j + 1, Binder.directBind(id.getOriginalKey(), annotations, id.getValues()[0], pk[j++], null));
+                        query.setParameter(j + 1, Binder.directBind(id.getOriginalKey(), request, annotations, id.getValues()[0], pk[j++], null));
 
                     }
                     Object o = query.getSingleResult();
-                    return GenericModel.edit(rootParamNode, name, o, annotations);
+                    return GenericModel.edit(request, rootParamNode, name, o, annotations);
                 } catch (NoResultException e) {
                     // ok
                 } catch (Exception e) {
                     throw new UnexpectedException(e);
                 }
             }
-            return GenericModel.create(rootParamNode, name, clazz, annotations);
+            return GenericModel.create(request, rootParamNode, name, clazz, annotations);
         }
         return null;
     }

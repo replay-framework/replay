@@ -443,9 +443,9 @@ public class PluginCollection {
         }
     }
 
-    public Object bind(RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            Object result = plugin.bind(rootParamNode, name, clazz, type, annotations);
+            Object result = plugin.bind(request, rootParamNode, name, clazz, type, annotations);
             if (result != null) {
                 return result;
             }

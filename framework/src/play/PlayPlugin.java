@@ -2,6 +2,7 @@ package play;
 
 import com.google.gson.JsonObject;
 import play.data.binding.RootParamNode;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -47,7 +48,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            annotation on the object
      * @return binding object
      */
-    public Object bind(RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         return null;
     }
 

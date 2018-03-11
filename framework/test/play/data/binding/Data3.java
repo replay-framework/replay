@@ -1,6 +1,8 @@
 package play.data.binding;
 
 
+import play.mvc.Http;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -23,7 +25,7 @@ class Data3 {
     public static class TestGenericTypeBinder implements TypeBinder<GenericType<?>> {
 
         @Override
-        public Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+        public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             ParameterizedType pt = (ParameterizedType) genericType;
             if (!Long.class.equals(pt.getActualTypeArguments()[0])) {
                 throw new IllegalArgumentException("Wrong generic type passed. Does not match class declaration.");

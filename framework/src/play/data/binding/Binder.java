@@ -10,10 +10,15 @@ import play.data.binding.types.*;
 import play.data.validation.Validation;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
+import play.mvc.Http;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
@@ -61,7 +66,7 @@ public abstract class Binder {
      *            The custom binder
      * @param <T>
      *            The Class type to register
-     * @see #unregister(java.lang.Class)
+     * @see #unregister(Class)
      */
     public static <T> void register(Class<T> clazz, TypeBinder<T> typeBinder) {
         supportedTypes.put(clazz, typeBinder);
@@ -89,7 +94,7 @@ public abstract class Binder {
         return beanwrappers.get(clazz);
     }
 
-    public static Object bind(RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public static Object bind(Http.Request request, RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         ParamNode paramNode = parentParamNode.getChild(name, true);
 
         Object result = null;
@@ -106,12 +111,12 @@ public abstract class Binder {
         if (paramNode != null) {
 
             // Let a chance to plugins to bind this object
-            result = Play.pluginCollection.bind(parentParamNode, name, clazz, type, annotations);
+            result = Play.pluginCollection.bind(request, parentParamNode, name, clazz, type, annotations);
             if (result != null) {
                 return result;
             }
 
-            result = internalBind(paramNode, clazz, type, bindingAnnotations);
+            result = internalBind(request, paramNode, clazz, type, bindingAnnotations);
         }
 
         if (result == MISSING) {
@@ -143,7 +148,7 @@ public abstract class Binder {
 
     }
 
-    protected static Object internalBind(ParamNode paramNode, Class<?> clazz, Type type, BindingAnnotations bindingAnnotations) {
+    protected static Object internalBind(Http.Request request, ParamNode paramNode, Class<?> clazz, Type type, BindingAnnotations bindingAnnotations) {
 
         if (paramNode == null) {
             return MISSING;
@@ -164,14 +169,14 @@ public abstract class Binder {
             }
 
             if (Map.class.isAssignableFrom(clazz)) {
-                return bindMap(type, paramNode, bindingAnnotations);
+                return bindMap(request, type, paramNode, bindingAnnotations);
             }
 
             if (Collection.class.isAssignableFrom(clazz)) {
-                return bindCollection(clazz, type, paramNode, bindingAnnotations);
+                return bindCollection(request, clazz, type, paramNode, bindingAnnotations);
             }
 
-            Object directBindResult = internalDirectBind(paramNode.getOriginalKey(), bindingAnnotations.annotations,
+            Object directBindResult = internalDirectBind(paramNode.getOriginalKey(), request, bindingAnnotations.annotations,
                     paramNode.getFirstValue(clazz), clazz, type);
 
             if (directBindResult != DIRECTBINDING_NO_RESULT) {
@@ -182,11 +187,11 @@ public abstract class Binder {
             // Must do the default array-check after direct binding, since some custom-binders checks for specific
             // arrays
             if (clazz.isArray()) {
-                return bindArray(clazz, paramNode, bindingAnnotations);
+                return bindArray(request, clazz, paramNode, bindingAnnotations);
             }
 
             if (!paramNode.getAllChildren().isEmpty()) {
-                return internalBindBean(clazz, paramNode, bindingAnnotations);
+                return internalBindBean(request, clazz, paramNode, bindingAnnotations);
             }
 
             return null; // give up
@@ -205,7 +210,7 @@ public abstract class Binder {
         logger.debug("Failed to bind {}={}: {}", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()), e);
     }
 
-    private static Object bindArray(Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
+    private static Object bindArray(Http.Request request, Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
 
         Class<?> componentType = clazz.getComponentType();
 
@@ -230,7 +235,7 @@ public abstract class Binder {
             for (int i = 0; i < size; i++) {
                 String thisValue = values[i];
                 try {
-                    Array.set(array, i - invalidItemsCount, directBind(paramNode.getOriginalKey(), bindingAnnotations.annotations,
+                    Array.set(array, i - invalidItemsCount, directBind(paramNode.getOriginalKey(), request, bindingAnnotations.annotations,
                             thisValue, componentType, componentType));
                 } catch (Exception e) {
                     logger.debug("Bad item #{}: {}", i, e);
@@ -242,7 +247,7 @@ public abstract class Binder {
             array = Array.newInstance(componentType, size);
             int i = 0;
             for (ParamNode child : paramNode.getAllChildren()) {
-                Object childValue = internalBind(child, componentType, componentType, bindingAnnotations);
+                Object childValue = internalBind(request, child, componentType, componentType, bindingAnnotations);
                 if (childValue != NO_BINDING && childValue != MISSING) {
                     try {
                         Array.set(array, i - invalidItemsCount, childValue);
@@ -268,9 +273,9 @@ public abstract class Binder {
         return array;
     }
 
-    private static Object internalBindBean(Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
+    private static Object internalBindBean(Http.Request request, Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
         Object bean = createNewInstance(clazz);
-        internalBindBean(paramNode, bean, bindingAnnotations);
+        internalBindBean(request, paramNode, bean, bindingAnnotations);
         return bean;
     }
 
@@ -298,22 +303,22 @@ public abstract class Binder {
      * @param annotations
      *            annotations associated with the object
      */
-    public static void bindBean(ParamNode paramNode, Object bean, Annotation[] annotations) {
-        internalBindBean(paramNode, bean, new BindingAnnotations(annotations));
+    public static void bindBean(Http.Request request, ParamNode paramNode, Object bean, Annotation[] annotations) {
+        internalBindBean(request, paramNode, bean, new BindingAnnotations(annotations));
     }
 
-    private static void internalBindBean(ParamNode paramNode, Object bean, BindingAnnotations bindingAnnotations) {
+    private static void internalBindBean(Http.Request request, ParamNode paramNode, Object bean, BindingAnnotations bindingAnnotations) {
 
         BeanWrapper bw = getBeanWrapper(bean.getClass());
         for (BeanWrapper.Property prop : bw.getWrappers()) {
             ParamNode propParamNode = paramNode.getChild(prop.getName());
             if (propParamNode != null) {
                 // Create new ParamsContext for this property
-                Annotation[] annotations = null;
+                Annotation[] annotations;
                 // first we try with annotations resolved from property
                 annotations = prop.getAnnotations();
                 BindingAnnotations propBindingAnnotations = new BindingAnnotations(annotations, bindingAnnotations.getProfiles());
-                Object value = internalBind(propParamNode, prop.getType(), prop.getGenericType(), propBindingAnnotations);
+                Object value = internalBind(request, propParamNode, prop.getType(), prop.getGenericType(), propBindingAnnotations);
                 if (value != MISSING) {
                     if (value != NO_BINDING) {
                         prop.setValue(bean, value);
@@ -337,7 +342,7 @@ public abstract class Binder {
         return Enum.valueOf((Class<? extends Enum>) clazz, value);
     }
 
-    private static Object bindMap(Type type, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
+    private static Object bindMap(Http.Request request, Type type, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
         Class keyClass = String.class;
         Class valueClass = String.class;
         if (type instanceof ParameterizedType) {
@@ -349,8 +354,8 @@ public abstract class Binder {
 
         for (ParamNode child : paramNode.getAllChildren()) {
             try {
-                Object keyObject = directBind(paramNode.getOriginalKey(), bindingAnnotations.annotations, child.getName(), keyClass, keyClass);
-                Object valueObject = internalBind(child, valueClass, valueClass, bindingAnnotations);
+                Object keyObject = directBind(paramNode.getOriginalKey(), request, bindingAnnotations.annotations, child.getName(), keyClass, keyClass);
+                Object valueObject = internalBind(request, child, valueClass, valueClass, bindingAnnotations);
                 if (valueObject == NO_BINDING || valueObject == MISSING) {
                     valueObject = null;
                 }
@@ -365,7 +370,7 @@ public abstract class Binder {
     }
 
     @SuppressWarnings("unchecked")
-    private static Object bindCollection(Class<?> clazz, Type type, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
+    private static Object bindCollection(Http.Request request, Class<?> clazz, Type type, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
         if (clazz.isInterface()) {
             if (clazz.equals(List.class)) {
                 clazz = ArrayList.class;
@@ -418,7 +423,7 @@ public abstract class Binder {
             boolean hasMissing = false;
             for (int i = 0; i < values.length; i++) {
                 try {
-                    Object value = internalDirectBind(paramNode.getOriginalKey(), bindingAnnotations.annotations, values[i], componentClass,
+                    Object value = internalDirectBind(paramNode.getOriginalKey(), request, bindingAnnotations.annotations, values[i], componentClass,
                             componentType);
                     if (value == DIRECTBINDING_NO_RESULT) {
                         hasMissing = true;
@@ -459,7 +464,7 @@ public abstract class Binder {
 
             for (String index : indexes) {
                 ParamNode child = paramNode.getChild(index);
-                Object childValue = internalBind(child, componentClass, componentType, bindingAnnotations);
+                Object childValue = internalBind(request, child, componentClass, componentType, bindingAnnotations);
                 if (childValue != NO_BINDING && childValue != MISSING) {
 
                     // must make sure we place the value at the correct position
@@ -480,48 +485,13 @@ public abstract class Binder {
         }
 
         for (ParamNode child : paramNode.getAllChildren()) {
-            Object childValue = internalBind(child, componentClass, componentType, bindingAnnotations);
+            Object childValue = internalBind(request, child, componentClass, componentType, bindingAnnotations);
             if (childValue != NO_BINDING && childValue != MISSING) {
                 r.add(childValue);
             }
         }
 
         return r;
-    }
-
-    /**
-     * Bind a object
-     * 
-     * @param value
-     *            value to bind
-     * @param clazz
-     *            class of the object
-     * @return The binding object
-     * @throws ParseException
-     *             if problem occurred during binding
-     */
-    public static Object directBind(String value, Class<?> clazz) throws ParseException {
-        return directBind(null, value, clazz, null);
-    }
-
-    /**
-     * Bind a object
-     * 
-     * @param name
-     *            name of the object
-     * @param annotations
-     *            annotation on the object
-     * @param value
-     *            Value to bind
-     * @param clazz
-     *            The class of the object
-     * 
-     * @return The binding object
-     * @throws ParseException
-     *             if problem occurred during binding
-     */
-    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz) throws ParseException {
-        return directBind(name, annotations, value, clazz, null);
     }
 
     /**
@@ -539,8 +509,8 @@ public abstract class Binder {
      * @throws ParseException
      *             if problem occurred during binding
      */
-    public static Object directBind(Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
-        return directBind(null, annotations, value, clazz, type);
+    public static Object directBind(Http.Request request, Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
+        return directBind(null, request, annotations, value, clazz, type);
     }
 
     /**
@@ -558,9 +528,9 @@ public abstract class Binder {
      *            type to bind
      * @return The binding object
      */
-    public static Object directBind(String name, Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
+    public static Object directBind(String name, Http.Request request, Annotation[] annotations, String value, Class<?> clazz, Type type) throws ParseException {
         // calls the direct binding and returns null if no value could be resolved..
-        Object r = internalDirectBind(name, annotations, value, clazz, type);
+        Object r = internalDirectBind(name, request, annotations, value, clazz, type);
         if (r == DIRECTBINDING_NO_RESULT) {
             return null;
         } else {
@@ -570,7 +540,7 @@ public abstract class Binder {
 
     // If internalDirectBind was not able to bind it, it returns a special variable instance: DIRECTBIND_MISSING
     // Needs this because sometimes we need to know if no value was returned..
-    private static Object internalDirectBind(String name, Annotation[] annotations, String value, Class<?> clazz, Type type)
+    private static Object internalDirectBind(String name, Http.Request request, Annotation[] annotations, String value, Class<?> clazz, Type type)
             throws ParseException {
         boolean nullOrEmpty = isBlank(value);
 
@@ -581,7 +551,7 @@ public abstract class Binder {
                     if (!(toInstantiate.equals(As.DEFAULT.class))) {
                         // Instantiate the binder
                         TypeBinder<?> myInstance = createNewInstance(toInstantiate);
-                        return myInstance.bind(name, annotations, value, clazz, type);
+                        return myInstance.bind(request, name, annotations, value, clazz, type);
                     }
                 }
             }
@@ -592,7 +562,7 @@ public abstract class Binder {
             if (c.isAnnotationPresent(Global.class)) {
                 Class<?> forType = (Class) ((ParameterizedType) c.getGenericInterfaces()[0]).getActualTypeArguments()[0];
                 if (forType.isAssignableFrom(clazz)) {
-                    Object result = createNewInstance(c).bind(name, annotations, value, clazz, type);
+                    Object result = createNewInstance(c).bind(request, name, annotations, value, clazz, type);
                     if (result != null) {
                         return result;
                     }
@@ -606,7 +576,7 @@ public abstract class Binder {
 
             if (c.isAssignableFrom(clazz)) {
                 logger.trace("directBind: isAssignableFrom is true");
-                return supportedTypes.get(c).bind(name, annotations, value, clazz, type);
+                return supportedTypes.get(c).bind(request, name, annotations, value, clazz, type);
             }
         }
 
@@ -637,7 +607,7 @@ public abstract class Binder {
         // long or Long binding
         if (clazz.getName().equals("long") || clazz.equals(Long.class)) {
             if (nullOrEmpty) {
-                return clazz.isPrimitive() ? 0l : null;
+                return clazz.isPrimitive() ? 0L : null;
             }
 
             return Long.parseLong(value.contains(".") ? value.substring(0, value.indexOf(".")) : value);
@@ -673,7 +643,7 @@ public abstract class Binder {
         // double or Double binding
         if (clazz.getName().equals("double") || clazz.equals(Double.class)) {
             if (nullOrEmpty) {
-                return clazz.isPrimitive() ? 0d : null;
+                return clazz.isPrimitive() ? 0.0d : null;
             }
 
             return Double.parseDouble(value);

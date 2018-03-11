@@ -7,6 +7,7 @@ import play.data.binding.BindingAnnotations;
 import play.data.binding.ParamNode;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
+import play.mvc.Http;
 
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -50,12 +51,12 @@ public class GenericModel extends JPABase {
      *            The entity class
      * @return The created entity
      */
-    public static <T extends JPABase> T create(ParamNode rootParamNode, String name, Class<?> type, Annotation[] annotations) {
+    public static <T extends JPABase> T create(Http.Request request, ParamNode rootParamNode, String name, Class<?> type, Annotation[] annotations) {
         try {
             Constructor c = type.getDeclaredConstructor();
             c.setAccessible(true);
             Object model = c.newInstance();
-            return (T) edit(rootParamNode, name, model, annotations);
+            return (T) edit(request, rootParamNode, name, model, annotations);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,8 +77,8 @@ public class GenericModel extends JPABase {
      *            class of the entity
      * @return the entity
      */
-    public static <T extends JPABase> T edit(ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
-        return edit(JPA.DEFAULT, rootParamNode, name, o, annotations);
+    public static <T extends JPABase> T edit(Http.Request request, ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
+        return edit(request, JPA.DEFAULT, rootParamNode, name, o, annotations);
     }
 
     /**
@@ -97,7 +98,7 @@ public class GenericModel extends JPABase {
      *            class of the entity
      * @return the entity
      */
-    private static <T extends JPABase> T edit(String dbName, ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
+    private static <T extends JPABase> T edit(Http.Request request, String dbName, ParamNode rootParamNode, String name, Object o, Annotation[] annotations) {
         // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
         // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
         ParamNode paramNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name, true);
@@ -162,7 +163,7 @@ public class GenericModel extends JPABase {
                                     }
 
                                     Query q = JPA.em(dbName).createQuery("from " + relation + " where " + keyName + " = ?1");
-                                    q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), annotations, _id,
+                                    q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), request, annotations, _id,
                                             Model.Manager.factoryFor(loadClass(relation)).keyType(), null));
                                     try {
                                         l.add(q.getSingleResult());
@@ -178,11 +179,11 @@ public class GenericModel extends JPABase {
                             if (ids != null && ids.length > 0 && !ids[0].equals("")) {
 
                                 Query q = JPA.em(dbName).createQuery("from " + relation + " where " + keyName + " = ?1");
-                                q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), annotations, ids[0],
+                                q.setParameter(1, Binder.directBind(rootParamNode.getOriginalKey(), request, annotations, ids[0],
                                         Model.Manager.factoryFor(loadClass(relation)).keyType(), null));
                                 try {
                                     Object to = q.getSingleResult();
-                                    edit(paramNode, field.getName(), to, field.getAnnotations());
+                                    edit(request, paramNode, field.getName(), to, field.getAnnotations());
                                     // Remove it to prevent us from finding it again later
                                     paramNode.removeChild(field.getName(), removedNodesList);
                                     bw.set(field.getName(), o, to);
@@ -210,7 +211,7 @@ public class GenericModel extends JPABase {
             // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
             // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
             ParamNode beanNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name, true);
-            Binder.bindBean(beanNode, o, annotations);
+            Binder.bindBean(request, beanNode, o, annotations);
             return (T) o;
         } catch (Exception e) {
             throw new UnexpectedException(e);
@@ -235,8 +236,8 @@ public class GenericModel extends JPABase {
      *            class of the entity
      * @return the entity
      */
-    public <T extends GenericModel> T edit(ParamNode rootParamNode, String name) {
-        edit(rootParamNode, name, this, null);
+    public <T extends GenericModel> T edit(Http.Request request, ParamNode rootParamNode, String name) {
+        edit(request, rootParamNode, name, this, null);
         return (T) this;
     }
 
@@ -285,7 +286,7 @@ public class GenericModel extends JPABase {
             this.sq = sq;
         }
 
-        public JPAQuery(Query query) {
+        public  JPAQuery(Query query) {
             this.query = query;
             this.sq = query.toString();
         }

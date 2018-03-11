@@ -3,6 +3,7 @@ package play.data.binding.types;
 import play.data.binding.AnnotationHelper;
 import play.data.binding.TypeBinder;
 import play.libs.I18N;
+import play.mvc.Http;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -20,7 +21,7 @@ public class DateBinder implements TypeBinder<Date> {
     public static final String ISO8601 = "'ISO8601:'yyyy-MM-dd'T'HH:mm:ssZ";
 
     @Override
-    public Date bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException {
+    public Date bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException {
         if (isBlank(value)) {
             return null;
         }

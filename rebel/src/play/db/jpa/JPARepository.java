@@ -1,6 +1,7 @@
 package play.db.jpa;
 
 import play.db.jpa.GenericModel.JPAQuery;
+import play.mvc.Http;
 import play.mvc.Scope;
 
 import javax.inject.Singleton;
@@ -28,9 +29,9 @@ public class JPARepository<T extends JPABase> {
     entityName = modelClass.getName();
   }
 
-  public T create(String name, Scope.Params params) {
+  public T create(Http.Request request, String name, Scope.Params params) {
     try {
-      return (T) JPQL.instance.create(dbName, entityName, name, params);
+      return (T) JPQL.instance.create(request, dbName, entityName, name, params);
     }
     catch (Exception e) {
       throw new RuntimeException(e);

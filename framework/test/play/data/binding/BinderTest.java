@@ -3,21 +3,30 @@ package play.data.binding;
 import org.junit.Before;
 import org.junit.Test;
 import play.PlayBuilder;
+import play.mvc.Http;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.math.BigDecimal.TEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static play.mvc.Http.Request.createRequest;
 
 
 public class BinderTest {
 
     final Annotation[] noAnnotations = new Annotation[]{};
+    Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
 
     // provider of generic typed collection
     private static class GenericListProvider {
@@ -38,7 +47,7 @@ public class BinderTest {
         Unbinder.unBind(r, myInt, "myInt", noAnnotations);
         Map<String, String[]> r2 = fromUnbindMap2BindMap(r);
         RootParamNode root = ParamNode.convert(r2);
-        assertThat(Binder.bind(root, "myInt", Integer.class, null, null)).isEqualTo(myInt);
+        assertThat(Binder.bind(request, root, "myInt", Integer.class, null, null)).isEqualTo(myInt);
     }
 
     @Test
@@ -61,7 +70,7 @@ public class BinderTest {
 
         Data1.myStatic = 2;
         RootParamNode root = ParamNode.convert(r2);
-        Object bindResult = Binder.bind(root, "data1", Data1.class, null, null);
+        Object bindResult = Binder.bind(request, root, "data1", Data1.class, null, null);
         assertThat(bindResult).isEqualTo(data1);
         assertThat(Data1.myStatic).isEqualTo(2);
     }
@@ -94,7 +103,7 @@ public class BinderTest {
         Unbinder.unBind(r, data2, "data2", noAnnotations);
         Map<String, String[]> r2 = fromUnbindMap2BindMap(r);
         RootParamNode root = ParamNode.convert(r2);
-        assertThat(Binder.bind(root, "data2", Data2.class, null, null)).isEqualTo(data2);
+        assertThat(Binder.bind(request, root, "data2", Data2.class, null, null)).isEqualTo(data2);
 
     }
 
@@ -114,13 +123,13 @@ public class BinderTest {
         params.put("data3.map[def]", new String[] {"DEF"});
 
         RootParamNode rootParamNode = ParamNode.convert(params);
-        specialCaseMap = (Map<String, String>)Binder.bind(rootParamNode, "specialCaseMap", specialCaseMap.getClass(), specialCaseMap.getClass(), noAnnotations);
+        specialCaseMap = (Map<String, String>)Binder.bind(request, rootParamNode, "specialCaseMap", specialCaseMap.getClass(), specialCaseMap.getClass(), noAnnotations);
 
         assertThat(specialCaseMap.size()).isEqualTo(2);
         assertThat(specialCaseMap.get("a")).isEqualTo("AA");
         assertThat(specialCaseMap.get("b")).isEqualTo("BB");
 
-        data3 = (Data3) Binder.bind(rootParamNode, "data3", Data3.class, Data3.class, noAnnotations);
+        data3 = (Data3) Binder.bind(request, rootParamNode, "data3", Data3.class, Data3.class, noAnnotations);
 
         assertThat(data3.a).isEqualTo("aAaA");
         assertThat(data3.map.size()).isEqualTo(2);
@@ -150,7 +159,7 @@ public class BinderTest {
 
          RootParamNode rootParamNode = ParamNode.convert(params);
 
-         lst = (List<Data2>) Binder.bind(rootParamNode, "data2", lst.getClass(), GenericListProvider.class.getDeclaredFields()[0].getGenericType(),
+         lst = (List<Data2>) Binder.bind(request, rootParamNode, "data2", lst.getClass(), GenericListProvider.class.getDeclaredFields()[0].getGenericType(),
                  noAnnotations);
          //check the size and the order
          assertThat(lst.size()).isEqualTo(13);
@@ -169,7 +178,7 @@ public class BinderTest {
         params.put("data.genericTypeList", new String[]{"1", "2", "3"});
 
         RootParamNode rootParamNode = ParamNode.convert(params);
-        Data3 result = (Data3) Binder.bind(rootParamNode, "data", Data3.class,
+        Data3 result = (Data3) Binder.bind(request, rootParamNode, "data", Data3.class,
                 Data3.class, noAnnotations);
 
         assertThat(result.genericTypeList).hasSize(3);
@@ -213,7 +222,7 @@ public class BinderTest {
         Map<String, String[]> r2 = fromUnbindMap2BindMap(result);
         RootParamNode root = ParamNode.convert(r2);
 
-        Object binded = Binder.bind(root, "data", Data4.class, Data4.class, noAnnotations);
+        Object binded = Binder.bind(request, root, "data", Data4.class, Data4.class, noAnnotations);
         assertThat(binded).isEqualTo(original);
     }
 
@@ -228,7 +237,7 @@ public class BinderTest {
 
         RootParamNode rootParamNode = ParamNode.convert(params);
 
-        Data5 binded = (Data5) Binder.bind(rootParamNode, "data", Data5.class, Data5.class, noAnnotations);
+        Data5 binded = (Data5) Binder.bind(request, rootParamNode, "data", Data5.class, Data5.class, noAnnotations);
         assertThat(binded.testEnumSet).isEqualTo(data.testEnumSet);
     }
 
@@ -239,7 +248,7 @@ public class BinderTest {
 
         RootParamNode rootParamNode = ParamNode.convert(params);
 
-        Data6 binded = (Data6) Binder.bind(rootParamNode, "user", Data6.class, Data6.class, noAnnotations);
+        Data6 binded = (Data6) Binder.bind(request, rootParamNode, "user", Data6.class, Data6.class, noAnnotations);
         assertThat(binded.name).isEqualTo("john");
     }
 
@@ -279,7 +288,7 @@ public class BinderTest {
 
     private static class MyBigDecimalBinder implements TypeBinder<BigDecimal> {
         @Override
-        public Object bind(String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+        public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             return new BigDecimal(value).add(TEN);
         }
     }

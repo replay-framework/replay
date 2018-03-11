@@ -502,7 +502,7 @@ public class ActionInvoker {
             }
 
             RootParamNode root = ParamNode.convert(params);
-            rArgs[i] = Binder.bind(root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],
+            rArgs[i] = Binder.bind(request, root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],
                     method.getParameterAnnotations()[i]);
         }
 
