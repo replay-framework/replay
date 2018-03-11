@@ -16,6 +16,7 @@ import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.utils.Java;
 
+import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -65,17 +66,22 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
+    public void onActionInvocationResult(@Nonnull Request request, @Nonnull Response response, @Nonnull RenderArgs renderArgs, Result result) {
         save(request, response);
     }
 
     @Override
-    public void onInvocationException(Throwable e) {
-        clear();
+    public void onActionInvocationException(@Nonnull Http.Request request, @Nonnull Response response, @Nonnull Throwable e) {
+        clear(response);
     }
 
     @Override
-    public void invocationFinally() {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
+        onJobInvocationFinally();
+    }
+
+    @Override
+    public void onJobInvocationFinally() {
         if (keys.get() != null) {
             keys.get().clear();
         }
@@ -151,14 +157,14 @@ public class ValidationPlugin extends PlayPlugin {
         }
     }
 
-    static void clear() {
+    static void clear(@Nonnull Response response) {
         try {
-            if (Response.current() != null && Response.current().cookies != null) {
+            if (response.cookies != null) {
                 Cookie cookie = new Cookie();
                 cookie.name = Scope.COOKIE_PREFIX + "_ERRORS";
                 cookie.value = "";
                 cookie.sendOnError = true;
-                Response.current().cookies.put(cookie.name, cookie);
+                response.cookies.put(cookie.name, cookie);
             }
         } catch (Exception e) {
             throw new UnexpectedException("Errors serializationProblem", e);

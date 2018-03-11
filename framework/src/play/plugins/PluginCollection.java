@@ -6,6 +6,7 @@ import play.Play;
 import play.PlayPlugin;
 import play.data.binding.RootParamNode;
 import play.inject.Injector;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -15,6 +16,7 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -97,7 +99,7 @@ public class PluginCollection {
 
         @Override
         public int compareTo(LoadingPluginInfo o) {
-            int res = index < o.index ? -1 : (index == o.index ? 0 : 1);
+            int res = Integer.compare(index, o.index);
             if (res != 0) {
                 return res;
             }
@@ -357,9 +359,9 @@ public class PluginCollection {
         return getEnabledPlugins().contains(plugin);
     }
 
-    public void invocationFinally() {
+    public void onJobInvocationFinally() {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.invocationFinally();
+            plugin.onJobInvocationFinally();
         }
     }
 
@@ -381,12 +383,22 @@ public class PluginCollection {
         }
     }
 
-    public void onInvocationException(Throwable e) {
+    public void onActionInvocationException(@Nonnull Http.Request request, @Nonnull Response response, @Nonnull Throwable e) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             try {
-                plugin.onInvocationException(e);
+                plugin.onActionInvocationException(request, response, e);
             } catch (Throwable ex) {
-                logger.error("Failed to handle invocation exception by plugin {}", plugin.getClass().getName(), ex);
+                logger.error("Failed to handle action invocation exception by plugin {}", plugin.getClass().getName(), ex);
+            }
+        }
+    }
+
+    public void onJobInvocationException(@Nonnull Throwable e) {
+        for (PlayPlugin plugin : getEnabledPlugins()) {
+            try {
+                plugin.onJobInvocationException(e);
+            } catch (Throwable ex) {
+                logger.error("Failed to handle job invocation exception by plugin {}", plugin.getClass().getName(), ex);
             }
         }
     }
@@ -469,9 +481,9 @@ public class PluginCollection {
         }
     }
 
-    public void onActionInvocationFinally() {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.onActionInvocationFinally();
+            plugin.onActionInvocationFinally(request, session);
         }
     }
 

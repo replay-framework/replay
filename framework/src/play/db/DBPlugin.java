@@ -8,7 +8,10 @@ import play.Play;
 import play.PlayPlugin;
 import play.db.DB.ExtendedDatasource;
 import play.exceptions.DatabaseException;
+import play.mvc.Http;
+import play.mvc.Scope;
 
+import javax.annotation.Nonnull;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -129,7 +132,12 @@ public class DBPlugin extends PlayPlugin {
     }
     
     @Override
-    public void invocationFinally() {
+    public void onActionInvocationFinally(@Nonnull Http.Request request, @Nonnull Scope.Session session) {
+        DB.closeAll();
+    }
+
+    @Override
+    public void onJobInvocationFinally() {
         DB.closeAll();
     }
 

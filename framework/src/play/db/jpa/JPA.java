@@ -2,8 +2,7 @@ package play.db.jpa;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Invoker.InvocationContext;
-import play.Play;
+import play.InvocationContext;
 import play.db.DB;
 import play.exceptions.JPAException;
 import play.libs.SupplierWithException;

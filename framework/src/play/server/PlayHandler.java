@@ -31,11 +31,13 @@ import org.jboss.netty.handler.stream.ChunkedStream;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Invocation;
 import play.Invoker;
-import play.Invoker.InvocationContext;
+import play.InvocationContext;
 import play.Play;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.validation.Validation;
+import play.db.jpa.JPA;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
 import play.libs.MimeTypes;
@@ -85,16 +87,18 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
      * versions having publicly known security bugs), so you can disable the
      * header in application.conf: {@code http.exposePlayServer = false}
      */
-    private static final String signature = "Play! Framework;" + Play.mode.name().toLowerCase();
-    private static final boolean exposePlayServer;
+    private final String signature = "Play! Framework;" + Play.mode.name().toLowerCase();
+    private final boolean exposePlayServer = !"false".equals(Play.configuration.getProperty("http.exposePlayServer"));
 
     /**
      * The Pipeline is given for a PlayHandler
      */
     public Map<String, ChannelHandler> pipelines = new HashMap<>();
 
-    static {
-        exposePlayServer = !"false".equals(Play.configuration.getProperty("http.exposePlayServer"));
+    private final Invoker invoker;
+
+    public PlayHandler(Invoker invoker) {
+        this.invoker = invoker;
     }
 
     @Override
@@ -134,7 +138,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
                     // Delegate to Play framework
-                    Invoker.invoke(new NettyInvocation(request, response, ctx, nettyRequest, messageEvent));
+                    invoker.invoke(new NettyInvocation(request, response, ctx, nettyRequest, messageEvent));
                 }
 
             } catch (IllegalArgumentException ex) {
@@ -151,8 +155,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     private static final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
 
-    public class NettyInvocation extends Invoker.Invocation {
-
+    public class NettyInvocation extends Invocation {
         private final ChannelHandlerContext ctx;
         private final Request request;
         private final Response response;
@@ -227,7 +230,24 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         public void run() {
             try {
                 logger.trace("run: begin");
-                super.run();
+                onStarted();
+                try {
+                    preInit();
+                    if (init()) {
+                        before();
+                        JPA.withinFilter(() -> {
+                            execute();
+                            return null;
+                        });
+                        after();
+                        onSuccess();
+                    }
+                } catch (Throwable e) {
+                    onActionInvocationException(request, response, e);
+                } finally {
+                    Play.pluginCollection.onActionInvocationFinally(request, Session.current());
+                    InvocationContext.current.remove();
+                }
             } catch (Exception e) {
                 serve500(e, ctx);
             }
@@ -618,7 +638,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    private static void serve403(Exception e, ChannelHandlerContext ctx) {
+    private void serve403(Exception e, ChannelHandlerContext ctx) {
         logger.trace("serve403: begin");
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.FORBIDDEN);
         nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
@@ -626,7 +646,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serve403: end");
     }
 
-    private static void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
+    private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
         logger.trace("serve404: begin");
         String format = defaultString(request.format, "txt");
         String contentType = MimeTypes.getContentType("404." + format, "text/plain");
@@ -678,7 +698,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
 
     // TODO: add request and response as parameter
-    public static void serve500(Exception e, ChannelHandlerContext ctx) {
+    public void serve500(Exception e, ChannelHandlerContext ctx) {
         logger.trace("serve500: begin");
 
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR);
@@ -767,7 +787,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serve500: end");
     }
 
-    private static HttpResponse createHttpResponse(HttpResponseStatus status) {
+    private HttpResponse createHttpResponse(HttpResponseStatus status) {
         HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
         if (exposePlayServer) {
             nettyResponse.headers().set(SERVER, signature);

@@ -164,7 +164,7 @@ public class ActionInvoker {
             handleFinallies(request, e);
             throw new UnexpectedException(e);
         } finally {
-            Play.pluginCollection.onActionInvocationFinally();
+            Play.pluginCollection.onActionInvocationFinally(request, session);
 
             if (monitor != null) {
                 monitor.stop();

@@ -11,6 +11,7 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -142,19 +143,13 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     public void afterInvocation() {
     }
 
-    /**
-     * Called if an exception occurred during the invocation.
-     * 
-     * @param e
-     *            The caught exception.
-     */
-    public void onInvocationException(Throwable e) {
+    public void onActionInvocationException(@Nonnull Request request, @Nonnull Response response, @Nonnull Throwable e) {
     }
 
-    /**
-     * Called at the end of the invocation. (even if an exception occurred). Time to close request specific things.
-     */
-    public void invocationFinally() {
+    public void onJobInvocationException(@Nonnull Throwable e) {
+    }
+
+    public void onJobInvocationFinally() {
     }
 
     /**
@@ -183,8 +178,9 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     /**
      * Called at the end of the action invocation (either in case of success or any failure).
+     * Time to close request-specific things.
      */
-    public void onActionInvocationFinally() {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
     }
 
     /**
@@ -205,7 +201,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Let some plugins route themself
+     * Let some plugins route themselves
      *
      * @param request
      *            the current request

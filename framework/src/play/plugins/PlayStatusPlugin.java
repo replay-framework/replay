@@ -7,8 +7,6 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import com.jamonapi.utils.Misc;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Play;
 import play.PlayPlugin;
@@ -29,8 +27,6 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 public class PlayStatusPlugin extends PlayPlugin {
-    private static final Logger logger = LoggerFactory.getLogger(PlayStatusPlugin.class);
-
     /**
      * Get the application status
      * 

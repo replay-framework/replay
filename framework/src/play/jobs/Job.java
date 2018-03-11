@@ -4,8 +4,9 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Invoker;
-import play.Invoker.InvocationContext;
+import play.Invocation;
+import play.InvocationContext;
+import play.Play;
 import play.db.jpa.JPA;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @param <V>
  *            The job result type (if any)
  */
-public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
+public abstract class Job<V> extends Invocation implements Callable<V> {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
 
     public static final String invocationType = "Job";
@@ -125,17 +126,19 @@ public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
         JobsPlugin.scheduledJobs.add(this);
     }
 
-    // Customize Invocation
-    @Override
-    public void onException(Throwable e) {
+    private void onJobInvocationException(Throwable e) {
         wasError = true;
         lastException = e;
         try {
-            super.onException(e);
+            Play.pluginCollection.onJobInvocationException(e);
         } catch (Throwable ex) {
             logger.error("Error during job execution ({})", this, ex);
             throw new UnexpectedException(unwrap(e));
         }
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e;
+        }
+        throw new UnexpectedException(e);
     }
 
     private Throwable unwrap(Throwable e) {
@@ -167,7 +170,7 @@ public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
                 return result;
             }
         } catch (Throwable e) {
-            onException(e);
+            onJobInvocationException(e);
         } finally {
             if (monitor != null) {
                 monitor.stop();
@@ -177,10 +180,11 @@ public abstract class Job<V> extends Invoker.Invocation implements Callable<V> {
         return null;
     }
 
-    @Override
-    public void _finally() {
-        super._finally();
-        synchronized (this) {
+    protected void _finally() {
+      Play.pluginCollection.onJobInvocationFinally();
+      InvocationContext.current.remove();
+
+      synchronized (this) {
             try {
                 if (executor == JobsPlugin.executor && !runOnce) {
                     JobsPlugin.scheduleForCRON(this);

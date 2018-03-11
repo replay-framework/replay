@@ -34,7 +34,7 @@ public class Server {
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
         );
         InetAddress address = address();
-        bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
+        bootstrap.setPipelineFactory(new HttpServerPipelineFactory(Play.invoker));
         bootstrap.bind(new InetSocketAddress(address, httpPort));
         bootstrap.setOption("child.tcpNoDelay", true);
 

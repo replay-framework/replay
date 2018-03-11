@@ -116,6 +116,8 @@ public class Play {
      */
     public static String defaultWebEncoding = "utf-8";
 
+    public static Invoker invoker;
+
     /**
      * Init the framework
      *
@@ -188,6 +190,7 @@ public class Play {
         }
 
         pluginCollection.loadPlugins();
+        Play.invoker = new Invoker();
         Play.initialized = true;
     }
 
