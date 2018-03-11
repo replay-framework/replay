@@ -142,8 +142,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 }
 
             } catch (IllegalArgumentException ex) {
-                logger.warn("Exception on request. serving 403 back", ex);
-                serve403(ex, ctx);
+                logger.warn("Exception on request. serving 400 back", ex);
+                serve400(ex, ctx);
             } catch (Exception ex) {
                 logger.warn("Exception on request. serving 500 back", ex);
                 serve500(ex, ctx);
@@ -638,12 +638,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    private void serve403(Exception e, ChannelHandlerContext ctx) {
-        logger.trace("serve403: begin");
-        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.FORBIDDEN);
+    private void serve400(Exception e, ChannelHandlerContext ctx) {
+        logger.trace("serve400: begin");
+        HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.BAD_REQUEST);
         nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
         printResponse(ctx, nettyResponse, e.getMessage() + '\n');
-        logger.trace("serve403: end");
+        logger.trace("serve400: end");
     }
 
     private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
