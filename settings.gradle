@@ -1,2 +1,2 @@
 rootProject.name = 'replay'
-include 'framework', 'rebel', 'guice', 'liquibase', 'fastergt', 'pdf', 'excel'
+include 'framework', 'guice', 'liquibase', 'fastergt', 'pdf', 'excel'
