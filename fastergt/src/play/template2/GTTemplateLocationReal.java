@@ -3,11 +3,12 @@ package play.template2;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.DOTALL;
 
 public class GTTemplateLocationReal extends GTTemplateLocation {
 
-    private static final Pattern scriptBlockRegex = Pattern.compile("<script(.*?)>(.*?)</script>", DOTALL);
+    private static final Pattern scriptBlockRegex = Pattern.compile("<script(.*?)>(.*?)</script>", DOTALL | CASE_INSENSITIVE);
     public final URL realFileURL;
 
     public GTTemplateLocationReal(String relativePath, URL realFileURL) {

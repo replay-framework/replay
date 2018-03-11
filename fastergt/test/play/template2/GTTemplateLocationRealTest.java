@@ -20,7 +20,21 @@ public class GTTemplateLocationRealTest {
   }
 
   @Test
-  public void scriptsTagsCanHaveAttributes() {
+  public void scriptTagIsCaseInsensitive() {
+    String originalHtml =
+      "<SCRIPT>42</SCRIPT>\n" +
+      "<sCriPt>38</ScRIpT>\n";
+
+    String expectedHtml =
+      "<script>#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
+      "<script>#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
+
+    assertEquals(expectedHtml,
+      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
+  }
+
+  @Test
+  public void scriptTagsCanHaveAttributes() {
     String originalHtml =
       "<script id=\"some-id\">42</script>\n" +
       "<script type=\"application/javascript\">38</script>\n";
