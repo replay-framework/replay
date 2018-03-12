@@ -97,7 +97,7 @@ public class JavaExtensions {
     }
 
     public static String escapeJavaScript(String str) {
-        return StringEscapeUtils.escapeJavaScript(str);
+        return JavaScriptEscaper.escape(str);
     }
 
     public static RawData raw(Object val) {
