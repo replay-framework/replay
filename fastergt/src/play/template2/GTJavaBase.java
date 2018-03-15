@@ -8,6 +8,7 @@ import play.template2.exceptions.GTRuntimeException;
 import play.template2.exceptions.GTTemplateNotFoundWithSourceInfo;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTContentRendererFakeClosure;
+import play.templates.JavaScriptEscaper;
 
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -19,8 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.commons.lang.StringEscapeUtils.escapeJavaScript;
 
 
 public abstract class GTJavaBase extends GTRenderingResult {
@@ -220,7 +219,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
             return objectAsString;
         }
         if (binding.hasVariable("__inside_script_tag") && "true".equals(binding.getVariable("__inside_script_tag"))) {
-            return escapeJavaScript(objectAsString);
+            return JavaScriptEscaper.escape(objectAsString);
         }
         else {
             return escapeHTML(objectAsString);

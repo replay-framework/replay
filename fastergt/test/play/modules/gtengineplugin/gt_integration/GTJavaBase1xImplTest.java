@@ -24,6 +24,14 @@ public class GTJavaBase1xImplTest {
   }
 
   @Test
+  public void doesNotEscapeCyrillicCharactersForScript() {
+    GTJavaBase template = new TestTemplate("/app/views/home.html");
+    template.binding.setProperty("__inside_script_tag", "true");
+
+    assertThat(template.objectToString("русские буквы")).isEqualTo("русские буквы");
+  }
+
+  @Test
   public void escapes$ValuesForXml() {
     GTJavaBase template = new TestTemplate("/app/views/home.xml");
 
