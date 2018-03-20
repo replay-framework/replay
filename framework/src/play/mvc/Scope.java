@@ -179,9 +179,19 @@ public class Scope {
         static final String AT_KEY = "___AT";
         static final String ID_KEY = "___ID";
         static final String TS_KEY = "___TS";
+        static final String UA_KEY = "___UA";
 
-        public static Session restore(Http.Request request) {
-            return sessionStore.restore(request);
+        public static Session restore(Http.Request request, Http.Response response) {
+            Session session = sessionStore.restore(request);
+            String storedUserAgent = session.get(UA_KEY);
+            String requestUserAgent = getUserAgent(request);
+            if (storedUserAgent != null && !requestUserAgent.equals(storedUserAgent)) {
+                session.clear();
+                sessionStore.save(session, request, response);
+                throw new ForbiddenException(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
+                  storedUserAgent, requestUserAgent));
+            }
+            return session;
         }
 
         Map<String, String> data = new HashMap<>(); // ThreadLocal access
@@ -223,7 +233,15 @@ public class Scope {
         }
 
         public void save(Http.Request request, Http.Response response) {
+            if (!isEmpty() && !contains(UA_KEY)) {
+                put(UA_KEY, getUserAgent(request));
+            }
             sessionStore.save(this, request, response);
+        }
+
+        private static String getUserAgent(Http.Request request) {
+            Http.Header agent = request.headers.get("user-agent");
+            return agent != null ? agent.value() : "n/a";
         }
 
         public void put(String key, String value) {
@@ -274,7 +292,7 @@ public class Scope {
          */
         public boolean isEmpty() {
             for (String key : data.keySet()) {
-                if (!TS_KEY.equals(key)) {
+                if (!TS_KEY.equals(key) && !AT_KEY.equals(key) && !UA_KEY.equals(key)) {
                     return false;
                 }
             }
