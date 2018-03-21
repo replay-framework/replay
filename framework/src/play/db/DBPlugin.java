@@ -16,8 +16,16 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.io.File;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class DBPlugin extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(DBPlugin.class);
@@ -218,12 +226,6 @@ public class DBPlugin extends PlayPlugin {
                 if (password != null) {
                     dbConfig.put("db.pass", password);
                 }
-            }
-
-            if(dbConfig.getProperty("db.url") != null && dbConfig.getProperty("db.url").startsWith("jdbc:h2:mem:")) {
-                dbConfig.put("db.driver", "org.h2.Driver");
-                dbConfig.put("db.user", "sa");
-                dbConfig.put("db.pass", "");
             }
 
             if ((dbConfig.getProperty("db.driver") == null) || (dbConfig.getProperty("db.url") == null)) {
