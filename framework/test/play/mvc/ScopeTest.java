@@ -1,5 +1,6 @@
 package play.mvc;
 
+import com.lowagie.text.pdf.codec.Base64;
 import org.junit.Test;
 import play.PlayBuilder;
 import play.i18n.Messages;
@@ -11,6 +12,7 @@ import play.mvc.Scope.Session;
 
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
@@ -288,5 +290,18 @@ public class ScopeTest {
 
         flash.success("your.name.label", "Hello %");
         assertEquals("Your name is Hello %", flash.out.get("success"));
+    }
+
+    @Test
+    public void flash_save() {
+        Flash flash = new Flash();
+        flash.put("foo", "bar");
+
+        flash.save(request, response);
+
+        assertThat(response.cookies).containsKeys("PLAY_FLASH");
+        String cookie = response.cookies.get("PLAY_FLASH").value;
+        assertThat(cookie).isEqualTo("Zm9vPWJhcg==");
+        assertThat(new String(Base64.decode(cookie), UTF_8)).isEqualTo("foo=bar");
     }
 }

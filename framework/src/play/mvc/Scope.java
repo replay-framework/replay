@@ -87,6 +87,17 @@ public class Scope {
             }
             try {
                 String flashData = encoder.encode(out);
+                int maximumAcceptableCookieLength = 3980;
+                if (flashData.length() > maximumAcceptableCookieLength) {
+                    logger.error("Too long flash ({}): {}", flashData.length(), flashData);
+                }
+                else {
+                    int recommendedMaximumCookieLength = 2000;
+                    if (flashData.length() > recommendedMaximumCookieLength) {
+                        logger.warn("Flash size {} bytes, recommending to redesign the page {} to avoid overusing of flash. Flash content: {}",
+                          flashData.length(), request.path, out);
+                    }
+                }
                 response.setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
