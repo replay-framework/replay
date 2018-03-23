@@ -13,6 +13,7 @@ import play.i18n.Messages;
 import play.inject.Injector;
 import play.libs.Codec;
 import play.libs.Crypto;
+import play.libs.Signer;
 import play.utils.Utils;
 
 import java.io.ByteArrayInputStream;
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 public class Scope {
     static SessionDataEncoder encoder = new SessionDataEncoder();
+    static Signer signer = new Signer();
 
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
@@ -62,6 +64,7 @@ public class Scope {
      */
     public static class Flash {
 
+        static final String SALT = "флэшрояль";
         Map<String, String> data = new HashMap<>();
         Map<String, String> out = new HashMap<>();
 
@@ -69,7 +72,18 @@ public class Scope {
             Flash flash = new Flash();
             Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_FLASH");
             if (cookie != null) {
-                flash.data = encoder.decode(cookie.value);
+                int splitterPosition = cookie.value.indexOf('-');
+                if (splitterPosition == -1) {
+                    logger.warn("Cookie without signature: {}", cookie.value);
+                }
+                else {
+                    String signature = cookie.value.substring(0, splitterPosition);
+                    String realValue = cookie.value.substring(splitterPosition + 1);
+                    if (!signer.isValid(signature, realValue, SALT)) {
+                        throw new ForbiddenException(String.format("Invalid flash signature: %s", cookie.value));
+                    }
+                    flash.data = encoder.decode(realValue);
+                }
             }
             return flash;
         }
@@ -98,7 +112,8 @@ public class Scope {
                           flashData.length(), request.path, out);
                     }
                 }
-                response.setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
+                String signature = signer.sign(flashData, SALT);
+                response.setCookie(COOKIE_PREFIX + "_FLASH", signature + '-' + flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
             }
