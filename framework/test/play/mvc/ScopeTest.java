@@ -41,12 +41,12 @@ public class ScopeTest {
 
         assertEquals(6, params.all().size());
 
-        assertTrue(params._contains("param1"));
-        assertTrue(params._contains("param1.object"));
-        assertTrue(params._contains("param1.test"));
-        assertTrue(params._contains("param1.object.param1"));
-        assertTrue(params._contains("param1.object.param2"));
-        assertTrue(params._contains("param1.object.param2.3"));
+        assertTrue(params.data.containsKey("param1"));
+        assertTrue(params.data.containsKey("param1.object"));
+        assertTrue(params.data.containsKey("param1.test"));
+        assertTrue(params.data.containsKey("param1.object.param1"));
+        assertTrue(params.data.containsKey("param1.object.param2"));
+        assertTrue(params.data.containsKey("param1.object.param2.3"));
     }
 
     @Test
@@ -65,12 +65,12 @@ public class ScopeTest {
 
         params.remove("param1.object.param2");
 
-        assertTrue(params._contains("param1"));
-        assertTrue(params._contains("param1.test"));
-        assertTrue(params._contains("param1.object"));
-        assertTrue(params._contains("param1.object.param1"));
-        assertFalse(params._contains("param1.object.param2"));
-        assertTrue(params._contains("param1.object.param2.3"));
+        assertTrue(params.data.containsKey("param1"));
+        assertTrue(params.data.containsKey("param1.test"));
+        assertTrue(params.data.containsKey("param1.object"));
+        assertTrue(params.data.containsKey("param1.object.param1"));
+        assertFalse(params.data.containsKey("param1.object.param2"));
+        assertTrue(params.data.containsKey("param1.object.param2.3"));
 
         assertEquals(5, params.all().size());
     }
@@ -91,12 +91,12 @@ public class ScopeTest {
 
         params.remove("param1.object");
 
-        assertTrue(params._contains("param1"));
-        assertTrue(params._contains("param1.test"));
-        assertFalse(params._contains("param1.object"));
-        assertTrue(params._contains("param1.object.param1"));
-        assertTrue(params._contains("param1.object.param2"));
-        assertTrue(params._contains("param1.object.param2.3"));
+        assertTrue(params.data.containsKey("param1"));
+        assertTrue(params.data.containsKey("param1.test"));
+        assertFalse(params.data.containsKey("param1.object"));
+        assertTrue(params.data.containsKey("param1.object.param1"));
+        assertTrue(params.data.containsKey("param1.object.param2"));
+        assertTrue(params.data.containsKey("param1.object.param2.3"));
 
         assertEquals(5, params.all().size());
     }
@@ -117,12 +117,12 @@ public class ScopeTest {
 
         params.removeStartWith("param1.object");
 
-        assertTrue(params._contains("param1"));
-        assertTrue(params._contains("param1.test"));
-        assertFalse(params._contains("param1.object"));
-        assertFalse(params._contains("param1.object.param1"));
-        assertFalse(params._contains("param1.object.param2"));
-        assertFalse(params._contains("param1.object.param2.3"));
+        assertTrue(params.data.containsKey("param1"));
+        assertTrue(params.data.containsKey("param1.test"));
+        assertFalse(params.data.containsKey("param1.object"));
+        assertFalse(params.data.containsKey("param1.object.param1"));
+        assertFalse(params.data.containsKey("param1.object.param2"));
+        assertFalse(params.data.containsKey("param1.object.param2.3"));
 
         assertEquals(2, params.all().size());
     }
@@ -193,5 +193,14 @@ public class ScopeTest {
 
         flash.success("your.name.label", "Hello %");
         assertEquals("Your name is Hello %", flash.out.get("success"));
+    }
+
+    @Test
+    public void containsReturnsTrueWhenOnlyParameterNameIsQueryString() {
+        request.querystring = "&name&name2";
+        Params params = new Params(request);
+        assertTrue(params.contains("name"));
+        assertTrue(params.contains("name2"));
+        assertFalse(params.contains("name3"));
     }
 }
