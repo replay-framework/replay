@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * All application Scopes
@@ -462,41 +463,23 @@ public class Scope {
         }
 
         public void flash(Flash flash, String... params) {
-            if (params.length == 0) {
-                for (String key : all().keySet()) {
-                    if (data.get(key).length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        boolean coma = false;
-                        for (String d : data.get(key)) {
-                            if (coma) {
-                                sb.append(",");
-                            }
-                            sb.append(d);
-                            coma = true;
-                        }
-                        flash.put(key, sb.toString());
-                    } else {
-                        flash.put(key, get(key));
-                    }
-                }
-            } else {
-                for (String key : params) {
-                    if (data.get(key).length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        boolean coma = false;
-                        for (String d : data.get(key)) {
-                            if (coma) {
-                                sb.append(",");
-                            }
-                            sb.append(d);
-                            coma = true;
-                        }
-                        flash.put(key, sb.toString());
-                    } else {
-                        flash.put(key, get(key));
-                    }
-                }
-            }
+          Set<String> keys = params.length == 0 ? all().keySet() : Set.of(params);
+          for (String key : keys) {
+              if (data.get(key).length > 1) {
+                  StringBuilder sb = new StringBuilder();
+                  boolean coma = false;
+                  for (String d : data.get(key)) {
+                      if (coma) {
+                          sb.append(",");
+                      }
+                      sb.append(d);
+                      coma = true;
+                  }
+                  flash.put(key, sb.toString());
+              } else {
+                  flash.put(key, get(key));
+              }
+          }
         }
 
         @Override
