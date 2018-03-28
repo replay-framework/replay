@@ -322,26 +322,26 @@ public class Scope {
         boolean rootParamsNodeIsGenerated;
 
         public void checkAndParse() {
-            if (!requestIsParsed) {
-                __mergeWith(request.routeArgs);
+            if (requestIsParsed) return;
 
-                if (request.querystring != null) {
-                    try {
-                        _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
-                    }
-                    catch (UnsupportedEncodingException e) {
-                        throw new IllegalArgumentException(e);
-                    }
+            __mergeWith(request.routeArgs);
+
+            if (request.querystring != null) {
+                try {
+                    _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
                 }
-                String contentType = request.contentType;
-                if (contentType != null) {
-                    DataParser dataParser = DataParsers.forContentType(contentType);
-                    if (dataParser != null) {
-                        _mergeWith(dataParser.parse(request));
-                    }
+                catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
                 }
-                requestIsParsed = true;
             }
+            String contentType = request.contentType;
+            if (contentType != null) {
+                DataParser dataParser = DataParsers.forContentType(contentType);
+                if (dataParser != null) {
+                    _mergeWith(dataParser.parse(request));
+                }
+            }
+            requestIsParsed = true;
         }
 
         public void put(String key, String value) {
