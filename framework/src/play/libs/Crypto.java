@@ -10,6 +10,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Cryptography utils
  */
@@ -47,7 +49,7 @@ public class Crypto {
      * @return The signed message
      */
     public static String sign(String message) {
-        return sign(message, Play.secretKey.getBytes());
+        return sign(message, Play.secretKey.getBytes(UTF_8));
     }
 
     /**
@@ -109,7 +111,7 @@ public class Crypto {
     public static String passwordHash(String input, HashType hashType) {
         try {
             MessageDigest m = MessageDigest.getInstance(hashType.toString());
-            byte[] out = m.digest(input.getBytes());
+            byte[] out = m.digest(input.getBytes(UTF_8));
             return new String(Base64.encodeBase64(out));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
@@ -138,11 +140,11 @@ public class Crypto {
      */
     public static String encryptAES(String value, String privateKey) {
         try {
-            byte[] raw = privateKey.getBytes();
+            byte[] raw = privateKey.getBytes(UTF_8);
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-            return Codec.byteToHexString(cipher.doFinal(value.getBytes()));
+            return Codec.byteToHexString(cipher.doFinal(value.getBytes(UTF_8)));
         } catch (Exception ex) {
             throw new UnexpectedException(ex);
         }
@@ -170,7 +172,7 @@ public class Crypto {
      */
     public static String decryptAES(String value, String privateKey) {
         try {
-            byte[] raw = privateKey.getBytes();
+            byte[] raw = privateKey.getBytes(UTF_8);
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
