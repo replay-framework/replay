@@ -32,13 +32,11 @@ public class Scope {
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
-    public static final boolean COOKIE_SECURE = Play.configuration.getProperty("application.session.secure", "false").toLowerCase()
-            .equals("true");
+    public static final boolean COOKIE_SECURE = "true".equals(Play.configuration.getProperty("application.session.secure", "false").toLowerCase());
     public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
-    public static final boolean SESSION_HTTPONLY = Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase()
-            .equals("true");
-    public static final boolean SESSION_SEND_ONLY_IF_CHANGED = Play.configuration
-            .getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase().equals("true");
+    public static final boolean SESSION_HTTPONLY = "true".equals(Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase());
+    public static final boolean SESSION_SEND_ONLY_IF_CHANGED = "true".equals(
+      Play.configuration.getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase());
 
     public static SessionStore sessionStore = createSessionStore();
 
@@ -113,7 +111,7 @@ public class Scope {
             if (value == null) {
                 put(key, (String) null);
             }
-            put(key, value + "");
+            put(key, String.valueOf(value));
         }
 
         public void now(String key, String value) {
@@ -414,9 +412,9 @@ public class Scope {
         public Map<String, String[]> sub(String prefix) {
             checkAndParse();
             Map<String, String[]> result = new LinkedHashMap<>();
-            for (String key : data.keySet()) {
-                if (key.startsWith(prefix + ".")) {
-                    result.put(key.substring(prefix.length() + 1), data.get(key));
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                if ((entry.getKey()).startsWith(prefix + ".")) {
+                    result.put((entry.getKey()).substring(prefix.length() + 1), entry.getValue());
                 }
             }
             return result;
@@ -425,8 +423,8 @@ public class Scope {
         public Map<String, String> allSimple() {
             checkAndParse();
             Map<String, String> result = new HashMap<>();
-            for (String key : data.keySet()) {
-                result.put(key, data.get(key)[0]);
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                result.put(entry.getKey(), entry.getValue()[0]);
             }
             return result;
         }
@@ -447,14 +445,14 @@ public class Scope {
             checkAndParse();
             String encoding = response.encoding;
             StringBuilder ue = new StringBuilder();
-            for (String key : data.keySet()) {
-                if (key.equals("body")) {
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                if ("body".equals(entry.getKey())) {
                     continue;
                 }
-                String[] values = data.get(key);
+                String[] values = entry.getValue();
                 for (String value : values) {
                     try {
-                        ue.append(URLEncoder.encode(key, encoding)).append("=").append(URLEncoder.encode(value, encoding)).append("&");
+                        ue.append(URLEncoder.encode(entry.getKey(), encoding)).append("=").append(URLEncoder.encode(value, encoding)).append("&");
                     } catch (Exception e) {
                         logger.error("Error (encoding ?)", e);
                     }
