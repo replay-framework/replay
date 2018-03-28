@@ -315,8 +315,8 @@ public class Scope {
         }
 
         private final Http.Request request;
-        boolean requestIsParsed;
-        public Map<String, String[]> data = new LinkedHashMap<>();
+        private boolean requestIsParsed;
+        private final Map<String, String[]> data = new LinkedHashMap<>();
 
         boolean rootParamsNodeIsGenerated;
 
