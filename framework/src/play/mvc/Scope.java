@@ -373,9 +373,7 @@ public class Scope {
         }
 
         public String get(String key) {
-            if (!data.containsKey(key)) {
-                checkAndParse();
-            }
+            checkAndParse();
             if (data.containsKey(key)) {
                 return data.get(key)[0];
             }
@@ -394,16 +392,12 @@ public class Scope {
         }
 
         public boolean contains(String key) {
-            if (!data.containsKey(key)) {
-                checkAndParse();
-            }
+            checkAndParse();
             return data.containsKey(key);
         }
 
         public String[] getAll(String key) {
-            if (!data.containsKey(key)) {
-                checkAndParse();
-            }
+            checkAndParse();
             return data.get(key);
         }
 
