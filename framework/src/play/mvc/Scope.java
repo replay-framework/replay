@@ -416,8 +416,9 @@ public class Scope {
             checkAndParse();
             Map<String, String[]> result = new LinkedHashMap<>();
             for (Map.Entry<String, String[]> entry : data.entrySet()) {
-                if ((entry.getKey()).startsWith(prefix + ".")) {
-                    result.put((entry.getKey()).substring(prefix.length() + 1), entry.getValue());
+                String key = entry.getKey();
+                if (key.startsWith(prefix + ".")) {
+                    result.put(key.substring(prefix.length() + 1), entry.getValue());
                 }
             }
             return result;
