@@ -19,12 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static java.lang.String.join;
+import static java.util.Arrays.asList;
 
 /**
  * All application Scopes
@@ -460,7 +461,7 @@ public class Scope {
         }
 
         public void flash(Flash flash, String... params) {
-            Set<String> keys = params.length == 0 ? all().keySet() : Set.of(params);
+            Collection<String> keys = params.length == 0 ? all().keySet() : asList(params);
             for (String key : keys) {
                 flash.put(key, join(",", data.get(key)));
             }
