@@ -41,12 +41,12 @@ public class ScopeTest {
     public void playBuilderBefore() {
         new PlayBuilder().build();
         Scope.sessionStore = mock(SessionStore.class);
-        Scope.signer = mock(Signer.class);
+        Scope.Flash.signer = mock(Signer.class);
     }
 
     @After
     public void tearDown() {
-        Scope.signer = new Signer();
+        Scope.Flash.signer = new Signer("salt");
     }
 
     private static void mockRequestAndResponse() {
@@ -305,7 +305,7 @@ public class ScopeTest {
     public void flash_save_addsSignatureToCookieValue() {
         Flash flash = new Flash();
         flash.put("foo", "bar");
-        when(Scope.signer.sign(anyString(), anyString())).thenReturn("SIGNATURE");
+        when(Scope.Flash.signer.sign(anyString())).thenReturn("SIGNATURE");
 
         flash.save(request, response);
 
@@ -313,30 +313,30 @@ public class ScopeTest {
         String cookie = response.cookies.get("PLAY_FLASH").value;
         assertThat(cookie).isEqualTo("SIGNATURE-Zm9vPWJhcg==");
         assertThat(new String(Base64.decodeBase64(cookie.replace("SIGNATURE-", "")), UTF_8)).isEqualTo("foo=bar");
-        verify(Scope.signer).sign("Zm9vPWJhcg==", Flash.SALT);
+        verify(Scope.Flash.signer).sign("Zm9vPWJhcg==");
     }
 
     @Test
     public void flash_restore() {
         request.cookies.put("PLAY_FLASH", new Http.Cookie("PLAY_FLASH", "SIGNATURE-Zm9vPWJhcg=="));
-        when(Scope.signer.isValid(anyString(), anyString(), anyString())).thenReturn(true);
+        when(Scope.Flash.signer.isValid(anyString(), anyString())).thenReturn(true);
 
         Flash flash = Flash.restore(request);
 
         assertThat(flash.get("foo")).isEqualTo("bar");
-        verify(Scope.signer).isValid("SIGNATURE", "Zm9vPWJhcg==", Flash.SALT);
+        verify(Scope.Flash.signer).isValid("SIGNATURE", "Zm9vPWJhcg==");
     }
 
     @Test
     public void flash_restore_checksSignature() {
         request.cookies.put("PLAY_FLASH", new Http.Cookie("PLAY_FLASH", "SIGNATURE-Zm9vPWJhcg=="));
-        when(Scope.signer.isValid(anyString(), anyString(), anyString())).thenReturn(false);
+        when(Scope.Flash.signer.isValid(anyString(), anyString())).thenReturn(false);
 
         assertThatThrownBy(() -> Flash.restore(request))
           .isInstanceOf(ForbiddenException.class)
           .hasMessage("Invalid flash signature: SIGNATURE-Zm9vPWJhcg==");
 
-        verify(Scope.signer).isValid("SIGNATURE", "Zm9vPWJhcg==", Flash.SALT);
+        verify(Scope.Flash.signer).isValid("SIGNATURE", "Zm9vPWJhcg==");
     }
 
     @Test
@@ -347,6 +347,6 @@ public class ScopeTest {
 
         assertThat(flash.data).isEmpty();
         assertThat(flash.out).isEmpty();
-        verifyNoMoreInteractions(Scope.signer);
+        verifyNoMoreInteractions(Scope.Flash.signer);
     }
 }

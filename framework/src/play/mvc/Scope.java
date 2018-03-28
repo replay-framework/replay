@@ -12,7 +12,6 @@ import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
 import play.inject.Injector;
 import play.libs.Codec;
-import play.libs.Crypto;
 import play.libs.Signer;
 import play.utils.Utils;
 
@@ -29,7 +28,6 @@ import java.util.Map;
  */
 public class Scope {
     static SessionDataEncoder encoder = new SessionDataEncoder();
-    static Signer signer = new Signer();
 
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
@@ -64,7 +62,7 @@ public class Scope {
      */
     public static class Flash {
 
-        static final String SALT = "флэшрояль";
+        static Signer signer = new Signer("флэшрояль");
         Map<String, String> data = new HashMap<>();
         Map<String, String> out = new HashMap<>();
 
@@ -79,7 +77,7 @@ public class Scope {
                 else {
                     String signature = cookie.value.substring(0, splitterPosition);
                     String realValue = cookie.value.substring(splitterPosition + 1);
-                    if (!signer.isValid(signature, realValue, SALT)) {
+                    if (!signer.isValid(signature, realValue)) {
                         throw new ForbiddenException(String.format("Invalid flash signature: %s", cookie.value));
                     }
                     flash.data = encoder.decode(realValue);
@@ -112,7 +110,7 @@ public class Scope {
                           flashData.length(), request.path, out);
                     }
                 }
-                String signature = signer.sign(flashData, SALT);
+                String signature = signer.sign(flashData);
                 response.setCookie(COOKIE_PREFIX + "_FLASH", signature + '-' + flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
@@ -202,10 +200,11 @@ public class Scope {
      */
     public static class Session {
 
-        static final String AT_KEY = "___AT";
-        static final String ID_KEY = "___ID";
-        static final String TS_KEY = "___TS";
-        static final String UA_KEY = "___UA";
+        private static final String AT_KEY = "___AT";
+        private static final String ID_KEY = "___ID";
+        protected static final String TS_KEY = "___TS";
+        protected static final String UA_KEY = "___UA";
+        private static final Signer signer = new Signer("auth-token");
 
         public static Session restore(Http.Request request, Http.Response response) {
             Session session = sessionStore.restore(request);
@@ -249,7 +248,7 @@ public class Scope {
 
         public String getAuthenticityToken() {
             if (!data.containsKey(AT_KEY)) {
-                this.put(AT_KEY, Crypto.sign(Codec.UUID()));
+                this.put(AT_KEY, signer.sign(Codec.UUID()));
             }
             return data.get(AT_KEY);
         }
