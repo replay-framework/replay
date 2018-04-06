@@ -4,6 +4,7 @@ import play.data.Upload;
 import play.data.binding.TypeBinder;
 import play.db.Model;
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -18,7 +19,7 @@ public class UploadArrayBinder implements TypeBinder<Model.BinaryField[]> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Upload[] bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+    public Upload[] bind(Http.Request request, Scope.Session session, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
         if (value == null || value.trim().length() == 0) {
             return null;
         }

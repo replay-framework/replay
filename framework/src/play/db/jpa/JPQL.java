@@ -5,6 +5,7 @@ import play.data.binding.RootParamNode;
 import play.db.Configuration;
 import play.db.jpa.GenericModel.JPAQuery;
 import play.mvc.Http;
+import play.mvc.Scope;
 import play.mvc.Scope.Params;
 
 import javax.persistence.EntityManager;
@@ -135,16 +136,16 @@ public class JPQL {
        return findOneBy(JPA.DEFAULT, entity, query, params);
     }
 
-    public JPABase create(Http.Request request, String entity, String name, Params params) throws Exception {
-        return create(request, JPA.DEFAULT, entity, name, params);
+    public JPABase create(Http.Request request, Scope.Session session, String entity, String name, Params params) throws Exception {
+        return create(request, session, JPA.DEFAULT, entity, name, params);
     }
 
-    public JPABase create(Http.Request request, String dbName, String entity, String name, Params params) throws Exception {
+    public JPABase create(Http.Request request, Scope.Session session, String dbName, String entity, String name, Params params) throws Exception {
         Object o = Class.forName(entity).newInstance();
 
         RootParamNode rootParamNode = ParamNode.convert(params.all());
 
-        return ((GenericModel) o).edit(request, rootParamNode, name);
+        return ((GenericModel) o).edit(request, session, rootParamNode, name);
     }
 
     public String createFindByQuery(String dbName, String entityName, String entityClass, String query, Object... params) {

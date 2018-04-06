@@ -382,9 +382,9 @@ public class Scope {
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T get(Http.Request request, Annotation[] annotations, String key, Class<T> type) {
+        public <T> T get(Http.Request request, Session session, Annotation[] annotations, String key, Class<T> type) {
             try {
-                return (T) Binder.directBind(request, annotations, get(key), type, null);
+                return (T) Binder.directBind(request, session, annotations, get(key), type, null);
             } catch (Exception e) {
                 logger.error("Failed to get {} of type {}", key, type, e);
                 Validation.addError(key, "validation.invalid");

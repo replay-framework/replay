@@ -3,6 +3,7 @@ package play.data.binding;
 import org.junit.Test;
 import play.data.validation.ValidationBuilder;
 import play.mvc.Http.Request;
+import play.mvc.Scope.Session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class BeanWrapperTest {
     @Test
     public void testBind() {
         Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+        Session session = new Session();
 
         ValidationBuilder.build();
         Map<String, String[]> m = new HashMap<>();
@@ -52,13 +54,13 @@ public class BeanWrapperTest {
         m.put("b.i", new String[]{"2"});
 
         Bean b = new Bean();
-        new BeanWrapper(Bean.class).bind(request, "b", m, "", b, null);
+        new BeanWrapper(Bean.class).bind(request, session, "b", m, "", b, null);
         assertThat(b.a).isEqualTo("a1");
         assertThat(b.b).isEqualTo("b1");
         assertThat(b.i).isEqualTo(2);
 
         b = new Bean();
-        new BeanWrapper(Bean.class).bind(request, "", m, "b", b, null);
+        new BeanWrapper(Bean.class).bind(request, session, "", m, "b", b, null);
         assertThat(b.a).isEqualTo("a1");
         assertThat(b.b).isEqualTo("b1");
         assertThat(b.i).isEqualTo(2);

@@ -3,6 +3,7 @@ package play.i18n;
 import play.Play;
 import play.data.binding.Binder;
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -170,7 +171,7 @@ public class Messages {
                 try {
                     // TODO: I think we need to type of direct bind -> primitive
                     // and object binder
-                    result[i] = Binder.directBind(Http.Request.current(), null, args[i] + "", conversions[i], null);
+                    result[i] = Binder.directBind(Http.Request.current(), Scope.Session.current(), null, args[i] + "", conversions[i], null);
                 } catch (Exception e) {
                     // Ignore
                     result[i] = null;

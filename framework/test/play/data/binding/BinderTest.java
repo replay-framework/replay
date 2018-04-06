@@ -290,7 +290,7 @@ public class BinderTest {
 
     private static class MyBigDecimalBinder implements TypeBinder<BigDecimal> {
         @Override
-        public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+        public Object bind(Http.Request request, Session session, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             return new BigDecimal(value).add(TEN);
         }
     }

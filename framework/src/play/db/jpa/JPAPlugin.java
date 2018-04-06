@@ -73,20 +73,20 @@ public class JPAPlugin extends PlayPlugin {
                     for (ParamNode id : ids) {
                         if (id.getValues() == null || id.getValues().length == 0 || id.getFirstValue(null)== null || id.getFirstValue(null).trim().length() <= 0 ) {
                              // We have no ids, it is a new entity
-                            return GenericModel.create(request, rootParamNode, name, clazz, annotations);
+                            return GenericModel.create(request, session, rootParamNode, name, clazz, annotations);
                         }
-                        query.setParameter(j + 1, Binder.directBind(id.getOriginalKey(), request, annotations, id.getValues()[0], pk[j++], null));
+                        query.setParameter(j + 1, Binder.directBind(id.getOriginalKey(), request, session, annotations, id.getValues()[0], pk[j++], null));
 
                     }
                     Object o = query.getSingleResult();
-                    return GenericModel.edit(request, rootParamNode, name, o, annotations);
+                    return GenericModel.edit(request, session, rootParamNode, name, o, annotations);
                 } catch (NoResultException e) {
                     // ok
                 } catch (Exception e) {
                     throw new UnexpectedException(e);
                 }
             }
-            return GenericModel.create(request, rootParamNode, name, clazz, annotations);
+            return GenericModel.create(request, session, rootParamNode, name, clazz, annotations);
         }
         return null;
     }

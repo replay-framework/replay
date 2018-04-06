@@ -5,6 +5,7 @@ import play.data.binding.TypeBinder;
 import play.i18n.Lang;
 import play.libs.I18N;
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -21,7 +22,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 public class CalendarBinder implements TypeBinder<Calendar> {
 
     @Override
-    public Calendar bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException {
+    public Calendar bind(Http.Request request, Scope.Session session, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) throws ParseException {
         if (isBlank(value)) {
             return null;
         }
