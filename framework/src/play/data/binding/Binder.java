@@ -11,6 +11,7 @@ import play.data.validation.Validation;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
+import play.mvc.Scope.Session;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -94,7 +95,7 @@ public abstract class Binder {
         return beanwrappers.get(clazz);
     }
 
-    public static Object bind(Http.Request request, RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public static Object bind(Http.Request request, Session session, RootParamNode parentParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         ParamNode paramNode = parentParamNode.getChild(name, true);
 
         Object result = null;
@@ -111,7 +112,7 @@ public abstract class Binder {
         if (paramNode != null) {
 
             // Let a chance to plugins to bind this object
-            result = Play.pluginCollection.bind(request, parentParamNode, name, clazz, type, annotations);
+            result = Play.pluginCollection.bind(request, session, parentParamNode, name, clazz, type, annotations);
             if (result != null) {
                 return result;
             }

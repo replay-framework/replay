@@ -115,7 +115,7 @@ public class ActionInvoker {
             // 3. Invoke the action
             try {
                 // @Before
-                handleBefores(request);
+                handleBefores(request, session);
 
                 // Action
 
@@ -129,7 +129,7 @@ public class ActionInvoker {
                 }
 
                 if (actionResult == null) {
-                    inferResult(invokeControllerMethod(request, actionMethod));
+                    inferResult(invokeControllerMethod(request, session, actionMethod));
                 }
             } catch (Result result) {
                 actionResult = result;
@@ -138,12 +138,12 @@ public class ActionInvoker {
                     Cache.set(cacheKey, actionResult, actionMethod.getAnnotation(CacheFor.class).value());
                 }
             } catch (Exception e) {
-                invokeControllerCatchMethods(request, e);
+                invokeControllerCatchMethods(request, session, e);
                 throw e;
             }
 
             // @After
-            handleAfters(request);
+            handleAfters(request, session);
 
             monitor.stop();
             monitor = null;
@@ -158,10 +158,10 @@ public class ActionInvoker {
         } catch (Result result) {
             applyResult(request, response, session, flash, renderArgs, result);
         } catch (RuntimeException e) {
-            handleFinallies(request, e);
+            handleFinallies(request, session, e);
             throw e;
         } catch (Throwable e) {
-            handleFinallies(request, e);
+            handleFinallies(request, session, e);
             throw new UnexpectedException(e);
         } finally {
             if (monitor != null) {
@@ -196,10 +196,10 @@ public class ActionInvoker {
         Play.pluginCollection.afterActionInvocation(request, response, flash);
 
         // @Finally
-        handleFinallies(request, null);
+        handleFinallies(request, session, null);
     }
 
-    private static void invokeControllerCatchMethods(Http.Request request, Throwable throwable) throws Exception {
+    private static void invokeControllerCatchMethods(Http.Request request, Session session, Throwable throwable) throws Exception {
         // @Catch
         Object[] args = new Object[] {throwable};
         List<Method> catches = Java.findAllAnnotatedMethods(request.controllerClass, Catch.class);
@@ -211,7 +211,7 @@ public class ActionInvoker {
             for (Class exception : exceptions) {
                 if (exception.isInstance(args[0])) {
                     mCatch.setAccessible(true);
-                    inferResult(invokeControllerMethod(request, mCatch, args));
+                    inferResult(invokeControllerMethod(request, session, mCatch, args));
                     break;
                 }
             }
@@ -250,7 +250,7 @@ public class ActionInvoker {
         return null;
     }
 
-    private static void handleBefores(Http.Request request) throws Exception {
+    private static void handleBefores(Http.Request request, Session session) throws Exception {
         List<Method> befores = Java.findAllAnnotatedMethods(request.controllerClass, Before.class);
         for (Method before : befores) {
             String[] unless = before.getAnnotation(Before.class).unless();
@@ -278,12 +278,12 @@ public class ActionInvoker {
             }
             if (!skip) {
                 before.setAccessible(true);
-                inferResult(invokeControllerMethod(request, before));
+                inferResult(invokeControllerMethod(request, session, before));
             }
         }
     }
 
-    private static void handleAfters(Http.Request request) throws Exception {
+    private static void handleAfters(Http.Request request, Session session) throws Exception {
         List<Method> afters = Java.findAllAnnotatedMethods(request.controllerClass, After.class);
         for (Method after : afters) {
             String[] unless = after.getAnnotation(After.class).unless();
@@ -311,7 +311,7 @@ public class ActionInvoker {
             }
             if (!skip) {
                 after.setAccessible(true);
-                inferResult(invokeControllerMethod(request, after));
+                inferResult(invokeControllerMethod(request, session, after));
             }
         }
     }
@@ -325,7 +325,7 @@ public class ActionInvoker {
      *            If @Finally-methods are called after an error, this variable
      *            holds the caught error
      */
-    static void handleFinallies(Http.Request request, Throwable caughtException) throws PlayException {
+    static void handleFinallies(Http.Request request, Session session, Throwable caughtException) throws PlayException {
 
         if (request.controllerClass == null) {
             // skip it
@@ -366,11 +366,11 @@ public class ActionInvoker {
                     if (parameterTypes.length == 1 && parameterTypes[0] == Throwable.class) {
                         // invoking @Finally method with caughtException as
                         // parameter
-                        invokeControllerMethod(request, aFinally, new Object[] { caughtException });
+                        invokeControllerMethod(request, session, aFinally, new Object[] { caughtException });
                     } else {
                         // invoke @Finally-method the regular way without
                         // caughtException
-                        invokeControllerMethod(request, aFinally, null);
+                        invokeControllerMethod(request, session, aFinally, null);
                     }
                 }
             }
@@ -406,18 +406,18 @@ public class ActionInvoker {
         }
     }
 
-    static Object invokeControllerMethod(Http.Request request, Method method) throws Exception {
-        return invokeControllerMethod(request, method, null);
+    static Object invokeControllerMethod(Http.Request request, Session session, Method method) throws Exception {
+        return invokeControllerMethod(request, session, method, null);
     }
 
-    static Object invokeControllerMethod(Http.Request request, Method method, Object[] forceArgs) throws Exception {
+    static Object invokeControllerMethod(Http.Request request, Session session, Method method, Object[] forceArgs) throws Exception {
         boolean isStatic = Modifier.isStatic(method.getModifiers());
 
         if (!isStatic && request.controllerInstance == null) {
             request.controllerInstance = Injector.getBeanOfType(request.controllerClass);
         }
 
-        Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(request, method);
+        Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(request, session, method);
 
         Object methodClassInstance = isStatic ? null :
             (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
@@ -469,7 +469,7 @@ public class ActionInvoker {
         return new Object[] { controllerClass, actionMethod };
     }
 
-    public static Object[] getActionMethodArgs(Http.Request request, Method method) {
+    public static Object[] getActionMethodArgs(Http.Request request, Session session, Method method) {
         String[] paramsNames = Java.parameterNames(method);
         if (paramsNames == null && method.getParameterTypes().length > 0) {
             throw new UnexpectedException("Parameter names not found for method " + method);
@@ -500,7 +500,7 @@ public class ActionInvoker {
             }
 
             RootParamNode root = ParamNode.convert(params);
-            rArgs[i] = Binder.bind(request, root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],
+            rArgs[i] = Binder.bind(request, session, root, paramsNames[i], method.getParameterTypes()[i], method.getGenericParameterTypes()[i],
                     method.getParameterAnnotations()[i]);
         }
 

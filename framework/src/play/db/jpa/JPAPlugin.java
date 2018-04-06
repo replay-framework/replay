@@ -21,22 +21,13 @@ import play.db.DB;
 import play.exceptions.UnexpectedException;
 import play.inject.Injector;
 import play.mvc.Http;
+import play.mvc.Scope.Session;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceUnit;
-import javax.persistence.Query;
+import javax.persistence.*;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.emptyList;
@@ -50,7 +41,7 @@ public class JPAPlugin extends PlayPlugin {
     public static boolean autoTxs = true;
   
     @Override
-    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, Session session, RootParamNode rootParamNode, String name, Class clazz, Type type, Annotation[] annotations) {
         if (JPABase.class.isAssignableFrom(clazz)) {
 
             ParamNode paramNode = rootParamNode.getChild(name, true);

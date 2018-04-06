@@ -51,7 +51,7 @@ public class ValidationPlugin extends PlayPlugin {
         if (!verify) {
             return;
         }
-        List<ConstraintViolation> violations = new Validator().validateAction(request, actionMethod);
+        List<ConstraintViolation> violations = new Validator().validateAction(request, session, actionMethod);
         ArrayList<Error> errors = new ArrayList<>();
         String[] paramNames = Java.parameterNames(actionMethod);
         for (ConstraintViolation violation : violations) {
@@ -91,9 +91,9 @@ public class ValidationPlugin extends PlayPlugin {
 
     // ~~~~~~
     static class Validator extends Guard {
-        public List<ConstraintViolation> validateAction(Http.Request request, Method actionMethod) {
+        public List<ConstraintViolation> validateAction(Http.Request request, Session session, Method actionMethod) {
             List<ConstraintViolation> violations = new ArrayList<>();
-            Object[] rArgs = ActionInvoker.getActionMethodArgs(request, actionMethod);
+            Object[] rArgs = ActionInvoker.getActionMethodArgs(request, session, actionMethod);
             validateMethodParameters(null, actionMethod, rArgs, violations);
             validateMethodPre(null, actionMethod, rArgs, violations);
             return violations;
