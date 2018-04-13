@@ -130,15 +130,12 @@ public abstract class Job<V> extends Invocation implements Callable<V> {
         wasError = true;
         lastException = e;
         try {
+            logger.error("Unexpected exception in job {}", this, e);
             Play.pluginCollection.onJobInvocationException(e);
         } catch (Throwable ex) {
-            logger.error("Error during job execution ({})", this, ex);
+            logger.error("Error during job exception handling ({})", this, ex);
             throw new UnexpectedException(unwrap(e));
         }
-        if (e instanceof RuntimeException) {
-            throw (RuntimeException) e;
-        }
-        throw new UnexpectedException(e);
     }
 
     private Throwable unwrap(Throwable e) {
