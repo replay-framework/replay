@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import static org.junit.Assert.*;
+import static play.mvc.Scope.Session.TS_KEY;
 
 public class CookieSessionStoreTest {
   Http.Request request = new Http.Request();
@@ -51,6 +52,26 @@ public class CookieSessionStoreTest {
     assertNotNull(sessionCookie);
     assertTrue(sessionCookie.value.contains("username"));
     assertTrue(sessionCookie.value.contains("Bob"));
+  }
+
+  @Test
+  public void testCanRestoreSessionAfterClearingItWithoutLosingData() throws Exception {
+    CookieSessionStore cookieSessionStore = new CookieSessionStore();
+    Play.secretKey = "0112358";
+    Play.started = true;
+
+    Scope.Session sessionFromFirstRequest = cookieSessionStore.restore(request);
+
+    sessionFromFirstRequest.clear();
+    sessionFromFirstRequest.put("param", "value");
+    cookieSessionStore.save(sessionFromFirstRequest, request, response);
+    request.cookies = response.cookies;
+
+    Scope.Session sessionFromSecondRequest = cookieSessionStore.restore(request);
+
+    assertEquals(2, sessionFromSecondRequest.data.size());
+    assertEquals("value", sessionFromSecondRequest.data.get("param"));
+    assertTrue(sessionFromSecondRequest.data.containsKey(TS_KEY));
   }
 
   private void setSendOnlyIfChangedConstant(boolean value) {

@@ -263,8 +263,10 @@ public class Scope {
         }
 
         public void clear() {
+            String timeStamp = data.get(TS_KEY);
             change();
             data.clear();
+            put(TS_KEY, timeStamp);
         }
 
         /**
