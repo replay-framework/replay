@@ -13,6 +13,7 @@ import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -152,7 +153,12 @@ public class Play {
         }
 
         try {
-            mode = Mode.valueOf(configuration.getProperty("application.mode", "DEV").toUpperCase());
+            String configuredMode = configuration.getProperty("application.mode");
+            if (configuredMode == null) {
+                boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+                configuredMode = isDebug ? "DEV" : "PROD";
+            }
+            mode = Mode.valueOf(configuredMode.toUpperCase());
         }
         catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(

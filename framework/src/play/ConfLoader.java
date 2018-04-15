@@ -5,20 +5,21 @@ import play.libs.IO;
 import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
-
 public class ConfLoader {
     private org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
+    private final Pattern overrideKeyPattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
+    private final Pattern variablePattern = Pattern.compile("\\$\\{([^}]+)}");
 
     public Properties readOneConfigurationFile(String filename) {
+        return readOneConfigurationFile(filename, null);
+    }
+
+    protected Properties readOneConfigurationFile(String filename, String inheritedId) {
         VirtualFile conf = VirtualFile.open(Play.applicationPath + "/conf/" + filename);
         if (Play.confs.contains(conf)) {
             throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
@@ -27,58 +28,50 @@ public class ConfLoader {
         Properties propsFromFile = IO.readUtf8Properties(conf.inputstream());
         Play.confs.add(conf);
 
-        addInheritedConfKeys(propsFromFile);
-
-        propsFromFile = resolveEnvironmentOverrides(propsFromFile);
         resolveVariables(propsFromFile);
-        resolveIncludes(propsFromFile);
+
+        if (inheritedId == null) {
+            inheritedId = propsFromFile.getProperty("%" + Play.id);
+            if (inheritedId != null && inheritedId.startsWith("%")) inheritedId = inheritedId.substring(1);
+        }
+        propsFromFile = resolvePlayIdOverrides(propsFromFile, inheritedId);
+
+        resolveIncludes(propsFromFile, inheritedId);
+
         return propsFromFile;
     }
 
-    protected void addInheritedConfKeys(Properties propsFromFile) {
-      String currentConf = "%" + Play.id;
-      String inheritedConf = propsFromFile.getProperty(currentConf);
-      if (isNotEmpty(inheritedConf)) {
-        int numInherited = 0;
-        for (String key : new ArrayList<>(propsFromFile.stringPropertyNames())) {
-          if (key.startsWith(inheritedConf)) {
-            String newKey = key.replace(inheritedConf, currentConf);
-            if (!propsFromFile.containsKey(newKey)) {
-              propsFromFile.setProperty(newKey, propsFromFile.getProperty(key));
-              numInherited++;
-            }
-          }
-        }
-        logger.info("Inherited " + numInherited + " configuration parameters from " + inheritedConf);
-      }
-    }
-
-    protected Properties resolveEnvironmentOverrides(Properties propsFromFile) {
+    protected Properties resolvePlayIdOverrides(Properties propsFromFile, String inheritedId) {
         Properties newConfiguration = new OrderSafeProperties();
-        Pattern pattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
+
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
-            Matcher matcher = pattern.matcher((e.getKey()).toString());
+            Matcher matcher = overrideKeyPattern.matcher((e.getKey()).toString());
             if (!matcher.matches()) {
                 newConfiguration.put(e.getKey(), e.getValue().toString().trim());
             }
         }
+
+        overrideMatching(inheritedId, propsFromFile, newConfiguration);
+        overrideMatching(Play.id, propsFromFile, newConfiguration);
+        return newConfiguration;
+    }
+
+    private void overrideMatching(String inheritedId, Properties propsFromFile, Properties newConfiguration) {
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
-            Matcher matcher = pattern.matcher(e.getKey().toString());
+            Matcher matcher = overrideKeyPattern.matcher(e.getKey().toString());
             if (matcher.matches()) {
                 String instance = matcher.group(1);
-                if (instance.equals(Play.id)) {
+                if (instance.equals(Play.id) || instance.equals(inheritedId)) {
                     newConfiguration.put(matcher.group(2), e.getValue().toString().trim());
                 }
             }
         }
-        return newConfiguration;
     }
 
     protected void resolveVariables(Properties propsFromFile) {
-        Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
             String value = e.getValue().toString();
-            Matcher matcher = pattern.matcher(value);
+            Matcher matcher = variablePattern.matcher(value);
             StringBuffer newValue = new StringBuffer(100);
             while (matcher.find()) {
                 String jp = matcher.group(1);
@@ -97,19 +90,17 @@ public class ConfLoader {
         }
     }
 
-    protected void resolveIncludes(Properties propsFromFile) {
-        Map<Object, Object> toInclude = new HashMap<>(16);
+    protected void resolveIncludes(Properties propsFromFile, String inheritedId) {
         for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
             if (e.getKey().toString().startsWith("@include.")) {
                 try {
                     String filenameToInclude = e.getValue().toString();
-                    toInclude.putAll(readOneConfigurationFile(filenameToInclude));
+                    propsFromFile.putAll(readOneConfigurationFile(filenameToInclude, inheritedId));
                 } catch (Exception ex) {
                     logger.warn("Missing include: {}", e.getKey(), ex);
                 }
             }
         }
-        propsFromFile.putAll(toInclude);
     }
 
     void extractHttpPort() {

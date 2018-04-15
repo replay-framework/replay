@@ -87,7 +87,7 @@ public class Scope {
         }
 
         public void save(Http.Request request, Http.Response response) {
-            if (request == null) {
+            if (response == null) {
                 // Some request like WebSocket don't have any response
                 return;
             }
