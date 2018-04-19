@@ -14,9 +14,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Database connection utilities.
@@ -91,6 +94,10 @@ public class DB {
 
     public static DataSource getDataSource() {
         return getDataSource(DEFAULT);
+    }
+
+    public static Map<String, DataSource> getDataSources() {
+        return datasources.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().getDataSource()));
     }
 
     private static Connection getLocalConnection(String name) {
