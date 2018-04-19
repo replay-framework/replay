@@ -18,6 +18,7 @@ import play.utils.Utils;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -109,11 +110,24 @@ public class Scope {
             out.put(key, value);
         }
 
-        public void put(String key, Object value) {
-            if (value == null) {
-                put(key, (String) null);
-            }
-            put(key, value + "");
+        public void put(String key, Integer value) {
+            put(key, value == null ? null : value.toString());
+        }
+
+        public void put(String key, Long value) {
+            put(key, value == null ? null : value.toString());
+        }
+
+        public void put(String key, Boolean value) {
+            put(key, value == null ? null : value.toString());
+        }
+
+        public void put(String key, BigDecimal value) {
+            put(key, value == null ? null : value.toPlainString());
+        }
+
+        public void put(String key, Enum<?> value) {
+            put(key, value == null ? null : value.name());
         }
 
         public void now(String key, String value) {
