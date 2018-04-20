@@ -20,9 +20,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static java.lang.String.join;
+import static java.util.Arrays.asList;
 
 /**
  * All application Scopes
@@ -33,13 +37,11 @@ public class Scope {
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
-    public static final boolean COOKIE_SECURE = Play.configuration.getProperty("application.session.secure", "false").toLowerCase()
-            .equals("true");
+    public static final boolean COOKIE_SECURE = "true".equals(Play.configuration.getProperty("application.session.secure", "false").toLowerCase());
     public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
-    public static final boolean SESSION_HTTPONLY = Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase()
-            .equals("true");
-    public static final boolean SESSION_SEND_ONLY_IF_CHANGED = Play.configuration
-            .getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase().equals("true");
+    public static final boolean SESSION_HTTPONLY = "true".equals(Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase());
+    public static final boolean SESSION_SEND_ONLY_IF_CHANGED = "true".equals(
+      Play.configuration.getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase());
 
     public static SessionStore sessionStore = createSessionStore();
 
@@ -329,32 +331,32 @@ public class Scope {
         }
 
         private final Http.Request request;
-        boolean requestIsParsed;
-        public Map<String, String[]> data = new LinkedHashMap<>();
+        private boolean requestIsParsed;
+        private final Map<String, String[]> data = new LinkedHashMap<>();
 
         boolean rootParamsNodeIsGenerated;
 
         public void checkAndParse() {
-            if (!requestIsParsed) {
-                __mergeWith(request.routeArgs);
+            if (requestIsParsed) return;
 
-                if (request.querystring != null) {
-                    try {
-                        _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
-                    }
-                    catch (UnsupportedEncodingException e) {
-                        throw new IllegalArgumentException(e);
-                    }
+            __mergeWith(request.routeArgs);
+
+            if (request.querystring != null) {
+                try {
+                    _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
                 }
-                String contentType = request.contentType;
-                if (contentType != null) {
-                    DataParser dataParser = DataParsers.forContentType(contentType);
-                    if (dataParser != null) {
-                        _mergeWith(dataParser.parse(request));
-                    }
+                catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
                 }
-                requestIsParsed = true;
             }
+            String contentType = request.contentType;
+            if (contentType != null) {
+                DataParser dataParser = DataParsers.forContentType(contentType);
+                if (dataParser != null) {
+                    _mergeWith(dataParser.parse(request));
+                }
+            }
+            requestIsParsed = true;
         }
 
         public void put(String key, String value) {
@@ -386,9 +388,7 @@ public class Scope {
         }
 
         public String get(String key) {
-            if (!_contains(key)) {
-                checkAndParse();
-            }
+            checkAndParse();
             if (data.containsKey(key)) {
                 return data.get(key)[0];
             }
@@ -406,14 +406,13 @@ public class Scope {
             }
         }
 
-        public boolean _contains(String key) {
+        public boolean contains(String key) {
+            checkAndParse();
             return data.containsKey(key);
         }
 
         public String[] getAll(String key) {
-            if (!_contains(key)) {
-                checkAndParse();
-            }
+            checkAndParse();
             return data.get(key);
         }
 
@@ -425,9 +424,10 @@ public class Scope {
         public Map<String, String[]> sub(String prefix) {
             checkAndParse();
             Map<String, String[]> result = new LinkedHashMap<>();
-            for (String key : data.keySet()) {
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                String key = entry.getKey();
                 if (key.startsWith(prefix + ".")) {
-                    result.put(key.substring(prefix.length() + 1), data.get(key));
+                    result.put(key.substring(prefix.length() + 1), entry.getValue());
                 }
             }
             return result;
@@ -436,8 +436,8 @@ public class Scope {
         public Map<String, String> allSimple() {
             checkAndParse();
             Map<String, String> result = new HashMap<>();
-            for (String key : data.keySet()) {
-                result.put(key, data.get(key)[0]);
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                result.put(entry.getKey(), entry.getValue()[0]);
             }
             return result;
         }
@@ -458,14 +458,14 @@ public class Scope {
             checkAndParse();
             String encoding = response.encoding;
             StringBuilder ue = new StringBuilder();
-            for (String key : data.keySet()) {
-                if (key.equals("body")) {
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                if ("body".equals(entry.getKey())) {
                     continue;
                 }
-                String[] values = data.get(key);
+                String[] values = entry.getValue();
                 for (String value : values) {
                     try {
-                        ue.append(URLEncoder.encode(key, encoding)).append("=").append(URLEncoder.encode(value, encoding)).append("&");
+                        ue.append(URLEncoder.encode(entry.getKey(), encoding)).append("=").append(URLEncoder.encode(value, encoding)).append("&");
                     } catch (Exception e) {
                         logger.error("Error (encoding ?)", e);
                     }
@@ -475,40 +475,9 @@ public class Scope {
         }
 
         public void flash(Flash flash, String... params) {
-            if (params.length == 0) {
-                for (String key : all().keySet()) {
-                    if (data.get(key).length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        boolean coma = false;
-                        for (String d : data.get(key)) {
-                            if (coma) {
-                                sb.append(",");
-                            }
-                            sb.append(d);
-                            coma = true;
-                        }
-                        flash.put(key, sb.toString());
-                    } else {
-                        flash.put(key, get(key));
-                    }
-                }
-            } else {
-                for (String key : params) {
-                    if (data.get(key).length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        boolean coma = false;
-                        for (String d : data.get(key)) {
-                            if (coma) {
-                                sb.append(",");
-                            }
-                            sb.append(d);
-                            coma = true;
-                        }
-                        flash.put(key, sb.toString());
-                    } else {
-                        flash.put(key, get(key));
-                    }
-                }
+            Collection<String> keys = params.length == 0 ? all().keySet() : asList(params);
+            for (String key : keys) {
+                flash.put(key, join(",", data.get(key)));
             }
         }
 
