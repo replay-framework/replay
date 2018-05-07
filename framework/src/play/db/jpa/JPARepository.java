@@ -29,9 +29,9 @@ public class JPARepository<T extends JPABase> {
     entityName = modelClass.getName();
   }
 
-  public T create(Http.Request request, String name, Scope.Params params) {
+  public T create(Http.Request request, Scope.Session session, String name, Scope.Params params) {
     try {
-      return (T) JPQL.instance.create(request, dbName, entityName, name, params);
+      return (T) JPQL.instance.create(request, session, dbName, entityName, name, params);
     }
     catch (Exception e) {
       throw new RuntimeException(e);

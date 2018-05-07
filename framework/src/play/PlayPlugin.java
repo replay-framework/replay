@@ -48,7 +48,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            annotation on the object
      * @return binding object
      */
-    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, Session session, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         return null;
     }
 

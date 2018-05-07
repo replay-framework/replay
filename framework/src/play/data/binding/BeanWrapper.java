@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -159,11 +160,11 @@ public class BeanWrapper {
         }
     }
 
-    public Object bind(Http.Request request, String name, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) {
+    public Object bind(Http.Request request, Scope.Session session, String name, Map<String, String[]> params, String prefix, Object instance, Annotation[] annotations) {
         RootParamNode paramNode = RootParamNode.convert( params);
         // when looking at the old code in BeanBinder and Binder.bindInternal, I
         // think it is correct to use 'name+prefix'
-        Binder.bindBean(request, paramNode.getChild(name+prefix), instance, annotations);
+        Binder.bindBean(request, session, paramNode.getChild(name+prefix), instance, annotations);
         return instance;
     }
 }

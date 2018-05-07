@@ -1,6 +1,7 @@
 package play.data.binding;
 
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.lang.annotation.*;
 import java.lang.reflect.Type;
@@ -19,7 +20,7 @@ public @interface As {
 
     final class DEFAULT implements TypeBinder<Object>, TypeUnbinder<Object> {
         @Override
-        public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+        public Object bind(Http.Request request, Scope.Session session, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
             throw new UnsupportedOperationException("Not supported.");
         }
 
