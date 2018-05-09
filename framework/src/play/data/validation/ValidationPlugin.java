@@ -39,7 +39,8 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Scope.Flash flash, Method actionMethod) {
         Validation.current.set(restore(request));
         boolean verify = false;
         for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
