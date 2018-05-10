@@ -104,7 +104,7 @@ public class ActionInvoker {
         try {
             Method actionMethod = request.invokedMethod;
 
-            Play.pluginCollection.beforeActionInvocation(request, response, session, renderArgs, actionMethod);
+            Play.pluginCollection.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod);
 
             // Monitoring
             monitor = MonitorFactory.start(request.action + "()");

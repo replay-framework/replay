@@ -156,7 +156,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     /**
      * Called before an 'action' invocation, ie an HTTP request processing.
      */
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Flash flash, Method actionMethod) {
     }
 
     /**
