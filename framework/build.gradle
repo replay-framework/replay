@@ -27,7 +27,7 @@ dependencies {
   compile('joda-time:joda-time:2.9.9')
   compile('com.edropple.jregex:jregex:1.2_01')
   compile('log4j:log4j:1.2.17')
-  compile('net.sf.ehcache:ehcache-core:2.6.11')
+  compile('org.ehcache:ehcache:3.5.2')
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
   compile('net.sf.oval:oval:1.90')
