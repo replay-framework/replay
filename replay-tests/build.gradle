@@ -40,7 +40,6 @@ subprojects {
 
   dependencies {
     compile('com.codeborne.replay:replay-framework:1.6-git')
-    compile('com.codeborne.replay:replay-rebel:1.6-git')
     compile('com.codeborne.replay:replay-fastergt:1.6-git')
 
     testCompile('org.assertj:assertj-core:3.9.1')
