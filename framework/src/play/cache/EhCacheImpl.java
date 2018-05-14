@@ -18,6 +18,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
+import static org.ehcache.config.units.EntryUnit.ENTRIES;
 import static org.ehcache.config.units.MemoryUnit.MB;
 
 /**
@@ -43,13 +44,15 @@ public class EhCacheImpl implements CacheImpl {
     private static final String cacheName = "play";
 
     private EhCacheImpl() {
-        long heapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInMb", "128"));
+        long heapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInMb", "0"));
+        long heapSizeInEntries = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInEntries", "0"));
         long offHeapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.offHeapSizeInMb", "0"));
-        if (heapSizeInMb == 0 && offHeapSizeInMb == 0)
-            throw new InvalidConfigurationException("Must specify nonzero ehcache.heapSizeInMb or ehcache.offHeapSizeInMb");
+        if (heapSizeInMb == 0 && heapSizeInEntries == 0 && offHeapSizeInMb == 0)
+            throw new InvalidConfigurationException("Must specify nonzero ehcache.heapSizeInMb/ehcache.heapSizeInEntries or ehcache.offHeapSizeInMb");
 
         ResourcePoolsBuilder heapBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
         if (heapSizeInMb > 0) heapBuilder = heapBuilder.heap(heapSizeInMb, MB);
+        if (heapSizeInEntries > 0) heapBuilder = heapBuilder.heap(heapSizeInEntries, ENTRIES);
         if (offHeapSizeInMb > 0) heapBuilder = heapBuilder.offheap(offHeapSizeInMb, MB);
 
         CacheConfigurationBuilder<String, ValueWrapper> configurationBuilder =
