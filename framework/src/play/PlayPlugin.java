@@ -158,6 +158,15 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      */
     public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
                                        Flash flash, Method actionMethod) {
+        beforeActionInvocation(request, response, session, renderArgs, actionMethod);
+    }
+
+    /**
+     * @deprecated Use/override method with flash parameter
+     */
+    @Deprecated
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Method actionMethod) {
     }
 
     /**
