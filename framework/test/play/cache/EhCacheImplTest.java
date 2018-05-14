@@ -9,7 +9,9 @@ import play.Play;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
 import static org.ehcache.config.ResourceType.Core.HEAP;
 import static org.ehcache.config.ResourceType.Core.OFFHEAP;
 
@@ -18,6 +20,7 @@ public class EhCacheImplTest {
 
     @Before
     public void setUp() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "100");
         cache = EhCacheImpl.newInstance();
     }
 
