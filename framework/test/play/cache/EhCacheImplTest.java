@@ -9,9 +9,7 @@ import play.Play;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.ehcache.config.ResourceType.Core.HEAP;
 import static org.ehcache.config.ResourceType.Core.OFFHEAP;
 
@@ -124,6 +122,7 @@ public class EhCacheImplTest {
 
     @Test
     public void cacheIsConfigurable() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
         Play.configuration.setProperty("ehcache.heapSizeInMb", "2");
         Play.configuration.setProperty("ehcache.offHeapSizeInMb", "3");
 
@@ -136,9 +135,34 @@ public class EhCacheImplTest {
     }
 
     @Test
+    public void canSetMaxEntitiesCount() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "999");
+        Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
+        Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
+
+        EhCacheImpl cache = EhCacheImpl.newInstance();
+        ResourcePools resourcePools = cache.cacheManager.getRuntimeConfiguration()
+                .getCacheConfigurations().get("play").getResourcePools();
+
+        assertThat(resourcePools.getPoolForResource(HEAP).getSize()).isEqualTo(999);
+    }
+
+    @Test
+    public void canNotSetSetMaxSize_bothInMbAndCount() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "999");
+        Play.configuration.setProperty("ehcache.heapSizeInMb", "10");
+        Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
+
+        assertThatThrownBy(EhCacheImpl::newInstance)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("configuration already contains");
+    }
+
+    @Test
     public void heapStorageWorks() {
-         Play.configuration.setProperty("ehcache.heapSizeInMb", "1");
-         Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
+        Play.configuration.setProperty("ehcache.heapSizeInMb", "1");
+        Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
         EhCacheImpl cache = EhCacheImpl.newInstance();
         ResourcePools resourcePools = cache.cacheManager.getRuntimeConfiguration()
@@ -152,6 +176,7 @@ public class EhCacheImplTest {
 
     @Test
     public void offHeapStorageWorks() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
         Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
         Play.configuration.setProperty("ehcache.offHeapSizeInMb", "1");
 
@@ -167,6 +192,7 @@ public class EhCacheImplTest {
 
     @Test(expected = InvalidConfigurationException.class)
     public void mustSpecifyAtLeastOneStorage() {
+        Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
         Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
         Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
