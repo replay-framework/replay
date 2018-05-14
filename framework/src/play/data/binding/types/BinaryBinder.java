@@ -6,6 +6,7 @@ import play.data.binding.TypeBinder;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
+import play.mvc.Scope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -15,7 +16,7 @@ public class BinaryBinder implements TypeBinder<Model.BinaryField> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object bind(Http.Request request, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
+    public Object bind(Http.Request request, Scope.Session session, String name, Annotation[] annotations, String value, Class actualClass, Type genericType) {
         if (value == null || value.trim().length() == 0) {
             return null;
         }

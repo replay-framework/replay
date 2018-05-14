@@ -48,7 +48,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            annotation on the object
      * @return binding object
      */
-    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, Session session, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         return null;
     }
 
@@ -156,7 +156,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     /**
      * Called before an 'action' invocation, ie an HTTP request processing.
      */
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Flash flash, Method actionMethod) {
     }
 
     /**

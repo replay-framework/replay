@@ -443,9 +443,9 @@ public class PluginCollection {
         }
     }
 
-    public Object bind(Http.Request request, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
+    public Object bind(Http.Request request, Session session, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            Object result = plugin.bind(request, rootParamNode, name, clazz, type, annotations);
+            Object result = plugin.bind(request, session, rootParamNode, name, clazz, type, annotations);
             if (result != null) {
                 return result;
             }
@@ -463,9 +463,10 @@ public class PluginCollection {
         return null;
     }
 
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Flash flash, Method actionMethod) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.beforeActionInvocation(request, response, session, renderArgs, actionMethod);
+            plugin.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod);
         }
     }
 

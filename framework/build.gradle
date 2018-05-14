@@ -2,14 +2,14 @@ dependencies {
   compile('com.google.code.findbugs:jsr305:3.0.2')
   compile('io.github.lukehutch:fast-classpath-scanner:2.9.3')
   compile('com.zaxxer:HikariCP:2.7.3')
-  compile('org.ow2.asm:asm-all:6.0_BETA')
-  compile('cglib:cglib:3.2.5') {transitive = false}
+  compile('org.ow2.asm:asm:6.1.1')
+  compile('cglib:cglib:3.2.6') {transitive = false}
   compile('com.google.code.gson:gson:2.8.2')
   compile('com.jamonapi:jamon:2.81') {transitive = false}
   compile('com.ning:async-http-client:1.9.40') {
     exclude group: 'io.netty'
   }
-  compile('com.google.guava:guava:24.0-jre') {transitive = false}
+  compile('com.google.guava:guava:24.1-jre') {transitive = false}
   compile('commons-beanutils:commons-beanutils:1.9.3')
   compile('commons-codec:commons-codec:1.11')
   compile('org.apache.commons:commons-email:1.5') {transitive = false}
@@ -27,13 +27,13 @@ dependencies {
   compile('joda-time:joda-time:2.9.9')
   compile('com.edropple.jregex:jregex:1.2_01')
   compile('log4j:log4j:1.2.17')
-  compile('net.sf.ehcache:ehcache-core:2.6.11')
+  compile('org.ehcache:ehcache:3.5.2')
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
   compile('net.sf.oval:oval:1.90')
   compile('oauth.signpost:signpost-core:1.2.1.2')
-  compile('org.codehaus.groovy:groovy:2.4.13')
-  compile('org.codehaus.groovy:groovy-xml:2.4.13')
+  compile('org.codehaus.groovy:groovy:2.4.15')
+  compile('org.codehaus.groovy:groovy-xml:2.4.15')
   compile('org.hibernate:hibernate-core:5.2.12.Final')
   compile('org.hibernate.common:hibernate-commons-annotations:5.0.1.Final')
   compile('org.hibernate:hibernate-entitymanager:5.2.12.Final') {
@@ -48,7 +48,7 @@ dependencies {
   compile('io.netty:netty:3.10.6.Final')
   compile('org.slf4j:slf4j-api:1.7.25')
   compile('org.slf4j:slf4j-log4j12:1.7.25')
-  compile('org.yaml:snakeyaml:1.19')
+  compile('org.yaml:snakeyaml:1.20')
   compile('net.spy:spymemcached:2.12.3')
   compile('com.thoughtworks.xstream:xstream:1.4.10') {transitive = false}
   compile('xmlpull:xmlpull:1.1.3.4d_b4_min')
