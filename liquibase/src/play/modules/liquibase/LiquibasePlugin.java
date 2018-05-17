@@ -13,17 +13,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
-import play.utils.Properties;
 
-import java.io.*;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class LiquibasePlugin extends PlayPlugin {
 
@@ -60,7 +66,7 @@ public class LiquibasePlugin extends PlayPlugin {
     }
   }
 
-  private void performAction(Liquibase liquibase, LiquibaseAction op, String contexts) throws LiquibaseException, IOException {
+  private void performAction(Liquibase liquibase, LiquibaseAction op, @Nullable String contexts) throws LiquibaseException, IOException {
     logger.info("Dealing with op [{}]", op);
 
     switch (op) {
@@ -75,7 +81,7 @@ public class LiquibasePlugin extends PlayPlugin {
         break;
       case STATUS:
         File tmp = Play.tmpDir.createTempFile("liquibase", ".status");
-        try (Writer out = new BufferedWriter(new FileWriter(tmp))) {
+        try (Writer out = new OutputStreamWriter(new FileOutputStream(tmp), UTF_8)) {
           liquibase.reportStatus(true, contexts, out);
         }
         logger.info("status dumped into file [{}]", tmp.getAbsolutePath());
@@ -101,7 +107,7 @@ public class LiquibasePlugin extends PlayPlugin {
     logger.info("op [{}] performed", op);
   }
 
-  private Liquibase createLiquibase(Database database) throws LiquibaseException, IOException {
+  private Liquibase createLiquibase(Database database) throws LiquibaseException {
     ResourceAccessor accessor = createResourceAccessor();
 
     String changeLogPath = Play.configuration.getProperty("liquibase.changelog", "mainchangelog.xml");
@@ -120,37 +126,19 @@ public class LiquibasePlugin extends PlayPlugin {
     }
   }
 
-  String parseContexts() {
+  @Nullable String parseContexts() {
     String contexts = Play.configuration.getProperty("liquibase.contexts", "").trim();
     return contexts.isEmpty() ? null : contexts;
   }
 
-  private void configureLiquibaseProperties(Liquibase liquibase) throws IOException {
-    String propertiesPath = Play.configuration.getProperty("liquibase.properties", "liquibase.properties");
-    try (InputStream in = readPropertiesFile(propertiesPath)) {
-      if (in != null) {
-        Properties props = new Properties();
-        props.load(in);
+  private void configureLiquibaseProperties(Liquibase liquibase) {
+    Properties props = Play.configuration;
 
-        for (Map.Entry<String, String> stringStringEntry : props.entrySet()) {
-          String val = stringStringEntry.getValue();
-          logger.info("found parameter [{}] / [{}] for liquibase update", stringStringEntry.getKey(), val);
-          liquibase.setChangeLogParameter(stringStringEntry.getKey(), val);
-        }
+    for (String name : props.stringPropertyNames()) {
+      if (name.startsWith("db.") || name.startsWith("liquibase.")) {
+        String val = props.getProperty(name);
+        liquibase.setChangeLogParameter(name, val);
       }
-      else {
-        logger.info("Could not find properties file [{}]", propertiesPath);
-      }
-    }
-  }
-
-  private InputStream readPropertiesFile(String propertiesPath) throws FileNotFoundException {
-    String scanner = Play.configuration.getProperty("liquibase.scanner", "jar");
-    switch (scanner) {
-      case "jar":
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesPath);
-      default:
-        return new FileInputStream(Play.getFile(propertiesPath));
     }
   }
 
@@ -184,10 +172,22 @@ public class LiquibasePlugin extends PlayPlugin {
 
   @SuppressWarnings("CallToDriverManagerGetConnection")
   private Connection getConnection() throws SQLException {
-    String url = Play.configuration.getProperty("db.url");
-    String username = Play.configuration.getProperty("db.user");
-    String password = Play.configuration.getProperty("db.pass");
+    String driver = Play.configuration.getProperty("db.driver");
+    String url = Play.configuration.getProperty("liquibase.db.url", Play.configuration.getProperty("db.url"));
+    String username = Play.configuration.getProperty("liquibase.db.user", Play.configuration.getProperty("db.user"));
+    String password = Play.configuration.getProperty("liquibase.db.pass", Play.configuration.getProperty("db.pass"));
     logger.info("Migrate DB: {} @ {}", username, url);
+
+    initDriver(driver);
     return DriverManager.getConnection(url, username, password);
+  }
+
+  private void initDriver(String driver) {
+    try {
+      Driver d = (Driver) Class.forName(driver).newInstance();
+      DriverManager.registerDriver(d);
+    } catch (Exception e) {
+      throw new RuntimeException("jdbc driver class not found", e);
+    }
   }
 }

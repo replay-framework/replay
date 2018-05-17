@@ -2,10 +2,9 @@ package play.mvc;
 
 import play.Play;
 import play.exceptions.UnexpectedException;
-import play.libs.Crypto;
+import play.libs.Signer;
 import play.libs.Time;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static play.mvc.Scope.*;
 import static play.mvc.Scope.Session.TS_KEY;
 
@@ -15,6 +14,7 @@ import static play.mvc.Scope.Session.TS_KEY;
 public class CookieSessionStore implements SessionStore {
 
     private final String COOKIE_EXPIRE = Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING);
+    private final Signer signer = new Signer("session-");
 
     @Override
     public Session restore(Http.Request request) {
@@ -30,7 +30,7 @@ public class CookieSessionStore implements SessionStore {
                 if (firstDashIndex > -1) {
                     String sign = value.substring(0, firstDashIndex);
                     String data = value.substring(firstDashIndex + 1);
-                    if (CookieDataCodec.safeEquals(sign, Crypto.sign(data, Play.secretKey.getBytes(UTF_8)))) {
+                    if (CookieDataCodec.safeEquals(sign, signer.sign(data))) {
                         CookieDataCodec.decode(session.data, data);
                     }
                 }
@@ -84,7 +84,7 @@ public class CookieSessionStore implements SessionStore {
         }
         try {
             String sessionData = CookieDataCodec.encode(session.data);
-            String sign = Crypto.sign(sessionData, Play.secretKey.getBytes(UTF_8));
+            String sign = signer.sign(sessionData);
             if (COOKIE_EXPIRE == null) {
                 response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/", null, COOKIE_SECURE,
                         SESSION_HTTPONLY);
