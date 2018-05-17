@@ -12,7 +12,7 @@ import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
 import play.inject.Injector;
 import play.libs.Codec;
-import play.libs.Crypto;
+import play.libs.Signer;
 import play.utils.Utils;
 
 import java.io.ByteArrayInputStream;
@@ -65,6 +65,7 @@ public class Scope {
      */
     public static class Flash {
 
+        static Signer signer = new Signer("флэшрояль");
         Map<String, String> data = new HashMap<>();
         Map<String, String> out = new HashMap<>();
 
@@ -72,7 +73,18 @@ public class Scope {
             Flash flash = new Flash();
             Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_FLASH");
             if (cookie != null) {
-                flash.data = encoder.decode(cookie.value);
+                int splitterPosition = cookie.value.indexOf('-');
+                if (splitterPosition == -1) {
+                    logger.warn("Cookie without signature: {}", cookie.value);
+                }
+                else {
+                    String signature = cookie.value.substring(0, splitterPosition);
+                    String realValue = cookie.value.substring(splitterPosition + 1);
+                    if (!signer.isValid(signature, realValue)) {
+                        throw new ForbiddenException(String.format("Invalid flash signature: %s", cookie.value));
+                    }
+                    flash.data = encoder.decode(realValue);
+                }
             }
             return flash;
         }
@@ -90,7 +102,19 @@ public class Scope {
             }
             try {
                 String flashData = encoder.encode(out);
-                response.setCookie(COOKIE_PREFIX + "_FLASH", flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
+                int maximumAcceptableCookieLength = 3980;
+                if (flashData.length() > maximumAcceptableCookieLength) {
+                    logger.error("Too long flash ({}): {}", flashData.length(), flashData);
+                }
+                else {
+                    int recommendedMaximumCookieLength = 2000;
+                    if (flashData.length() > recommendedMaximumCookieLength) {
+                        logger.warn("Flash size {} bytes, recommending to redesign the page {} to avoid overusing of flash. Flash content: {}",
+                          flashData.length(), request.path, out);
+                    }
+                }
+                String signature = signer.sign(flashData);
+                response.setCookie(COOKIE_PREFIX + "_FLASH", signature + '-' + flashData, null, "/", null, COOKIE_SECURE, SESSION_HTTPONLY);
             } catch (Exception e) {
                 throw new UnexpectedException("Flash serializationProblem", e);
             }
@@ -192,12 +216,21 @@ public class Scope {
      */
     public static class Session {
 
-        static final String AT_KEY = "___AT";
-        static final String ID_KEY = "___ID";
-        static final String TS_KEY = "___TS";
+        private static final String AT_KEY = "___AT";
+        private static final String ID_KEY = "___ID";
+        protected static final String TS_KEY = "___TS";
+        protected static final String UA_KEY = "___UA";
+        private static final Signer signer = new Signer("auth-token");
 
-        public static Session restore(Http.Request request) {
-            return sessionStore.restore(request);
+        public static Session restore(Http.Request request, Http.Response response) {
+            Session session = sessionStore.restore(request);
+            String storedUserAgent = session.get(UA_KEY);
+            String requestUserAgent = getUserAgent(request);
+            if (storedUserAgent != null && !requestUserAgent.equals(storedUserAgent)) {
+                logger.warn(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
+                                  storedUserAgent, requestUserAgent));
+            }
+            return session;
         }
 
         Map<String, String> data = new HashMap<>(); // ThreadLocal access
@@ -229,7 +262,7 @@ public class Scope {
 
         public String getAuthenticityToken() {
             if (!data.containsKey(AT_KEY)) {
-                this.put(AT_KEY, Crypto.sign(Codec.UUID()));
+                this.put(AT_KEY, signer.sign(Codec.UUID()));
             }
             return data.get(AT_KEY);
         }
@@ -239,7 +272,15 @@ public class Scope {
         }
 
         public void save(Http.Request request, Http.Response response) {
+            if (!isEmpty() && !contains(UA_KEY)) {
+                put(UA_KEY, getUserAgent(request));
+            }
             sessionStore.save(this, request, response);
+        }
+
+        private static String getUserAgent(Http.Request request) {
+            Http.Header agent = request.headers.get("user-agent");
+            return agent != null ? agent.value() : "n/a";
         }
 
         public void put(String key, String value) {
@@ -292,7 +333,7 @@ public class Scope {
          */
         public boolean isEmpty() {
             for (String key : data.keySet()) {
-                if (!TS_KEY.equals(key)) {
+                if (!TS_KEY.equals(key) && !UA_KEY.equals(key)) {
                     return false;
                 }
             }

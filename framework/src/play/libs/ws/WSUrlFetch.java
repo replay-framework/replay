@@ -20,6 +20,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Implementation of the WS interface based on Java URL Fetch API. This is to be used for example in Google App Engine,
  * where the async http client can't be used.
@@ -363,7 +365,7 @@ public class WSUrlFetch implements WSImpl {
         @Override
         public String getString(String encoding) {
             try {
-                return new String(body.getBytes(), encoding);
+                return new String(body.getBytes(UTF_8), encoding);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
