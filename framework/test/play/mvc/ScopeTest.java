@@ -232,21 +232,6 @@ public class ScopeTest {
     }
 
     @Test
-    public void restore_throwsExceptionIfUserAgentHasChanged() {
-        Session session = spy(new Session());
-        session.put(UA_KEY, "Chrome;");
-        request.setHeader("User-Agent", "Firefox;");
-        when(Scope.sessionStore.restore(request)).thenReturn(session);
-
-        assertThatThrownBy(() -> Session.restore(request, response))
-          .isInstanceOf(ForbiddenException.class)
-          .hasMessage("User agent changed: existing user agent 'Chrome;', request user agent 'Firefox;'");
-
-        verify(session).clear();
-        verify(Scope.sessionStore).save(session, request, response);
-    }
-
-    @Test
     public void restore_skipsCheckForUserAgent_ifUserAgentNotStoredYet() {
         Session session = new Session();
         request.setHeader("User-Agent", "Chrome;");

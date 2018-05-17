@@ -213,10 +213,8 @@ public class Scope {
             String storedUserAgent = session.get(UA_KEY);
             String requestUserAgent = getUserAgent(request);
             if (storedUserAgent != null && !requestUserAgent.equals(storedUserAgent)) {
-                session.clear();
-                sessionStore.save(session, request, response);
-                throw new ForbiddenException(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
-                  storedUserAgent, requestUserAgent));
+                logger.warn(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
+                                  storedUserAgent, requestUserAgent));
             }
             return session;
         }
