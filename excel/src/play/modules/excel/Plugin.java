@@ -29,6 +29,7 @@ import play.exceptions.UnexpectedException;
 import play.mvc.Http.Header;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
@@ -60,7 +61,8 @@ public class Plugin extends PlayPlugin {
      * Extend play format processing
      */
     @Override
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Scope.Flash flash, Method actionMethod) {
         Header h = request.headers.get("user-agent");
         if (null == h) return;
         String userAgent = h.value();

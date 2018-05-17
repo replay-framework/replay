@@ -1,10 +1,25 @@
 package play.cache;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import net.sf.oval.exception.InvalidConfigurationException;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.expiry.ExpiryPolicy;
+import play.Play;
 
-import java.util.HashMap;
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Supplier;
+
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
+import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
+import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
+import static org.ehcache.config.units.EntryUnit.ENTRIES;
+import static org.ehcache.config.units.MemoryUnit.MB;
 
 /**
  * EhCache implementation.
@@ -24,14 +39,27 @@ public class EhCacheImpl implements CacheImpl {
 
     CacheManager cacheManager;
 
-    net.sf.ehcache.Cache cache;
+    Cache<String, ValueWrapper> cache;
 
     private static final String cacheName = "play";
 
     private EhCacheImpl() {
-        this.cacheManager = CacheManager.create();
-        this.cacheManager.addCache(cacheName);
-        this.cache = cacheManager.getCache(cacheName);
+        long heapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInMb", "0"));
+        long heapSizeInEntries = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInEntries", "0"));
+        long offHeapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.offHeapSizeInMb", "0"));
+        if (heapSizeInMb == 0 && heapSizeInEntries == 0 && offHeapSizeInMb == 0)
+            throw new InvalidConfigurationException("Must specify nonzero ehcache.heapSizeInMb/ehcache.heapSizeInEntries or ehcache.offHeapSizeInMb");
+
+        ResourcePoolsBuilder heapBuilder = ResourcePoolsBuilder.newResourcePoolsBuilder();
+        if (heapSizeInMb > 0) heapBuilder = heapBuilder.heap(heapSizeInMb, MB);
+        if (heapSizeInEntries > 0) heapBuilder = heapBuilder.heap(heapSizeInEntries, ENTRIES);
+        if (offHeapSizeInMb > 0) heapBuilder = heapBuilder.offheap(offHeapSizeInMb, MB);
+
+        CacheConfigurationBuilder<String, ValueWrapper> configurationBuilder =
+                newCacheConfigurationBuilder(String.class, ValueWrapper.class, heapBuilder)
+                .withExpiry(new ValueWrapperAwareExpiry());
+        this.cacheManager = newCacheManagerBuilder().withCache(cacheName, configurationBuilder).build(true);
+        this.cache = cacheManager.getCache(cacheName, String.class, ValueWrapper.class);
     }
 
     public static EhCacheImpl getInstance() {
@@ -45,29 +73,23 @@ public class EhCacheImpl implements CacheImpl {
 
     @Override
     public void add(String key, Object value, int expiration) {
-        if (cache.get(key) != null) {
-            return;
-        }
-        Element element = new Element(key, value);
-        element.setTimeToLive(expiration);
-        cache.put(element);
+        cache.putIfAbsent(key, new ValueWrapper(value, expiration));
     }
 
     @Override
     public void clear() {
-        cache.removeAll();
+        cache.clear();
     }
 
     @Override
     public synchronized long decr(String key, int by) {
-        Element e = cache.get(key);
-        if (e == null) {
+        ValueWrapper valueWrapper = cache.get(key);
+        if (valueWrapper == null) {
             return -1;
         }
-        long newValue = ((Number) e.getObjectValue()).longValue() - by;
-        Element newE = new Element(key, newValue);
-        newE.setTimeToLive(e.getTimeToLive());
-        cache.put(newE);
+        long newValue = ((Number) valueWrapper.value).longValue() - by;
+        ValueWrapper newValueWrapper = new ValueWrapper(newValue, valueWrapper.expiration);
+        cache.put(key, newValueWrapper);
         return newValue;
     }
 
@@ -78,52 +100,67 @@ public class EhCacheImpl implements CacheImpl {
 
     @Override
     public Object get(String key) {
-        Element e = cache.get(key);
-        return (e == null) ? null : e.getObjectValue();
+        ValueWrapper valueWrapper = cache.get(key);
+        return valueWrapper == null ? null : valueWrapper.value;
     }
 
     @Override
     public Map<String, Object> get(String[] keys) {
-        Map<String, Object> result = new HashMap<>(keys.length);
-        for (String key : keys) {
-            result.put(key, get(key));
-        }
-        return result;
+        return cache.getAll(new HashSet<>(asList(keys))).entrySet()
+                .stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().value));
     }
 
     @Override
     public synchronized long incr(String key, int by) {
-        Element e = cache.get(key);
-        if (e == null) {
+        ValueWrapper valueWrapper = cache.get(key);
+        if (valueWrapper == null) {
             return -1;
         }
-        long newValue = ((Number) e.getObjectValue()).longValue() + by;
-        Element newE = new Element(key, newValue);
-        newE.setTimeToLive(e.getTimeToLive());
-        cache.put(newE);
+        long newValue = ((Number) valueWrapper.value).longValue() + by;
+        ValueWrapper newValueWrapper = new ValueWrapper(newValue, valueWrapper.expiration);
+        cache.put(key, newValueWrapper);
         return newValue;
-
     }
 
     @Override
     public void replace(String key, Object value, int expiration) {
-        if (cache.get(key) == null) {
-            return;
-        }
-        Element element = new Element(key, value);
-        element.setTimeToLive(expiration);
-        cache.put(element);
+        cache.replace(key, new ValueWrapper(value, expiration));
     }
 
     @Override
     public void set(String key, Object value, int expiration) {
-        Element element = new Element(key, value);
-        element.setTimeToLive(expiration);
-        cache.put(element);
+        cache.put(key, new ValueWrapper(value, expiration));
     }
 
     @Override
     public void stop() {
-        cacheManager.shutdown();
+        cacheManager.close();
+    }
+
+    private static class ValueWrapper implements Serializable {
+        Object value;
+        int expiration;
+
+        ValueWrapper(Object value, int expiration) {
+            this.value = value;
+            this.expiration = expiration;
+        }
+    }
+
+    private static class ValueWrapperAwareExpiry implements ExpiryPolicy<String, ValueWrapper> {
+        @Override
+        public Duration getExpiryForCreation(String key, ValueWrapper value) {
+            return Duration.ofSeconds(value.expiration);
+        }
+
+        @Override
+        public Duration getExpiryForAccess(String key, Supplier<? extends ValueWrapper> value) {
+            return null;
+        }
+
+        @Override
+        public Duration getExpiryForUpdate(String key, Supplier<? extends ValueWrapper> oldValue, ValueWrapper newValue) {
+            return Duration.ofSeconds(newValue.expiration);
+        }
     }
 }

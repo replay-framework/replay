@@ -463,9 +463,10 @@ public class PluginCollection {
         return null;
     }
 
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Method actionMethod) {
+    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
+                                       Flash flash, Method actionMethod) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.beforeActionInvocation(request, response, session, renderArgs, actionMethod);
+            plugin.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod);
         }
     }
 
