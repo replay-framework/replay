@@ -24,7 +24,7 @@ dependencies {
   compile('javax.inject:javax.inject:1')
   compile('javax.validation:validation-api:1.1.0.Final')
   compile('jaxen:jaxen:1.1.6')
-  compile('joda-time:joda-time:2.9.9')
+  compile('joda-time:joda-time:2.10')
   compile('com.edropple.jregex:jregex:1.2_01')
   compile('log4j:log4j:1.2.17')
   compile('org.ehcache:ehcache:3.5.2')
