@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Codec utils
  */
@@ -32,7 +34,7 @@ public class Codec {
      */
     public static String encodeBASE64(String value) {
         try {
-            return new String(Base64.encodeBase64(value.getBytes("utf-8")));
+            return new String(Base64.encodeBase64(value.getBytes("utf-8")), UTF_8);
         } catch (UnsupportedEncodingException ex) {
             throw new UnexpectedException(ex);
         }
@@ -46,7 +48,7 @@ public class Codec {
      * @return The base64 encoded String
      */
     public static String encodeBASE64(byte[] value) {
-        return new String(Base64.encodeBase64(value));
+        return new String(Base64.encodeBase64(value), UTF_8);
     }
 
     /**

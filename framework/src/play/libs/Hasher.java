@@ -22,7 +22,7 @@ public class Hasher {
     try {
       MessageDigest m = MessageDigest.getInstance(hashType.toString());
       byte[] out = m.digest((salt+ input).getBytes(UTF_8));
-      return new String(Base64.encodeBase64(out));
+      return new String(Base64.encodeBase64(out), UTF_8);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
