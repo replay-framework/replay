@@ -9,7 +9,7 @@ dependencies {
   compile('com.ning:async-http-client:1.9.40') {
     exclude group: 'io.netty'
   }
-  compile('com.google.guava:guava:24.1-jre') {transitive = false}
+  compile('com.google.guava:guava:25.1-jre') {transitive = false}
   compile('commons-beanutils:commons-beanutils:1.9.3')
   compile('commons-codec:commons-codec:1.11')
   compile('org.apache.commons:commons-email:1.5') {transitive = false}
