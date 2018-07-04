@@ -3,7 +3,7 @@ dependencies {
   compile('io.github.lukehutch:fast-classpath-scanner:2.21')
   compile('com.zaxxer:HikariCP:3.2.0')
   compile('org.ow2.asm:asm:6.2')
-  compile('cglib:cglib:3.2.6') {transitive = false}
+  compile('cglib:cglib:3.2.7') {transitive = false}
   compile('com.google.code.gson:gson:2.8.5')
   compile('com.jamonapi:jamon:2.81') {transitive = false}
   compile('com.ning:async-http-client:1.9.40') {
