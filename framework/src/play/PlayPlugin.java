@@ -175,6 +175,14 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @param result
      *            The result object for the request.
      */
+    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs, Result result) {
+        onActionInvocationResult(request, response, renderArgs, result);
+    }
+
+    /**
+     * @deprecated Use/override method with session parameter
+     */
+    @Deprecated
     public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
     }
 

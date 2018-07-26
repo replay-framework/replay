@@ -85,7 +85,8 @@ public class Plugin extends PlayPlugin {
      */
     private static final URLCodec encoder = new URLCodec();
     @Override
-    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
+    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs,
+                                         Result result) {
         if (null == request.format || !request.format.matches("(csv|xls|xlsx)"))
             return;
 

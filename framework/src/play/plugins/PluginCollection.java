@@ -470,9 +470,10 @@ public class PluginCollection {
         }
     }
 
-    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
+    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs,
+                                         Result result) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
-            plugin.onActionInvocationResult(request, response, renderArgs, result);
+            plugin.onActionInvocationResult(request, response, session, renderArgs, result);
         }
     }
 
