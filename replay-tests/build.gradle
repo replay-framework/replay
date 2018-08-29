@@ -42,10 +42,10 @@ subprojects {
     compile('com.codeborne.replay:replay-framework:1.6-git')
     compile('com.codeborne.replay:replay-fastergt:1.6-git')
 
-    testCompile('org.assertj:assertj-core:3.9.1')
-    testCompile('com.codeborne:selenide:4.10.01')
+    testCompile('org.assertj:assertj-core:3.10.0')
+    testCompile('com.codeborne:selenide:4.12.3')
     testCompile('junit:junit:4.12')
-    testCompile('org.mockito:mockito-core:2.15.0')
+    testCompile('org.mockito:mockito-core:2.21.0')
   }
 
   test {

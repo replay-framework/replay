@@ -67,7 +67,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void onActionInvocationResult(@Nonnull Request request, @Nonnull Response response, @Nonnull RenderArgs renderArgs, Result result) {
+    public void onActionInvocationResult(@Nonnull Request request, @Nonnull Response response, @Nonnull Session session, @Nonnull RenderArgs renderArgs, Result result) {
         save(request, response);
     }
 

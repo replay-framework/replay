@@ -14,11 +14,20 @@ import play.mvc.Http.Header;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -249,9 +258,9 @@ public class WSUrlFetch implements WSImpl {
             if (this.parameters != null && !this.parameters.isEmpty()) {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + encoding);
                 connection.setDoOutput(true);
-                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                writer.write(createQueryString());
-                writer.close();
+                try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), UTF_8)) {
+                    writer.write(createQueryString());
+                }
             }
             if (this.body != null) {
                 if (this.parameters != null && !this.parameters.isEmpty()) {

@@ -41,7 +41,7 @@ public class Crypter {
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-            return new String(cipher.doFinal(Codec.hexStringToByte(value))).substring(salt.length());
+            return new String(cipher.doFinal(Codec.hexStringToByte(value)), UTF_8).substring(salt.length());
         } catch (Exception ex) {
             throw new UnexpectedException(ex);
         }
