@@ -4,7 +4,7 @@ dependencies {
   
   compile('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
   compile('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
-  compile('org.apache.commons:commons-jexl:2.0.1') {transitive = false}
+  compile('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
   compile('org.apache.poi:poi:3.11') {transitive = false}
   compile('org.apache.poi:poi-ooxml:3.11') {transitive = false}
   compile('org.apache.poi:poi-ooxml-schemas:3.11') {transitive = false}

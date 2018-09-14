@@ -1,7 +1,6 @@
 package play.classloading;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-
+import io.github.classgraph.ClassGraph;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ public class JavaClassesScanner {
   public List<Class<?>> allClassesInProject() {
     List<Class<?>> result = new ArrayList<>();
 
-    List<File> classpath = new FastClasspathScanner().getUniqueClasspathElements();
+    List<File> classpath = new ClassGraph().getClasspathFiles();
 
     for (File file : classpath) {
       try {
