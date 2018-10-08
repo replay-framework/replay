@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Codec;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,14 +22,14 @@ public class SessionDataEncoder {
       data = new String(Codec.decodeBASE64(data), UTF_8);
     }
     catch (Exception cookieWasNotEncoded) {
-      logger.warn("!!! Cookie decoding (base64) failed, will use old way");
+      logger.warn("!!! Cookie decoding (base64) failed, will try plain");
     }
     String[] keyValues = data.split("&");
     for (String keyValue : keyValues) {
       String[] splitted = keyValue.split("=", 2);
       if (splitted.length == 2) {
         try {
-          map.put(URLDecoder.decode(splitted[0], "utf-8"), URLDecoder.decode(splitted[1], "utf-8"));
+          map.put(URLDecoder.decode(splitted[0], UTF_8), URLDecoder.decode(splitted[1], UTF_8));
         }
         catch (Exception e) {
           logger.error("!!! Cookie parsing failed: " + e + ",\ncookie.key=" + splitted[0] + "\n  Data: " + data);
@@ -47,21 +45,16 @@ public class SessionDataEncoder {
     for (Map.Entry<String, String> entry : map.entrySet()) {
       if (entry.getValue() != null) {
         data.append(separator)
-            .append(encodeUTF(entry.getKey()))
+            .append(escape(entry.getKey()))
             .append("=")
-            .append(encodeUTF(entry.getValue()));
+            .append(escape(entry.getValue()));
         separator = "&";
       }
     }
     return Codec.encodeBASE64(data.toString());
   }
 
-  private String encodeUTF(String value) {
-    try {
-      return URLEncoder.encode(value, "utf-8");
-    }
-    catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+  private String escape(String value) {
+    return value.replace("%", "%25").replace("=", "%3D").replace("&", "%26");
   }
 }
