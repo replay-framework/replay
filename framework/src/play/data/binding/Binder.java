@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -43,6 +44,7 @@ public abstract class Binder {
     static {
         supportedTypes.put(Date.class, new DateBinder());
         supportedTypes.put(DateTime.class, new DateTimeBinder());
+        supportedTypes.put(LocalDate.class, new LocalDateBinder());
         supportedTypes.put(LocalDateTime.class, new LocalDateTimeBinder());
         supportedTypes.put(File.class, new FileBinder());
         supportedTypes.put(File[].class, new FileArrayBinder());
