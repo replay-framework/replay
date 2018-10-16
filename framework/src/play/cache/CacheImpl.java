@@ -10,8 +10,6 @@ import java.util.Map;
 public interface CacheImpl {
     public void set(String key, Object value, int expiration);
 
-    public void replace(String key, Object value, int expiration);
-
     public Object get(String key);
 
     public Map<String, Object> get(String[] keys);

@@ -170,11 +170,6 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     @Override
-    public void replace(String key, Object value, int expiration) {
-        client.replace(key, expiration, value, tc);
-    }
-
-    @Override
     public void set(String key, Object value, int expiration) {
         client.set(key, expiration, value, tc);
     }

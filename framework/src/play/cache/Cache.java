@@ -35,17 +35,6 @@ public abstract class Cache {
     }
 
     /**
-     * Replace an element only if it already exists.
-     * @param key Element key
-     * @param value Element value
-     * @param expiration Ex: 10s, 3mn, 8h
-     */
-    public static void replace(String key, Object value, String expiration) {
-        checkSerializable(value);
-        cacheImpl.replace(key, value, Time.parseDuration(expiration));
-    }
-
-    /**
      * Increment the element value (must be a Number).
      * @param key Element key 
      * @param by The incr value

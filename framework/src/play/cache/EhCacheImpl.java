@@ -118,11 +118,6 @@ public class EhCacheImpl implements CacheImpl {
     }
 
     @Override
-    public void replace(String key, Object value, int expiration) {
-        cache.replace(key, new ValueWrapper(value, expiration));
-    }
-
-    @Override
     public void set(String key, Object value, int expiration) {
         cache.put(key, new ValueWrapper(value, expiration));
     }

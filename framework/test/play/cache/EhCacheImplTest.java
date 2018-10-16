@@ -70,17 +70,6 @@ public class EhCacheImplTest {
     }
 
     @Test
-    public void replace() throws InterruptedException {
-        cache.set("replace", 1, 1);
-        cache.replace("replace", 2, 2);
-
-        assertThat(cache.get("replace")).isEqualTo(2);
-
-        Thread.sleep(1000);
-        assertThat(cache.get("replace")).isEqualTo(2);
-    }
-
-    @Test
     public void stop() {
         try {
             cache.stop();
