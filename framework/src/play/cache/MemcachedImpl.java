@@ -160,16 +160,6 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     @Override
-    public long incr(String key, int by) {
-        return client.incr(key, by, 0);
-    }
-
-    @Override
-    public long decr(String key, int by) {
-        return client.decr(key, by, 0);
-    }
-
-    @Override
     public void set(String key, Object value, int expiration) {
         client.set(key, expiration, value, tc);
     }

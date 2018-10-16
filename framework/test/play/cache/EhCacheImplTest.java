@@ -83,27 +83,6 @@ public class EhCacheImplTest {
     }
 
     @Test
-    public void verifyThatTTLSurvivesIncrDecr() throws Exception {
-        String key = "EhCacheImplTest_verifyThatTTLSurvivesIncrDecr";
-
-        int expiration = 1;
-
-        cache.set(key, 1, expiration);
-        Thread.sleep(100);
-        cache.incr(key, 4);
-
-        Thread.sleep(100);
-        cache.decr(key, 3);
-
-        Thread.sleep(950);
-        assertThat(cache.get(key)).isEqualTo(2L);
-
-        //no make sure it disappear after the 1 sec + 100 mils
-        Thread.sleep(150);
-        assertThat(cache.get(key)).isNull();
-    }
-
-    @Test
     public void cacheIsConfigurable() {
         Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
         Play.configuration.setProperty("ehcache.heapSizeInMb", "2");

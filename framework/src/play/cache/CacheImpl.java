@@ -14,10 +14,6 @@ public interface CacheImpl {
 
     public Map<String, Object> get(String[] keys);
 
-    public long incr(String key, int by);
-
-    public long decr(String key, int by);
-
     public void clear();
 
     public void delete(String key);

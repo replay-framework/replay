@@ -35,44 +35,6 @@ public abstract class Cache {
     }
 
     /**
-     * Increment the element value (must be a Number).
-     * @param key Element key 
-     * @param by The incr value
-     * @return The new value
-     */
-    public static long incr(String key, int by) {
-        return cacheImpl.incr(key, by);
-    }
-
-    /**
-     * Increment the element value (must be a Number) by 1.
-     * @param key Element key 
-     * @return The new value
-     */
-    public static long incr(String key) {
-        return cacheImpl.incr(key, 1);
-    }
-
-    /**
-     * Decrement the element value (must be a Number).
-     * @param key Element key 
-     * @param by The decr value
-     * @return The new value
-     */
-    public static long decr(String key, int by) {
-        return cacheImpl.decr(key, by);
-    }
-
-    /**
-     * Decrement the element value (must be a Number) by 1.
-     * @param key Element key 
-     * @return The new value
-     */
-    public static long decr(String key) {
-        return cacheImpl.decr(key, 1);
-    }
-
-    /**
      * Retrieve an object.
      * @param key The element key
      * @return The element value or null

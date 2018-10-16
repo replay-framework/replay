@@ -77,18 +77,6 @@ public class EhCacheImpl implements CacheImpl {
     }
 
     @Override
-    public synchronized long decr(String key, int by) {
-        ValueWrapper valueWrapper = cache.get(key);
-        if (valueWrapper == null) {
-            return -1;
-        }
-        long newValue = ((Number) valueWrapper.value).longValue() - by;
-        ValueWrapper newValueWrapper = new ValueWrapper(newValue, valueWrapper.expiration);
-        cache.put(key, newValueWrapper);
-        return newValue;
-    }
-
-    @Override
     public void delete(String key) {
         cache.remove(key);
     }
@@ -103,18 +91,6 @@ public class EhCacheImpl implements CacheImpl {
     public Map<String, Object> get(String[] keys) {
         return cache.getAll(new HashSet<>(asList(keys))).entrySet()
                 .stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().value));
-    }
-
-    @Override
-    public synchronized long incr(String key, int by) {
-        ValueWrapper valueWrapper = cache.get(key);
-        if (valueWrapper == null) {
-            return -1;
-        }
-        long newValue = ((Number) valueWrapper.value).longValue() + by;
-        ValueWrapper newValueWrapper = new ValueWrapper(newValue, valueWrapper.expiration);
-        cache.put(key, newValueWrapper);
-        return newValue;
     }
 
     @Override
