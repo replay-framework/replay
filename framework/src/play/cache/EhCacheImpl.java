@@ -72,11 +72,6 @@ public class EhCacheImpl implements CacheImpl {
     }
 
     @Override
-    public void add(String key, Object value, int expiration) {
-        cache.putIfAbsent(key, new ValueWrapper(value, expiration));
-    }
-
-    @Override
     public void clear() {
         cache.clear();
     }

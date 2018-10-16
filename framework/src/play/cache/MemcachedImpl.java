@@ -128,11 +128,6 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     @Override
-    public void add(String key, Object value, int expiration) {
-        client.add(key, expiration, value, tc);
-    }
-
-    @Override
     public Object get(String key) {
         Future<Object> future = client.asyncGet(key, tc);
         try {

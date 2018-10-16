@@ -8,9 +8,6 @@ import java.util.Map;
  * @see play.cache.Cache
  */
 public interface CacheImpl {
-
-    public void add(String key, Object value, int expiration);
-
     public void set(String key, Object value, int expiration);
 
     public void replace(String key, Object value, int expiration);
