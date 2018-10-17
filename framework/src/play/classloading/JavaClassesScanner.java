@@ -28,6 +28,8 @@ public class JavaClassesScanner {
   private List<Class<?>> classesInDirectory(String packageName, File directory) throws ClassNotFoundException {
     if (directory.getAbsolutePath().contains("/test"))
       return emptyList();
+    if (directory.getAbsolutePath().contains("pdf/build/thirdParty"))
+      return emptyList(); // it causes initialisation of org.xhtmlrenderer.swing.AWTFSImage which is slow
 
     List<Class<?>> result = new ArrayList<>();
     for (File file : directory.listFiles()) {
