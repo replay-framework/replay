@@ -24,7 +24,7 @@ public class SessionDataEncoderTest {
   @Test
   public void testEncode() {
     Map<String, String> map = new LinkedHashMap<>();
-    map.put("username", "Андрей&Co%50=x");
-    assertThat(encoder.encode(map)).isEqualTo(Codec.encodeBASE64("username=Андрей%26Co%2550%3Dx"));
+    map.put("username", "Андрей&Co%50=x+y");
+    assertThat(encoder.encode(map)).isEqualTo(Codec.encodeBASE64("username=Андрей%26Co%2550%3Dx%2By"));
   }
 }

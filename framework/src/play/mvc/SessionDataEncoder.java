@@ -55,6 +55,6 @@ public class SessionDataEncoder {
   }
 
   private String escape(String value) {
-    return value.replace("%", "%25").replace("=", "%3D").replace("&", "%26");
+    return value.replace("%", "%25").replace("=", "%3D").replace("&", "%26").replace("+", "%2B");
   }
 }
