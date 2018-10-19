@@ -886,20 +886,19 @@ public class Router {
                             }
                         }
                     }
-
                 }
-                String patternString = path;
-                patternString = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(patternString);
-                Matcher matcher = argsPattern.matcher(patternString);
+
+                String pathArguments = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(path);
+                Matcher matcher = argsPattern.matcher(pathArguments);
                 while (matcher.find()) {
                     args.add(new Arg(matcher.group(2), new Pattern(matcher.group(1)), null));
                 }
 
-                patternString = argsPattern.replacer("({$2}$1)").replace(patternString);
-                this.pattern = new Pattern(patternString);
+                String actionPatternString = argsPattern.replacer("({$2}$1)").replace(pathArguments);
+                this.pattern = new Pattern(actionPatternString);
+
                 // Action pattern
-                patternString = action;
-                patternString = patternString.replace(".", "[.]");
+                String patternString = action.replace(".", "[.]");
                 for (Arg arg : args) {
                     if (patternString.contains("{" + arg.name + "}")) {
                         patternString = patternString.replace("{" + arg.name + "}",
