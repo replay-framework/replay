@@ -876,20 +876,12 @@ public class Router {
                         if (this.host.contains("{")) {
                             String name = m.group(1).replace("{", "").replace("}", "");
                             if (!name.equals("_")) {
-                                hostArg = new Arg();
-                                hostArg.name = name;
                                 logger.trace("hostArg name [{}]", name);
-                                // The default value contains the route version
-                                // of the host ie {client}.bla.com
-                                // It is temporary and it indicates it is an url
-                                // route.
-                                // TODO Check that default value is actually
-                                // used for other cases.
-                                hostArg.defaultValue = host;
-                                hostArg.constraint = new Pattern(".*");
-
                                 logger.trace("adding hostArg [{}]", hostArg);
-
+                                // The default value contains the route version of the host ie `{client}.bla.com`
+                                // It is temporary and it indicates it is an urlroute.
+                                // TODO Check that default value is actually used for other cases.
+                                hostArg = new Arg(name, new Pattern(".*"), host);
                                 args.add(hostArg);
                             }
                         }
@@ -900,10 +892,7 @@ public class Router {
                 patternString = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(patternString);
                 Matcher matcher = argsPattern.matcher(patternString);
                 while (matcher.find()) {
-                    Arg arg = new Arg();
-                    arg.name = matcher.group(2);
-                    arg.constraint = new Pattern(matcher.group(1));
-                    args.add(arg);
+                    args.add(new Arg(matcher.group(2), new Pattern(matcher.group(1)), null));
                 }
 
                 patternString = argsPattern.replacer("({$2}$1)").replace(patternString);
@@ -1049,11 +1038,16 @@ public class Router {
             return null;
         }
 
-        static class Arg {
+        private static class Arg {
+            private final String name;
+            private final Pattern constraint;
+            private final String defaultValue;
 
-            String name;
-            Pattern constraint;
-            String defaultValue;
+            private Arg(String name, Pattern constraint, String defaultValue) {
+                this.name = name;
+                this.constraint = constraint;
+                this.defaultValue = defaultValue;
+            }
         }
 
         @Override
