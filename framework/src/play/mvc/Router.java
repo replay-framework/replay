@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
-import play.mvc.RoutePattern.RouteLine;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
+import play.mvc.routing.RoutesParser;
 import play.utils.Default;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
@@ -33,7 +33,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Router {
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
-    private static final RoutePattern routePattern = new RoutePattern();
+    /**
+     * All the loaded routes.
+     */
+    public static final List<Route> routes = new CopyOnWriteArrayList<>();
 
     /**
      * Pattern used to locate a method override instruction in request.querystring
@@ -51,7 +54,7 @@ public class Router {
     private static void load() {
         routes.clear();
         actionRoutesCache.clear();
-        parse(Play.routes, "");
+        routes.addAll(new RoutesParser().parse(Play.routes));
         lastLoading = System.currentTimeMillis();
     }
 
@@ -69,97 +72,8 @@ public class Router {
         routes.add(0, createRoute(method, path, action));
     }
 
-    /**
-     * This is used internally when reading the route file. The order the routes are added matters and we want the
-     * method to append the routes to the list.
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param sourceFile
-     *            The source file
-     * @param line
-     *            The source line
-     */
-    private static void appendRoute(String method, String path, String action, String sourceFile, int line) {
-        routes.add(createRoute(method, path, action, sourceFile, line));
-    }
-
     private static Route createRoute(String method, String path, String action) {
-        return createRoute(method, path, action, null, 0);
-    }
-
-    private static Route createRoute(String method, String path, String action, String sourceFile, int line) {
-        Route route = new Route();
-        route.method = method;
-        route.path = path.replace("//", "/");
-        route.action = action;
-        route.routesFile = sourceFile;
-        route.routesFileLine = line;
-        route.compute();
-        logger.trace("Adding [{}]", route);
-        return route;
-    }
-
-    /**
-     * Parse a route file. If an action starts with <i>"plugin:name"</i>, replace that route by the ones declared in the
-     * plugin route file denoted by that <i>name</i>, if found.
-     *
-     * @param routeFile
-     * @param prefix    The prefix that the path of all routes in this route file start with. This prefix should not end with
-     *                  a '/' character.
-     */
-    private static void parse(VirtualFile routeFile, String prefix) {
-        String fileAbsolutePath = routeFile.getRealFile().getAbsolutePath();
-        String content = routeFile.contentAsString();
-        assertDoesNotContain(fileAbsolutePath, content, "${");
-        assertDoesNotContain(fileAbsolutePath, content, "#{");
-        assertDoesNotContain(fileAbsolutePath, content, "%{");
-        parse(content, prefix, fileAbsolutePath);
-    }
-
-    private static void assertDoesNotContain(String fileAbsolutePath, String content, String substring) {
-        if (content.contains(substring)) {
-            throw new IllegalArgumentException("Routes file " + fileAbsolutePath + " cannot contain " + substring);
-        }
-    }
-
-    private static void parse(String content, String prefix, String fileAbsolutePath) {
-        int lineNumber = 0;
-        for (String line : content.split("\n")) {
-            lineNumber++;
-            line = line.trim().replaceAll("\\s+", " ");
-            if (line.isEmpty() || line.startsWith("#")) {
-                continue;
-            }
-            try {
-                RouteLine route = routePattern.matcher(line);
-                if (route.action.startsWith("module:")) {
-                    String moduleName = route.action.substring("module:".length());
-                    String newPrefix = prefix + route.path;
-                    if (newPrefix.length() > 1 && newPrefix.endsWith("/")) {
-                        newPrefix = newPrefix.substring(0, newPrefix.length() - 1);
-                    }
-                    if (moduleName.equals("*")) {
-                        for (String p : Play.modulesRoutes.keySet()) {
-                            parse(Play.modulesRoutes.get(p), newPrefix + p);
-                        }
-                    } else if (Play.modulesRoutes.containsKey(moduleName)) {
-                        parse(Play.modulesRoutes.get(moduleName), newPrefix);
-                    } else {
-                        logger.error("Cannot include routes for module {} (not found)", moduleName);
-                    }
-                } else {
-                    appendRoute(route.method, prefix + route.path, route.action, fileAbsolutePath, lineNumber);
-                }
-            }
-            catch (IllegalArgumentException invalidRoute) {
-                logger.error("{} at line {}: {}", invalidRoute, lineNumber, line);
-            }
-        }
+        return new Route(method, path, action, null, 0);
     }
 
     /**
@@ -185,11 +99,6 @@ public class Router {
             }
         }
     }
-
-    /**
-     * All the loaded routes.
-     */
-    public static List<Route> routes = new CopyOnWriteArrayList<>();
 
     public static void routeOnlyStatic(Http.Request request) {
         for (Route route : routes) {
@@ -517,7 +426,7 @@ public class Router {
 
     private static List<ActionRoute> findActionRoutes(String action) {
         List<ActionRoute> matchingRoutes = new ArrayList<>(2);
-        for (Router.Route route : routes) {
+        for (Route route : routes) {
             if (route.actionPattern != null) {
                 Matcher matcher = route.actionPattern.matcher(action);
                 if (matcher.matches()) {
@@ -655,7 +564,17 @@ public class Router {
         static Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
         static Pattern argsPattern = new Pattern("\\{<([^>]+)>([a-zA-Z_0-9]+)\\}");
 
-        public void compute() {
+        public Route(String method, String path, String action, String sourceFile, int line) {
+            this.method = method;
+            this.path = path.replace("//", "/");
+            this.action = action;
+            this.routesFile = sourceFile;
+            this.routesFileLine = line;
+            this.compute();
+            logger.trace("Adding [{}]", this);
+        }
+
+        private void compute() {
             this.host = "";
             this.hostPattern = new Pattern(".*");
             if (action.startsWith("staticDir:") || action.startsWith("staticFile:")) {

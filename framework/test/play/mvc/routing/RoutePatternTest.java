@@ -1,7 +1,7 @@
-package play.mvc;
+package play.mvc.routing;
 
 import org.junit.Test;
-import play.mvc.RoutePattern.RouteLine;
+import play.mvc.routing.RoutePattern.RouteLine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

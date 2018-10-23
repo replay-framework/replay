@@ -1,4 +1,4 @@
-package play.mvc;
+package play.mvc.routing;
 
 import java.util.Set;
 
