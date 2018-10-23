@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +33,12 @@ public class Router {
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
     static Pattern routePattern = new Pattern(
-            "^({method}GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|WS|\\*)[(]?({headers}[^)]*)(\\))?\\s+({path}.*/[^\\s]*)\\s+({action}[^\\s(]+)({params}.+)?(\\s*)$");
+            "^({method}GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|WS|\\*)[(]?(\\))?\\s+({path}.*/[^\\s]*)\\s+({action}[^\\s(]+)(\\s*)$");
     /**
      * Pattern used to locate a method override instruction in request.querystring
      */
-    static Pattern methodOverride = new Pattern("^.*x-http-method-override=({method}GET|PUT|POST|PATCH|DELETE).*$");
+    private static Pattern methodOverride = new Pattern("^.*x-http-method-override=({method}GET|PUT|POST|PATCH|DELETE).*$");
+
     /**
      * Timestamp the routes file was last loaded at.
      */
@@ -47,98 +47,11 @@ public class Router {
     /**
      * Parse the routes file. This is called at startup.
      */
-    public static void load() {
+    private static void load() {
         routes.clear();
         actionRoutesCache.clear();
         parse(Play.routes, "");
         lastLoading = System.currentTimeMillis();
-    }
-
-    /**
-     * This one can be called to add new route. Last added is first in the route list.
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param headers
-     *            The headers
-     */
-    public static void prependRoute(String method, String path, String action, String headers) {
-        prependRoute(method, path, action, null, headers);
-    }
-
-    /**
-     * This one can be called to add new route. Last added is first in the route list.
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     */
-    public static void prependRoute(String method, String path, String action) {
-        prependRoute(method, path, action, null, null);
-    }
-
-    /**
-     * Add a route at the given position
-     * 
-     * @param position
-     *            The position where to insert the route
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param params
-     *            The parameters
-     * @param headers
-     *            The headers
-     */
-    public static void addRoute(int position, String method, String path, String action, String params, String headers) {
-        if (position > routes.size()) {
-            position = routes.size();
-        }
-        routes.add(position, getRoute(method, path, action, params, headers));
-    }
-
-    /**
-     * Add a route at the given position
-     * 
-     * @param position
-     *            The position where to insert the route
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param headers
-     *            The headers
-     */
-    public static void addRoute(int position, String method, String path, String headers) {
-        addRoute(position, method, path, null, null, headers);
-    }
-
-    /**
-     * Add a route at the given position
-     * 
-     * @param position
-     *            The position where to insert the route
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param headers
-     *            The headers
-     */
-    public static void addRoute(int position, String method, String path, String action, String headers) {
-        addRoute(position, method, path, action, null, headers);
     }
 
     /**
@@ -152,41 +65,7 @@ public class Router {
      *            The associated action
      */
     public static void addRoute(String method, String path, String action) {
-        prependRoute(method, path, action);
-    }
-
-    /**
-     * Add a route at the given position
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param headers
-     *            The headers
-     */
-    public static void addRoute(String method, String path, String action, String headers) {
-        addRoute(method, path, action, null, headers);
-    }
-
-    /**
-     * Add a route
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param params
-     *            The parameters
-     * @param headers
-     *            The headers
-     */
-    public static void addRoute(String method, String path, String action, String params, String headers) {
-        appendRoute(method, path, action, params, headers, null, 0);
+        routes.add(0, createRoute(method, path, action));
     }
 
     /**
@@ -199,53 +78,29 @@ public class Router {
      *            The path of the route
      * @param action
      *            The associated action
-     * @param params
-     *            The parameters
-     * @param headers
-     *            The headers
      * @param sourceFile
      *            The source file
      * @param line
      *            The source line
      */
-    public static void appendRoute(String method, String path, String action, String params, String headers, String sourceFile, int line) {
-        routes.add(getRoute(method, path, action, params, headers, sourceFile, line));
+    private static void appendRoute(String method, String path, String action, String sourceFile, int line) {
+        routes.add(createRoute(method, path, action, sourceFile, line));
     }
 
-    public static Route getRoute(String method, String path, String action, String params, String headers) {
-        return getRoute(method, path, action, params, headers, null, 0);
+    private static Route createRoute(String method, String path, String action) {
+        return createRoute(method, path, action, null, 0);
     }
 
-    public static Route getRoute(String method, String path, String action, String params, String headers, String sourceFile, int line) {
+    private static Route createRoute(String method, String path, String action, String sourceFile, int line) {
         Route route = new Route();
         route.method = method;
         route.path = path.replace("//", "/");
         route.action = action;
         route.routesFile = sourceFile;
         route.routesFileLine = line;
-        route.addFormat(headers);
-        route.addParams(params);
         route.compute();
-        logger.trace("Adding [{}] with params [{}] and headers [{}]", route, params, headers);
+        logger.trace("Adding [{}]", route);
         return route;
-    }
-
-    /**
-     * Add a new route at the beginning of the route list
-     * 
-     * @param method
-     *            The method of the route
-     * @param path
-     *            The path of the route
-     * @param action
-     *            The associated action
-     * @param params
-     *            The parameters
-     * @param headers
-     *            The headers
-     */
-    public static void prependRoute(String method, String path, String action, String params, String headers) {
-        routes.add(0, getRoute(method, path, action, params, headers));
     }
 
     /**
@@ -256,7 +111,7 @@ public class Router {
      * @param prefix    The prefix that the path of all routes in this route file start with. This prefix should not end with
      *                  a '/' character.
      */
-    static void parse(VirtualFile routeFile, String prefix) {
+    private static void parse(VirtualFile routeFile, String prefix) {
         String fileAbsolutePath = routeFile.getRealFile().getAbsolutePath();
         String content = routeFile.contentAsString();
         assertDoesNotContain(fileAbsolutePath, content, "${");
@@ -271,7 +126,7 @@ public class Router {
         }
     }
 
-    static void parse(String content, String prefix, String fileAbsolutePath) {
+    private static void parse(String content, String prefix, String fileAbsolutePath) {
         int lineNumber = 0;
         for (String line : content.split("\n")) {
             lineNumber++;
@@ -301,9 +156,7 @@ public class Router {
                 } else {
                     String method = matcher.group("method");
                     String path = prefix + matcher.group("path");
-                    String params = matcher.group("params");
-                    String headers = matcher.group("headers");
-                    appendRoute(method, path, action, params, headers, fileAbsolutePath, lineNumber);
+                    appendRoute(method, path, action, fileAbsolutePath, lineNumber);
                 }
             } else {
                 logger.error("Invalid route definition : {}", line);
@@ -353,7 +206,7 @@ public class Router {
         }
     }
 
-    public static Route route(Http.Request request) {
+    static Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
         // request method may be overridden if a x-http-method-override parameter
         // is given
@@ -372,7 +225,7 @@ public class Router {
                 if (args.containsKey("format")) {
                     request.format = args.get("format");
                 }
-                if (request.action.indexOf("{") > -1) { // more optimization ?
+                if (request.action.contains("{")) { // more optimization ?
                     for (String arg : request.routeArgs.keySet()) {
                         request.action = request.action.replace("{" + arg + "}", request.routeArgs.get(arg));
                     }
@@ -394,25 +247,6 @@ public class Router {
             }
         }
         throw new NotFound(request.method, request.path);
-    }
-
-    public static Map<String, String> route(String method, String path) {
-        return route(method, path, null, null);
-    }
-
-    public static Map<String, String> route(String method, String path, String headers) {
-        return route(method, path, headers, null);
-    }
-
-    public static Map<String, String> route(String method, String path, String headers, String host) {
-        for (Route route : routes) {
-            Map<String, String> args = route.matches(method, path, headers, host);
-            if (args != null) {
-                args.put("action", route.action);
-                return args;
-            }
-        }
-        return new HashMap<>(16);
     }
 
     public static ActionDefinition reverse(String action) {
@@ -457,7 +291,7 @@ public class Router {
         return reverse(file, false);
     }
 
-    public static String reverse(VirtualFile file, boolean absolute) {
+    private static String reverse(VirtualFile file, boolean absolute) {
         if (file == null || !file.exists()) {
             throw new NoRouteFoundException("File not found (" + file + ")");
         }
@@ -816,14 +650,12 @@ public class Router {
         Pattern hostPattern;
         List<Arg> args = new ArrayList<>(3);
         Map<String, String> staticArgs = new HashMap<>(3);
-        List<String> formats = new ArrayList<>(1);
         String host;
         Arg hostArg;
         public int routesFileLine;
         public String routesFile;
         static Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
         static Pattern argsPattern = new Pattern("\\{<([^>]+)>([a-zA-Z_0-9]+)\\}");
-        static Pattern paramPattern = new Pattern("([a-zA-Z_0-9]+):'(.*)'");
 
         public void compute() {
             this.host = "";
@@ -910,46 +742,6 @@ public class Router {
             }
         }
 
-        public void addParams(String params) {
-            if (params == null || params.length() < 1) {
-                return;
-            }
-            params = params.substring(1, params.length() - 1);
-            for (String param : params.split(",")) {
-                Matcher matcher = paramPattern.matcher(param.trim());
-                if (matcher.matches()) {
-                    staticArgs.put(matcher.group(1), matcher.group(2));
-                } else {
-                    logger.warn("Ignoring {} (static params must be specified as key:'value',...)", params);
-                }
-            }
-        }
-
-        // TODO: Add args names
-        public void addFormat(String params) {
-            if (params == null || params.length() < 1) {
-                return;
-            }
-            params = params.trim();
-            formats.addAll(Arrays.asList(params.split(",")));
-        }
-
-        private boolean contains(String accept) {
-            boolean contains = (accept == null);
-            if (accept != null) {
-                if (this.formats.isEmpty()) {
-                    return true;
-                }
-                for (String format : this.formats) {
-                    contains = format.startsWith(accept);
-                    if (contains) {
-                        break;
-                    }
-                }
-            }
-            return contains;
-        }
-
         public Map<String, String> matches(String method, String path) {
             return matches(method, path, null, null);
         }
@@ -989,7 +781,7 @@ public class Router {
                     hostMatches = hostMatcher.matches();
                 }
                 // Extract the host variable
-                if (matcher.matches() && contains(accept) && hostMatches) {
+                if (matcher.matches() && hostMatches) {
                     // 404
                     if (action.equals("404")) {
                         throw new NotFound(method, path);
