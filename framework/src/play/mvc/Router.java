@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
-import play.mvc.RoutePattern.RouteMatcher;
+import play.mvc.RoutePattern.RouteLine;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.utils.Default;
@@ -136,11 +136,10 @@ public class Router {
                 continue;
             }
             try {
-                RouteMatcher matcher = routePattern.matcher(line);
-                String action = matcher.action();
-                if (action.startsWith("module:")) {
-                    String moduleName = action.substring("module:".length());
-                    String newPrefix = prefix + matcher.path();
+                RouteLine route = routePattern.matcher(line);
+                if (route.action.startsWith("module:")) {
+                    String moduleName = route.action.substring("module:".length());
+                    String newPrefix = prefix + route.path;
                     if (newPrefix.length() > 1 && newPrefix.endsWith("/")) {
                         newPrefix = newPrefix.substring(0, newPrefix.length() - 1);
                     }
@@ -154,7 +153,7 @@ public class Router {
                         logger.error("Cannot include routes for module {} (not found)", moduleName);
                     }
                 } else {
-                    appendRoute(matcher.method(), prefix + matcher.path(), action, fileAbsolutePath, lineNumber);
+                    appendRoute(route.method, prefix + route.path, route.action, fileAbsolutePath, lineNumber);
                 }
             }
             catch (IllegalArgumentException invalidRoute) {

@@ -1,29 +1,29 @@
 package play.mvc;
 
-import jregex.Matcher;
-import jregex.Pattern;
+import java.util.Set;
 
 class RoutePattern {
-  private Pattern routePattern = new Pattern(
-    "^({method}GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|WS|\\*)[(]?(\\))?\\s+({path}.*/[^\\s]*)\\s+({action}[^\\s(]+)(\\s*)$"
-  );
+  private static final Set<String> methodPattern = Set.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "WS", "*");
 
-  RouteMatcher matcher(String line) {
-    return new RouteMatcher(routePattern.matcher(line));
+  RouteLine matcher(String line) {
+    return new RouteLine(line.split("\\s+"));
   }
 
-  static class RouteMatcher {
-    private final Matcher matcher;
+  static class RouteLine {
+    public final String method;
+    public final String path;
+    public final String action;
 
-    RouteMatcher(Matcher matcher) {
-      if (!matcher.matches()) {
-        throw new IllegalArgumentException("Invalid route definition");
+    RouteLine(String[] tokens) {
+      if (tokens.length != 3) {
+        throw new IllegalArgumentException("Invalid route definition: expected 3 parts <METHOD> <PATH> <ACTION>");
       }
-      this.matcher = matcher;
+      this.method = tokens[0];
+      this.path = tokens[1];
+      this.action = tokens[2];
+      if (!methodPattern.contains(method)) {
+        throw new IllegalArgumentException("Invalid route definition: unknown method " + method);
+      }
     }
-
-    String action() {return matcher.group("action");}
-    String method() {return matcher.group("method");}
-    String path() {return matcher.group("path");}
   }
 }
