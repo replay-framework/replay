@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
+import play.mvc.RoutePattern.RouteMatcher;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.utils.Default;
@@ -32,8 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Router {
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
-    static Pattern routePattern = new Pattern(
-            "^({method}GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|WS|\\*)[(]?(\\))?\\s+({path}.*/[^\\s]*)\\s+({action}[^\\s(]+)(\\s*)$");
+    private static final RoutePattern routePattern = new RoutePattern();
+
     /**
      * Pattern used to locate a method override instruction in request.querystring
      */
@@ -134,13 +135,12 @@ public class Router {
             if (line.isEmpty() || line.startsWith("#")) {
                 continue;
             }
-            Matcher matcher = routePattern.matcher(line);
-            if (matcher.matches()) {
-                String action = matcher.group("action");
-                // module:
+            try {
+                RouteMatcher matcher = routePattern.matcher(line);
+                String action = matcher.action();
                 if (action.startsWith("module:")) {
                     String moduleName = action.substring("module:".length());
-                    String newPrefix = prefix + matcher.group("path");
+                    String newPrefix = prefix + matcher.path();
                     if (newPrefix.length() > 1 && newPrefix.endsWith("/")) {
                         newPrefix = newPrefix.substring(0, newPrefix.length() - 1);
                     }
@@ -154,12 +154,11 @@ public class Router {
                         logger.error("Cannot include routes for module {} (not found)", moduleName);
                     }
                 } else {
-                    String method = matcher.group("method");
-                    String path = prefix + matcher.group("path");
-                    appendRoute(method, path, action, fileAbsolutePath, lineNumber);
+                    appendRoute(matcher.method(), prefix + matcher.path(), action, fileAbsolutePath, lineNumber);
                 }
-            } else {
-                logger.error("Invalid route definition : {}", line);
+            }
+            catch (IllegalArgumentException invalidRoute) {
+                logger.error("{} at line {}: {}", invalidRoute, lineNumber, line);
             }
         }
     }
