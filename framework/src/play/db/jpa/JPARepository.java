@@ -11,12 +11,11 @@ import java.util.List;
 
 @Singleton
 public class JPARepository<T extends JPABase> {
-
   private final String entityName;
   private String dbName;
 
   public static <T extends JPABase> JPARepository<T> from(Class<T> modelClass) {
-    return new JPARepository<T>(modelClass);
+    return new JPARepository<>(modelClass);
   }
 
   private JPARepository(Class<T> modelClass) {
@@ -73,5 +72,9 @@ public class JPARepository<T extends JPABase> {
 
   public int deleteAll() {
     return JPQL.instance.deleteAll(dbName, entityName);
+  }
+
+  public void save(T model) {
+    model._save();
   }
 }
