@@ -39,11 +39,6 @@ public class Router {
     public static final List<Route> routes = new CopyOnWriteArrayList<>();
 
     /**
-     * Pattern used to locate a method override instruction in request.querystring
-     */
-    private static Pattern methodOverride = new Pattern("^.*x-http-method-override=({method}GET|PUT|POST|PATCH|DELETE).*$");
-
-    /**
      * Timestamp the routes file was last loaded at.
      */
     public static long lastLoading = -1;
@@ -115,15 +110,6 @@ public class Router {
 
     static Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
-        // request method may be overridden if a x-http-method-override parameter
-        // is given
-        if (request.querystring != null && methodOverride.matches(request.querystring)) {
-            Matcher matcher = methodOverride.matcher(request.querystring);
-            if (matcher.matches()) {
-                logger.trace("request method {} overridden to {}", request.method, matcher.group("method"));
-                request.method = matcher.group("method");
-            }
-        }
         for (Route route : routes) {
             Map<String, String> args = route.matches(request.method, request.path, request.format, request.domain);
             if (args != null) {
