@@ -514,10 +514,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         String remoteAddress = getRemoteIPAddress(messageEvent);
         String method = nettyRequest.getMethod().getName();
 
-        if (nettyRequest.headers().get("X-HTTP-Method-Override") != null) {
-            method = nettyRequest.headers().get("X-HTTP-Method-Override").intern();
-        }
-
         InputStream body;
         ChannelBuffer b = nettyRequest.getContent();
         if (b instanceof FileChannelBuffer) {

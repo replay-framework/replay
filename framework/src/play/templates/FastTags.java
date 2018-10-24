@@ -146,11 +146,6 @@ public class FastTags {
         if (args.containsKey("name")) {
             name = args.get("name").toString();
         }
-        if (!("GET".equals(actionDef.method) || "POST".equals(actionDef.method))) {
-            String separator = actionDef.url.indexOf('?') != -1 ? "&" : "?";
-            actionDef.url += separator + "x-http-method-override=" + actionDef.method.toUpperCase();
-            actionDef.method = "POST";
-        }
         String encoding = Http.Response.current().encoding;
         out.println("<form action=\"" + actionDef.url + "\" method=\"" + actionDef.method.toLowerCase() + "\" accept-charset=\"" + encoding
                 + "\" enctype=\"" + enctype + "\" " + serialize(args, "name", "action", "method", "accept-charset", "enctype")
@@ -226,11 +221,6 @@ public class FastTags {
             actionDef = (ActionDefinition) args.get("action");
         }
         if (!("GET".equals(actionDef.method))) {
-            if (!("POST".equals(actionDef.method))) {
-                String separator = actionDef.url.indexOf('?') != -1 ? "&" : "?";
-                actionDef.url += separator + "x-http-method-override=" + actionDef.method;
-                actionDef.method = "POST";
-            }
             String id = Codec.UUID();
             out.print("<form method=\"POST\" id=\"" + id + "\" "
                     + (args.containsKey("target") ? "target=\"" + args.get("target") + "\"" : "") + " style=\"display:none\" action=\""
