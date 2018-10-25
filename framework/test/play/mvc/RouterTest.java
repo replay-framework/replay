@@ -9,7 +9,6 @@ import play.mvc.results.RenderStatic;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RouterTest {
@@ -52,12 +51,12 @@ public class RouterTest {
     }
 
     @Test
-    public void test_hostStaticDir() {
+    public void test_staticDir() {
         
         Play.configuration = new Properties();
         
         // we add a static route for a specific domain only
-        Router.addRoute("GET", "example.com/pics/", "staticDir:/public/images");
+        Router.addRoute("GET", "/pics/", "staticDir:/public/images");
         // another static route with NO specific domain
         Router.addRoute("GET", "/music/", "staticDir:/public/mp3");
 
@@ -97,20 +96,20 @@ public class RouterTest {
         );
         
         // Test on localhost
-        assertFalse("Image file [" + imageRequest.domain + "] from the wrong/different domain must not be found", canRenderFile(imageRequest));
-        assertTrue("Image file [" + imageRequest.domain + "] from the wrong/different domain must not be found", canRenderFile(musicRequest));
+        assertTrue(canRenderFile(imageRequest));
+        assertTrue(canRenderFile(musicRequest));
         
         // Test on localhost:9000
         imageRequest.port = 9000;
         musicRequest.port = 9000;
-        assertFalse("Image file [" + imageRequest.domain + "] from the wrong/different domain must not be found", canRenderFile(imageRequest));
-        assertTrue("Image file [" + imageRequest.domain + "] from the wrong/different domain must not be found", canRenderFile(musicRequest));
+        assertTrue(canRenderFile(imageRequest));
+        assertTrue(canRenderFile(musicRequest));
         
         // we request the image file from a "wrong"/different domain, it will not be found
         imageRequest.port = 80;
         musicRequest.port = 80;
         imageRequest.domain = "google.com";
-        assertFalse("Image file [" + imageRequest.domain + "] from the wrong/different domain must not be found", canRenderFile(imageRequest));
+        assertTrue(canRenderFile(imageRequest));
 
         // same for musicfile, but it will be rendered because the domain doesn't matter
         musicRequest.domain = "google.com";

@@ -98,7 +98,7 @@ public class Router {
     public static void routeOnlyStatic(Http.Request request) {
         for (Route route : routes) {
             try {
-                if (route.matches(request.method, request.path, request.format, request.domain) != null) {
+                if (route.matches(request.method, request.path) != null) {
                     break;
                 }
             } catch (RenderStatic | NotFound e) {
@@ -111,7 +111,7 @@ public class Router {
     static Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
         for (Route route : routes) {
-            Map<String, String> args = route.matches(request.method, request.path, request.format, request.domain);
+            Map<String, String> args = route.matches(request.method, request.path);
             if (args != null) {
                 request.routeArgs = args;
                 request.action = route.action;
@@ -205,16 +205,7 @@ public class Router {
                         to = to.substring(0, to.length() - "/index.html".length() + 1);
                     }
                     if (absolute) {
-                        boolean isSecure = Http.Request.current() == null ? false : Http.Request.current().secure;
-                        String base = getBaseUrl();
-                        if (!StringUtils.isEmpty(route.host)) {
-                            // Compute the host
-                            int port = Http.Request.current() == null ? 80 : Http.Request.current().get().port;
-                            String host = (port != 80 && port != 443) ? route.host + ":" + port : route.host;
-                            to = (isSecure ? "https://" : "http://") + host + to;
-                        } else {
-                            to = base + to;
-                        }
+                        to = getBaseUrl() + to;
                     }
                     return to;
                 }
@@ -262,20 +253,7 @@ public class Router {
                 inPathArgs.add(arg.name);
                 Object value = args.get(arg.name);
                 if (value == null) {
-                    // This is a hack for reverting on hostname that are
-                    // a regex expression.
-                    // See [#344] for more into. This is not optimal and
-                    // should retough. However,
-                    // it allows us to do things like {(.*}}.domain.com
-                    String host = route.host.replaceAll("\\{", "").replaceAll("\\}", "");
-                    if (host.equals(arg.name) || host.matches(arg.name)) {
-                        args.remove(arg.name);
-                        route.host = request == null ? "" : request.domain;
-                        break;
-                    } else {
-                        allRequiredArgsAreHere = false;
-                        break;
-                    }
+                    allRequiredArgsAreHere = false;
                 } else {
                     if (value instanceof List<?>) {
                         @SuppressWarnings("unchecked")
@@ -306,7 +284,7 @@ public class Router {
             if (allRequiredArgsAreHere) {
                 StringBuilder queryString = new StringBuilder();
                 String path = route.path;
-                String host = route.host;
+                String host = "";
                 if (path.endsWith("/?")) {
                     path = path.substring(0, path.length() - 2);
                 }
@@ -525,26 +503,17 @@ public class Router {
     }
 
     public static class Route {
-
-        /**
-         * HTTP method, e.g. "GET".
-         */
         public String method;
         public String path;
-        /**
-         * FIXME - what is this?
-         */
         public String action;
         Pattern actionPattern;
         List<String> actionArgs = new ArrayList<>(3);
         String staticDir;
         boolean staticFile;
         Pattern pattern;
-        Pattern hostPattern;
         List<Arg> args = new ArrayList<>(3);
         Map<String, String> staticArgs = new HashMap<>(3);
-        String host;
-        Arg hostArg;
+
         public int routesFileLine;
         public String routesFile;
         static Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
@@ -556,31 +525,13 @@ public class Router {
             this.action = action;
             this.routesFile = sourceFile;
             this.routesFileLine = line;
-            this.compute();
-            logger.trace("Adding [{}]", this);
-        }
 
-        private void compute() {
-            this.host = "";
-            this.hostPattern = new Pattern(".*");
             if (action.startsWith("staticDir:") || action.startsWith("staticFile:")) {
-                // Is there is a host argument, append it.
-                if (!path.startsWith("/")) {
-                    String p = this.path;
-                    this.path = p.substring(p.indexOf("/"));
-                    this.host = p.substring(0, p.indexOf("/"));
-                    if (this.host.contains("{")) {
-                        logger.warn("Static route cannot have a dynamic host name");
-                        return;
-                    }
-                    this.hostPattern = new Pattern(host.replaceAll("\\.", "\\\\."));
-                }
                 if (!method.equalsIgnoreCase("*") && !method.equalsIgnoreCase("GET")) {
                     logger.warn("Static route only support GET method");
                     return;
                 }
             }
-            // staticDir
             if (action.startsWith("staticDir:")) {
                 if (!this.path.endsWith("/") && !this.path.equals("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
@@ -592,36 +543,6 @@ public class Router {
                 this.staticFile = true;
                 this.staticDir = action.substring("staticFile:".length());
             } else {
-                // URL pattern
-                // Is there is a host argument, append it.
-                if (!path.startsWith("/")) {
-                    String p = this.path;
-                    this.path = p.substring(p.indexOf("/"));
-                    this.host = p.substring(0, p.indexOf("/"));
-                    String pattern = host.replaceAll("\\.", "\\\\.").replaceAll("\\{.*\\}", "(.*)");
-
-                    logger.trace("pattern [{}]", pattern);
-                    logger.trace("host [{}]", host);
-
-                    Matcher m = new Pattern(pattern).matcher(host);
-                    this.hostPattern = new Pattern(pattern);
-
-                    if (m.matches()) {
-                        if (this.host.contains("{")) {
-                            String name = m.group(1).replace("{", "").replace("}", "");
-                            if (!name.equals("_")) {
-                                logger.trace("hostArg name [{}]", name);
-                                logger.trace("adding hostArg [{}]", hostArg);
-                                // The default value contains the route version of the host ie `{client}.bla.com`
-                                // It is temporary and it indicates it is an urlroute.
-                                // TODO Check that default value is actually used for other cases.
-                                hostArg = new Arg(name, new Pattern(".*"), host);
-                                args.add(hostArg);
-                            }
-                        }
-                    }
-                }
-
                 String pathArguments = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(path);
                 Matcher matcher = argsPattern.matcher(pathArguments);
                 while (matcher.find()) {
@@ -642,14 +563,8 @@ public class Router {
                 }
                 actionPattern = new Pattern(patternString, REFlags.IGNORE_CASE);
             }
-        }
 
-        public Map<String, String> matches(String method, String path) {
-            return matches(method, path, null, null);
-        }
-
-        public Map<String, String> matches(String method, String path, String accept) {
-            return matches(method, path, accept, null);
+            logger.trace("Adding [{}]", this);
         }
 
         /**
@@ -659,36 +574,23 @@ public class Router {
          *            GET/POST/etc.
          * @param path
          *            Part after domain and before query-string. Starts with a "/".
-         * @param accept
-         *            Format, e.g. html.
-         * @param domain
-         *            The domain (host without port).
          * @return ???
          */
-        public Map<String, String> matches(String method, String path, String accept, String domain) {
+        public Map<String, String> matches(String method, String path) {
             // Normalize
             if ("".equals(path)) {
                 path = path + "/";
             }
             // If method is HEAD and we have a GET
-            if (method == null || this.method.equals("*") || method.equalsIgnoreCase(this.method)
-                    || (method.equalsIgnoreCase("head") && ("get").equalsIgnoreCase(this.method))) {
+            if (method == null || "*".equals(this.method) || method.equalsIgnoreCase(this.method)
+                    || ("head".equalsIgnoreCase(method) && "get".equalsIgnoreCase(this.method))) {
 
                 Matcher matcher = pattern.matcher(path);
 
-                boolean hostMatches = (domain == null);
-                if (domain != null) {
-
-                    Matcher hostMatcher = hostPattern.matcher(domain);
-                    hostMatches = hostMatcher.matches();
-                }
-                // Extract the host variable
-                if (matcher.matches() && hostMatches) {
-                    // 404
-                    if (action.equals("404")) {
+                if (matcher.matches()) {
+                    if ("404".equals(action)) {
                         throw new NotFound(method, path);
                     }
-                    // Static dir
                     if (staticDir != null) {
                         String resource = null;
                         if (!staticFile) {
@@ -715,13 +617,6 @@ public class Router {
                             if (arg.defaultValue == null) {
                                 localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
                             }
-                        }
-                        if (hostArg != null && domain != null) {
-                            // Parse the hostname and get only the part we are
-                            // interested in
-                            String routeValue = hostArg.defaultValue.replaceAll("\\{.*}", "");
-                            domain = domain.replace(routeValue, "");
-                            localArgs.put(hostArg.name, domain);
                         }
                         localArgs.putAll(staticArgs);
                         return localArgs;
