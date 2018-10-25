@@ -583,8 +583,7 @@ public class Router {
             // staticDir
             if (action.startsWith("staticDir:")) {
                 if (!this.path.endsWith("/") && !this.path.equals("/")) {
-                    logger.warn("The path for a staticDir route must end with / ({})", this);
-                    this.path += "/";
+                    throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
                 this.pattern = new Pattern("^" + path + "({resource}.*)$");
                 this.staticDir = action.substring("staticDir:".length());
