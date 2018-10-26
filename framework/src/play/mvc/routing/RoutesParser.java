@@ -66,7 +66,7 @@ public class RoutesParser {
             logger.error("Cannot include routes for module {} (not found)", moduleName);
           }
         } else {
-          routes.add(new Route(route.method, prefix + route.path, route.action, fileAbsolutePath, lineNumber));
+          routes.add(new Route(route.method, (prefix + route.path).replace("//", "/"), route.action, fileAbsolutePath, lineNumber));
         }
       }
       catch (IllegalArgumentException invalidRoute) {

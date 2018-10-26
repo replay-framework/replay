@@ -563,7 +563,7 @@ public class Router {
 
         public Route(String method, String path, String action, String sourceFile, int line) {
             this.method = method;
-            this.path = path.replace("//", "/");
+            this.path = path;
             this.action = action;
             this.routesFile = sourceFile;
             this.routesFileLine = line;
@@ -574,10 +574,10 @@ public class Router {
                 }
             }
             if (action.startsWith("staticDir:")) {
-                if (!this.path.endsWith("/") && !this.path.equals("/")) {
+                if (!path.endsWith("/") && !path.equals("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
-                this.pattern = new Pattern("^" + this.path + ".*$");
+                this.pattern = new Pattern("^" + path + ".*$");
                 this.staticDir = action.substring("staticDir:".length());
             } else if (action.startsWith("staticFile:")) {
                 this.pattern = new Pattern("^" + path + "$");
