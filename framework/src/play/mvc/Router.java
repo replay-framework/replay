@@ -577,7 +577,7 @@ public class Router {
                 if (!this.path.endsWith("/") && !this.path.equals("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
-                this.pattern = new Pattern("^" + this.path + "({resource}.*)$");
+                this.pattern = new Pattern("^" + this.path + ".*$");
                 this.staticDir = action.substring("staticDir:".length());
             } else if (action.startsWith("staticFile:")) {
                 this.pattern = new Pattern("^" + path + "$");
@@ -635,7 +635,7 @@ public class Router {
                     if (staticDir != null) {
                         String resource = null;
                         if (!staticFile) {
-                            resource = matcher.group("resource");
+                            resource = path.substring(this.path.length());
                         }
                         try {
                             String root = new File(staticDir).getCanonicalPath();

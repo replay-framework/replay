@@ -72,7 +72,7 @@ public class RouteTest {
     Route route = new Route("GET", "/public/", "staticDir:public", null, 0);
     assertThat(route.staticDir).isEqualTo("public");
     assertThat(route.staticFile).isFalse();
-    assertThat(route.pattern.toString()).isEqualTo("^/public/({resource}.*)$");
+    assertThat(route.pattern.toString()).isEqualTo("^/public/.*$");
     assertThat(route.pattern.matches("/public/images/logo.gif")).isTrue();
     assertThat(route.pattern.matches("public/images/logo.gif")).isFalse();
     assertThatThrownBy(() -> route.matches("GET", "/public/images/logo.gif"))
