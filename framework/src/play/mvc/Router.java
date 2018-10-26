@@ -27,29 +27,53 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.util.Collections.emptyList;
+
 /**
  * The router matches HTTP requests to action invocations
  */
 public class Router {
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
+    public static final Router instance = new Router(new CopyOnWriteArrayList<>());
+
     /**
      * All the loaded routes.
      */
-    public static final List<Route> routes = new CopyOnWriteArrayList<>();
+    private final List<Route> routes;
 
     /**
      * Timestamp the routes file was last loaded at.
      */
     public static long lastLoading = -1;
 
+    public Router(List<Route> routes) {
+        this.routes = routes;
+    }
+
+    public static List<Route> routes() {
+        return instance.routes;
+    }
+
+    private void setRoutes(List<Route> routes) {
+        actionRoutesCache.clear();
+        this.routes.clear();
+        this.routes.addAll(routes);
+    }
+
+    public static void clearForTests() {
+        instance.setRoutes(emptyList());
+    }
+
+    public static void resetForTests(List<Route> routes) {
+      instance.setRoutes(routes);
+    }
+
     /**
      * Parse the routes file. This is called at startup.
      */
     private static void load() {
-        routes.clear();
-        actionRoutesCache.clear();
-        routes.addAll(new RoutesParser().parse(Play.routes));
+        instance.setRoutes(new RoutesParser().parse(Play.routes));
         lastLoading = System.currentTimeMillis();
     }
 
@@ -64,11 +88,7 @@ public class Router {
      *            The associated action
      */
     public static void addRoute(String method, String path, String action) {
-        routes.add(0, createRoute(method, path, action));
-    }
-
-    private static Route createRoute(String method, String path, String action) {
-        return new Route(method, path, action, null, 0);
+        instance.routes.add(0, new Route(method, path, action, null, 0));
     }
 
     /**
@@ -95,7 +115,7 @@ public class Router {
         }
     }
 
-    public static void routeOnlyStatic(Http.Request request) {
+    public void routeOnlyStatic(Http.Request request) {
         for (Route route : routes) {
             try {
                 if (route.matches(request.method, request.path) != null) {
@@ -108,7 +128,7 @@ public class Router {
         }
     }
 
-    static Route route(Http.Request request) {
+    Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
         for (Route route : routes) {
             Map<String, String> args = route.matches(request.method, request.path);
@@ -142,25 +162,37 @@ public class Router {
         throw new NotFound(request.method, request.path);
     }
 
+    @Deprecated
     public static ActionDefinition reverse(String action) {
         // Note the map is not <code>Collections.EMPTY_MAP</code> because it
         // will be copied and changed.
         return reverse(action, new HashMap<>(16));
     }
 
+    @Deprecated
     public static String getFullUrl(String action, Map<String, Object> args) {
+        return getFullUrl(action, args, Http.Request.current());
+    }
+
+    public static String getFullUrl(String action, Map<String, Object> args, Http.Request request) {
         ActionDefinition actionDefinition = reverse(action, args);
-        String base = getBaseUrl();
+        String base = getBaseUrl(request);
         if (actionDefinition.method.equals("WS")) {
             return base.replaceFirst("https?", "ws") + actionDefinition;
         }
         return base + actionDefinition;
     }
 
-    // Gets baseUrl from current request or application.baseUrl in
-    // application.conf
+    /**
+     * Gets baseUrl from current request or application.baseUrl in application.conf
+     */
+    @Deprecated
     public static String getBaseUrl() {
-        if (Http.Request.current() == null) {
+        return getBaseUrl(Http.Request.current());
+    }
+
+    public static String getBaseUrl(Http.Request request) {
+        if (request == null) {
             // No current request is present - must get baseUrl from config
             String appBaseUrl = Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
             if (appBaseUrl.endsWith("/")) {
@@ -170,21 +202,27 @@ public class Router {
             return appBaseUrl;
 
         } else {
-            return Http.Request.current().getBase();
+            return request.getBase();
         }
     }
 
+    @Deprecated
     public static String getFullUrl(String action) {
+        return getFullUrl(action, Http.Request.current());
+    }
+
+    public static String getFullUrl(String action, Http.Request request) {
         // Note the map is not <code>Collections.EMPTY_MAP</code> because it
         // will be copied and changed.
-        return getFullUrl(action, new HashMap<>(16));
+        return getFullUrl(action, new HashMap<>(16), request);
     }
 
+    @Deprecated
     public static String reverse(VirtualFile file) {
-        return reverse(file, false);
+        return instance.reverse(file, false);
     }
 
-    private static String reverse(VirtualFile file, boolean absolute) {
+    private String reverse(VirtualFile file, boolean absolute) {
         if (file == null || !file.exists()) {
             throw new NoRouteFoundException("File not found (" + file + ")");
         }
@@ -218,27 +256,36 @@ public class Router {
         if (file == null || !file.exists()) {
             throw new NoRouteFoundException(name + " (file not found)");
         }
-        return reverse(file, absolute);
+        return instance.reverse(file, absolute);
     }
 
+    @Deprecated
     public static ActionDefinition reverse(String action, Map<String, Object> args) {
+        return reverse(action, args, Http.Request.current(), Http.Response.current(), Scope.RouteArgs.current());
+    }
 
-        String encoding = Http.Response.current() == null ? Play.defaultWebEncoding : Http.Response.current().encoding;
+    public static ActionDefinition reverse(String action, Map<String, Object> args, Http.Request request, Http.Response response, Scope.RouteArgs routeArgs) {
+        return instance.actionToUrl(action, args, request, response, routeArgs);
+    }
+
+    public ActionDefinition actionToUrl(String action, Map<String, Object> actionArgs, Http.Request request, Http.Response response, Scope.RouteArgs routeArgs) {
+        Map<String, Object> args = new HashMap<>(actionArgs);
+        String encoding = response == null ? Play.defaultWebEncoding : response.encoding;
 
         if (action.startsWith("controllers.")) {
             action = action.substring(12);
         }
         Map<String, Object> argsbackup = new HashMap<>(args);
+
         // Add routeArgs
-        if (Scope.RouteArgs.current() != null) {
-            for (String key : Scope.RouteArgs.current().data.keySet()) {
+        if (routeArgs != null) {
+            for (String key : routeArgs.data.keySet()) {
                 if (!args.containsKey(key)) {
-                    args.put(key, Scope.RouteArgs.current().data.get(key));
+                    args.put(key, routeArgs.data.get(key));
                 }
             }
         }
 
-        Http.Request request = Http.Request.current();
         String requestFormat = request == null || request.format == null ? "" : request.format;
 
         List<ActionRoute> matchingRoutes = getActionRoutes(action);
@@ -377,18 +424,13 @@ public class Router {
         throw new NoRouteFoundException(action, args);
     }
 
-    private static final Map<String, List<ActionRoute>> actionRoutesCache = new ConcurrentHashMap<>();
+    private final Map<String, List<ActionRoute>> actionRoutesCache = new ConcurrentHashMap<>();
 
-    private static List<ActionRoute> getActionRoutes(String action) {
-        List<ActionRoute> matchingRoutes = actionRoutesCache.get(action);
-        if (matchingRoutes == null) {
-            matchingRoutes = findActionRoutes(action);
-            actionRoutesCache.put(action, matchingRoutes);
-        }
-        return matchingRoutes;
+    private List<ActionRoute> getActionRoutes(String action) {
+        return actionRoutesCache.computeIfAbsent(action, this::findActionRoutes);
     }
 
-    private static List<ActionRoute> findActionRoutes(String action) {
+    private List<ActionRoute> findActionRoutes(String action) {
         List<ActionRoute> matchingRoutes = new ArrayList<>(2);
         for (Route route : routes) {
             if (route.actionPattern != null) {
@@ -528,15 +570,14 @@ public class Router {
 
             if (action.startsWith("staticDir:") || action.startsWith("staticFile:")) {
                 if (!method.equalsIgnoreCase("*") && !method.equalsIgnoreCase("GET")) {
-                    logger.warn("Static route only support GET method");
-                    return;
+                    throw new IllegalArgumentException("Static route only support GET method");
                 }
             }
             if (action.startsWith("staticDir:")) {
                 if (!this.path.endsWith("/") && !this.path.equals("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
-                this.pattern = new Pattern("^" + path + "({resource}.*)$");
+                this.pattern = new Pattern("^" + this.path + "({resource}.*)$");
                 this.staticDir = action.substring("staticDir:".length());
             } else if (action.startsWith("staticFile:")) {
                 this.pattern = new Pattern("^" + path + "$");
@@ -626,21 +667,26 @@ public class Router {
             return null;
         }
 
-        private static class Arg {
-            private final String name;
-            private final Pattern constraint;
-            private final String defaultValue;
+        static class Arg {
+            final String name;
+            final Pattern constraint;
+            final String defaultValue;
 
-            private Arg(String name, Pattern constraint, String defaultValue) {
+            Arg(String name, Pattern constraint, String defaultValue) {
                 this.name = name;
                 this.constraint = constraint;
                 this.defaultValue = defaultValue;
+            }
+
+            @Override
+            public String toString() {
+                return String.format("Arg {%s %s %s}", name, constraint, defaultValue);
             }
         }
 
         @Override
         public String toString() {
-            return method + " " + path + " -> " + action;
+            return String.format("Route {%s %s %s}", method, path, action);
         }
     }
 }

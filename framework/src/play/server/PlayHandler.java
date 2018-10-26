@@ -198,7 +198,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     logger.trace("init: end false");
                     return false;
                 }
-                Router.routeOnlyStatic(request);
+                Router.instance.routeOnlyStatic(request);
                 super.init();
             } catch (NotFound nf) {
                 serve404(nf, ctx, request);
