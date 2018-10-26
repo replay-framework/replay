@@ -6,10 +6,8 @@ import play.mvc.Http.Request;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 
-import java.util.Map;
 import java.util.Properties;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 

@@ -587,7 +587,7 @@ public class Router {
                 String pathArguments = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(path);
                 Matcher matcher = argsPattern.matcher(pathArguments);
                 while (matcher.find()) {
-                    args.add(new Arg(matcher.group(2), new Pattern(matcher.group(1)), null));
+                    args.add(new Arg(matcher.group(2), new Pattern(matcher.group(1))));
                 }
 
                 String actionPatternString = argsPattern.replacer("({$2}$1)").replace(pathArguments);
@@ -651,13 +651,7 @@ public class Router {
                     } else {
                         Map<String, String> localArgs = new HashMap<>();
                         for (Arg arg : args) {
-                            // FIXME: Careful with the arguments that are not
-                            // matching as they are part of the hostname
-                            // Defaultvalue indicates it is a one of these urls.
-                            // This is a trick and should be changed.
-                            if (arg.defaultValue == null) {
-                                localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
-                            }
+                            localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
                         }
                         localArgs.putAll(staticArgs);
                         return localArgs;
@@ -670,17 +664,15 @@ public class Router {
         static class Arg {
             final String name;
             final Pattern constraint;
-            final String defaultValue;
 
-            Arg(String name, Pattern constraint, String defaultValue) {
+            Arg(String name, Pattern constraint) {
                 this.name = name;
                 this.constraint = constraint;
-                this.defaultValue = defaultValue;
             }
 
             @Override
             public String toString() {
-                return String.format("Arg {%s %s %s}", name, constraint, defaultValue);
+                return String.format("Arg {%s %s}", name, constraint);
             }
         }
 

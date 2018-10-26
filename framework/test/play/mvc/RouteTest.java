@@ -25,7 +25,6 @@ public class RouteTest {
     assertThat(route.args).hasSize(1);
     assertThat(route.args.get(0).name).isEqualTo("cardId");
     assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
-    assertThat(route.args.get(0).defaultValue).isNull();
 
     assertThat(route.pattern.toString()).isEqualTo("/cards/({cardId}[^/]+)/requisites");
     assertThat(route.pattern.matches("/cards/1234567890/requisites")).isTrue();
