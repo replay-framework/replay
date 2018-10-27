@@ -304,9 +304,7 @@ public class Router {
                     allRequiredArgsAreHere = false;
                 } else {
                     if (value instanceof List<?>) {
-                        @SuppressWarnings("unchecked")
-                        List<Object> l = (List<Object>) value;
-                        value = l.get(0);
+                        value = ((List<Object>) value).get(0);
                     }
                     if (!value.toString().startsWith(":") && !arg.constraint.matches(Utils.urlEncodePath(value.toString()))) {
                         allRequiredArgsAreHere = false;
@@ -559,8 +557,8 @@ public class Router {
 
         public int routesFileLine;
         public String routesFile;
-        static Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
-        static Pattern argsPattern = new Pattern("\\{<([^>]+)>([a-zA-Z_0-9]+)\\}");
+        private static final Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
+        private static final Pattern argsPattern = new Pattern("\\{<([^>]+)>([a-zA-Z_0-9]+)\\}");
 
         public Route(String method, String path, String action, String sourceFile, int line) {
             this.method = method;

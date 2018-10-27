@@ -6,6 +6,7 @@ import play.mvc.results.RenderStatic;
 
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,6 +42,33 @@ public class RouteTest {
   }
 
   @Test
+  public void routeWithParametersInAction() {
+    Route route = new Route("GET", "/news/{method}", "News.{method}", null, 0);
+
+    assertThat(route.method).isEqualTo("GET");
+    assertThat(route.path).isEqualTo("/news/{method}");
+    assertThat(route.action).isEqualTo("News.{method}");
+    assertThat(route.staticDir).isNull();
+    assertThat(route.staticFile).isFalse();
+    assertThat(route.staticArgs).hasSize(0);
+
+    assertThat(route.args).hasSize(1);
+    assertThat(route.args.get(0).name).isEqualTo("method");
+    assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
+
+    assertThat(route.pattern.toString()).isEqualTo("/news/({method}[^/]+)");
+    assertThat(route.pattern.matches("/news/index")).isTrue();
+    assertThat(route.pattern.matches("/news/foo/bar")).isFalse();
+
+    assertThat(route.actionArgs).isEqualTo(asList("method"));
+    assertThat(route.actionPattern.toString()).isEqualTo("News[.]({method}[^/]+)");
+    assertThat(route.actionPattern.matches("news.foo")).isTrue();
+    assertThat(route.actionPattern.matches("News.foo/")).isFalse();
+
+    assertThat(route.matches("GET", "/news/list")).isEqualTo(Map.of("method", "list"));
+  }
+
+  @Test
   public void routeWithoutParameters() {
     Route route = new Route("POST", "/auth/login", "com.blah.AuthController.doLogin", null, 0);
 
@@ -64,6 +92,60 @@ public class RouteTest {
 
     assertThat(route.matches("POST", "/auth/login")).isEqualTo(emptyMap());
     assertThat(route.matches("POST", "/cards/1234567890/requisites")).isNull();
+  }
+
+  @Test
+  public void optionsWithAny() {
+    Route route = new Route("OPTIONS", "/{<.*>any}", "SecurityChecks.corsOptions", null, 0);
+
+    assertThat(route.method).isEqualTo("OPTIONS");
+    assertThat(route.path).isEqualTo("/{<.*>any}");
+    assertThat(route.action).isEqualTo("SecurityChecks.corsOptions");
+    assertThat(route.staticDir).isNull();
+    assertThat(route.staticFile).isFalse();
+    assertThat(route.staticArgs).hasSize(0);
+
+    assertThat(route.args).hasSize(1);
+    assertThat(route.args.get(0).name).isEqualTo("any");
+    assertThat(route.args.get(0).constraint.toString()).isEqualTo(".*");
+
+    assertThat(route.pattern.toString()).isEqualTo("/({any}.*)");
+    assertThat(route.pattern.matches("/")).isTrue();
+    assertThat(route.pattern.matches("/robots.txt")).isTrue();
+
+    assertThat(route.actionArgs).isEmpty();
+    assertThat(route.actionPattern.toString()).isEqualTo("SecurityChecks[.]corsOptions");
+    assertThat(route.actionPattern.matches("SecurityChecks.corsOptions")).isTrue();
+    assertThat(route.actionPattern.matches("SecurityChecks.cors-options")).isFalse();
+
+    assertThat(route.matches("OPTIONS", "/")).isEqualTo(Map.of("any", ""));
+    assertThat(route.matches("OPTIONS", "/foo")).isEqualTo(Map.of("any", "foo"));
+  }
+
+  @Test
+  public void optionsWithAsterisk() {
+    Route route = new Route("OPTIONS", "/.*", "SecurityChecks.corsOptions", null, 0);
+
+    assertThat(route.method).isEqualTo("OPTIONS");
+    assertThat(route.path).isEqualTo("/.*");
+    assertThat(route.action).isEqualTo("SecurityChecks.corsOptions");
+    assertThat(route.staticDir).isNull();
+    assertThat(route.staticFile).isFalse();
+    assertThat(route.staticArgs).hasSize(0);
+
+    assertThat(route.args).hasSize(0);
+
+    assertThat(route.pattern.toString()).isEqualTo("/.*");
+    assertThat(route.pattern.matches("/")).isTrue();
+    assertThat(route.pattern.matches("/robots.txt")).isTrue();
+
+    assertThat(route.actionArgs).isEmpty();
+    assertThat(route.actionPattern.toString()).isEqualTo("SecurityChecks[.]corsOptions");
+    assertThat(route.actionPattern.matches("SecurityChecks.corsOptions")).isTrue();
+    assertThat(route.actionPattern.matches("SecurityChecks.cors-options")).isFalse();
+
+    assertThat(route.matches("OPTIONS", "/")).isEqualTo(emptyMap());
+    assertThat(route.matches("OPTIONS", "/foo")).isEqualTo(emptyMap());
   }
 
   @Test
