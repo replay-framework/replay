@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -269,7 +270,7 @@ public class Router {
     }
 
     public ActionDefinition actionToUrl(String action, Map<String, Object> actionArgs, Http.Request request, Http.Response response, Scope.RouteArgs routeArgs) {
-        Map<String, Object> args = new HashMap<>(actionArgs);
+        Map<String, Object> args = new LinkedHashMap<>(actionArgs);
         String encoding = response == null ? Play.defaultWebEncoding : response.encoding;
 
         if (action.startsWith("controllers.")) {
