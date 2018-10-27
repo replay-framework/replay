@@ -27,15 +27,15 @@ public class RouteTest {
     assertThat(route.args.get(0).name).isEqualTo("cardId");
     assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
 
-    assertThat(route.pattern.toString()).isEqualTo("/cards/({cardId}[^/]+)/requisites");
-    assertThat(route.pattern.matches("/cards/1234567890/requisites")).isTrue();
-    assertThat(route.pattern.matches("/cards/requisites")).isFalse();
+    assertThat(route.pattern.toString()).isEqualTo("/cards/(?<cardId>[^/]+)/requisites");
+    assertThat(route.pattern.matcher("/cards/1234567890/requisites").matches()).isTrue();
+    assertThat(route.pattern.matcher("/cards/requisites").matches()).isFalse();
 
     assertThat(route.actionArgs).isEmpty();
     assertThat(route.actionPattern.toString()).isEqualTo("cards[.]Requisites[.]showPopup");
-    assertThat(route.actionPattern.matches("cards.Requisites.showPopup")).isTrue();
-    assertThat(route.actionPattern.matches("cards.requisites.showpopup")).isTrue();
-    assertThat(route.actionPattern.matches("cards-Requisites-showPopup")).isFalse();
+    assertThat(route.actionPattern.matcher("cards.Requisites.showPopup").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("cards.requisites.showpopup").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("cards-Requisites-showPopup").matches()).isFalse();
 
     assertThat(route.matches("GET", "/cards/1234567890/requisites")).isEqualTo(Map.of("cardId", "1234567890"));
     assertThat(route.matches("GET", "/cards/requisites")).isNull();
@@ -56,14 +56,14 @@ public class RouteTest {
     assertThat(route.args.get(0).name).isEqualTo("method");
     assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
 
-    assertThat(route.pattern.toString()).isEqualTo("/news/({method}[^/]+)");
-    assertThat(route.pattern.matches("/news/index")).isTrue();
-    assertThat(route.pattern.matches("/news/foo/bar")).isFalse();
+    assertThat(route.pattern.toString()).isEqualTo("/news/(?<method>[^/]+)");
+    assertThat(route.pattern.matcher("/news/index").matches()).isTrue();
+    assertThat(route.pattern.matcher("/news/foo/bar").matches()).isFalse();
 
     assertThat(route.actionArgs).isEqualTo(asList("method"));
-    assertThat(route.actionPattern.toString()).isEqualTo("News[.]({method}[^/]+)");
-    assertThat(route.actionPattern.matches("news.foo")).isTrue();
-    assertThat(route.actionPattern.matches("News.foo/")).isFalse();
+    assertThat(route.actionPattern.toString()).isEqualTo("News[.](?<method>[^/]+)");
+    assertThat(route.actionPattern.matcher("news.foo").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("News.foo/").matches()).isFalse();
 
     assertThat(route.matches("GET", "/news/list")).isEqualTo(Map.of("method", "list"));
   }
@@ -82,13 +82,13 @@ public class RouteTest {
     assertThat(route.args).hasSize(0);
 
     assertThat(route.pattern.toString()).isEqualTo("/auth/login");
-    assertThat(route.pattern.matches("/auth/login")).isTrue();
-    assertThat(route.pattern.matches("/auth/loginAndPrintReport")).isFalse();
+    assertThat(route.pattern.matcher("/auth/login").matches()).isTrue();
+    assertThat(route.pattern.matcher("/auth/loginAndPrintReport").matches()).isFalse();
 
     assertThat(route.actionArgs).isEmpty();
     assertThat(route.actionPattern.toString()).isEqualTo("com[.]blah[.]AuthController[.]doLogin");
-    assertThat(route.actionPattern.matches("com.blah.authcontroller.dologin")).isTrue();
-    assertThat(route.actionPattern.matches("com.blah.AuthController.do-Login")).isFalse();
+    assertThat(route.actionPattern.matcher("com.blah.authcontroller.dologin").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("com.blah.AuthController.do-Login").matches()).isFalse();
 
     assertThat(route.matches("POST", "/auth/login")).isEqualTo(emptyMap());
     assertThat(route.matches("POST", "/cards/1234567890/requisites")).isNull();
@@ -109,14 +109,14 @@ public class RouteTest {
     assertThat(route.args.get(0).name).isEqualTo("any");
     assertThat(route.args.get(0).constraint.toString()).isEqualTo(".*");
 
-    assertThat(route.pattern.toString()).isEqualTo("/({any}.*)");
-    assertThat(route.pattern.matches("/")).isTrue();
-    assertThat(route.pattern.matches("/robots.txt")).isTrue();
+    assertThat(route.pattern.toString()).isEqualTo("/(?<any>.*)");
+    assertThat(route.pattern.matcher("/").matches()).isTrue();
+    assertThat(route.pattern.matcher("/robots.txt").matches()).isTrue();
 
     assertThat(route.actionArgs).isEmpty();
     assertThat(route.actionPattern.toString()).isEqualTo("SecurityChecks[.]corsOptions");
-    assertThat(route.actionPattern.matches("SecurityChecks.corsOptions")).isTrue();
-    assertThat(route.actionPattern.matches("SecurityChecks.cors-options")).isFalse();
+    assertThat(route.actionPattern.matcher("SecurityChecks.corsOptions").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("SecurityChecks.cors-options").matches()).isFalse();
 
     assertThat(route.matches("OPTIONS", "/")).isEqualTo(Map.of("any", ""));
     assertThat(route.matches("OPTIONS", "/foo")).isEqualTo(Map.of("any", "foo"));
@@ -136,13 +136,13 @@ public class RouteTest {
     assertThat(route.args).hasSize(0);
 
     assertThat(route.pattern.toString()).isEqualTo("/.*");
-    assertThat(route.pattern.matches("/")).isTrue();
-    assertThat(route.pattern.matches("/robots.txt")).isTrue();
+    assertThat(route.pattern.matcher("/").matches()).isTrue();
+    assertThat(route.pattern.matcher("/robots.txt").matches()).isTrue();
 
     assertThat(route.actionArgs).isEmpty();
     assertThat(route.actionPattern.toString()).isEqualTo("SecurityChecks[.]corsOptions");
-    assertThat(route.actionPattern.matches("SecurityChecks.corsOptions")).isTrue();
-    assertThat(route.actionPattern.matches("SecurityChecks.cors-options")).isFalse();
+    assertThat(route.actionPattern.matcher("SecurityChecks.corsOptions").matches()).isTrue();
+    assertThat(route.actionPattern.matcher("SecurityChecks.cors-options").matches()).isFalse();
 
     assertThat(route.matches("OPTIONS", "/")).isEqualTo(emptyMap());
     assertThat(route.matches("OPTIONS", "/foo")).isEqualTo(emptyMap());
@@ -154,8 +154,8 @@ public class RouteTest {
     assertThat(route.staticDir).isEqualTo("public");
     assertThat(route.staticFile).isFalse();
     assertThat(route.pattern.toString()).isEqualTo("^/public/.*$");
-    assertThat(route.pattern.matches("/public/images/logo.gif")).isTrue();
-    assertThat(route.pattern.matches("public/images/logo.gif")).isFalse();
+    assertThat(route.pattern.matcher("/public/images/logo.gif").matches()).isTrue();
+    assertThat(route.pattern.matcher("public/images/logo.gif").matches()).isFalse();
     assertThatThrownBy(() -> route.matches("GET", "/public/images/logo.gif"))
       .isInstanceOf(RenderStatic.class)
       .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("public/images/logo.gif"));
@@ -167,8 +167,8 @@ public class RouteTest {
     assertThat(route.staticDir).isEqualTo("/public/robots.txt");
     assertThat(route.staticFile).isTrue();
     assertThat(route.pattern.toString()).isEqualTo("^/robots.txt$");
-    assertThat(route.pattern.matches("/robots.txt")).isTrue();
-    assertThat(route.pattern.matches("robots.txt")).isFalse();
+    assertThat(route.pattern.matcher("/robots.txt").matches()).isTrue();
+    assertThat(route.pattern.matcher("robots.txt").matches()).isFalse();
     assertThatThrownBy(() -> route.matches("GET", "/robots.txt"))
       .isInstanceOf(RenderStatic.class)
       .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("/public/robots.txt"));

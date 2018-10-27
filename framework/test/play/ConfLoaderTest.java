@@ -4,9 +4,10 @@ import org.junit.After;
 import org.junit.Test;
 import play.utils.OrderSafeProperties;
 
+import java.util.Optional;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfLoaderTest {
   ConfLoader loader = new ConfLoader();
@@ -22,7 +23,7 @@ public class ConfLoaderTest {
     Properties props = new OrderSafeProperties();
     props.setProperty("%web.hello", "web");
     props = loader.resolvePlayIdOverrides(props, null);
-    assertNull(props.getProperty("hello"));
+    assertThat(props.getProperty("hello")).isNull();
   }
 
   @Test
@@ -32,7 +33,7 @@ public class ConfLoaderTest {
     props.setProperty("hello", "initial");
     props.setProperty("%web.hello", "web");
     props = loader.resolvePlayIdOverrides(props, null);
-    assertEquals("web", props.getProperty("hello"));
+    assertThat(props.getProperty("hello")).isEqualTo("web");
   }
 
   @Test
@@ -42,7 +43,7 @@ public class ConfLoaderTest {
     props.setProperty("%web.hello", "web");
     props.setProperty("%prod.hello", "prod");
     props = loader.resolvePlayIdOverrides(props, "prod");
-    assertEquals("web", props.getProperty("hello"));
+    assertThat(props.getProperty("hello")).isEqualTo("web");
   }
 
   @Test
@@ -51,6 +52,13 @@ public class ConfLoaderTest {
     Properties props = new OrderSafeProperties();
     props.setProperty("%prod.hello", "prod");
     props = loader.resolvePlayIdOverrides(props, "prod");
-    assertEquals("prod", props.getProperty("hello"));
+    assertThat(props.getProperty("hello")).isEqualTo("prod");
+  }
+
+  @Test
+  public void extractsPort() {
+    assertThat(loader.extractHttpPort("java -Xmx256m")).isEqualTo(Optional.empty());
+    assertThat(loader.extractHttpPort("java -Xmx256m --http.port=9666")).isEqualTo(Optional.of("9666"));
+
   }
 }

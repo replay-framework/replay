@@ -1,8 +1,5 @@
 package play.mvc;
 
-import jregex.Matcher;
-import jregex.Pattern;
-import jregex.REFlags;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Collections.emptyList;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 /**
  * The router matches HTTP requests to action invocations
@@ -306,7 +306,7 @@ public class Router {
                     if (value instanceof List<?>) {
                         value = ((List<Object>) value).get(0);
                     }
-                    if (!value.toString().startsWith(":") && !arg.constraint.matches(Utils.urlEncodePath(value.toString()))) {
+                    if (!value.toString().startsWith(":") && !arg.constraint.matcher(Utils.urlEncodePath(value.toString())).matches()) {
                         allRequiredArgsAreHere = false;
                         break;
                     }
@@ -518,7 +518,7 @@ public class Router {
                 if (StringUtils.isEmpty(host)) {
                     url = base + url;
                 } else if (host.contains("{_}")) {
-                    java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("([-_a-z0-9A-Z]+([.][-_a-z0-9A-Z]+)?)$")
+                    Matcher matcher = Pattern.compile("([-_a-z0-9A-Z]+([.][-_a-z0-9A-Z]+)?)$")
                             .matcher(domain);
                     if (matcher.find()) {
                         url = (isSecure ? "https://" : "http://") + hostPart.replace("{_}", matcher.group(1)) + url;
@@ -544,21 +544,21 @@ public class Router {
     }
 
     public static class Route {
-        public String method;
-        public String path;
-        public String action;
-        Pattern actionPattern;
-        List<String> actionArgs = new ArrayList<>(3);
-        String staticDir;
-        boolean staticFile;
-        Pattern pattern;
-        List<Arg> args = new ArrayList<>(3);
-        Map<String, String> staticArgs = new HashMap<>(3);
+        public final String method;
+        public final String path;
+        public final String action;
+        final Pattern actionPattern;
+        final List<String> actionArgs = new ArrayList<>(3);
+        final String staticDir;
+        final boolean staticFile;
+        final Pattern pattern;
+        final List<Arg> args = new ArrayList<>(3);
+        final Map<String, String> staticArgs = new HashMap<>(3);
+        public final String routesFile;
+        public final int routesFileLine;
 
-        public int routesFileLine;
-        public String routesFile;
-        private static final Pattern customRegexPattern = new Pattern("\\{([a-zA-Z_][a-zA-Z_0-9]*)\\}");
-        private static final Pattern argsPattern = new Pattern("\\{<([^>]+)>([a-zA-Z_0-9]+)\\}");
+        private static final Pattern customRegexPattern = Pattern.compile("\\{([a-zA-Z_][a-zA-Z_0-9]*)}");
+        private static final Pattern argsPattern = Pattern.compile("\\{<([^>]+)>([a-zA-Z_0-9]+)}");
 
         public Route(String method, String path, String action, String sourceFile, int line) {
             this.method = method;
@@ -576,32 +576,37 @@ public class Router {
                 if (!path.endsWith("/") && !path.equals("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
-                this.pattern = new Pattern("^" + path + ".*$");
+                this.pattern = Pattern.compile("^" + path + ".*$");
+                this.staticFile = false;
                 this.staticDir = action.substring("staticDir:".length());
+                this.actionPattern = null;
             } else if (action.startsWith("staticFile:")) {
-                this.pattern = new Pattern("^" + path + "$");
+                this.pattern = Pattern.compile("^" + path + "$");
                 this.staticFile = true;
                 this.staticDir = action.substring("staticFile:".length());
+                this.actionPattern = null;
             } else {
-                String pathArguments = customRegexPattern.replacer("\\{<[^/]+>$1\\}").replace(path);
+                this.staticDir = null;
+                this.staticFile = false;
+                String pathArguments = customRegexPattern.matcher(path).replaceAll("\\{<[^/]+>$1\\}");
                 Matcher matcher = argsPattern.matcher(pathArguments);
                 while (matcher.find()) {
-                    args.add(new Arg(matcher.group(2), new Pattern(matcher.group(1))));
+                    args.add(new Arg(matcher.group(2), Pattern.compile(matcher.group(1))));
                 }
 
-                String actionPatternString = argsPattern.replacer("({$2}$1)").replace(pathArguments);
-                this.pattern = new Pattern(actionPatternString);
+                String actionPatternString = argsPattern.matcher(pathArguments).replaceAll("(?<$2>$1)");
+                this.pattern = Pattern.compile(actionPatternString);
 
                 // Action pattern
                 String patternString = action.replace(".", "[.]");
                 for (Arg arg : args) {
                     if (patternString.contains("{" + arg.name + "}")) {
                         patternString = patternString.replace("{" + arg.name + "}",
-                                "({" + arg.name + "}" + arg.constraint + ")");
+                                "(?<" + arg.name + ">" + arg.constraint + ")");
                         actionArgs.add(arg.name);
                     }
                 }
-                actionPattern = new Pattern(patternString, REFlags.IGNORE_CASE);
+                actionPattern = Pattern.compile(patternString, CASE_INSENSITIVE);
             }
 
             logger.trace("Adding [{}]", this);
