@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 /**
@@ -42,6 +43,8 @@ public class Router {
      * All the loaded routes.
      */
     private final List<Route> routes;
+
+    private final Map<String, Map<String, Route>> parameterlessRoutes = new HashMap<>();
 
     /**
      * Timestamp the routes file was last loaded at.
@@ -59,7 +62,22 @@ public class Router {
     private void setRoutes(List<Route> routes) {
         actionRoutesCache.clear();
         this.routes.clear();
-        this.routes.addAll(routes);
+        parameterlessRoutes.clear();
+        routes.forEach(this::addRoute);
+    }
+
+    private void addRoute(Route route) {
+        routes.add(route);
+
+        if (route.pattern == null) {
+            parameterlessRoutes
+              .computeIfAbsent(route.method.toUpperCase(), (method) -> new HashMap<>())
+              .put(route.path.toLowerCase(), route);
+        }
+    }
+
+    private Route findParameterlessRoute(Http.Request request) {
+        return parameterlessRoutes.getOrDefault(request.method.toUpperCase(), emptyMap()).get(request.path.toLowerCase());
     }
 
     public static void clearForTests() {
@@ -89,7 +107,7 @@ public class Router {
      *            The associated action
      */
     public static void addRoute(String method, String path, String action) {
-        instance.routes.add(0, new Route(method, path, action, null, 0));
+        instance.addRoute(new Route(method, path, action, null, 0));
     }
 
     /**
@@ -117,37 +135,38 @@ public class Router {
     }
 
     public void routeOnlyStatic(Http.Request request) {
-        for (Route route : routes) {
+        Route parameterlessRoute = findParameterlessRoute(request);
+        if (parameterlessRoute != null) {
             try {
-                if (route.matches(request.method, request.path) != null) {
-                    break;
+                if (parameterlessRoute.matches(request.method, request.path) != null) {
+                    return;
                 }
             } catch (RenderStatic | NotFound e) {
                 throw e;
-            } catch (Throwable ignore) {
+            }
+        }
+
+        for (Route route : routes) {
+            try {
+                if (route.matches(request.method, request.path) != null) {
+                    return;
+                }
+            } catch (RenderStatic | NotFound e) {
+                throw e;
             }
         }
     }
 
     Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
+        Route parameterlessRoute = findParameterlessRoute(request);
+        if (parameterlessRoute != null) {
+            return processRoute(request, parameterlessRoute, emptyMap());
+        }
         for (Route route : routes) {
             Map<String, String> args = route.matches(request.method, request.path);
             if (args != null) {
-                request.routeArgs = args;
-                request.action = route.action;
-                if (args.containsKey("format")) {
-                    request.format = args.get("format");
-                }
-                if (request.action.contains("{")) { // more optimization ?
-                    for (String arg : request.routeArgs.keySet()) {
-                        request.action = request.action.replace("{" + arg + "}", request.routeArgs.get(arg));
-                    }
-                }
-                if (request.action.equals("404")) {
-                    throw new NotFound(route.path);
-                }
-                return route;
+                return processRoute(request, route, args);
             }
         }
         // Not found - if the request was a HEAD, let's see if we can find a
@@ -161,6 +180,23 @@ public class Router {
             }
         }
         throw new NotFound(request.method, request.path);
+    }
+
+    private Route processRoute(Http.Request request, Route route, Map<String, String> args) {
+        request.routeArgs = args;
+        request.action = route.action;
+        if (args.containsKey("format")) {
+            request.format = args.get("format");
+        }
+        if (request.action.contains("{")) { // more optimization ?
+            for (String arg : request.routeArgs.keySet()) {
+                request.action = request.action.replace("{" + arg + "}", request.routeArgs.get(arg));
+            }
+        }
+        if (request.action.equals("404")) {
+            throw new NotFound(route.path);
+        }
+        return route;
     }
 
     @Deprecated
@@ -581,35 +617,41 @@ public class Router {
                 this.staticDir = action.substring("staticDir:".length());
                 this.actionPattern = null;
             } else if (action.startsWith("staticFile:")) {
-                this.pattern = Pattern.compile("^" + path + "$");
+                this.pattern = isRegexp(path) ? Pattern.compile("^" + path + "$") : null;
                 this.staticFile = true;
                 this.staticDir = action.substring("staticFile:".length());
                 this.actionPattern = null;
             } else {
                 this.staticDir = null;
                 this.staticFile = false;
-                String pathArguments = customRegexPattern.matcher(path).replaceAll("\\{<[^/]+>$1\\}");
-                Matcher matcher = argsPattern.matcher(pathArguments);
+                final String pathArguments = customRegexPattern.matcher(path).replaceAll("\\{<[^/]+>$1\\}");
+                final Matcher matcher = argsPattern.matcher(pathArguments);
                 while (matcher.find()) {
                     args.add(new Arg(matcher.group(2), Pattern.compile(matcher.group(1))));
                 }
-
-                String actionPatternString = argsPattern.matcher(pathArguments).replaceAll("(?<$2>$1)");
-                this.pattern = Pattern.compile(actionPatternString);
+                this.pattern = isRegexp(path) ? Pattern.compile(pathPatternString(pathArguments)) : null;
 
                 // Action pattern
-                String patternString = action.replace(".", "[.]");
+                String actionPatternString = action.replace(".", "[.]");
                 for (Arg arg : args) {
-                    if (patternString.contains("{" + arg.name + "}")) {
-                        patternString = patternString.replace("{" + arg.name + "}",
+                    if (actionPatternString.contains("{" + arg.name + "}")) {
+                        actionPatternString = actionPatternString.replace("{" + arg.name + "}",
                                 "(?<" + arg.name + ">" + arg.constraint + ")");
                         actionArgs.add(arg.name);
                     }
                 }
-                actionPattern = Pattern.compile(patternString, CASE_INSENSITIVE);
+                actionPattern = Pattern.compile(actionPatternString, CASE_INSENSITIVE);
             }
 
             logger.trace("Adding [{}]", this);
+        }
+
+        static String pathPatternString(String pathArguments) {
+            return argsPattern.matcher(pathArguments).replaceAll("(?<$2>$1)");
+        }
+
+        static boolean isRegexp(String path) {
+            return path.contains("+") || path.contains("*") || path.contains("{");
         }
 
         /**
@@ -630,9 +672,9 @@ public class Router {
             if (method == null || "*".equals(this.method) || method.equalsIgnoreCase(this.method)
                     || ("head".equalsIgnoreCase(method) && "get".equalsIgnoreCase(this.method))) {
 
-                Matcher matcher = pattern.matcher(path);
+                Matcher matcher = pattern == null ? null : pattern.matcher(path);
 
-                if (matcher.matches()) {
+                if (this.path.equals(path) || pattern != null && matcher.matches()) {
                     if ("404".equals(action)) {
                         throw new NotFound(method, path);
                     }

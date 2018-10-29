@@ -80,10 +80,7 @@ public class RouteTest {
     assertThat(route.staticArgs).hasSize(0);
 
     assertThat(route.args).hasSize(0);
-
-    assertThat(route.pattern.toString()).isEqualTo("/auth/login");
-    assertThat(route.pattern.matcher("/auth/login").matches()).isTrue();
-    assertThat(route.pattern.matcher("/auth/loginAndPrintReport").matches()).isFalse();
+    assertThat(route.pattern).isNull();
 
     assertThat(route.actionArgs).isEmpty();
     assertThat(route.actionPattern.toString()).isEqualTo("com[.]blah[.]AuthController[.]doLogin");
@@ -166,9 +163,8 @@ public class RouteTest {
     Route route = new Route("GET", "/robots.txt", "staticFile:/public/robots.txt", null, 0);
     assertThat(route.staticDir).isEqualTo("/public/robots.txt");
     assertThat(route.staticFile).isTrue();
-    assertThat(route.pattern.toString()).isEqualTo("^/robots.txt$");
-    assertThat(route.pattern.matcher("/robots.txt").matches()).isTrue();
-    assertThat(route.pattern.matcher("robots.txt").matches()).isFalse();
+    assertThat(route.path).isEqualTo("/robots.txt");
+    assertThat(route.pattern).isNull();
     assertThatThrownBy(() -> route.matches("GET", "/robots.txt"))
       .isInstanceOf(RenderStatic.class)
       .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("/public/robots.txt"));
@@ -179,5 +175,22 @@ public class RouteTest {
     assertThatThrownBy(() -> new Route("POST", "/robots.txt", "staticFile:/public/robots.txt", null, 0))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Static route only support GET method");
+  }
+
+  @Test
+  public void pathPatternString() {
+    assertThat(Route.pathPatternString("/foo/bar")).isEqualTo("/foo/bar");
+    assertThat(Route.pathPatternString("/cards/{<[^/]+>cardId}/details")).isEqualTo("/cards/(?<cardId>[^/]+)/details");
+    assertThat(Route.pathPatternString("/cards/{<[^/]+>id}/activate")).isEqualTo("/cards/(?<id>[^/]+)/activate");
+    assertThat(Route.pathPatternString("/file/{<[^/]+>id}")).isEqualTo("/file/(?<id>[^/]+)");
+  }
+
+  @Test
+  public void isRegexp() {
+    assertThat(Route.isRegexp("/.*")).isTrue();
+    assertThat(Route.isRegexp("/.+")).isTrue();
+    assertThat(Route.isRegexp("/cards/{cardId}/details")).isTrue();
+
+    assertThat(Route.isRegexp("/welcome")).isFalse();
   }
 }
