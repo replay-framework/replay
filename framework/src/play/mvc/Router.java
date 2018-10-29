@@ -695,7 +695,11 @@ public class Router {
                         }
                         throw new NotFound(resource);
                     } else {
-                        Map<String, String> localArgs = new HashMap<>();
+                        if (args.isEmpty() && staticArgs.isEmpty()) {
+                            return emptyMap();
+                        }
+
+                        Map<String, String> localArgs = new HashMap<>(args.size() + staticArgs.size());
                         for (Arg arg : args) {
                             localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
                         }
