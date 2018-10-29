@@ -13,6 +13,7 @@ import play.utils.Default;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -76,8 +77,8 @@ public class Router {
         }
     }
 
-    private Route findParameterlessRoute(Http.Request request) {
-        return parameterlessRoutes.getOrDefault(request.method.toUpperCase(), emptyMap()).get(request.path.toLowerCase());
+    private Route findParameterlessRoute(String method, String path) {
+        return parameterlessRoutes.getOrDefault(method.toUpperCase(), emptyMap()).get(path.toLowerCase());
     }
 
     public static void clearForTests() {
@@ -85,7 +86,7 @@ public class Router {
     }
 
     public static void resetForTests(List<Route> routes) {
-      instance.setRoutes(routes);
+        instance.setRoutes(routes);
     }
 
     /**
@@ -135,7 +136,7 @@ public class Router {
     }
 
     public void routeOnlyStatic(Http.Request request) {
-        Route parameterlessRoute = findParameterlessRoute(request);
+        Route parameterlessRoute = findParameterlessRoute(request.method, request.path);
         if (parameterlessRoute != null) {
             try {
                 if (parameterlessRoute.matches(request.method, request.path) != null) {
@@ -159,44 +160,47 @@ public class Router {
 
     Route route(Http.Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
-        Route parameterlessRoute = findParameterlessRoute(request);
-        if (parameterlessRoute != null) {
-            return processRoute(request, parameterlessRoute, emptyMap());
-        }
-        for (Route route : routes) {
-            Map<String, String> args = route.matches(request.method, request.path);
-            if (args != null) {
-                return processRoute(request, route, args);
-            }
-        }
-        // Not found - if the request was a HEAD, let's see if we can find a
-        // corresponding GET
-        if (request.method.equalsIgnoreCase("head")) {
+
+        MatchingRoute match = matchRoute(request.method, request.path);
+        if (match != null) return processRoute(request, match);
+
+        // Not found - if the request was a HEAD, let's see if we can find a corresponding GET
+        if ("HEAD".equalsIgnoreCase(request.method)) {
             request.method = "GET";
             Route route = route(request);
             request.method = "HEAD";
-            if (route != null) {
-                return route;
-            }
+            if (route != null) return route;
         }
         throw new NotFound(request.method, request.path);
     }
 
-    private Route processRoute(Http.Request request, Route route, Map<String, String> args) {
-        request.routeArgs = args;
-        request.action = route.action;
-        if (args.containsKey("format")) {
-            request.format = args.get("format");
+    @Nullable public MatchingRoute matchRoute(String method, String path) {
+        Route parameterlessRoute = findParameterlessRoute(method, path);
+        if (parameterlessRoute != null) return new MatchingRoute(parameterlessRoute, emptyMap());
+
+        for (Route route : routes) {
+            Map<String, String> args = route.matches(method, path);
+            if (args != null) return new MatchingRoute(route, args);
+        }
+
+        return null;
+    }
+
+    private Route processRoute(Http.Request request, MatchingRoute match) {
+        request.routeArgs = match.args;
+        request.action = match.route.action;
+        if (match.args.containsKey("format")) {
+            request.format = match.args.get("format");
         }
         if (request.action.contains("{")) { // more optimization ?
-            for (String arg : request.routeArgs.keySet()) {
-                request.action = request.action.replace("{" + arg + "}", request.routeArgs.get(arg));
+            for (Map.Entry<String, String> arg : request.routeArgs.entrySet()) {
+                request.action = request.action.replace("{" + arg.getKey() + "}", arg.getValue());
             }
         }
-        if (request.action.equals("404")) {
-            throw new NotFound(route.path);
+        if ("404".equals(request.action)) {
+            throw new NotFound(match.route.path);
         }
-        return route;
+        return match.route;
     }
 
     @Deprecated
@@ -661,7 +665,7 @@ public class Router {
          *            GET/POST/etc.
          * @param path
          *            Part after domain and before query-string. Starts with a "/".
-         * @return ???
+         * @return route args or null
          */
         public Map<String, String> matches(String method, String path) {
             // Normalize
@@ -729,6 +733,16 @@ public class Router {
         @Override
         public String toString() {
             return String.format("Route {%s %s %s}", method, path, action);
+        }
+    }
+
+    public static class MatchingRoute {
+        public final Route route;
+        public final Map<String, String> args;
+
+        public MatchingRoute(Route route, Map<String, String> args) {
+            this.route = route;
+            this.args = args;
         }
     }
 }
