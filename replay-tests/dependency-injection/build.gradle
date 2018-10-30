@@ -1,12 +1,3 @@
 dependencies {
   compile('com.codeborne.replay:replay-guice:1.6-git')
 }
-
-repositories {
-  ivy {
-    url uri('https://repo.codeborne.com')
-    layout "pattern", {
-      artifact "/com.google.inject/[module]/[module]-[revision].[ext]"
-    }
-  }
-}
