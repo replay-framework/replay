@@ -194,6 +194,12 @@ public class RouterTest {
           .hasMessage("No route found for action cards.Requisites.showPopup with arguments {}");
     }
 
+    @Test
+    public void actionToUrl_catchAllRoute() {
+        assertThat(actionToUrl("MyController.myAction", emptyMap())).isEqualTo("/mycontroller/myaction");
+        assertThat(actionToUrl("somePackage.MyController.myAction", emptyMap())).isEqualTo("/somepackage.mycontroller/myaction");
+    }
+
     private Router router() {
         return new Router(asList(
           new Router.Route("GET", "/cards/{cardId}/requisites", "cards.Requisites.showPopup", null, 0),
@@ -201,7 +207,8 @@ public class RouterTest {
           new Router.Route("GET", "/news/{method}", "News.{method}", null, 0),
           new Router.Route("POST", "/auth/login", "com.blah.AuthController.doLogin", null, 0),
           new Router.Route("GET", "/public/", "staticDir:public", null, 0),
-          new Router.Route("GET", "/robots.txt", "staticFile:/public/robots.txt", null, 0)
+          new Router.Route("GET", "/robots.txt", "staticFile:/public/robots.txt", null, 0),
+          new Router.Route("GET", "/{controller}/{action}", "{controller}.{action}", null, 0)
         ));
     }
 
