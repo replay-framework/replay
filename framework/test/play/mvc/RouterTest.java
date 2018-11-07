@@ -196,8 +196,12 @@ public class RouterTest {
 
     @Test
     public void actionToUrl_catchAllRoute() {
-        assertThat(actionToUrl("MyController.myAction", emptyMap())).isEqualTo("/mycontroller/myaction");
-        assertThat(actionToUrl("somePackage.MyController.myAction", emptyMap())).isEqualTo("/somepackage.mycontroller/myaction");
+        Router router = new Router(asList(
+          new Router.Route("GET", "/{controller}/{action}", "{controller}.{action}", null, 0)
+        ));
+
+        assertThat(router.actionToUrl("MyController.myAction", emptyMap(), null, null, null).url).isEqualTo("/mycontroller/myaction");
+        assertThat(router.actionToUrl("somePackage.MyController.myAction", emptyMap(), null, null, null).url).isEqualTo("/somepackage.mycontroller/myaction");
     }
 
     private Router router() {
@@ -207,8 +211,7 @@ public class RouterTest {
           new Router.Route("GET", "/news/{method}", "News.{method}", null, 0),
           new Router.Route("POST", "/auth/login", "com.blah.AuthController.doLogin", null, 0),
           new Router.Route("GET", "/public/", "staticDir:public", null, 0),
-          new Router.Route("GET", "/robots.txt", "staticFile:/public/robots.txt", null, 0),
-          new Router.Route("GET", "/{controller}/{action}", "{controller}.{action}", null, 0)
+          new Router.Route("GET", "/robots.txt", "staticFile:/public/robots.txt", null, 0)
         ));
     }
 
