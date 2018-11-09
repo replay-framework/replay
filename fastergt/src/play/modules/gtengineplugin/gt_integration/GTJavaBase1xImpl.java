@@ -1,9 +1,12 @@
 package play.modules.gtengineplugin.gt_integration;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.cache.Cache;
 import play.data.validation.Validation;
+import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Router;
 import play.template2.GTGroovyBase;
@@ -17,6 +20,7 @@ import play.utils.HTML;
 import java.util.Map;
 
 public abstract class GTJavaBase1xImpl extends GTJavaBase {
+    private static final Logger logger = LoggerFactory.getLogger(GTJavaBase1xImpl.class);
 
     protected GTJavaBase1xImpl(Class<? extends GTGroovyBase> groovyClass, GTTemplateLocation templateLocation) {
         super(groovyClass, templateLocation);
@@ -47,7 +51,12 @@ public abstract class GTJavaBase1xImpl extends GTJavaBase {
 
     @Override
     protected String resolveMessage(Object key, Object[] args) {
-        return Messages.get(key, args);
+        return Messages.getMessage(Lang.get(), this::getDefaultMessage, key, args);
+    }
+
+    private String getDefaultMessage(Object key) {
+        logger.warn("Unknown message: {}", key);
+        return StringEscapeUtils.escapeHtml(key.toString());
     }
 
     @Override
