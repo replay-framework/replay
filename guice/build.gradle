@@ -2,18 +2,12 @@ dependencies {
   compile project(':framework')
   testCompile project(':framework').sourceSets.test.compileClasspath
 
-  compile('com.google.inject:guice:4.2-java10')
-  compile('com.google.inject.extensions:guice-multibindings:4.2.0') {transitive = false}
+  compile('com.google.inject:guice:4.2.2')
+  compile('com.google.inject.extensions:guice-multibindings:4.2.2') {transitive = false}
   compile('aopalliance:aopalliance:1.0') {transitive = false}
 }
 
 repositories {
-  ivy {
-    url uri('https://repo.codeborne.com')
-    layout "pattern", {
-      artifact "/com.google.inject/[module]/[module]-[revision].[ext]"
-    }
-  }
   maven {
     url uri("${rootDir}/replay/repo")
   }

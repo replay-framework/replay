@@ -1,13 +1,12 @@
 package play.vfs;
 
-import org.apache.commons.io.IOUtils;
 import play.Play;
 import play.exceptions.UnexpectedException;
-import play.libs.IO;
 
-import java.io.*;
-import java.nio.channels.Channel;
-import java.security.AccessControlException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,16 +15,15 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FileUtils.readFileToByteArray;
+import static org.apache.commons.io.FileUtils.readFileToString;
 
-/**
- * The VFS used by Play!
- */
 public class VirtualFile {
 
-    File realFile;
+    private final File realFile;
 
-    VirtualFile(File file) {
+    private VirtualFile(File file) {
         this.realFile = file;
     }
 
@@ -66,7 +64,7 @@ public class VirtualFile {
         return builder.toString();
     }
 
-    String isRoot(File f) {
+    private String isRoot(File f) {
         for (VirtualFile vf : Play.roots) {
             if (vf.realFile.getAbsolutePath().equals(f.getAbsolutePath())) {
                 String modulePathName = vf.getName();
@@ -92,24 +90,12 @@ public class VirtualFile {
     }
 
     public boolean exists() {
-        try {
-            return realFile != null && realFile.exists();
-        } catch (AccessControlException e) {
-            return false;
-        }
+        return realFile != null && realFile.exists();
     }
 
     public InputStream inputstream() {
         try {
             return new FileInputStream(realFile);
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
-        }
-    }
-
-    public OutputStream outputstream() {
-        try {
-            return new FileOutputStream(realFile);
         } catch (Exception e) {
             throw new UnexpectedException(e);
         }
@@ -149,19 +135,6 @@ public class VirtualFile {
         return new VirtualFile(new File(realFile, name));
     }
 
-    public Channel channel() {
-        try {
-            FileInputStream fis = new FileInputStream(realFile);
-            try {
-                return fis.getChannel();
-            } finally {
-                closeQuietly(fis);
-            }
-        } catch (FileNotFoundException e) {
-            return null;
-        }
-    }
-
     public static VirtualFile open(String file) {
         return open(new File(file));
     }
@@ -172,13 +145,8 @@ public class VirtualFile {
 
     public String contentAsString() {
         try {
-            InputStream is = inputstream();
-            try {
-                return IO.readContentAsString(is);
-            } finally {
-                closeQuietly(is);
-            }
-        } catch (Exception e) {
+            return readFileToString(realFile, UTF_8);
+        } catch (IOException e) {
             throw new UnexpectedException(e);
         }
     }
@@ -187,23 +155,10 @@ public class VirtualFile {
         return realFile;
     }
 
-    public void write(CharSequence string) {
-        try {
-            IO.writeContent(string, outputstream());
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
-        }
-    }
-
     public byte[] content() {
         try {
-            InputStream is = inputstream();
-            try {
-                return IOUtils.toByteArray(is);
-            } finally {
-                closeQuietly(is);
-            }
-        } catch (Exception e) {
+            return readFileToByteArray(realFile);
+        } catch (IOException e) {
             throw new UnexpectedException(e);
         }
     }
@@ -223,10 +178,10 @@ public class VirtualFile {
     }
 
     public static VirtualFile fromRelativePath(String relativePath) {
-        if (relativePath == null) { // avoid NPE in pattern.matcher(relativePath)
+        if (relativePath == null) {
             return null;
         }
-        Pattern pattern = Pattern.compile("^(\\{(.+?)\\})?(.*)$");
+        Pattern pattern = Pattern.compile("^(\\{(.+?)})?(.*)$");
         Matcher matcher = pattern.matcher(relativePath);
 
         if (matcher.matches()) {
@@ -245,26 +200,5 @@ public class VirtualFile {
         }
 
         return null;
-    }
-
-    /**
-     * Method to check if the name really match (very useful on system without case sensibility (like windows))
-     * 
-     * @param fileName
-     *            The given file name
-     * @return true if match
-     */
-    public boolean matchName(String fileName) {
-        // we need to check the name case to be sure we is not conflict with a file with the same name
-        String canonicalName = null;
-        try {
-            canonicalName = this.realFile.getCanonicalFile().getName();
-        } catch (IOException e) {
-        }
-        // Name case match
-        if (fileName != null && canonicalName != null && fileName.endsWith(canonicalName)) {
-            return true;
-        }
-        return false;
     }
 }

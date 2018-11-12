@@ -6,6 +6,7 @@ import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,9 +106,13 @@ public class ConfLoader {
 
     void extractHttpPort() {
         String javaCommand = System.getProperty("sun.java.command", "");
-        jregex.Matcher m = new jregex.Pattern(".* --http.port=({port}\\d+)").matcher(javaCommand);
-        if (m.matches()) {
-            Play.configuration.setProperty("http.port", m.group("port"));
-        }
+        extractHttpPort(javaCommand).ifPresent((port) -> {
+            Play.configuration.setProperty("http.port", port);
+        });
+    }
+
+    Optional<String> extractHttpPort(String javaCommand) {
+        Matcher m = Pattern.compile(".* --http.port=(\\d+)").matcher(javaCommand);
+        return m.matches() ? Optional.of(m.group(1)) : Optional.empty();
     }
 }

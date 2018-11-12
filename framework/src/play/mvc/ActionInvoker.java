@@ -55,7 +55,7 @@ public class ActionInvoker {
         // Route and resolve format if not already done
         if (request.action == null) {
             Play.pluginCollection.routeRequest(request);
-            Router.route(request);
+            Router.instance.route(request);
         }
         request.resolveFormat();
 

@@ -1,6 +1,5 @@
 package play.db;
 
-import jregex.Matcher;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +14,12 @@ import javax.annotation.Nonnull;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.io.File;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -160,20 +156,6 @@ public class DBPlugin extends PlayPlugin {
         
         for (String dbName : dbNames) {
             Configuration dbConfig = new Configuration(dbName);
-            
-            if ("mem".equals(dbConfig.getProperty("db")) && dbConfig.getProperty("db.url") == null) {
-                dbConfig.put("db.driver", "org.h2.Driver");
-                dbConfig.put("db.url", "jdbc:h2:mem:play;MODE=MYSQL");
-                dbConfig.put("db.user", "sa");
-                dbConfig.put("db.pass", "");
-            }
-
-            if ("fs".equals(dbConfig.getProperty("db")) && dbConfig.getProperty("db.url") == null) {
-                dbConfig.put("db.driver", "org.h2.Driver");
-                dbConfig.put("db.url", "jdbc:h2:" + (new File(Play.applicationPath, "db/h2/play").getAbsolutePath()) + ";MODE=MYSQL");
-                dbConfig.put("db.user", "sa");
-                dbConfig.put("db.pass", "");
-            }
             String datasourceName = dbConfig.getProperty("db", "");
             DataSource ds = DB.getDataSource(dbName);
                      
@@ -186,46 +168,6 @@ public class DBPlugin extends PlayPlugin {
                 check(dbConfig, "internal pool", "db.destroyMethod");
 
                 dbConfig.put("db.destroyMethod", "close");
-            }
-
-            Matcher m = new jregex.Pattern("^mysql:(//)?(({user}[a-zA-Z0-9_]+)(:({pwd}[^@]+))?@)?(({host}[^/]+)/)?({name}[a-zA-Z0-9_]+)(\\?)?({parameters}[^\\s]+)?$").matcher(dbConfig.getProperty("db", ""));
-            if (m.matches()) {
-                String user = m.group("user");
-                String password = m.group("pwd");
-                String name = m.group("name");
-                String host = m.group("host");
-                String parameters = m.group("parameters");
-
-                Map<String, String> paramMap = new HashMap<>();
-                paramMap.put("useUnicode", "yes");
-                paramMap.put("characterEncoding", "UTF-8");
-                paramMap.put("connectionCollation", "utf8_general_ci");
-                addParameters(paramMap, parameters);
-                
-                dbConfig.put("db.driver", "com.mysql.jdbc.Driver");
-                dbConfig.put("db.url", "jdbc:mysql://" + (host == null ? "localhost" : host) + "/" + name + "?" + toQueryString(paramMap));
-                if (user != null) {
-                    dbConfig.put("db.user", user);
-                }
-                if (password != null) {
-                    dbConfig.put("db.pass", password);
-                }
-            }
-            
-            m = new jregex.Pattern("^postgres:(//)?(({user}[a-zA-Z0-9_]+)(:({pwd}[^@]+))?@)?(({host}[^/]+)/)?({name}[^\\s]+)$").matcher(dbConfig.getProperty("db", ""));
-            if (m.matches()) {
-                String user = m.group("user");
-                String password = m.group("pwd");
-                String name = m.group("name");
-                String host = m.group("host");
-                dbConfig.put("db.driver", "org.postgresql.Driver");
-                dbConfig.put("db.url", "jdbc:postgresql://" + (host == null ? "localhost" : host) + "/" + name);
-                if (user != null) {
-                    dbConfig.put("db.user", user);
-                }
-                if (password != null) {
-                    dbConfig.put("db.pass", password);
-                }
             }
 
             if ((dbConfig.getProperty("db.driver") == null) || (dbConfig.getProperty("db.url") == null)) {
@@ -255,27 +197,6 @@ public class DBPlugin extends PlayPlugin {
             }
         }
         return false;
-    }
-
-    private static void addParameters(Map<String, String> paramsMap, String urlQuery) {
-        if (!StringUtils.isBlank(urlQuery)) {
-            String[] params = urlQuery.split("[\\&]");
-            for (String param : params) {
-                String[] parts = param.split("[=]");
-                if (parts.length > 0 && !StringUtils.isBlank(parts[0])) {
-                    paramsMap.put(parts[0], parts.length > 1 ? StringUtils.stripToNull(parts[1]) : null);
-                }
-            }
-        }
-    }
-    
-    private static String toQueryString(Map<String, String> paramMap) {
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-            if (builder.length() > 0) builder.append("&");
-            builder.append(entry.getKey()).append("=").append(entry.getValue() != null ? entry.getValue() : "");
-        }
-        return builder.toString();
     }
 
     /**

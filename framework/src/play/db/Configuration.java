@@ -1,20 +1,20 @@
 package play.db;
 
-import jregex.Matcher;
-import jregex.Pattern;
 import play.Play;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Configuration {
 
     /** definition of regex to filter db related settings. */
-    final String regexDbRelatedSettings = "^(db|javax\\.persistence|jpa|(?:org\\.)?hibernate){1}";
+    private final String regexDbRelatedSettings = "^(db|javax\\.persistence|jpa|(?:org\\.)?hibernate){1}";
 
     /** compiled regex as a pattern for reuse to filter all db related settings. */
-    final java.util.regex.Pattern compiledRegexDbRelatedSettings = java.util.regex.Pattern.compile(regexDbRelatedSettings +".*");
+    private final Pattern compiledRegexDbRelatedSettings = Pattern.compile(regexDbRelatedSettings +".*");
 
-    public String configName;
+    private String configName;
 
     public boolean isDefault() {
         return DB.DEFAULT.equals(this.configName);
@@ -27,8 +27,8 @@ public class Configuration {
     public static Set<String> getDbNames() {
         TreeSet<String> dbNames = new TreeSet<>();
         // search for case db= or db.url= as at least one of these property is required
-        String DB_CONFIG_PATTERN = "^db\\.([^\\.]*)$|^db\\.([^\\.]*)\\.url$";
-        Pattern pattern = new jregex.Pattern(DB_CONFIG_PATTERN);
+        String DB_CONFIG_PATTERN = "^db\\.([^.]*)$|^db\\.([^.]*)\\.url$";
+        Pattern pattern = Pattern.compile(DB_CONFIG_PATTERN);
 
         // List of properties with 2 words
         List<String> dbProperties = Arrays.asList("db.driver", "db.url", "db.user", "db.pass", "db.isolation", "db.destroyMethod",
@@ -84,7 +84,7 @@ public class Configuration {
     }
 
     String generateKey(String key) {
-        Pattern pattern = new Pattern(regexDbRelatedSettings + "(\\.?[\\da-zA-Z\\.-_]*)$");
+        Pattern pattern = Pattern.compile(regexDbRelatedSettings + "(\\.?[\\da-zA-Z\\.-_]*)$");
         Matcher m = pattern.matcher(key);
         if (m.matches()) {
             return m.group(1) + "." + this.configName + m.group(2);
@@ -99,7 +99,7 @@ public class Configuration {
         for (Object key : Collections.list(props.keys())) {
             String keyName = key.toString();
 
-            final java.util.regex.Matcher matcher = compiledRegexDbRelatedSettings.matcher(keyName);
+            Matcher matcher = compiledRegexDbRelatedSettings.matcher(keyName);
             if (matcher.matches()) {
                 final String key_prefix_for_db_related_setting = matcher.group(1);
                 if (keyName.startsWith(key_prefix_for_db_related_setting + "." + this.configName)) {
@@ -111,7 +111,7 @@ public class Configuration {
                     properties.put(newKey, props.get(key).toString());
                 } else if (this.isDefault()) {
                     boolean isDefaultProperty = true;
-                    Set<String> dBNames = Configuration.getDbNames();
+                    Set<String> dBNames = getDbNames();
                     for (String dbName : dBNames) {
                         if (keyName.startsWith("db." + dbName) ||
                             keyName.startsWith("hibernate." + dbName)) {

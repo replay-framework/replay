@@ -198,7 +198,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     logger.trace("init: end false");
                     return false;
                 }
-                Router.routeOnlyStatic(request);
+                Router.instance.routeOnlyStatic(request);
                 super.init();
             } catch (NotFound nf) {
                 serve404(nf, ctx, request);
@@ -513,10 +513,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         String remoteAddress = getRemoteIPAddress(messageEvent);
         String method = nettyRequest.getMethod().getName();
-
-        if (nettyRequest.headers().get("X-HTTP-Method-Override") != null) {
-            method = nettyRequest.headers().get("X-HTTP-Method-Override").intern();
-        }
 
         InputStream body;
         ChannelBuffer b = nettyRequest.getContent();

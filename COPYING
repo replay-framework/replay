@@ -1,9 +1,9 @@
-Copyright 2017
+Copyright 2017-2018
 
     Andrei Solntsev (https://github.com/asolntsev)
     Codeborne (https://github.com/codeborne)
 
-Copyright 2010
+Copyright 2010-2017
 
     Guillaume Bort (http://guillaume.bort.fr)
     zenexity (http://www.zenexity.fr)
@@ -27,7 +27,6 @@ This package contains several Open sources libraries that are released under the
 
 http://www.apache.org/licenses/LICENSE-2.0
     - Netty
-    - Asyncweb
     - Cglib
     - Jakarta commons components
     - Eclipse compiler
@@ -39,21 +38,14 @@ http://www.apache.org/licenses/LICENSE-2.0
     - JSR 107 Cache
     - Log4J
     - Snake YAML
-    - Geronimo Servlets
     - Signpost
 
 http://www.gnu.org/licenses/lgpl.html
     - Hibernate
 
-http://www.antlr.org/license.html
-    - antlr
-
 http://www.opensource.org/licenses/bsd-license.php
     - Jamon
     - Jaxen
-    - JRegex
-    - Simple Captcha
-    - Imaging
 
 http://www.opensource.org/licenses/mit-license.php
     - Spy Memcached
@@ -61,7 +53,6 @@ http://www.opensource.org/licenses/mit-license.php
 
 http://www.eclipse.org/legal/epl-v10.html
     - H2 Database
-    - WikiText
     - Oval
 
 http://www.opensource.org/licenses/cpl1.0.php
@@ -69,7 +60,4 @@ http://www.opensource.org/licenses/cpl1.0.php
 
 http://www.mozilla.org/MPL/MPL-1.1.html
     - Javassist
-
-Public Domain
-    - backport-util-concurrent
 
