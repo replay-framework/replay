@@ -395,4 +395,15 @@ public class ScopeTest {
         assertThat(flash.out).isEmpty();
         verifyNoMoreInteractions(Scope.Flash.signer);
     }
+
+    @Test
+    public void containsFiles() {
+        request.args.put("__UPLOADS", "file");
+        assertThat(request.params.containsFiles()).isTrue();
+    }
+
+    @Test
+    public void containsFiles_false() {
+        assertThat(request.params.containsFiles()).isFalse();
+    }
 }

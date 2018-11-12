@@ -454,6 +454,11 @@ public class Scope {
             return data.containsKey(key);
         }
 
+        public boolean containsFiles() {
+            checkAndParse();
+            return request.args.containsKey("__UPLOADS");
+        }
+
         public String[] getAll(String key) {
             checkAndParse();
             return data.get(key);
