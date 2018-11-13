@@ -77,4 +77,8 @@ public class JPARepository<T extends JPABase> {
   public void save(T model) {
     model._save();
   }
+
+  public void delete(T model) {
+    model._delete();
+  }
 }
