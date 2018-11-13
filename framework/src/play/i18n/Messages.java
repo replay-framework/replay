@@ -6,7 +6,6 @@ import play.mvc.Http;
 import play.mvc.Scope;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,17 +86,13 @@ public class Messages {
     }
 
     public static String getMessage(String locale, Object key, Object... args) {
-        return getMessage(locale, (k) -> k.toString(), key, args);
-    }
-
-    public static String getMessage(String locale, Function<Object, String> defaultMessage, Object key, Object... args) {
         // Check if there is a plugin that handles translation
         String message = Play.pluginCollection.getMessage(locale, key, args);
         if (message != null) {
             return message;
         }
 
-        if (key == null || "".equals(key)) {
+        if (key == null) {
             return "";
         }
         String value = null;
@@ -113,10 +108,7 @@ public class Messages {
             value = defaults.getProperty(key.toString());
         }
         if (value == null) {
-            value = defaultMessage.apply(key);
-        }
-        if (value == null) {
-            return "";
+            value = key.toString();
         }
         Locale l = Lang.getLocaleOrDefault(locale);
         return formatString(l, value, args);
