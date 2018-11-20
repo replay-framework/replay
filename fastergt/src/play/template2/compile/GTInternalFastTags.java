@@ -3,12 +3,14 @@ package play.template2.compile;
 import play.template2.*;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTContentRendererFakeClosure;
+import play.utils.HTML;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static java.util.Arrays.binarySearch;
+import static play.utils.HTML.htmlEscape;
 
 public class GTInternalFastTags extends GTFastTag {
 
@@ -235,13 +237,13 @@ public class GTInternalFastTags extends GTFastTag {
         Object selectedValue = GTTagContext.singleton.parent("select").getData().get("selected");
         boolean selected = selectedValue != null && value != null && (selectedValue.toString()).equals(value.toString());
         template.out.append("<option value=\"")
-            .append(String.valueOf(value == null ? "" : value))
+            .append(htmlEscape(String.valueOf(value == null ? "" : value)))
             .append("\" ")
-            .append(selected ? "selected=\"selected\"" : "")
+            .append(selected ? "selected" : "")
             .append(" ")
             .append(serialize(args, "selected", "value"))
             .append(">");
-        template.insertOutput( _content.render());
+        template.insertOutput(_content.render());
         template.out.append("</option>");
     }
 
@@ -263,7 +265,7 @@ public class GTInternalFastTags extends GTFastTag {
             if (binarySearch(unless, attr) < 0 && !"arg".equals(attr)) {
                 attrs.append(attr);
                 attrs.append("=\"");
-                attrs.append(value);
+                attrs.append(htmlEscape(value));
                 attrs.append("\" ");
             }
         }

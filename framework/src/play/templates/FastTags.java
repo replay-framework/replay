@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static play.utils.HTML.htmlEscape;
+
 public class FastTags {
 
     public static void _cache(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
@@ -98,7 +100,7 @@ public class FastTags {
         Object value = args.get("arg");
         Object selectedValue = TagContext.parent("select").data.get("selected");
         boolean selected = selectedValue != null && value != null && (selectedValue.toString()).equals(value.toString());
-        out.print("<option value=\"" + (value == null ? "" : value) + "\" " + (selected ? "selected=\"selected\"" : "") + " "
+        out.print("<option value=\"" + htmlEscape(value == null ? "" : value.toString()) + "\" " + (selected ? "selected" : "") + " "
                 + serialize(args, "selected", "value") + ">");
         out.println(JavaExtensions.toString(body));
         out.print("</option>");
@@ -147,10 +149,10 @@ public class FastTags {
             name = args.get("name").toString();
         }
         String encoding = Http.Response.current().encoding;
-        out.println("<form action=\"" + actionDef.url + "\" method=\"" + actionDef.method.toLowerCase() + "\" accept-charset=\"" + encoding
-                + "\" enctype=\"" + enctype + "\" " + serialize(args, "name", "action", "method", "accept-charset", "enctype")
+        out.println("<form action=\"" + htmlEscape(actionDef.url) + "\" method=\"" + actionDef.method.toLowerCase() + "\" accept-charset=\"" + htmlEscape(encoding)
+                + "\" enctype=\"" + htmlEscape(enctype) + "\" " + serialize(args, "name", "action", "method", "accept-charset", "enctype")
                 + (name != null ? "name=\"" + name + "\"" : "") + ">");
-        if (!("GET".equals(actionDef.method))) {
+        if (!"GET".equals(actionDef.method)) {
             _authenticityToken(args, body, out, template, fromLine);
         }
         out.println(JavaExtensions.toString(body));
@@ -308,7 +310,7 @@ public class FastTags {
         if (!template.name.endsWith(".html")) {
             return val.toString();
         }
-        return HTML.htmlEscape(val.toString());
+        return htmlEscape(val.toString());
     }
 
     public static void _doLayout(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
@@ -435,7 +437,7 @@ public class FastTags {
             if (Arrays.binarySearch(unless, attr) < 0 && !attr.equals("arg")) {
                 attrs.append(attr);
                 attrs.append("=\"");
-                attrs.append(value);
+                attrs.append(htmlEscape(value));
                 attrs.append("\" ");
             }
         }
