@@ -15,6 +15,7 @@ import play.libs.Codec;
 import play.libs.Signer;
 import play.utils.Utils;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
@@ -402,7 +403,7 @@ public class Scope {
             requestIsParsed = true;
         }
 
-        public void put(String key, String value) {
+        public void put(String key, @Nullable String value) {
             checkAndParse();
             data.put(key, new String[] { value });
             // make sure rootsParamsNode is regenerated if needed
