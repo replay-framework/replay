@@ -13,12 +13,11 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.util.Collections.emptyMap;
 
 /**
  * 200 OK with a template rendering
@@ -113,7 +112,7 @@ public class View extends Result {
     return renderTime;
   }
 
-  public View with(String name, Object value) {
+  public View with(String name, @Nullable Object value) {
     arguments.put(name, value);
     return this;
   }
