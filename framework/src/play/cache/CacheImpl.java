@@ -1,6 +1,7 @@
 package play.cache;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A cache implementation.
@@ -8,15 +9,13 @@ import java.util.Map;
  * @see play.cache.Cache
  */
 public interface CacheImpl {
-    public void set(String key, Object value, int expiration);
+    void set(@Nonnull String key, Object value, int expiration);
 
-    public Object get(String key);
+    @Nullable Object get(@Nonnull String key);
 
-    public Map<String, Object> get(String[] keys);
+    void clear();
 
-    public void clear();
+    void delete(@Nonnull String key);
 
-    public void delete(String key);
-
-    public void stop();
+    void stop();
 }

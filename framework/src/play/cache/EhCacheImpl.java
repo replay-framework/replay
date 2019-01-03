@@ -8,14 +8,12 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.ExpiryPolicy;
 import play.Play;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.function.Supplier;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toMap;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
 import static org.ehcache.config.units.EntryUnit.ENTRIES;
@@ -77,24 +75,19 @@ public class EhCacheImpl implements CacheImpl {
     }
 
     @Override
-    public void delete(String key) {
+    public void delete(@Nonnull String key) {
         cache.remove(key);
     }
 
     @Override
-    public Object get(String key) {
+    @Nullable
+    public Object get(@Nonnull String key) {
         ValueWrapper valueWrapper = cache.get(key);
         return valueWrapper == null ? null : valueWrapper.value;
     }
 
     @Override
-    public Map<String, Object> get(String[] keys) {
-        return cache.getAll(new HashSet<>(asList(keys))).entrySet()
-                .stream().collect(toMap(Map.Entry::getKey, e -> e.getValue().value));
-    }
-
-    @Override
-    public void set(String key, Object value, int expiration) {
+    public void set(@Nonnull String key, Object value, int expiration) {
         cache.put(key, new ValueWrapper(value, expiration));
     }
 

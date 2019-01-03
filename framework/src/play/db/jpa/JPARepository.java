@@ -1,9 +1,9 @@
 package play.db.jpa;
 
 import play.db.jpa.GenericModel.JPAQuery;
-import play.mvc.Http;
-import play.mvc.Scope;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import javax.persistence.Entity;
 import javax.persistence.PersistenceUnit;
@@ -14,6 +14,7 @@ public class JPARepository<T extends JPABase> {
   private final String entityName;
   private String dbName;
 
+  @Nonnull
   public static <T extends JPABase> JPARepository<T> from(Class<T> modelClass) {
     return new JPARepository<>(modelClass);
   }
@@ -28,15 +29,6 @@ public class JPARepository<T extends JPABase> {
     entityName = modelClass.getName();
   }
 
-  public T create(Http.Request request, Scope.Session session, String name, Scope.Params params) {
-    try {
-      return (T) JPQL.instance.create(request, session, dbName, entityName, name, params);
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public long count() {
     return JPQL.instance.count(dbName, entityName);
   }
@@ -45,10 +37,12 @@ public class JPARepository<T extends JPABase> {
     return JPQL.instance.count(dbName, entityName, query, params);
   }
 
+  @Nonnull
   public List<T> findAll() {
     return JPQL.instance.findAll(dbName, entityName);
   }
 
+  @Nullable
   public T findById(Object id) {
     try {
       return (T) JPQL.instance.findById(dbName, entityName, id);
@@ -58,12 +52,9 @@ public class JPARepository<T extends JPABase> {
     }
   }
 
+  @Nonnull
   public JPAQuery find(String query, Object... params) {
     return JPQL.instance.find(dbName, entityName, query, params);
-  }
-
-  public JPAQuery all() {
-    return JPQL.instance.all(dbName, entityName);
   }
 
   public int delete(String query, Object... params) {

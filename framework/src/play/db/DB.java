@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import play.db.jpa.JPA;
 import play.exceptions.DatabaseException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -14,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,26 +86,30 @@ public class DB {
 
     static final ThreadLocal<Map<String, Connection>> localConnection = new ThreadLocal<>();
 
-    public static DataSource getDataSource(String name) {
+    @Nullable
+    public static DataSource getDataSource(@Nonnull String name) {
         if (datasources.get(name) != null) {
             return datasources.get(name).getDataSource();
         }
         return null;
     }
 
+    @Nonnull
+    @SuppressWarnings("ConstantConditions")
     public static DataSource getDataSource() {
         return getDataSource(DEFAULT);
     }
 
+    @Nonnull
     public static Map<String, DataSource> getDataSources() {
         return datasources.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().getDataSource()));
     }
 
-    private static Connection getLocalConnection(String name) {
+    @Nullable
+    private static Connection getLocalConnection(@Nonnull String name) {
         Map<String, Connection> map = localConnection.get();
         if (map != null) {
-            Connection connection = map.get(name);
-            return connection;
+            return map.get(name);
         }
         return null;
     }
@@ -167,6 +172,7 @@ public class DB {
      *            Name of the DB
      * @return A valid SQL connection
      */
+    @Nonnull
     public static Connection getConnection(String name) {
         try {
             if (JPA.isEnabled()) {
@@ -192,6 +198,7 @@ public class DB {
         }
     }
 
+    @Nonnull
     public static Connection getConnection() {
         return getConnection(DEFAULT);
     }

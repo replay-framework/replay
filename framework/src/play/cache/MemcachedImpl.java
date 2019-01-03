@@ -12,14 +12,13 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.ConfigurationException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Collections.emptyMap;
 
 /**
  * Memcached implementation (using http://code.google.com/p/spymemcached/)
@@ -128,7 +127,8 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     @Override
-    public Object get(String key) {
+    @Nullable
+    public Object get(@Nonnull String key) {
         Future<Object> future = client.asyncGet(key, tc);
         try {
             return future.get(1, TimeUnit.SECONDS);
@@ -144,23 +144,12 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     @Override
-    public void delete(String key) {
+    public void delete(@Nonnull String key) {
         client.delete(key);
     }
 
     @Override
-    public Map<String, Object> get(String[] keys) {
-        Future<Map<String, Object>> future = client.asyncGetBulk(tc, keys);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(false);
-        }
-        return emptyMap();
-    }
-
-    @Override
-    public void set(String key, Object value, int expiration) {
+    public void set(@Nonnull String key, Object value, int expiration) {
         client.set(key, expiration, value, tc);
     }
 

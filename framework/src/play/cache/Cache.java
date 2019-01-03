@@ -6,9 +6,10 @@ import play.Play;
 import play.exceptions.CacheException;
 import play.libs.Time;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.NotSerializableException;
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * The Cache. Mainly an interface to memcached or EhCache.
@@ -39,17 +40,9 @@ public abstract class Cache {
      * @param key The element key
      * @return The element value or null
      */
-    public static <T> T get(String key) {
+    @Nullable
+    public static <T> T get(@Nonnull String key) {
         return (T) cacheImpl.get(key);
-    }
-
-    /**
-     * Bulk retrieve.
-     * @param key List of keys
-     * @return Map of keys &amp; values
-     */
-    public static Map<String, Object> get(String... key) {
-        return cacheImpl.get(key);
     }
 
     /**
