@@ -15,6 +15,7 @@ import play.libs.Codec;
 import play.libs.Signer;
 import play.utils.Utils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -223,7 +224,8 @@ public class Scope {
         protected static final String UA_KEY = "___UA";
         private static final Signer signer = new Signer("auth-token");
 
-        public static Session restore(Http.Request request, Http.Response response) {
+        @Nonnull
+        public static Session restore(@Nonnull Http.Request request) {
             Session session = sessionStore.restore(request);
             String storedUserAgent = session.get(UA_KEY);
             String requestUserAgent = getUserAgent(request);
@@ -249,6 +251,7 @@ public class Scope {
             current.remove();
         }
 
+        @Nonnull
         public String getId() {
             if (!data.containsKey(ID_KEY)) {
                 this.put(ID_KEY, Codec.UUID());
@@ -257,10 +260,12 @@ public class Scope {
 
         }
 
+        @Nonnull
         public Map<String, String> all() {
             return data;
         }
 
+        @Nonnull
         public String getAuthenticityToken() {
             if (!data.containsKey(AT_KEY)) {
                 this.put(AT_KEY, signer.sign(Codec.UUID()));
@@ -272,19 +277,20 @@ public class Scope {
             changed = true;
         }
 
-        public void save(Http.Request request, Http.Response response) {
+        public void save(@Nonnull Http.Request request, Http.Response response) {
             if (!isEmpty() && !contains(UA_KEY)) {
                 put(UA_KEY, getUserAgent(request));
             }
             sessionStore.save(this, request, response);
         }
 
-        private static String getUserAgent(Http.Request request) {
+        @Nullable
+        private static String getUserAgent(@Nonnull Http.Request request) {
             Http.Header agent = request.headers.get("user-agent");
             return agent != null ? agent.value() : "n/a";
         }
 
-        public void put(String key, String value) {
+        public void put(@Nonnull String key, @Nullable String value) {
             if (key.contains(":")) {
                 throw new IllegalArgumentException("Character ':' is invalid in a session key.");
             }
@@ -296,7 +302,7 @@ public class Scope {
             }
         }
 
-        public void put(String key, Object value) {
+        public void put(@Nonnull String key, @Nullable Object value) {
             change();
             if (value == null) {
                 put(key, (String) null);
@@ -305,16 +311,17 @@ public class Scope {
             }
         }
 
-        public String get(String key) {
+        @Nullable
+        public String get(@Nonnull String key) {
             return data.get(key);
         }
 
-        public boolean remove(String key) {
+        public boolean remove(@Nonnull String key) {
             change();
             return data.remove(key) != null;
         }
 
-        public void remove(String... keys) {
+        public void remove(@Nonnull String... keys) {
             for (String key : keys) {
                 remove(key);
             }
@@ -341,7 +348,7 @@ public class Scope {
             return true;
         }
 
-        public boolean contains(String key) {
+        public boolean contains(@Nonnull String key) {
             return data.containsKey(key);
         }
 

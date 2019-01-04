@@ -226,7 +226,7 @@ public class ScopeTest {
         request.setHeader("User-Agent", "Chrome;");
         when(Scope.sessionStore.restore(request)).thenReturn(session);
 
-        assertThat(Session.restore(request, response)).isSameAs(session);
+        assertThat(Session.restore(request)).isSameAs(session);
 
         verify(session, never()).clear();
         verify(Scope.sessionStore, never()).save(session, request, response);
@@ -238,7 +238,7 @@ public class ScopeTest {
         request.setHeader("User-Agent", "Chrome;");
         when(Scope.sessionStore.restore(request)).thenReturn(session);
 
-        assertThat(Session.restore(request, response)).isSameAs(session);
+        assertThat(Session.restore(request)).isSameAs(session);
     }
 
     @Test

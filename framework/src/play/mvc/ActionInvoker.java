@@ -96,7 +96,7 @@ public class ActionInvoker {
 
     public static void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
-        Session session = Session.restore(request, response);
+        Session session = Session.restore(request);
         Flash flash = Flash.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         initActionContext(request, response, session, renderArgs, flash);
