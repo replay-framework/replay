@@ -17,6 +17,7 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,13 +25,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.util.Collections.list;
 import static java.util.Objects.hash;
@@ -483,7 +478,7 @@ public class PluginCollection {
         }
     }
 
-    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nullable Session session) {
         for (PlayPlugin plugin : getEnabledPlugins()) {
             plugin.onActionInvocationFinally(request, session);
         }

@@ -9,6 +9,7 @@ import play.libs.Time;
 import play.utils.HTTP;
 import play.utils.Utils;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -294,6 +295,7 @@ public class Http {
         /**
          * Params
          */
+        @Nonnull
         public final Scope.Params params = new Scope.Params(this);
 
         /**

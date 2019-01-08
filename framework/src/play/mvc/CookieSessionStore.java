@@ -5,7 +5,14 @@ import play.exceptions.UnexpectedException;
 import play.libs.Signer;
 import play.libs.Time;
 
-import static play.mvc.Scope.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static play.mvc.Scope.COOKIE_PREFIX;
+import static play.mvc.Scope.COOKIE_SECURE;
+import static play.mvc.Scope.SESSION_HTTPONLY;
+import static play.mvc.Scope.SESSION_SEND_ONLY_IF_CHANGED;
+import static play.mvc.Scope.Session;
 import static play.mvc.Scope.Session.TS_KEY;
 
 /**
@@ -17,7 +24,7 @@ public class CookieSessionStore implements SessionStore {
     private final Signer signer = new Signer("session-");
 
     @Override
-    public Session restore(Http.Request request) {
+    public Session restore(@Nonnull Http.Request request) {
         try {
             Session session = new Session();
             Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_SESSION");
@@ -65,7 +72,7 @@ public class CookieSessionStore implements SessionStore {
     }
 
     @Override
-    public void save(Session session, Http.Request request, Http.Response response) {
+    public void save(@Nonnull Session session, @Nonnull Http.Request request, @Nullable Http.Response response) {
         if (response == null) {
             // Some request like WebSocket don't have any response
             return;

@@ -124,32 +124,6 @@ public class ScopeTest {
     }
 
     @Test
-    public void testParamsRemoveStartWith() {
-        mockRequestAndResponse();
-        Params params = new Params(request);
-        params.put("param1", "test");
-        params.put("param1.test", "test2");
-
-        params.put("param1.object", "obj");
-        params.put("param1.object.param1", "param1");
-        params.put("param1.object.param2", "param2");
-        params.put("param1.object.param2.3", "param3");
-
-        assertEquals(6, params.all().size());
-
-        params.removeStartWith("param1.object");
-
-        assertTrue(params.contains("param1"));
-        assertTrue(params.contains("param1.test"));
-        assertFalse(params.contains("param1.object"));
-        assertFalse(params.contains("param1.object.param1"));
-        assertFalse(params.contains("param1.object.param2"));
-        assertFalse(params.contains("param1.object.param2.3"));
-
-        assertEquals(2, params.all().size());
-    }
-
-    @Test
     public void sessionPutWithNullObject() {
         Session session = new Session();
         session.put("hello", (Object) null);
@@ -325,9 +299,6 @@ public class ScopeTest {
 
         flash.put("boolean", (Boolean) null);
         assertNull(flash.get("boolean"));
-
-        flash.put("enum", (Enum<?>) null);
-        assertNull(flash.get("enum"));
     }
 
     private enum TestEnum {
