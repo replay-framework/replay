@@ -8,23 +8,12 @@ import play.mvc.Http;
 import play.mvc.Router;
 import play.plugins.PluginCollection;
 import play.templates.TemplateLoader;
-import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Main framework class
@@ -282,7 +271,7 @@ public class Play {
         }
     }
 
-    public synchronized void stop() {
+    public void stop() {
         if (started) {
             logger.info("Stopping the play application");
             pluginCollection.onApplicationStop();
