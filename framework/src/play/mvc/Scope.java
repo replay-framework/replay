@@ -131,9 +131,7 @@ public class Scope {
         }
 
         public void put(@Nonnull String key, @Nullable String value) {
-            if (key.contains(":")) {
-                throw new IllegalArgumentException("Character ':' is invalid in a flash key.");
-            }
+            validateKey(key);
             data.put(key, value);
             out.put(key, value);
         }
@@ -156,6 +154,17 @@ public class Scope {
 
         public void put(@Nonnull String key, @Nonnull Enum<?> value) {
             put(key, value.name());
+        }
+
+        public void now(@Nonnull String key, @Nonnull  String value) {
+            validateKey(key);
+            data.put(key, value);
+        }
+
+        private void validateKey(@Nonnull String key) {
+            if (key.contains(":")) {
+                throw new IllegalArgumentException("Character ':' is invalid in a flash key.");
+            }
         }
 
         public void error(@Nonnull String value, Object... args) {
