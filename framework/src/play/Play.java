@@ -271,7 +271,7 @@ public class Play {
         }
     }
 
-    public void stop() {
+    private void stop() {
         if (started) {
             logger.info("Stopping the play application");
             pluginCollection.onApplicationStop();
@@ -284,7 +284,7 @@ public class Play {
         }
     }
 
-    public static synchronized void detectChanges() {
+    static void detectChanges() {
         Router.detectChanges();
         pluginCollection.detectChange();
     }
@@ -367,11 +367,11 @@ public class Play {
     }
 
     /**
-     * Returns true if application is runing in test-mode. Test-mode is resolved from the framework id.
+     * Returns true if application is running in test-mode. Test-mode is resolved from the framework id.
      *
-     * Your app is running in test-mode if the framwork id (Play.id) is 'test' or 'test-?.*'
+     * Your app is running in test-mode if the framework id (Play.id) is 'test' or 'test-?.*'
      * 
-     * @return true if testmode
+     * @return true if test mode
      */
     public static boolean runningInTestMode() {
         return id.matches("test|test-?.*");
