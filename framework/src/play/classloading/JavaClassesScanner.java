@@ -39,7 +39,7 @@ public class JavaClassesScanner {
       }
       else if (file.getName().endsWith(".class")) {
         String className = packageName == null ? classNameOf(file) : packageName + '.' + classNameOf(file);
-        result.add(Class.forName(className));
+        result.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
       }
     }
     return result;
