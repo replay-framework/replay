@@ -1,12 +1,9 @@
 package ui.hello;
 
 import com.codeborne.selenide.Configuration;
-import org.junit.After;
 import org.junit.Before;
 import play.Play;
 import play.server.Server;
-
-import java.io.File;
 
 import static org.openqa.selenium.net.PortProber.findFreePort;
 
@@ -31,10 +28,5 @@ public class BaseSpec {
 
     Configuration.browser = "chrome";
     Configuration.headless = true;
-  }
-
-  @After
-  public void tearDown() {
-    play.stop();
   }
 }
