@@ -5,5 +5,4 @@
 700:play.jobs.JobsPlugin
 800:play.modules.gtengineplugin.GTEnginePlugin
 1002:play.db.jpa.JPAPlugin
-100000:play.plugins.ConfigurablePluginDisablingPlugin
 100100:play.plugins.PlayStatusPlugin
