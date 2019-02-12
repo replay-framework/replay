@@ -116,9 +116,9 @@ public abstract class Binder {
         if (paramNode != null) {
 
             // Let a chance to plugins to bind this object
-            result = Play.pluginCollection.bind(request, session, parentParamNode, name, clazz, type, annotations);
-            if (result != null) {
-                return result;
+            Optional<Object> bound = Play.pluginCollection.bind(request, session, parentParamNode, name, clazz, type, annotations);
+            if (bound.isPresent()) {
+                return bound.get();
             }
 
             result = internalBind(request, session, paramNode, clazz, type, bindingAnnotations);

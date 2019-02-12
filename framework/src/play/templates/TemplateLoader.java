@@ -9,46 +9,17 @@ import play.vfs.VirtualFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.io.FileUtils.copyURLToFile;
 
 public class TemplateLoader {
     private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
-    protected static Map<String, BaseTemplate> templates = new HashMap<>();
-    /**
-     * See getUniqueNumberForTemplateFile() for more info
-     */
-    private static AtomicLong nextUniqueNumber = new AtomicLong(1000);// we start on 1000
-    private static Map<String, String> templateFile2UniqueNumber = Collections.synchronizedMap(new HashMap<String, String>());
-
-    /**
-     * All loaded templates is cached in the templates-list using a key. This key is included as part of the classname
-     * for the generated class for a specific template. The key is included in the classname to make it possible to
-     * resolve the original template-file from the classname, when creating cleanStackTrace
-     *
-     * This method returns a unique representation of the path which is usable as part of a classname
-     *
-     * @param path
-     *            Path of the template file
-     * @return a unique representation of the path which is usable as part of a classname
-     */
-    public static String getUniqueNumberForTemplateFile(String path) {
-        // a path cannot be a valid classname so we have to convert it somehow.
-        // If we did some encoding on the path, the result would be at least as long as the path.
-        // Therefor we assign a unique number to each path the first time we see it, and store it..
-        // This way, all seen paths gets a unique number. This number is our UniqueValidClassnamePart..
-
-        String uniqueNumber = templateFile2UniqueNumber.get(path);
-        if (uniqueNumber == null) {
-            // this is the first time we see this path - must assign a unique number to it.
-            uniqueNumber = Long.toString(nextUniqueNumber.getAndIncrement());
-            templateFile2UniqueNumber.put(path, uniqueNumber);
-        }
-        return uniqueNumber;
-    }
+    private static final Map<String, BaseTemplate> templates = new HashMap<>();
 
     /**
      * Load a template from a virtual file
@@ -58,10 +29,8 @@ public class TemplateLoader {
      * @return The executable template
      */
     public static Template load(VirtualFile file) {
-        Template template = Play.pluginCollection.loadTemplate(file);
-        if (template == null)
-            throw new TemplateNotFoundException(file.relativePath());
-        return template;
+        return Play.pluginCollection.loadTemplate(file)
+          .orElseThrow(() -> new TemplateNotFoundException(file.relativePath()));
     }
 
     /**
@@ -69,16 +38,6 @@ public class TemplateLoader {
      */
     public static void cleanCompiledCache() {
         templates.clear();
-    }
-
-    /**
-     * Cleans the specified key from the cache
-     * 
-     * @param key
-     *            The template key
-     */
-    public static void cleanCompiledCache(String key) {
-        templates.remove(key);
     }
 
     /**

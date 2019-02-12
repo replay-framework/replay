@@ -5,6 +5,8 @@ import play.PlayPlugin;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import java.util.Optional;
+
 public class GTEnginePlugin extends PlayPlugin {
     private synchronized void init() {
         fixTemplatesPathOrder();
@@ -45,7 +47,7 @@ public class GTEnginePlugin extends PlayPlugin {
     }
 
     @Override
-    public Template loadTemplate(VirtualFile file) {
-        return TemplateLoader.load(file);
+    public Optional<Template> loadTemplate(VirtualFile file) {
+        return Optional.of(TemplateLoader.load(file));
     }
 }

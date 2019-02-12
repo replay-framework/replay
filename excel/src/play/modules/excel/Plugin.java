@@ -39,6 +39,7 @@ import play.vfs.VirtualFile;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 
@@ -46,12 +47,12 @@ public class Plugin extends PlayPlugin {
     
     public static PlayPlugin templateLoader;
     
-    private final static Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
+    private static final Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
 
     @Override
-    public Template loadTemplate(VirtualFile file) {
-        if (!p_.matcher(file.getName()).matches()) return null;
-        if (null == templateLoader) return new ExcelTemplate(file);
+    public Optional<Template> loadTemplate(VirtualFile file) {
+        if (!p_.matcher(file.getName()).matches()) return Optional.empty();
+        if (null == templateLoader) return Optional.of(new ExcelTemplate(file));
         return templateLoader.loadTemplate(file);
     }
     

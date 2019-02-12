@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 /**
  * A framework plugin
@@ -26,6 +27,16 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * Plugin priority (0 for highest priority)
      */
     public int index;
+
+    private boolean enabled = true;
+
+    protected void disable() {
+        enabled = false;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 
     /**
      * Called at plugin loading
@@ -64,8 +75,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            arguments of the messages
      * @return the formatted string
      */
-    public String getMessage(String locale, Object key, Object... args) {
-        return null;
+    public Optional<String> getMessage(String locale, Object key, Object... args) {
+        return Optional.empty();
     }
 
     /**
@@ -104,8 +115,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            the file of the template to load
      * @return the template object
      */
-    public Template loadTemplate(VirtualFile file) {
-        return null;
+    public Optional<Template> loadTemplate(VirtualFile file) {
+        return Optional.empty();
     }
 
     /**

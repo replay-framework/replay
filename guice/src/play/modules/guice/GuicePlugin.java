@@ -127,9 +127,8 @@ public class GuicePlugin extends PlayPlugin implements BeanSource {
   }
 
   private void injectPlayPlugins() {
-    for (PlayPlugin plugin : Play.pluginCollection.getAllPlugins()) {
-      injector.injectMembers(plugin);
-    }
+    Play.pluginCollection.getAllPlugins()
+      .forEach(plugin -> injector.injectMembers(plugin));
   }
 
   private boolean isInjectable(Field field) {

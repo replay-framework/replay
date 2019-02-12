@@ -16,7 +16,7 @@ public class ConfigurationChangeWatcherPlugin extends PlayPlugin {
     @Override
     public void onConfigurationRead() {
         if (Play.mode.isProd()) {
-            Play.pluginCollection.disablePlugin(this);
+            disable();
         }
     }
 

@@ -17,7 +17,7 @@ public class DBBrowserPlugin extends PlayPlugin {
     @Override
     public void onConfigurationRead() {
         if (!Play.mode.isDev()) {
-            Play.pluginCollection.disablePlugin(this);
+            disable();
         }
     }
 

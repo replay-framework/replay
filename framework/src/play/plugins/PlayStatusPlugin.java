@@ -37,7 +37,7 @@ public class PlayStatusPlugin extends PlayPlugin {
     public String computeApplicationStatus(boolean json) {
         if (json) {
             JsonObject o = new JsonObject();
-            for (PlayPlugin plugin : Play.pluginCollection.getEnabledPlugins()) {
+            Play.pluginCollection.getEnabledPlugins().forEach(plugin -> {
                 try {
                     JsonObject status = plugin.getJsonStatus();
                     if (status != null) {
@@ -48,11 +48,11 @@ public class PlayStatusPlugin extends PlayPlugin {
                     error.add("error", new JsonPrimitive(e.getMessage()));
                     o.add(plugin.getClass().getName(), error);
                 }
-            }
+            });
             return o.toString();
-        }
+        };
         StringBuilder dump = new StringBuilder(16);
-        for (PlayPlugin plugin : Play.pluginCollection.getEnabledPlugins()) {
+        Play.pluginCollection.getEnabledPlugins().forEach(plugin -> {
             try {
                 String status = plugin.getStatus();
                 if (status != null) {
@@ -62,7 +62,7 @@ public class PlayStatusPlugin extends PlayPlugin {
             } catch (Throwable e) {
                 dump.append(plugin.getClass().getName()).append(".getStatus() has failed (").append(e.getMessage()).append(")");
             }
-        }
+        });
         return dump.toString();
     }
 
@@ -137,10 +137,10 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println();
         out.println("Loaded plugins:");
         out.println("~~~~~~~~~~~~~~");
-        for (PlayPlugin plugin : Play.pluginCollection.getAllPlugins()) {
+        Play.pluginCollection.getAllPlugins().forEach(plugin ->
             out.println(plugin.index + ":" + plugin.getClass().getName() + " ["
-                    + (Play.pluginCollection.isEnabled(plugin) ? "enabled" : "disabled") + "]");
-        }
+                    + (plugin.isEnabled() ? "enabled" : "disabled") + "]")
+        );
         out.println();
         out.println("Threads:");
         out.println("~~~~~~~~");
