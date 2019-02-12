@@ -5,6 +5,7 @@ import org.junit.Test;
 import play.ConfigurationChangeWatcherPlugin;
 import play.Play;
 import play.PlayBuilder;
+import play.PlayPlugin;
 import play.data.parsing.TempFilePlugin;
 import play.data.validation.ValidationPlugin;
 import play.db.DBPlugin;
@@ -39,7 +40,7 @@ public class PluginCollectionTest {
                 pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class),
                 pc.getPluginInstance(JPAPlugin.class),
                 pc.getPluginInstance(MessagesPlugin.class), pc.getPluginInstance(WS.class),
-                pc.getPluginInstance(JobsPlugin.class), pc.getPluginInstance(ConfigurablePluginDisablingPlugin.class),
+                pc.getPluginInstance(JobsPlugin.class),
                 pc.getPluginInstance(PlayStatusPlugin.class));
     }
 
@@ -113,3 +114,5 @@ public class PluginCollectionTest {
     }
 }
 
+class TestPlugin extends PlayPlugin {
+}
