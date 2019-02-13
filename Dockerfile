@@ -3,4 +3,4 @@ FROM openjdk:11
 COPY . /build
 WORKDIR /build
 
-RUN ./gradlew check
+RUN ./gradlew
