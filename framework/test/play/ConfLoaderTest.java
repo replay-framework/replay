@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Test;
 import play.utils.OrderSafeProperties;
 
-import java.util.Optional;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,12 +52,5 @@ public class ConfLoaderTest {
     props.setProperty("%prod.hello", "prod");
     props = loader.resolvePlayIdOverrides(props, "prod");
     assertThat(props.getProperty("hello")).isEqualTo("prod");
-  }
-
-  @Test
-  public void extractsPort() {
-    assertThat(loader.extractHttpPort("java -Xmx256m")).isEqualTo(Optional.empty());
-    assertThat(loader.extractHttpPort("java -Xmx256m --http.port=9666")).isEqualTo(Optional.of("9666"));
-
   }
 }

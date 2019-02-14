@@ -196,8 +196,6 @@ public class Play {
         confs = new HashSet<>();
         ConfLoader confLoader = new ConfLoader();
         configuration = confLoader.readOneConfigurationFile("application.conf");
-        confLoader.extractHttpPort();
-        // Plugins
         pluginCollection.onConfigurationRead();
     }
 
