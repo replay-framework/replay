@@ -5,12 +5,10 @@ import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-import play.vfs.VirtualFile;
 
 public class RenderStatic extends Result {
 
     public String file;
-    public VirtualFile resolvedFile;
 
     public RenderStatic(String file) {
         this.file = file;
