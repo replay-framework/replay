@@ -70,10 +70,6 @@ public class Play {
      */
     public static Map<String, VirtualFile> modulesRoutes = new HashMap<>(16);
     /**
-     * The loaded configuration files
-     */
-    public static Set<VirtualFile> confs = new HashSet<>(1);
-    /**
      * The app configuration (already resolved from the framework id)
      */
     public static Properties configuration = new Properties();
@@ -107,6 +103,16 @@ public class Play {
     public static String defaultWebEncoding = "utf-8";
 
     public static Invoker invoker;
+
+    private final ConfLoader confLoader;
+
+    public Play() {
+        this(new ConfLoader());
+    }
+
+    public Play(ConfLoader confLoader) {
+      this.confLoader = confLoader;
+    }
 
     /**
      * Init the framework
@@ -193,8 +199,6 @@ public class Play {
      * Read application.conf and resolve overridden key using the play id mechanism.
      */
     private void readConfiguration() {
-        confs = new HashSet<>();
-        ConfLoader confLoader = new ConfLoader();
         configuration = confLoader.readOneConfigurationFile("application.conf");
         pluginCollection.onConfigurationRead();
     }
