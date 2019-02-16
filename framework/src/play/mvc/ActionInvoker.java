@@ -61,9 +61,8 @@ public class ActionInvoker {
 
         // Find the action method
         try {
-            Method actionMethod;
             Object[] ca = getActionMethod(request.action);
-            actionMethod = (Method) ca[1];
+            Method actionMethod = (Method) ca[1];
             request.controller = ((Class) ca[0]).getName().substring(12).replace("$", "");
             request.controllerClass = ((Class) ca[0]);
             request.actionMethod = actionMethod.getName();
@@ -100,6 +99,10 @@ public class ActionInvoker {
         Flash flash = Flash.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         initActionContext(request, response, session, renderArgs, flash);
+
+        if (!Modifier.isStatic(request.invokedMethod.getModifiers())) {
+            request.controllerInstance = Injector.getBeanOfType(request.controllerClass);
+        }
 
         try {
             Method actionMethod = request.invokedMethod;
@@ -413,14 +416,10 @@ public class ActionInvoker {
     static Object invokeControllerMethod(Http.Request request, Session session, Method method, Object[] forceArgs) throws Exception {
         boolean isStatic = Modifier.isStatic(method.getModifiers());
 
-        if (!isStatic && request.controllerInstance == null) {
-            request.controllerInstance = Injector.getBeanOfType(request.controllerClass);
-        }
-
         Object[] args = forceArgs != null ? forceArgs : getActionMethodArgs(request, session, method);
 
         Object methodClassInstance = isStatic ? null :
-            (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
+           (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
                 Injector.getBeanOfType(method.getDeclaringClass());
 
         return invoke(method, methodClassInstance, args);
