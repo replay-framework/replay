@@ -11,7 +11,6 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
-import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 
 import javax.persistence.*;
@@ -32,7 +31,6 @@ public class JPABase implements Serializable, play.db.Model {
         String dbName = JPA.getDBName(this.getClass());
         if (!em(dbName).contains(this)) {
             em(dbName).persist(this);
-            PlayPlugin.postEvent("JPASupport.objectPersisted", this);
         }
         avoidCascadeSaveLoops.set(new HashSet<>());
         try {
@@ -84,7 +82,6 @@ public class JPABase implements Serializable, play.db.Model {
             } finally {
                 avoidCascadeSaveLoops.get().clear();
             }
-            PlayPlugin.postEvent("JPASupport.objectDeleted", this);
         } catch (PersistenceException e) {
             throw e;
         } catch (Throwable e) {
@@ -98,7 +95,7 @@ public class JPABase implements Serializable, play.db.Model {
     }
 
     // ~~~ SAVING
-    public transient boolean willBeSaved = false;
+    public transient boolean willBeSaved;
     static final transient ThreadLocal<Set<JPABase>> avoidCascadeSaveLoops = new ThreadLocal<>();
 
     private void saveAndCascade(boolean willBeSaved) {
@@ -107,9 +104,6 @@ public class JPABase implements Serializable, play.db.Model {
             return;
         } else {
             avoidCascadeSaveLoops.get().add(this);
-            if (willBeSaved) {
-                PlayPlugin.postEvent("JPASupport.objectUpdated", this);
-            }
         }
         // Cascade save
         try {
@@ -198,8 +192,7 @@ public class JPABase implements Serializable, play.db.Model {
                 Type ct = cp.getElementType();
                 if (ct instanceof EntityType) {
                     EntityEntry entry = pc.getEntry(base);
-                    String entityName = entry.getEntityName();
-                    entityName = ((EntityType) ct).getAssociatedEntityName(session.getFactory());
+                    String entityName = ((EntityType) ct).getAssociatedEntityName(session.getFactory());
                     if (ce.getSnapshot() != null) {
                         Collection orphans = ce.getOrphans(entityName, persistentCollection);
                         for (Object o : orphans) {

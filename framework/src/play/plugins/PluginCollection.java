@@ -223,10 +223,6 @@ public class PluginCollection {
         });
     }
 
-    public void onEvent(String message, Object context) {
-        getEnabledPlugins().forEach(plugin -> plugin.onEvent(message, context));
-    }
-
     public Optional<Object> bind(Http.Request request, Session session, RootParamNode rootParamNode, String name, Class<?> clazz, Type type, Annotation[] annotations) {
         return getEnabledPlugins()
           .map(plugin -> plugin.bind(request, session, rootParamNode, name, clazz, type, annotations))

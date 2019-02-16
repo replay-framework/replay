@@ -220,35 +220,12 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Event may be sent by plugins or other components
-     * 
-     * @param message
-     *            convention: pluginClassShortName.message
-     * @param context
-     *            depends on the plugin
-     */
-    public void onEvent(String message, Object context) {
-    }
-
-    /**
      * Let some plugins route themselves
      *
      * @param request
      *            the current request
      */
     public void routeRequest(Request request) {
-    }
-
-    /**
-     * Inter-plugin communication.
-     * 
-     * @param message
-     *            the message to post
-     * @param context
-     *            an object
-     */
-    public static void postEvent(String message, Object context) {
-        Play.pluginCollection.onEvent(message, context);
     }
 
     @Override
