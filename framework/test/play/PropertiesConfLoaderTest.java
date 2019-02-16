@@ -8,8 +8,8 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConfLoaderTest {
-  ConfLoader loader = new ConfLoader();
+public class PropertiesConfLoaderTest {
+  PropertiesConfLoader loader = new PropertiesConfLoader();
 
   @After
   public void tearDown() {
@@ -18,39 +18,35 @@ public class ConfLoaderTest {
 
   @Test
   public void noOverriding() {
-    Play.id = "";
     Properties props = new OrderSafeProperties();
     props.setProperty("%web.hello", "web");
-    props = loader.resolvePlayIdOverrides(props, null);
+    props = loader.resolvePlayIdOverrides(props, "", null);
     assertThat(props.getProperty("hello")).isNull();
   }
 
   @Test
   public void override() {
-    Play.id = "web";
     Properties props = new OrderSafeProperties();
     props.setProperty("hello", "initial");
     props.setProperty("%web.hello", "web");
-    props = loader.resolvePlayIdOverrides(props, null);
+    props = loader.resolvePlayIdOverrides(props, "web", null);
     assertThat(props.getProperty("hello")).isEqualTo("web");
   }
 
   @Test
   public void playIdIsMoreSpecificAndWins() {
-    Play.id = "web";
     Properties props = new OrderSafeProperties();
     props.setProperty("%web.hello", "web");
     props.setProperty("%prod.hello", "prod");
-    props = loader.resolvePlayIdOverrides(props, "prod");
+    props = loader.resolvePlayIdOverrides(props, "web", "prod");
     assertThat(props.getProperty("hello")).isEqualTo("web");
   }
 
   @Test
   public void inheritIndependentOfOrder() {
-    Play.id = "web";
     Properties props = new OrderSafeProperties();
     props.setProperty("%prod.hello", "prod");
-    props = loader.resolvePlayIdOverrides(props, "prod");
+    props = loader.resolvePlayIdOverrides(props, "web", "prod");
     assertThat(props.getProperty("hello")).isEqualTo("prod");
   }
 }

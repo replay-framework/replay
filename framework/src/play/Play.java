@@ -107,7 +107,7 @@ public class Play {
     private final ConfLoader confLoader;
 
     public Play() {
-        this(new ConfLoader());
+        this(new PropertiesConfLoader());
     }
 
     public Play(ConfLoader confLoader) {
@@ -199,7 +199,7 @@ public class Play {
      * Read application.conf and resolve overridden key using the play id mechanism.
      */
     private void readConfiguration() {
-        configuration = confLoader.readOneConfigurationFile("application.conf");
+        configuration = confLoader.readConfiguration(Play.id);
         pluginCollection.onConfigurationRead();
     }
 
