@@ -1,3 +1,2 @@
 500:plugins.DebugPlugin
 800:play.modules.gtengineplugin.GTEnginePlugin
-1000:play.modules.guice.GuicePlugin

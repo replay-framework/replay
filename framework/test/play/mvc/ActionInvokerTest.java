@@ -45,18 +45,23 @@ public class ActionInvokerTest {
     @Test
     public void invokeNonStaticJavaMethod() throws Exception {
         request.controllerClass = TestController.class;
+        request.controllerInstance = new TestController();
+
         assertEquals("non-static-parent", ActionInvoker.invokeControllerMethod(request, session, TestController.class.getMethod("nonStaticJavaMethod"), noArgs));
     }
 
     @Test
     public void invokeNonStaticJavaMethodInChildController() throws Exception {
         request.controllerClass = TestChildController.class;
+        request.controllerInstance = new TestChildController();
+
         assertEquals("non-static-child", ActionInvoker.invokeControllerMethod(request, session, TestChildController.class.getMethod("nonStaticJavaMethod"), noArgs));
     }
 
     @Test
     public void invokeNonStaticJavaMethodWithNonStaticWith() throws Exception {
         request.controllerClass = TestControllerWithWith.class;
+        request.controllerInstance = new TestControllerWithWith();
         executeMethod("handleBefores", request, session);
         assertEquals("non-static", ActionInvoker.invokeControllerMethod(request, session, TestControllerWithWith.class.getMethod("nonStaticJavaMethod")));
         executeMethod("handleAfters", request, session);
@@ -73,6 +78,7 @@ public class ActionInvokerTest {
     @Test
     public void controllerInstanceIsPreservedForAllControllerMethodInvocations() throws Exception {
         request.controllerClass = FullCycleTestController.class;
+        request.controllerInstance = new FullCycleTestController();
 
         Controller controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, session, FullCycleTestController.class.getMethod("before"), noArgs);
         assertSame(controllerInstance, request.controllerInstance);

@@ -3,15 +3,25 @@ package play;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
+import play.inject.BeanSource;
+import play.inject.DefaultBeanSource;
+import play.inject.Injector;
+import play.jobs.Job;
 import play.libs.IO;
 import play.mvc.Http;
+import play.mvc.PlayController;
 import play.mvc.Router;
 import play.plugins.PluginCollection;
+import play.templates.FastTags;
+import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 import play.vfs.VirtualFile;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -105,13 +115,15 @@ public class Play {
     public static Invoker invoker;
 
     private final ConfLoader confLoader;
+    private final BeanSource beanSource;
 
     public Play() {
-        this(new PropertiesConfLoader());
+        this(new PropertiesConfLoader(), new DefaultBeanSource());
     }
 
-    public Play(ConfLoader confLoader) {
-      this.confLoader = confLoader;
+    public Play(ConfLoader confLoader, BeanSource beanSource) {
+        this.confLoader = confLoader;
+        this.beanSource = beanSource;
     }
 
     /**
@@ -120,6 +132,7 @@ public class Play {
      * @param id The framework id to use
      */
     public void init(String id) {
+        Injector.setBeanSource(beanSource);
         Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
         Play.id = id;
         Play.started = false;
@@ -223,6 +236,7 @@ public class Play {
             Router.detectChanges();
             Cache.init();
             pluginCollection.onApplicationStart();
+            injectStaticFields();
 
             started = true;
             startedAt = System.currentTimeMillis();
@@ -233,6 +247,40 @@ public class Play {
             stop();
             started = false;
             throw e;
+        }
+    }
+
+    private void injectStaticFields() {
+        injectStaticFields(Play.classes.getAssignableClasses(PlayController.class));
+        injectStaticFields(Play.classes.getAssignableClasses(Job.class));
+        injectStaticFields(Play.classes.getAssignableClasses(FastTags.class));
+        injectStaticFields(Play.classes.getAssignableClasses(JavaExtensions.class));
+    }
+
+    private <T> void injectStaticFields(List<Class<? extends T>> classes) {
+        for (Class<?> clazz : classes) {
+            injectStaticFields(clazz);
+        }
+    }
+
+    private void injectStaticFields(Class<?> clazz) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (isStaticInjectable(field)) {
+                inject(field);
+            }
+        }
+    }
+
+    private boolean isStaticInjectable(Field field) {
+        return Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(Inject.class);
+    }
+
+    private void inject(Field field) {
+        field.setAccessible(true);
+        try {
+            field.set(null, beanSource.getBeanOfType(field.getType()));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
