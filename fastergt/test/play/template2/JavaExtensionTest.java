@@ -16,16 +16,13 @@ public class JavaExtensionTest {
     private TemplateSourceRenderer createSourceRenderer() {
         TemplateSourceRenderer sr = new TemplateSourceRenderer( new GTTemplateRepoBuilder()
                 .withTemplateRootFolder(new TemplateRootFolder())
-                .withGTJavaExtensionMethodResolver(new GTJavaExtensionMethodResolver() {
-                    @Override
-                    public Class findClassWithMethod(String methodName) {
-                        for (Method m : SimpleJavaExtensions.class.getDeclaredMethods()) {
-                            if (m.getName().equals(methodName)) {
-                                return SimpleJavaExtensions.class;
-                            }
+                .withGTJavaExtensionMethodResolver(methodName -> {
+                    for (Method m : SimpleJavaExtensions.class.getDeclaredMethods()) {
+                        if (m.getName().equals(methodName)) {
+                            return SimpleJavaExtensions.class;
                         }
-                        return null;
                     }
+                    return null;
                 })
                 .build());
         return sr;

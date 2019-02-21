@@ -24,7 +24,7 @@ import java.util.Map;
 
 public abstract class GTJavaBase extends GTRenderingResult {
 
-    public static final String executeNextElseKeyName = "_executeNextElse";
+    private static final String executeNextElseKeyName = "_executeNextElse";
 
     public StringWriter out;
 
@@ -32,12 +32,12 @@ public abstract class GTJavaBase extends GTRenderingResult {
     public Binding binding;
     private final Class<? extends GTGroovyBase> groovyClass;
 
-    protected Map<String, Object> orgArgs;
+    private Map<String, Object> orgArgs;
 
     // if this tag uses #{extends}, then the templatePath we extends is stored here.
-    public GTTemplateLocationReal extendsTemplateLocation; // default is not to extend anything...
-    public GTJavaBase extendedTemplate;
-    public GTJavaBase extendingTemplate; // if someone is extending us, this is the ref to their rendered template - used when dumping their output
+    protected GTTemplateLocationReal extendsTemplateLocation; // default is not to extend anything...
+    protected GTJavaBase extendedTemplate;
+    protected GTJavaBase extendingTemplate; // if someone is extending us, this is the ref to their rendered template - used when dumping their output
 
     // When invoking a template as a tag, the content of the tag / body is stored here..
     public GTContentRenderer contentRenderer;
@@ -54,7 +54,6 @@ public abstract class GTJavaBase extends GTRenderingResult {
         this.templateLocation = templateLocation;
 
         initNewOut();
-
     }
 
 
@@ -133,7 +132,6 @@ public abstract class GTJavaBase extends GTRenderingResult {
             this.binding.setProperty("java_class", this);
             // must init our groovy script
 
-            //groovyScript = InvokerHelper.createScript(groovyClass, binding);
             groovyScript = groovyClass.newInstance();
             groovyScript.setBinding( binding );
 
