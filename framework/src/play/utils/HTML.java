@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 /*
  * Copyright 2002-2005 the original author or authors.
  *
@@ -53,8 +55,8 @@ public class HTML {
      * @return the escaped string
      */
     public static String htmlEscape(String input) {
-        if (input == null) {
-            return null;
+        if (isEmpty(input)) {
+            return input;
         }
         StringBuilder escaped = new StringBuilder(input.length() * 2);
         for (int i = 0; i < input.length(); i++) {

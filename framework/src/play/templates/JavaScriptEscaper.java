@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 public class JavaScriptEscaper {
   public static String escape(String str) {
-      if (str == null) {
-          return null;
+      if (isEmpty(str)) {
+          return str;
       }
       try {
           StringWriter writer = new StringWriter(str.length() * 2);
