@@ -1,11 +1,9 @@
 package play.mvc;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.After;
 import org.junit.Test;
 import play.PlayBuilder;
 import play.i18n.Messages;
-import play.libs.Signer;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -15,9 +13,7 @@ import play.mvc.Scope.Session;
 import java.math.BigDecimal;
 import java.util.Properties;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -36,12 +32,11 @@ public class ScopeTest {
     public void playBuilderBefore() {
         new PlayBuilder().build();
         Scope.sessionStore = mock(SessionStore.class);
-        Scope.Flash.signer = mock(Signer.class);
     }
 
     @After
     public void tearDown() {
-        Scope.Flash.signer = new Signer("salt");
+        Scope.sessionStore = null;
     }
 
     private static void mockRequestAndResponse() {
@@ -316,55 +311,6 @@ public class ScopeTest {
         assertTrue(params.contains("name"));
         assertTrue(params.contains("name2"));
         assertFalse(params.contains("name3"));
-    }
-
-    @Test
-    public void flash_save_addsSignatureToCookieValue() {
-        Flash flash = new Flash();
-        flash.put("foo", "bar");
-        when(Scope.Flash.signer.sign(anyString())).thenReturn("SIGNATURE");
-
-        flash.save(request, response);
-
-        assertThat(response.cookies).containsKeys("PLAY_FLASH");
-        String cookie = response.cookies.get("PLAY_FLASH").value;
-        assertThat(cookie).isEqualTo("SIGNATURE-Zm9vPWJhcg==");
-        assertThat(new String(Base64.decodeBase64(cookie.replace("SIGNATURE-", "")), UTF_8)).isEqualTo("foo=bar");
-        verify(Scope.Flash.signer).sign("Zm9vPWJhcg==");
-    }
-
-    @Test
-    public void flash_restore() {
-        request.cookies.put("PLAY_FLASH", new Http.Cookie("PLAY_FLASH", "SIGNATURE-Zm9vPWJhcg=="));
-        when(Scope.Flash.signer.isValid(anyString(), anyString())).thenReturn(true);
-
-        Flash flash = Flash.restore(request);
-
-        assertThat(flash.get("foo")).isEqualTo("bar");
-        verify(Scope.Flash.signer).isValid("SIGNATURE", "Zm9vPWJhcg==");
-    }
-
-    @Test
-    public void flash_restore_checksSignature() {
-        request.cookies.put("PLAY_FLASH", new Http.Cookie("PLAY_FLASH", "SIGNATURE-Zm9vPWJhcg=="));
-        when(Scope.Flash.signer.isValid(anyString(), anyString())).thenReturn(false);
-
-        assertThatThrownBy(() -> Flash.restore(request))
-          .isInstanceOf(ForbiddenException.class)
-          .hasMessage("Invalid flash signature: SIGNATURE-Zm9vPWJhcg==");
-
-        verify(Scope.Flash.signer).isValid("SIGNATURE", "Zm9vPWJhcg==");
-    }
-
-    @Test
-    public void flash_restore_oldFormatCookie() {
-        request.cookies.put("PLAY_FLASH", new Http.Cookie("PLAY_FLASH", "Zm9vPWJhcg=="));
-
-        Flash flash = Flash.restore(request);
-
-        assertThat(flash.data).isEmpty();
-        assertThat(flash.out).isEmpty();
-        verifyNoMoreInteractions(Scope.Flash.signer);
     }
 
     @Test

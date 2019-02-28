@@ -41,6 +41,8 @@ import java.util.Map;
 public class ActionInvoker {
     private static final Logger logger = LoggerFactory.getLogger(ActionInvoker.class);
 
+    private final FlashStore flashStore = new FlashStore();
+
     @SuppressWarnings("unchecked")
     public static void resolve(Http.Request request) {
 
@@ -93,10 +95,10 @@ public class ActionInvoker {
         CachedBoundActionMethodArgs.init();
     }
 
-    public static void invoke(Http.Request request, Http.Response response) {
+    public void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
         Session session = Session.restore(request);
-        Flash flash = Flash.restore(request);
+        Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         initActionContext(request, response, session, renderArgs, flash);
 
@@ -173,13 +175,13 @@ public class ActionInvoker {
         }
     }
 
-    private static void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
+    private void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
         Play.pluginCollection.onActionInvocationResult(request, response, session, renderArgs, result);
 
         // OK there is a result to apply
         // Save session & flash scope now
         session.save(request, response);
-        flash.save(request, response);
+        flashStore.save(flash, request, response);
 
         try {
             result.apply(request, response, session, renderArgs, flash);

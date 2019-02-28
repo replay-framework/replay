@@ -5,23 +5,9 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
-import org.jboss.netty.handler.codec.http.HttpHeaders;
-import org.jboss.netty.handler.codec.http.HttpMessage;
-import org.jboss.netty.handler.codec.http.HttpMethod;
-import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpResponse;
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
-import org.jboss.netty.handler.codec.http.HttpVersion;
+import org.jboss.netty.handler.codec.http.*;
 import org.jboss.netty.handler.codec.http.cookie.Cookie;
 import org.jboss.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -32,8 +18,8 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invocation;
-import play.Invoker;
 import play.InvocationContext;
+import play.Invoker;
 import play.Play;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.validation.Validation;
@@ -57,12 +43,7 @@ import play.templates.TemplateLoader;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -96,6 +77,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     public Map<String, ChannelHandler> pipelines = new HashMap<>();
 
     private final Invoker invoker;
+    private final ActionInvoker actionInvoker = new ActionInvoker();
 
     public PlayHandler(Invoker invoker) {
         this.invoker = invoker;
@@ -268,7 +250,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             // Check the exceeded size before re rendering so we can render the
             // error if the size is exceeded
             saveExceededSizeError(nettyRequest, request);
-            ActionInvoker.invoke(request, response);
+            actionInvoker.invoke(request, response);
         }
 
         @Override
