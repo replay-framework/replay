@@ -63,15 +63,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
 
     /**
-     * If true (the default), Play will send the HTTP header
-     * "Server: Play! Framework; ....". This could be a security problem (old
-     * versions having publicly known security bugs), so you can disable the
-     * header in application.conf: {@code http.exposePlayServer = false}
-     */
-    private final String signature = "Play! Framework;" + Play.mode.name().toLowerCase();
-    private final boolean exposePlayServer = !"false".equals(Play.configuration.getProperty("http.exposePlayServer"));
-
-    /**
      * The Pipeline is given for a PlayHandler
      */
     public Map<String, ChannelHandler> pipelines = new HashMap<>();
@@ -766,11 +757,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
 
     private HttpResponse createHttpResponse(HttpResponseStatus status) {
-        HttpResponse nettyResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
-        if (exposePlayServer) {
-            nettyResponse.headers().set(SERVER, signature);
-        }
-        return nettyResponse;
+        return new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
     }
 
     public void serveStatic(RenderStatic renderStatic, ChannelHandlerContext ctx, Request request, Response response,
