@@ -21,7 +21,7 @@ public class FlashStore {
   private final SessionDataEncoder encoder = new SessionDataEncoder();
   private final Signer signer;
 
-  FlashStore() {
+  public FlashStore() {
     this(new Signer("флэшрояль"));
   }
 
