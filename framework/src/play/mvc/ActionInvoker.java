@@ -176,7 +176,7 @@ public class ActionInvoker {
     }
 
     private void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
-        Play.pluginCollection.onActionInvocationResult(request, response, session, renderArgs, result);
+        Play.pluginCollection.onActionInvocationResult(request, response, session, flash, renderArgs, result);
 
         session.save(request, response);
 

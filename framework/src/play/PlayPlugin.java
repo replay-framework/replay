@@ -169,16 +169,8 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      */
     public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
                                        Flash flash, Method actionMethod) {
-        beforeActionInvocation(request, response, session, renderArgs, actionMethod);
     }
 
-    /**
-     * @deprecated Use/override method with flash parameter
-     */
-    @Deprecated
-    public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
-                                       Method actionMethod) {
-    }
 
     /**
      * Called when the action method has thrown a result.
@@ -186,15 +178,17 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * @param result
      *            The result object for the request.
      */
-    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs, Result result) {
-        onActionInvocationResult(request, response, renderArgs, result);
+    public void onActionInvocationResult(@Nonnull Request request, @Nonnull Response response,
+                                         @Nonnull Session session, @Nonnull Flash flash,
+                                         @Nonnull RenderArgs renderArgs, @Nonnull Result result) {
+        onActionInvocationResult(request, response, session, renderArgs, result);
     }
 
     /**
-     * @deprecated Use/override method with session parameter
+     * @deprecated Use/override method with flash parameter
      */
     @Deprecated
-    public void onActionInvocationResult(Request request, Response response, RenderArgs renderArgs, Result result) {
+    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs, Result result) {
     }
 
     public void onInvocationSuccess() {

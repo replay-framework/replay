@@ -244,10 +244,10 @@ public class PluginCollection {
           plugin.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod));
     }
 
-    public void onActionInvocationResult(Request request, Response response, Session session, RenderArgs renderArgs,
+    public void onActionInvocationResult(Request request, Response response, Session session, Flash flash, RenderArgs renderArgs,
                                          Result result) {
         getEnabledPlugins().forEach(plugin ->
-          plugin.onActionInvocationResult(request, response, session, renderArgs, result));
+          plugin.onActionInvocationResult(request, response, session, flash, renderArgs, result));
     }
 
     public void afterActionInvocation(Request request, Response response, Flash flash) {
