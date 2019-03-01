@@ -103,6 +103,8 @@ public class View extends Result {
   }
 
   public Map<String, Object> getArguments() {
+    if (RenderArgs.current.get() == null) return arguments;
+
     Map<String, Object> combinedArguments = new HashMap<>(RenderArgs.current().data);
     combinedArguments.putAll(arguments);
     return combinedArguments;
