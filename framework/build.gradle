@@ -30,7 +30,6 @@ dependencies {
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
   compile('net.sf.oval:oval:1.90')
-  compile('oauth.signpost:signpost-core:1.2.1.2')
   compile('org.codehaus.groovy:groovy:2.5.6')
   compile('org.codehaus.groovy:groovy-dateutil:2.5.6')
   compile('org.codehaus.groovy:groovy-datetime:2.5.6')

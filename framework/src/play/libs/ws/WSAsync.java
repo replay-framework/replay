@@ -12,17 +12,11 @@ import com.ning.http.client.Response;
 import com.ning.http.client.multipart.ByteArrayPart;
 import com.ning.http.client.multipart.FilePart;
 import com.ning.http.client.multipart.Part;
-import oauth.signpost.AbstractOAuthConsumer;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.http.HttpRequest;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.libs.MimeTypes;
-import play.libs.OAuth.ServiceInfo;
 import play.libs.Promise;
 import play.libs.WS.HttpResponse;
 import play.libs.WS.WSImpl;
@@ -31,7 +25,6 @@ import play.mvc.Http.Header;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -261,7 +254,6 @@ public class WSAsync implements WSImpl {
         @Override
         public HttpResponse get() {
             this.type = "GET";
-            sign();
             try {
                 return new HttpAsyncResponse(prepare(prepareGet()).execute().get());
             } catch (Exception e) {
@@ -273,7 +265,6 @@ public class WSAsync implements WSImpl {
         @Override
         public Promise<HttpResponse> getAsync() {
             this.type = "GET";
-            sign();
             return execute(prepareGet());
         }
 
@@ -281,7 +272,6 @@ public class WSAsync implements WSImpl {
         @Override
         public HttpResponse patch() {
             this.type = "PATCH";
-            sign();
             try {
                 return new HttpAsyncResponse(prepare(preparePatch()).execute().get());
             } catch (Exception e) {
@@ -293,7 +283,6 @@ public class WSAsync implements WSImpl {
         @Override
         public Promise<HttpResponse> patchAsync() {
             this.type = "PATCH";
-            sign();
             return execute(preparePatch());
         }
 
@@ -301,7 +290,6 @@ public class WSAsync implements WSImpl {
         @Override
         public HttpResponse post() {
             this.type = "POST";
-            sign();
             try {
                 return new HttpAsyncResponse(prepare(preparePost()).execute().get());
             } catch (Exception e) {
@@ -313,7 +301,6 @@ public class WSAsync implements WSImpl {
         @Override
         public Promise<HttpResponse> postAsync() {
             this.type = "POST";
-            sign();
             return execute(preparePost());
         }
 
@@ -401,18 +388,6 @@ public class WSAsync implements WSImpl {
         public Promise<HttpResponse> traceAsync() {
             this.type = "TRACE";
             throw new NotImplementedException();
-        }
-
-        private WSRequest sign() {
-            if (this.oauthToken != null && this.oauthSecret != null) {
-                WSOAuthConsumer consumer = new WSOAuthConsumer(oauthInfo, oauthToken, oauthSecret);
-                try {
-                    consumer.sign(this, this.type);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return this;
         }
 
         private BoundRequestBuilder prepare(BoundRequestBuilder builder) {
@@ -710,94 +685,4 @@ public class WSAsync implements WSImpl {
         }
 
     }
-
-    private static class WSOAuthConsumer extends AbstractOAuthConsumer {
-
-        public WSOAuthConsumer(String consumerKey, String consumerSecret) {
-            super(consumerKey, consumerSecret);
-        }
-
-        public WSOAuthConsumer(ServiceInfo info, String token, String secret) {
-            super(info.consumerKey, info.consumerSecret);
-            setTokenWithSecret(token, secret);
-        }
-
-        @Override
-        protected HttpRequest wrap(Object request) {
-            if (!(request instanceof WSRequest)) {
-                throw new IllegalArgumentException("WSOAuthConsumer expects requests of type play.libs.WS.WSRequest");
-            }
-            return new WSRequestAdapter((WSRequest) request);
-        }
-
-        public WSRequest sign(WSRequest request, String method)
-                throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
-            WSRequestAdapter req = (WSRequestAdapter) wrap(request);
-            req.setMethod(method);
-            sign(req);
-            return request;
-        }
-
-        public class WSRequestAdapter implements HttpRequest {
-
-            private WSRequest request;
-            private String method;
-
-            public WSRequestAdapter(WSRequest request) {
-                this.request = request;
-            }
-
-            @Override
-            public Map<String, String> getAllHeaders() {
-                return request.headers;
-            }
-
-            @Override
-            public String getContentType() {
-                return request.mimeType;
-            }
-
-            @Override
-            public Object unwrap() {
-                return null;
-            }
-
-            @Override
-            public String getHeader(String name) {
-                return request.headers.get(name);
-            }
-
-            @Override
-            public InputStream getMessagePayload() throws IOException {
-                return null;
-            }
-
-            @Override
-            public String getMethod() {
-                return this.method;
-            }
-
-            private void setMethod(String method) {
-                this.method = method;
-            }
-
-            @Override
-            public String getRequestUrl() {
-                return request.url;
-            }
-
-            @Override
-            public void setHeader(String name, String value) {
-                request.setHeader(name, value);
-            }
-
-            @Override
-            public void setRequestUrl(String url) {
-                request.url = url;
-            }
-
-        }
-
-    }
-
 }

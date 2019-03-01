@@ -9,7 +9,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import play.Play;
 import play.PlayPlugin;
-import play.libs.OAuth.ServiceInfo;
 import play.libs.ws.WSAsync;
 import play.libs.ws.WSUrlFetch;
 import play.mvc.Http;
@@ -251,10 +250,6 @@ public class WS extends PlayPlugin {
          */
         public Integer timeout = 60;
 
-        public ServiceInfo oauthInfo;
-        public String oauthToken;
-        public String oauthSecret;
-
         public WSRequest() {
             this.encoding = Play.defaultWebEncoding;
         }
@@ -322,25 +317,6 @@ public class WS extends PlayPlugin {
          */
         public WSRequest authenticate(String username, String password) {
             return authenticate(username, password, Scheme.BASIC);
-        }
-
-        /**
-         * Sign the request for do a call to a server protected by OAuth
-         * 
-         * @param oauthInfo
-         *            OAuth Information
-         * @param token
-         *            The OAuth token
-         * @param secret
-         *            The secret key
-         * 
-         * @return the WSRequest for chaining.
-         */
-        public WSRequest oauth(ServiceInfo oauthInfo, String token, String secret) {
-            this.oauthInfo = oauthInfo;
-            this.oauthToken = token;
-            this.oauthSecret = secret;
-            return this;
         }
 
         /**

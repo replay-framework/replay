@@ -38,7 +38,6 @@ http://www.apache.org/licenses/LICENSE-2.0
     - JSR 107 Cache
     - Log4J
     - Snake YAML
-    - Signpost
 
 http://www.gnu.org/licenses/lgpl.html
     - Hibernate
