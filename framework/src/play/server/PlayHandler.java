@@ -106,7 +106,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
 
                 // Raw invocation
-                boolean raw = Play.pluginCollection.rawInvocation(request, response, Session.current(), RenderArgs.current(), Flash.current());
+                boolean raw = Play.pluginCollection.rawInvocation(request, response, null, RenderArgs.current(), Flash.current());
                 if (raw) {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
@@ -153,7 +153,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Scope.Params.setCurrent(request.params);
             RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
-            Session.current.set(null);
+            Session.removeCurrent();
             Flash.current.set(null);
             CachedBoundActionMethodArgs.init();
 
