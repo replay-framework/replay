@@ -1,9 +1,8 @@
 package play.i18n;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
-import play.data.binding.Binder;
-import play.mvc.Http;
-import play.mvc.Scope;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +28,7 @@ import java.util.regex.Pattern;
  * 
  */
 public class Messages {
+    private static final Logger logger = LoggerFactory.getLogger(Messages.class);
 
     private static final Object[] NO_ARGS = new Object[] { null };
 
@@ -147,7 +147,7 @@ public class Messages {
         // when invoked with a null argument we get a null args instead of an
         // array with a null value.
 
-        if (args == null)
+        if (args == null || args.length == 0)
             return NO_ARGS;
 
         Class<? extends Number>[] conversions = new Class[args.length];
@@ -179,11 +179,22 @@ public class Messages {
                 result[i] = args[i];
             } else {
                 try {
-                    // TODO: I think we need to type of direct bind -> primitive
-                    // and object binder
-                    result[i] = Binder.directBind(Http.Request.current(), Scope.Session.current(), null, args[i] + "", conversions[i], null);
-                } catch (Exception e) {
-                    // Ignore
+                    String argValue = String.valueOf(args[i]);
+                    if (Double.class.isAssignableFrom(conversions[i])) {
+                        result[i] = Double.parseDouble(argValue);
+                    }
+                    else if (Long.class.isAssignableFrom(conversions[i])) {
+                        result[i] = Long.parseLong(argValue.contains(".") ? argValue.substring(0, argValue.indexOf('.')) : argValue);
+                    }
+                    else {
+                        throw new IllegalStateException("Cannot parse argument #" + i + "=" + argValue + ": unknown conversion type " + conversions[i]);
+                    }
+                } catch (IllegalStateException e) {
+                    throw e;
+                } catch (NumberFormatException ignore) {
+                    result[i] = null;
+                } catch (RuntimeException e) {
+                    logger.error("Invalid value: " + args[i], e);
                     result[i] = null;
                 }
             }
