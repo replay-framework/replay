@@ -639,7 +639,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         } else {
             binding.put("exception", e);
         }
-        binding.put("session", Session.current());
         binding.put("request", Http.Request.current());
         binding.put("flash", Flash.current());
         binding.put("params", Scope.Params.current());
