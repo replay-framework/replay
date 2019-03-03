@@ -204,7 +204,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * Called at the end of the action invocation (either in case of success or any failure).
      * Time to close request-specific things.
      */
-    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
+    public void onActionInvocationFinally(@Nonnull Request request) {
     }
 
     /**

@@ -255,8 +255,8 @@ public class PluginCollection {
           plugin.afterActionInvocation(request, response, flash));
     }
 
-    public void onActionInvocationFinally(@Nonnull Request request, @Nullable Session session) {
-        getEnabledPlugins().forEach(plugin -> plugin.onActionInvocationFinally(request, session));
+    public void onActionInvocationFinally(@Nonnull Request request) {
+        getEnabledPlugins().forEach(plugin -> plugin.onActionInvocationFinally(request));
     }
 
     public void routeRequest(Request request) {

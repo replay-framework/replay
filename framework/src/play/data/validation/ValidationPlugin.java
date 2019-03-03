@@ -77,7 +77,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Session session) {
+    public void onActionInvocationFinally(@Nonnull Request request) {
         onJobInvocationFinally();
     }
 
