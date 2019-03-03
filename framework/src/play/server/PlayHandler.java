@@ -647,7 +647,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         try {
             binding.put("errors", Validation.errors());
         } catch (Exception ex) {
-            // Logger.error(ex, "Error when getting Validation errors");
+            logger.error("Error when getting Validation errors", ex);
         }
 
         return binding;
