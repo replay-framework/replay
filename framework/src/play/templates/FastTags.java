@@ -16,7 +16,6 @@ import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
 import play.templates.BaseTemplate.RawData;
-import play.utils.HTML;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -93,7 +92,11 @@ public class FastTags {
     }
 
     public static void _authenticityToken(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-        out.println("<input type=\"hidden\" name=\"authenticityToken\" value=\"" + Session.current().getAuthenticityToken() + "\"/>");
+        out.printf("<input type=\"hidden\" name=\"authenticityToken\" value=\"%s\"/>\n", session(template).getAuthenticityToken());
+    }
+
+    private static Session session(ExecutableTemplate template) {
+        return (Session) template.getProperty("session");
     }
 
     public static void _option(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {

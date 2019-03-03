@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Router;
-import play.mvc.Scope;
+import play.mvc.Scope.Session;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,8 +18,13 @@ import static org.mockito.Mockito.mock;
 
 public class FastTagsTest {
 
-    private StringWriter out = new StringWriter();
-    final String backupSystemLineBreak = System.getProperty("line.separator");
+    private final StringWriter out = new StringWriter();
+    private final String backupSystemLineBreak = System.getProperty("line.separator");
+    private final ExecutableTemplate template = new ExecutableTemplate() {
+        @Override public Object run() {
+            return null;
+        }
+    };
 
     @Before
     public void setUp() {
@@ -31,9 +36,13 @@ public class FastTagsTest {
         System.setProperty("line.separator","\n");
         Http.Response.setCurrent(new Http.Response());
         Http.Response.current().encoding = "UTF-8";
+        template.setProperty("session", sessionWithAuthenticityToken("1234"));
+    }
 
-        Scope.Session.current.set(new Scope.Session());
-        Scope.Session.current().put("___AT", "1234");
+    private Session sessionWithAuthenticityToken(String authenticityToken) {
+        Session session = new Session();
+        session.put("___AT", authenticityToken);
+        return session;
     }
 
     @After
@@ -52,7 +61,7 @@ public class FastTagsTest {
             put("arg", actionDefinition);
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
@@ -71,7 +80,7 @@ public class FastTagsTest {
             put("name", "my-form");
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" name=\"my-form\">\n" +
@@ -89,7 +98,7 @@ public class FastTagsTest {
             put("arg", actionDefinition);
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
@@ -108,7 +117,7 @@ public class FastTagsTest {
             put("arg", actionDefinition);
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
@@ -128,7 +137,7 @@ public class FastTagsTest {
             put("method", "POST");
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
@@ -148,7 +157,7 @@ public class FastTagsTest {
             put("data-customer", "12");
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" data-customer=\"12\" >\n" +
@@ -166,7 +175,7 @@ public class FastTagsTest {
             put("action", actionDefinition);
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
@@ -185,7 +194,7 @@ public class FastTagsTest {
             put("enctype", "xyz");
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"xyz\" >\n" +
@@ -195,11 +204,11 @@ public class FastTagsTest {
 
     @Test
     public void _form_argAsUrlInsteadOfActionDefinition() {
-        Map<String, ?> args = new HashMap<String, Object>() {{
+        Map<String, ?> args = new HashMap<>() {{
             put("arg", "/foo/bar");
         }};
 
-        FastTags._form(args, mock(Closure.class), new PrintWriter(out), null, 0);
+        FastTags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
         assertEquals(
                 "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
