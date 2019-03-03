@@ -5,7 +5,6 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import play.Play;
-import play.data.validation.Validation;
 import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Scope;
@@ -113,11 +112,8 @@ class PdfHelper {
       templateBinding.putAll(renderArgs.data);
     }
 
-    templateBinding.put("session", Scope.Session.current());
     templateBinding.put("request", Http.Request.current());
-    templateBinding.put("flash", Scope.Flash.current());
-    templateBinding.put("params", Scope.Params.current());
-    templateBinding.put("errors", Validation.errors());
+
     return templateBinding;
   }
 
