@@ -42,6 +42,9 @@ public class PdfResult extends Result {
   }
 
   @Override public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+    renderArgs.put("session", session);
+    renderArgs.put("flash", flash);
+
     PDFDocument document = helper.createSinglePDFDocuments(pdfTemplate);
     response.setHeader("Content-Disposition", (inline ? "inline" : "attachment") + "; filename=\"" + document.filename + "\"");
     setContentTypeIfNotSet(response, "application/pdf");
