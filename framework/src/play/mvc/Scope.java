@@ -194,21 +194,8 @@ public class Scope {
             return session;
         }
 
-        Map<String, String> data = new HashMap<>(); // ThreadLocal access
+        Map<String, String> data = new HashMap<>();
         boolean changed;
-
-        @Deprecated
-        public static final ThreadLocal<Session> current = new ThreadLocal<>();
-
-        @Deprecated
-        @Nullable
-        public static Session current() {
-            return current.get();
-        }
-
-        public static void removeCurrent() {
-            current.remove();
-        }
 
         @Nonnull
         public String getId() {

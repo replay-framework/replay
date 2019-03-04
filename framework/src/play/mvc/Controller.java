@@ -6,13 +6,25 @@ import play.mvc.results.Forbidden;
 import play.rebel.View;
 
 public class Controller implements PlayController {
-  protected Http.Request request = Http.Request.current();
-  protected Http.Response response = Http.Response.current();
-  protected Scope.Session session = Scope.Session.current();
-  protected Scope.Flash flash = Scope.Flash.current();
-  protected Scope.Params params = Scope.Params.current();
-  protected Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
-  protected Validation validation = Validation.current();
+  protected ActionContext actionContext;
+  protected Http.Request request;
+  protected Http.Response response;
+  protected Scope.Session session;
+  protected Scope.Flash flash;
+  protected Scope.Params params;
+  protected Scope.RenderArgs renderArgs;
+  protected Validation validation;
+
+  protected void setContext(ActionContext actionContext) {
+    this.actionContext = actionContext;
+    request = actionContext.request;
+    response = actionContext.response;
+    session = actionContext.session;
+    flash = actionContext.flash;
+    params = actionContext.request.params;
+    renderArgs = actionContext.renderArgs;
+    validation = actionContext.validation;
+  }
 
   protected void checkAuthenticity() {
     if (params.get("authenticityToken") == null

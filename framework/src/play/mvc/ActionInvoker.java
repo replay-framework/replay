@@ -11,6 +11,7 @@ import play.data.binding.Binder;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.data.binding.ParamNode;
 import play.data.binding.RootParamNode;
+import play.data.validation.Validation;
 import play.exceptions.ActionNotFoundException;
 import play.exceptions.PlayException;
 import play.exceptions.UnexpectedException;
@@ -82,16 +83,15 @@ public class ActionInvoker {
 
     }
 
-    private static void initActionContext(Http.Request request, Http.Response response, Session session, RenderArgs renderArgs, Flash flash) {
-        Http.Request.setCurrent(request);
-        Http.Response.setCurrent(response);
+    private static void initActionContext(ActionContext context) {
+        Http.Request.setCurrent(context.request);
+        Http.Response.setCurrent(context.response);
 
-        Scope.Params.setCurrent(request.params);
-        RenderArgs.current.set(renderArgs);
+        Scope.Params.setCurrent(context.request.params);
+        RenderArgs.current.set(context.renderArgs);
         Scope.RouteArgs.current.set(new Scope.RouteArgs());
 
-        Session.current.set(session);
-        Flash.current.set(flash);
+        Flash.current.set(context.flash);
         CachedBoundActionMethodArgs.init();
     }
 
@@ -100,10 +100,11 @@ public class ActionInvoker {
         Session session = Session.restore(request);
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
-        initActionContext(request, response, session, renderArgs, flash);
+        ActionContext context = new ActionContext(request, response, session, flash, renderArgs, Validation.current());
+        initActionContext(context);
 
         if (!Modifier.isStatic(request.invokedMethod.getModifiers())) {
-            request.controllerInstance = Injector.getBeanOfType(request.controllerClass);
+            request.controllerInstance = createController(context);
         }
 
         try {
@@ -173,6 +174,14 @@ public class ActionInvoker {
                 monitor.stop();
             }
         }
+    }
+
+    private PlayController createController(ActionContext context) {
+        PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
+        if (controller instanceof Controller) {
+          ((Controller) controller).setContext(context);
+        }
+        return controller;
     }
 
     private void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {

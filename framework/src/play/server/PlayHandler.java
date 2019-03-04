@@ -35,7 +35,6 @@ import play.mvc.Router;
 import play.mvc.Scope;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
-import play.mvc.Scope.Session;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.templates.JavaExtensions;
@@ -153,7 +152,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Scope.Params.setCurrent(request.params);
             RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
-            Session.removeCurrent();
             Flash.current.set(null);
             CachedBoundActionMethodArgs.init();
 
