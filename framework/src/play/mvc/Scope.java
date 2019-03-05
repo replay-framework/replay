@@ -75,15 +75,6 @@ public class Scope {
             this.data = data;
         }
 
-        @Deprecated
-        public static final ThreadLocal<Flash> current = new ThreadLocal<>();
-
-        @Deprecated
-        @Nonnull
-        public static Flash current() {
-            return current.get();
-        }
-
         public void put(@Nonnull String key, @Nullable String value) {
             validateKey(key);
             data.put(key, value);

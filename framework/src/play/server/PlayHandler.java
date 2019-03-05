@@ -33,7 +33,6 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.mvc.Scope;
-import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
@@ -105,7 +104,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
 
                 // Raw invocation
-                boolean raw = Play.pluginCollection.rawInvocation(request, response, null, RenderArgs.current(), Flash.current());
+                boolean raw = Play.pluginCollection.rawInvocation(request, response, null, RenderArgs.current(), null);
                 if (raw) {
                     copyResponse(ctx, request, response, nettyRequest);
                 } else {
@@ -152,7 +151,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Scope.Params.setCurrent(request.params);
             RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
-            Flash.current.set(null);
             CachedBoundActionMethodArgs.init();
 
             try {
@@ -621,16 +619,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
         nettyResponse.headers().set(CONTENT_TYPE, contentType);
 
-        Map<String, Object> binding = getBindingForErrors(e, false);
-
-
-        String errorHtml = TemplateLoader.load("errors/404." + format).render(binding);
+        String errorHtml = TemplateLoader.load("errors/404." + format).render(getBindingForErrors(e, false));
         printResponse(ctx, nettyResponse, errorHtml);
         logger.trace("serve404: end");
     }
 
     protected static Map<String, Object> getBindingForErrors(Exception e, boolean isError) {
-
         Map<String, Object> binding = new HashMap<>();
         if (!isError) {
             binding.put("result", e);
@@ -638,7 +632,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             binding.put("exception", e);
         }
         binding.put("request", Http.Request.current());
-        binding.put("flash", Flash.current());
         binding.put("params", Scope.Params.current());
         binding.put("play", new Play());
         try {
@@ -702,7 +695,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 logger.error("Trying to flush cookies", exx);
                 // humm ?
             }
-            Map<String, Object> binding = getBindingForErrors(e, true);
 
             String format = request.format;
             if (format == null) {
@@ -711,7 +703,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
             nettyResponse.headers().set("Content-Type", (MimeTypes.getContentType("500." + format, "text/plain")));
             try {
-                String errorHtml = TemplateLoader.load("errors/500." + format).render(binding);
+                String errorHtml = TemplateLoader.load("errors/500." + format).render(getBindingForErrors(e, true));
 
                 byte[] bytes = errorHtml.getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);

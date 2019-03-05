@@ -2,7 +2,6 @@ package play.templates;
 
 import groovy.lang.Closure;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.runtime.NullObject;
 import play.cache.Cache;
 import play.data.validation.Error;
@@ -181,9 +180,7 @@ public class FastTags {
         String _arg = args.get("arg").toString();
         field.put("name", _arg);
         field.put("id", _arg.replace('.', '_'));
-        field.put("flash", Flash.current().get(_arg));
-        field.put("flashArray", field.get("flash") != null && !StringUtils.isEmpty(field.get("flash").toString()) ? field.get("flash")
-                .toString().split(",") : new String[0]);
+        field.put("flash", ((Flash) template.getProperty("flash")).get(_arg));
         field.put("error", Validation.error(_arg));
         field.put("errorClass", field.get("error") != null ? "hasError" : "");
         String[] pieces = _arg.split("\\.");

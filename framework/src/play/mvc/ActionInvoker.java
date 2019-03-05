@@ -91,7 +91,6 @@ public class ActionInvoker {
         RenderArgs.current.set(context.renderArgs);
         Scope.RouteArgs.current.set(new Scope.RouteArgs());
 
-        Flash.current.set(context.flash);
         CachedBoundActionMethodArgs.init();
     }
 
