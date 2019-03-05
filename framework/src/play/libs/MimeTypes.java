@@ -17,12 +17,8 @@ import java.util.regex.Pattern;
 public class MimeTypes {
     private static final Logger logger = LoggerFactory.getLogger(MimeTypes.class);
 
-    private static Properties mimetypes = null;
-    private static Pattern extPattern;
-
-    static {
-        extPattern = Pattern.compile("^.*\\.([^.]+)$");
-    }
+    private static Properties mimetypes;
+    private static final Pattern extPattern = Pattern.compile("^.*\\.([^.]+)$");
 
     /**
      * return the mimetype from a file name
