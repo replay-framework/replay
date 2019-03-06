@@ -87,7 +87,6 @@ public class ActionInvoker {
         Http.Request.setCurrent(context.request);
         Http.Response.setCurrent(context.response);
         RenderArgs.current.set(context.renderArgs);
-        Scope.RouteArgs.current.set(new Scope.RouteArgs());
         CachedBoundActionMethodArgs.init();
     }
 

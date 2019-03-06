@@ -480,26 +480,4 @@ public class Scope {
             return data.toString();
         }
     }
-
-    /**
-     * Routes args (used in reserve routing)
-     */
-    public static class RouteArgs {
-
-        public final Map<String, Object> data = new HashMap<>(); // ThreadLocal access
-
-        @Deprecated
-        public static final ThreadLocal<RouteArgs> current = new ThreadLocal<>();
-
-        @Deprecated
-        public static RouteArgs current() {
-            return current.get();
-        }
-
-        @Override
-        @Nonnull
-        public String toString() {
-            return data.toString();
-        }
-    }
 }

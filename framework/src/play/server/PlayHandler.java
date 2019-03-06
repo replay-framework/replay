@@ -147,9 +147,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
             Request.setCurrent(request);
             Response.setCurrent(response);
-
             RenderArgs.current.set(null);
-            Scope.RouteArgs.current.set(null);
             CachedBoundActionMethodArgs.init();
 
             try {

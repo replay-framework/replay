@@ -302,14 +302,14 @@ public class Router {
 
     @Deprecated
     public static ActionDefinition reverse(String action, Map<String, Object> args) {
-        return reverse(action, args, Http.Request.current(), Http.Response.current(), Scope.RouteArgs.current());
+        return reverse(action, args, Http.Request.current(), Http.Response.current());
     }
 
-    public static ActionDefinition reverse(String action, Map<String, Object> args, Http.Request request, Http.Response response, Scope.RouteArgs routeArgs) {
-        return instance.actionToUrl(action, args, request, response, routeArgs);
+    public static ActionDefinition reverse(String action, Map<String, Object> args, Http.Request request, Http.Response response) {
+        return instance.actionToUrl(action, args, request, response);
     }
 
-    public ActionDefinition actionToUrl(String action, Map<String, Object> actionArgs, Http.Request request, Http.Response response, Scope.RouteArgs routeArgs) {
+    public ActionDefinition actionToUrl(String action, Map<String, Object> actionArgs, Http.Request request, Http.Response response) {
         Map<String, Object> args = new LinkedHashMap<>(actionArgs);
         String encoding = response == null ? Play.defaultWebEncoding : response.encoding;
 
@@ -317,15 +317,6 @@ public class Router {
             action = action.substring(12);
         }
         Map<String, Object> argsbackup = new HashMap<>(args);
-
-        // Add routeArgs
-        if (routeArgs != null) {
-            for (String key : routeArgs.data.keySet()) {
-                if (!args.containsKey(key)) {
-                    args.put(key, routeArgs.data.get(key));
-                }
-            }
-        }
 
         String requestFormat = request == null || request.format == null ? "" : request.format;
 
