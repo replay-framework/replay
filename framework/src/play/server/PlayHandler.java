@@ -148,7 +148,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             Request.setCurrent(request);
             Response.setCurrent(response);
 
-            Scope.Params.setCurrent(request.params);
             RenderArgs.current.set(null);
             Scope.RouteArgs.current.set(null);
             CachedBoundActionMethodArgs.init();
@@ -632,7 +631,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             binding.put("exception", e);
         }
         binding.put("request", Http.Request.current());
-        binding.put("params", Scope.Params.current());
         binding.put("play", new Play());
         try {
             binding.put("errors", Validation.errors());

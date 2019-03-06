@@ -32,8 +32,6 @@ import static java.util.Arrays.asList;
  * All application Scopes
  */
 public class Scope {
-    private static final SessionDataEncoder encoder = new SessionDataEncoder();
-
     private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
     public static final String COOKIE_PREFIX = Play.configuration.getProperty("application.session.cookie", "PLAY");
@@ -300,19 +298,6 @@ public class Scope {
      * HTTP params
      */
     public static class Params {
-        private static final ThreadLocal<Params> current = new ThreadLocal<>();
-
-        @Deprecated
-        @Nonnull
-        public static Params current() {
-            return current.get();
-        }
-
-        @Deprecated
-        public static void setCurrent(@Nonnull Params params) {
-            current.set(params);
-        }
-
         public Params(@Nonnull Http.Request request) {
             this.request = request;
         }

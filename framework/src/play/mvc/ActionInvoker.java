@@ -86,11 +86,8 @@ public class ActionInvoker {
     private static void initActionContext(ActionContext context) {
         Http.Request.setCurrent(context.request);
         Http.Response.setCurrent(context.response);
-
-        Scope.Params.setCurrent(context.request.params);
         RenderArgs.current.set(context.renderArgs);
         Scope.RouteArgs.current.set(new Scope.RouteArgs());
-
         CachedBoundActionMethodArgs.init();
     }
 
