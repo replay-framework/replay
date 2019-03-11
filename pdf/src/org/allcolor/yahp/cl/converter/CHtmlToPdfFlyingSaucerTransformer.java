@@ -390,15 +390,21 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         n.appendChild(cd);
         n.appendChild(end);
       }
+
+      final Element documentElement = theDoc.getDocumentElement();
+      if (documentElement == null) {
+        throw new IllegalArgumentException("Html hasn't document node");
+      }
+
       final List<Node> toRemove = new ArrayList<>();
       final NodeList tnl = theDoc.getChildNodes();
       for (int i = 0; i < tnl.getLength(); i++) {
         final Node n = tnl.item(i);
-        if (n != theDoc.getDocumentElement()) {
+        if (n != documentElement) {
           toRemove.add(n);
         }
       }
-      final Node title = theDoc.getDocumentElement()
+      final Node title = documentElement
           .getElementsByTagName("title").item(0);
       if ((title != null)
           && (properties.get(IHtmlToPdfTransformer.PDF_TITLE) == null)) {
@@ -406,8 +412,8 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
             .getTextContent());
       }
 
-      Node body = theDoc.getDocumentElement().getElementsByTagName("body").item(0);
-      Node head = theDoc.getDocumentElement().getElementsByTagName("head").item(0);
+      Node body = documentElement.getElementsByTagName("body").item(0);
+      Node head = documentElement.getElementsByTagName("head").item(0);
       for (Node n : toRemove) {
         n.getParentNode().removeChild(n);
         if (n.getNodeType() == Node.TEXT_NODE) {
