@@ -1,6 +1,7 @@
 package play.templates;
 
 import groovy.lang.Closure;
+import groovy.lang.MissingPropertyException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.codehaus.groovy.runtime.NullObject;
 import play.cache.Cache;
@@ -16,6 +17,7 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
 import play.templates.BaseTemplate.RawData;
 
+import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.ElementType;
@@ -180,7 +182,7 @@ public class FastTags {
         String _arg = args.get("arg").toString();
         field.put("name", _arg);
         field.put("id", _arg.replace('.', '_'));
-        field.put("flash", ((Flash) template.getProperty("flash")).get(_arg));
+        field.put("flash", getArgValueFromFlash(template, _arg));
         field.put("error", Validation.error(_arg));
         field.put("errorClass", field.get("error") != null ? "hasError" : "");
         String[] pieces = _arg.split("\\.");
@@ -201,6 +203,16 @@ public class FastTags {
         }
         body.setProperty("field", field);
         body.call();
+    }
+
+    @Nullable
+    private static String getArgValueFromFlash(ExecutableTemplate template, String _arg) {
+        try {
+            return ((Flash) template.getProperty("flash")).get(_arg);
+        }
+        catch (MissingPropertyException flashIsNotBoundAndIamFineWithIt) {
+            return null;
+        }
     }
 
     /**
