@@ -13,6 +13,7 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -34,11 +35,11 @@ public class View extends Result {
     this(templateNameResolver.resolveTemplateName());
   }
 
-  public View(String templateName) {
+  public View(@Nonnull String templateName) {
     this(templateName, new HashMap<>());
   }
 
-  public View(String templateName, Map<String, Object> arguments) {
+  public View(@Nonnull String templateName, @Nonnull Map<String, Object> arguments) {
     this.templateName = templateName;
     this.arguments = arguments;
   }
@@ -114,7 +115,7 @@ public class View extends Result {
     return renderTime;
   }
 
-  public View with(String name, @Nullable Object value) {
+  public View with(@Nonnull String name, @Nullable Object value) {
     arguments.put(name, value);
     return this;
   }

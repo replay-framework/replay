@@ -1,20 +1,22 @@
 package play.rebel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class RenderView extends View {
   public RenderView() {
   }
 
-  public RenderView(String templateName) {
+  public RenderView(@Nonnull String templateName) {
     super(templateName);
   }
 
-  public RenderView(String templateName, Map<String, Object> arguments) {
+  public RenderView(@Nonnull String templateName, @Nonnull Map<String, Object> arguments) {
     super(templateName, arguments);
   }
 
-  @Override public RenderView with(String name, Object value) {
+  @Override public RenderView with(@Nonnull String name, @Nullable Object value) {
     return (RenderView) super.with(name, value);
   }
 }
