@@ -10,7 +10,6 @@ import play.data.validation.Validation;
 import play.exceptions.TagInternalException;
 import play.exceptions.TemplateException;
 import play.exceptions.TemplateNotFoundException;
-import play.libs.Codec;
 import play.mvc.Http;
 import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
@@ -32,6 +31,15 @@ import java.util.Map;
 import static play.utils.HTML.htmlEscape;
 
 public class FastTags {
+    private final UuidGenerator uuidGenerator;
+
+    public FastTags() {
+        this(new UuidGenerator());
+    }
+
+    FastTags(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
+    }
 
     public static void _cache(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         String key = args.get("arg").toString();
@@ -74,7 +82,7 @@ public class FastTags {
         out.println(html);
     }
 
-    public static void _jsRoute(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _jsRoute(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         Object arg = args.get("arg");
         if (!(arg instanceof ActionDefinition)) {
             throw new TemplateException(template.template, fromLine,
@@ -92,8 +100,12 @@ public class FastTags {
         out.print("}");
     }
 
-    public static void _authenticityToken(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _authenticityToken(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         out.printf("<input type=\"hidden\" name=\"authenticityToken\" value=\"%s\"/>\n", session(template).getAuthenticityToken());
+    }
+
+    private void addFormId(PrintWriter out) {
+        out.printf("<input type=\"hidden\" name=\"___form_id\" value=\"form:%s\"/>\n", uuidGenerator.randomUUID());
     }
 
     private static Session session(ExecutableTemplate template) {
@@ -124,7 +136,7 @@ public class FastTags {
      * @param fromLine
      *            template line number where the tag is defined
      */
-    public static void _form(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _form(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         ActionDefinition actionDef = null;
         Object arg = args.get("arg");
         if (arg instanceof ActionDefinition) {
@@ -158,6 +170,7 @@ public class FastTags {
                 + (name != null ? "name=\"" + name + "\"" : "") + ">");
         if (!"GET".equals(actionDef.method)) {
             _authenticityToken(args, body, out, template, fromLine);
+            addFormId(out);
         }
         out.println(JavaExtensions.toString(body));
         out.print("</form>");
@@ -177,7 +190,7 @@ public class FastTags {
      * @param fromLine
      *            template line number where the tag is defined
      */
-    public static void _field(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _field(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         Map<String, Object> field = new HashMap<>();
         String _arg = args.get("arg").toString();
         field.put("name", _arg);
@@ -229,13 +242,13 @@ public class FastTags {
      * @param fromLine
      *            template line number where the tag is defined
      */
-    public static void _a(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _a(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         ActionDefinition actionDef = (ActionDefinition) args.get("arg");
         if (actionDef == null) {
             actionDef = (ActionDefinition) args.get("action");
         }
         if (!("GET".equals(actionDef.method))) {
-            String id = Codec.UUID();
+            String id = uuidGenerator.randomUUID();
             out.print("<form method=\"POST\" id=\"" + id + "\" "
                     + (args.containsKey("target") ? "target=\"" + args.get("target") + "\"" : "") + " style=\"display:none\" action=\""
                     + actionDef.url + "\">");
@@ -281,7 +294,7 @@ public class FastTags {
         }
     }
 
-    public static void _error(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+    public void _error(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
         if (args.get("arg") == null && args.get("key") == null) {
             throw new TemplateException(template.template, fromLine, "Please specify the error key");
         }
