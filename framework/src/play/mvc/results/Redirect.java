@@ -83,4 +83,8 @@ public class Redirect extends Result {
     public int getCode() {
         return code;
     }
+
+    @Override public String toString() {
+        return String.format("redirect:%s:%s", code, url);
+    }
 }
