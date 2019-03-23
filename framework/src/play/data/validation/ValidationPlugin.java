@@ -131,7 +131,7 @@ public class ValidationPlugin extends PlayPlugin {
         }
         if (Validation.errors().isEmpty()) {
             // Only send "delete cookie" header when the cookie was present in the request
-            if (request.cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS") || !Scope.SESSION_SEND_ONLY_IF_CHANGED) {
+            if (request.cookies.containsKey(Scope.COOKIE_PREFIX + "_ERRORS")) {
                 response.setCookie(Scope.COOKIE_PREFIX + "_ERRORS", "", null, "/", 0, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
             }
             return;

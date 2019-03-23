@@ -4,10 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import play.Play;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Scope.Session.TS_KEY;
 
 public class CookieSessionStoreTest {
@@ -20,23 +20,10 @@ public class CookieSessionStoreTest {
   }
 
   @Test
-  public void testSendAlways() {
-    CookieSessionStore cookieSessionStore = new CookieSessionStore();
-    setSendOnlyIfChangedConstant(false);
-
-    // Change nothing in the session
-    Scope.Session session = cookieSessionStore.restore(request);
-    cookieSessionStore.save(session, request, response);
-    assertNotNull(response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
-  }
-
-  @Test
   public void testSendOnlyIfChanged() {
     CookieSessionStore cookieSessionStore = new CookieSessionStore();
     // Mock secret
     Play.secretKey = "0112358";
-
-    setSendOnlyIfChangedConstant(true);
 
     // Change nothing in the session
     Scope.Session session = cookieSessionStore.restore(request);
@@ -55,7 +42,7 @@ public class CookieSessionStoreTest {
   }
 
   @Test
-  public void testCanRestoreSessionAfterClearingItWithoutLosingData() throws Exception {
+  public void testCanRestoreSessionAfterClearingItWithoutLosingData() {
     CookieSessionStore cookieSessionStore = new CookieSessionStore();
     Play.secretKey = "0112358";
     Play.started = true;
@@ -72,29 +59,5 @@ public class CookieSessionStoreTest {
     assertEquals(2, sessionFromSecondRequest.data.size());
     assertEquals("value", sessionFromSecondRequest.data.get("param"));
     assertTrue(sessionFromSecondRequest.data.containsKey(TS_KEY));
-  }
-
-  private void setSendOnlyIfChangedConstant(boolean value) {
-    try {
-      /*
-       * Set the final static value Scope.SESSION_SEND_ONLY_IF_CHANGED using reflection.
-       */
-      Field field = Scope.class.getField("SESSION_SEND_ONLY_IF_CHANGED");
-      field.setAccessible(true);
-      Field modifiersField = Field.class.getDeclaredField("modifiers");
-      modifiersField.setAccessible(true);
-      modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-      // Set the new value
-      field.setBoolean(null, value);
-    } catch(Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @org.junit.After
-  public void restoreDefault() {
-    boolean SESSION_SEND_ONLY_IF_CHANGED = Play.configuration.getProperty("application.session.sendOnlyIfChanged", "false").toLowerCase().equals("true");
-    setSendOnlyIfChangedConstant(SESSION_SEND_ONLY_IF_CHANGED);
   }
 }

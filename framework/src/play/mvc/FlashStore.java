@@ -12,7 +12,6 @@ import javax.inject.Singleton;
 import static play.mvc.Scope.COOKIE_PREFIX;
 import static play.mvc.Scope.COOKIE_SECURE;
 import static play.mvc.Scope.SESSION_HTTPONLY;
-import static play.mvc.Scope.SESSION_SEND_ONLY_IF_CHANGED;
 
 @Singleton
 public class FlashStore {
@@ -55,7 +54,7 @@ public class FlashStore {
           return;
       }
       if (flash.out.isEmpty()) {
-          if (request.cookies.containsKey(COOKIE_PREFIX + "_FLASH") || !SESSION_SEND_ONLY_IF_CHANGED) {
+          if (request.cookies.containsKey(COOKIE_PREFIX + "_FLASH")) {
               response.setCookie(COOKIE_PREFIX + "_FLASH", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
           }
           return;

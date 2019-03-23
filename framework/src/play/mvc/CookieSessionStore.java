@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import static play.mvc.Scope.COOKIE_PREFIX;
 import static play.mvc.Scope.COOKIE_SECURE;
 import static play.mvc.Scope.SESSION_HTTPONLY;
-import static play.mvc.Scope.SESSION_SEND_ONLY_IF_CHANGED;
 import static play.mvc.Scope.Session;
 import static play.mvc.Scope.Session.TS_KEY;
 
@@ -77,14 +76,14 @@ public class CookieSessionStore implements SessionStore {
             // Some request like WebSocket don't have any response
             return;
         }
-        if (!session.changed && SESSION_SEND_ONLY_IF_CHANGED && COOKIE_EXPIRE == null) {
+        if (!session.changed && COOKIE_EXPIRE == null) {
             // Nothing changed and no cookie-expire, consequently send
             // nothing back.
             return;
         }
         if (session.isEmpty()) {
             // The session is empty: delete the cookie
-            if (request.cookies.containsKey(COOKIE_PREFIX + "_SESSION") || !SESSION_SEND_ONLY_IF_CHANGED) {
+            if (request.cookies.containsKey(COOKIE_PREFIX + "_SESSION")) {
                 response.setCookie(COOKIE_PREFIX + "_SESSION", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
             }
             return;
