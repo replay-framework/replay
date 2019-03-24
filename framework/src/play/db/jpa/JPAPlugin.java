@@ -95,7 +95,8 @@ public class JPAPlugin extends PlayPlugin {
      * Reads the configuration file and initialises required JPA EntityManagerFactories.
      */
     @Override
-    public void onApplicationStart() {  
+    public void onApplicationStart() {
+        long start = System.currentTimeMillis();
         org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.OFF);
 
         Set<String> dBNames = Configuration.getDbNames();
@@ -106,11 +107,13 @@ public class JPAPlugin extends PlayPlugin {
                 org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.ALL);
             }
 
-            logger.trace("Initializing JPA for {}...", dbName);
+            logger.info("Initializing JPA for {}...", dbName);
 
             JPA.emfs.put(dbName, newEntityManagerFactory(dbName, dbConfig));
         }
         JPQL.instance = new JPQL();
+        long end = System.currentTimeMillis();
+        logger.info("JPA initialized in {} ms.", end - start);
     }
     
     private List<Class> entityClasses(String dbName) {

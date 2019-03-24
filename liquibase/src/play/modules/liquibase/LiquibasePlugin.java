@@ -44,6 +44,7 @@ public class LiquibasePlugin extends PlayPlugin {
       return;
     }
 
+    long start = System.currentTimeMillis();
     logger.info("Auto update flag found and positive => let's get on with changelog update");
 
     try (Connection cnx = getConnection()) {
@@ -63,6 +64,10 @@ public class LiquibasePlugin extends PlayPlugin {
     }
     catch (SQLException | LiquibaseException | IOException sqe) {
       throw new LiquibaseUpdateException(sqe.getMessage(), sqe);
+    }
+    finally {
+      long end = System.currentTimeMillis();
+      logger.info("LiquibasePlugin finished with {} ms.", end - start);
     }
   }
 
