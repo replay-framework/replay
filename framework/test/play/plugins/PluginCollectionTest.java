@@ -2,6 +2,7 @@ package play.plugins;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import play.Play;
 import play.PlayBuilder;
 import play.PlayPlugin;
@@ -18,6 +19,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +117,26 @@ public class PluginCollectionTest {
 
         assertThat(pc.getReversedEnabledPlugins()).hasSize(0);
     }
+
+    @Test
+    public void onApplicationStop_runsPluginsInReverseOrder() {
+        PluginCollection pc = new PluginCollection();
+        PlayPlugin plugin1 = spy(new TestPlugin());
+        PlayPlugin plugin2 = spy(new FooPlugin());
+        PlayPlugin plugin3 = spy(new BarPlugin());
+        pc.addPlugin(plugin1);
+        pc.addPlugin(plugin2);
+        pc.addPlugin(plugin3);
+
+        pc.onApplicationStop();
+
+        InOrder inOrder = inOrder(plugin1, plugin2, plugin3);
+        inOrder.verify(plugin3).onApplicationStop();
+        inOrder.verify(plugin2).onApplicationStop();
+        inOrder.verify(plugin1).onApplicationStop();
+    }
 }
 
-class TestPlugin extends PlayPlugin {
-}
+class TestPlugin extends PlayPlugin {{index = 1;}}
+class FooPlugin extends PlayPlugin {{index = 2;}}
+class BarPlugin extends PlayPlugin {{index = 3;}}

@@ -214,7 +214,7 @@ public class PluginCollection {
     }
 
     public void onApplicationStop() {
-        getEnabledPlugins().forEach(plugin -> {
+        getReversedEnabledPlugins().forEach(plugin -> {
             try {
                 plugin.onApplicationStop();
             } catch (Throwable t) {
