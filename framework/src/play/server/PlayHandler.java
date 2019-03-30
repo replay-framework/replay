@@ -67,6 +67,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     private final Invoker invoker;
     private final ActionInvoker actionInvoker = new ActionInvoker();
+    private final FileService fileService = new FileService();
 
     public PlayHandler(Invoker invoker) {
         this.invoker = invoker;
@@ -408,7 +409,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                         writeFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                 } else {
-                    FileService.serve(file, nettyRequest, nettyResponse, ctx, request, response, ctx.getChannel());
+                    fileService.serve(file, nettyRequest, nettyResponse, ctx, request, response, ctx.getChannel());
                 }
             } catch (Exception e) {
                 throw e;
@@ -775,7 +776,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                         writeFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                 } else {
-                    FileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
+                    fileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
                 }
 
             }
