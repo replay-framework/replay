@@ -13,85 +13,123 @@ import play.libs.MimeTypes;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.concurrent.TimeUnit;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import static java.lang.System.nanoTime;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.ACCEPT_RANGES;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 
 public class FileService  {
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     public void serve(File localFile, HttpRequest nettyRequest, HttpResponse nettyResponse, ChannelHandlerContext ctx, Request request, Response response, Channel channel) throws FileNotFoundException {
+        long startedAt = nanoTime();
+        String file = localFile.getAbsolutePath();
         RandomAccessFile raf = new RandomAccessFile(localFile, "r");
+
         try {
             long fileLength = raf.length();
-            
             boolean isKeepAlive = HttpHeaders.isKeepAlive(nettyRequest) && nettyRequest.getProtocolVersion().equals(HttpVersion.HTTP_1_1);
+            String fileContentType = MimeTypes.getContentType(localFile.getName(), "text/plain");
+            String contentType = response.contentType != null ? response.contentType : fileContentType;
 
             if (logger.isTraceEnabled()) {
-                logger.trace("keep alive {}", isKeepAlive);
-                logger.trace("content type {}", response.contentType != null ? response.contentType : MimeTypes.getContentType(localFile.getName(), "text/plain"));
+                logger.trace("serving {}, keepAlive:{}, contentType:{}, fileLength:{}, request.path:{}", file,
+                  isKeepAlive, contentType, fileLength, request.path);
             }
 
-            if (!nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
-                // Add 'Content-Length' header only for a keep-alive connection.
-                logger.trace("file length {}", fileLength);
-                nettyResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(fileLength));
-            }
+            setHeaders(nettyResponse, fileLength, contentType);
+            writeFileContent(file, nettyRequest, nettyResponse, channel, raf, isKeepAlive, fileContentType, startedAt);
 
-            if (response.contentType != null) {
-                nettyResponse.headers().set(CONTENT_TYPE, response.contentType);
-            } else {
-                nettyResponse.headers().set(CONTENT_TYPE, (MimeTypes.getContentType(localFile.getName(), "text/plain")));
-            }
-
-            nettyResponse.headers().set(HttpHeaders.Names.ACCEPT_RANGES, HttpHeaders.Values.BYTES);
-
-            // Write the initial line and the header.
-            ChannelFuture writeFuture = null;
-
-            // Write the content.
-            if (!nettyRequest.getMethod().equals(HttpMethod.HEAD)) {
-                ChunkedInput chunkedInput = getChunkedInput(raf, MimeTypes.getContentType(localFile.getName(), "text/plain"), nettyRequest, nettyResponse);
-                if (channel.isOpen()) {
-                    channel.write(nettyResponse);
-                    writeFuture = channel.write(chunkedInput);
-                }else{
-                    logger.debug("Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection", isKeepAlive);
-                }
-            } else {
-                if (channel.isOpen()) {
-                    writeFuture = channel.write(nettyResponse);
-                }else{
-                    logger.debug("Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection", isKeepAlive);
-                }
-                raf.close();
-            }
-
-            if (writeFuture != null && !isKeepAlive) {
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
-            }
-        } catch (Throwable exx) {
-            exx.printStackTrace();
-            closeQuietly(raf);
-            try {
-                if (ctx.getChannel().isOpen()) {
-                    ctx.getChannel().close();
-                }
-            } catch (Throwable ex) { /* Left empty */ }
+        } catch (Throwable e) {
+            logger.error("Failed to serve {} in {} ms", file, formatNanos(nanoTime() - startedAt), e);
+            closeSafely(localFile, raf, request.path);
+            closeSafely(ctx, request.path);
         }
     }
-    
-    private static ChunkedInput getChunkedInput(RandomAccessFile raf, String contentType, HttpRequest nettyRequest, HttpResponse nettyResponse) throws IOException {
-        if(ByteRangeInput.accepts(nettyRequest)) {
-            ByteRangeInput server = new ByteRangeInput(raf, contentType, nettyRequest);
+
+    private void closeSafely(File localFile, Closeable closeable, String path) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        }
+        catch (IOException e) {
+            logger.warn("Failed to close {}, request.path:{}", localFile.getAbsolutePath(), path, e);
+        }
+    }
+
+    private void closeSafely(ChannelHandlerContext ctx, String path) {
+        try {
+            if (ctx.getChannel().isOpen()) {
+                ctx.getChannel().close();
+            }
+        }
+        catch (Throwable ex) {
+            logger.warn("Failed to closed channel, request.path:{}", path, ex);
+        }
+    }
+
+    private void writeFileContent(String file, HttpRequest nettyRequest, HttpResponse nettyResponse, Channel channel,
+                                  RandomAccessFile raf, boolean isKeepAlive, String fileContentType,
+                                  long startedAt) throws IOException {
+        ChannelFuture writeFuture = null;
+
+        if (!nettyRequest.getMethod().equals(HttpMethod.HEAD)) {
+            ChunkedInput chunkedInput = getChunkedInput(file, raf, fileContentType, nettyRequest, nettyResponse);
+            if (channel.isOpen()) {
+                channel.write(nettyResponse);
+                writeFuture = channel.write(chunkedInput);
+            }
+            else {
+                logger.debug("Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection", file, isKeepAlive);
+            }
+        }
+        else {
+            if (channel.isOpen()) {
+                writeFuture = channel.write(nettyResponse);
+            }
+            else {
+                logger.debug("Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection", file, isKeepAlive);
+            }
+            raf.close();
+            logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt));
+        }
+
+        if (writeFuture != null) {
+            writeFuture.addListener(future -> logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt)));
+            if (!isKeepAlive) {
+                writeFuture.addListener(ChannelFutureListener.CLOSE);
+            }
+        }
+    }
+
+    private void setHeaders(HttpResponse nettyResponse, long fileLength, String contentType) {
+        if (!nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
+            // Add 'Content-Length' header only for a keep-alive connection.
+            nettyResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(fileLength));
+        }
+
+        nettyResponse.headers().set(CONTENT_TYPE, contentType);
+        nettyResponse.headers().set(ACCEPT_RANGES, HttpHeaders.Values.BYTES);
+    }
+
+    private ChunkedInput getChunkedInput(String file, RandomAccessFile raf, String contentType, HttpRequest nettyRequest, HttpResponse nettyResponse) throws IOException {
+        if (ByteRangeInput.accepts(nettyRequest)) {
+            ByteRangeInput server = new ByteRangeInput(file, raf, contentType, nettyRequest);
             server.prepareNettyResponse(nettyResponse);
             return server;
         } else {
             return new ChunkedFile(raf);
         }
+    }
+
+    private String formatNanos(long executionTimeNanos) {
+        return String.format("%d.%d", TimeUnit.NANOSECONDS.toMillis(executionTimeNanos), executionTimeNanos % 1_000_000 / 1_000);
     }
 }

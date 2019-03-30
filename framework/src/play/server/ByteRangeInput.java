@@ -18,6 +18,7 @@ import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 public class ByteRangeInput implements ChunkedInput {
     private static final Logger logger = LoggerFactory.getLogger(ByteRangeInput.class);
 
+    private final String file;
     private final RandomAccessFile raf;
     private final HttpRequest request;
     private ByteRange[] byteRanges;
@@ -26,15 +27,16 @@ public class ByteRangeInput implements ChunkedInput {
     private boolean unsatisfiable;
     private final long fileLength;
 
-    public ByteRangeInput(RandomAccessFile raf, String contentType, HttpRequest request) throws IOException {
+    public ByteRangeInput(String file, RandomAccessFile raf, String contentType, HttpRequest request) throws IOException {
+        this.file = file;
         this.raf = raf;
         this.request = request;
         fileLength = raf.length();
         this.contentType = contentType;
         initRanges();
         if (logger.isDebugEnabled()) {
-            logger.debug("Invoked ByteRangeServer, found byteRanges: {} (with header Range: {})",
-                    Arrays.toString(byteRanges), request.headers().get("range"));
+            logger.debug("Invoked ByteRangeServer, found byteRanges: {} (with header Range: {}) on file {}",
+                    Arrays.toString(byteRanges), request.headers().get("range"), file);
         }
     }
 
@@ -62,7 +64,7 @@ public class ByteRangeInput implements ChunkedInput {
 
     @Override
     public Object nextChunk() {
-        logger.trace("FileService nextChunk");
+        logger.trace("nextChunk @{}, currentByteRange={}", file, currentByteRange);
         try {
             int count = 0;
             int chunkSize = 8096;
@@ -74,23 +76,24 @@ public class ByteRangeInput implements ChunkedInput {
                     currentByteRange++;
                 }
             }
-            if(count == 0){
+            if (count == 0){
                 return null;
             }
 
             return wrappedBuffer(buffer);
         } catch (Exception e) {
-            logger.error("error sending file", e);
+            logger.error("error sending file {}, currentByteRange={}", file, currentByteRange, e);
             throw e;
         }
     }
 
     @Override
     public boolean hasNextChunk() {
+        boolean hasNextChunk = currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0;
         if (logger.isTraceEnabled()) {
-            logger.trace("FileService hasNextChunk() : {}", currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0);
+            logger.trace("file {} hasNextChunk() : {}", file, hasNextChunk);
         }
-        return currentByteRange < byteRanges.length && byteRanges[currentByteRange].remaining() > 0;
+        return hasNextChunk;
     }
 
     @Override
@@ -134,14 +137,14 @@ public class ByteRangeInput implements ChunkedInput {
             ByteRange[] byteRanges = new ByteRange[reducedRanges.length];
             for(int i = 0; i < reducedRanges.length; i++) {
                 long[] range = reducedRanges[i];
-                byteRanges[i] = new ByteRange(raf, range[0], range[1], fileLength, contentType, reducedRanges.length > 1);
+                byteRanges[i] = new ByteRange(file, raf, range[0], range[1], fileLength, contentType, reducedRanges.length > 1);
             }
             this.byteRanges = byteRanges;
             if(this.byteRanges.length == 0){
                 unsatisfiable = true;
             }
         } catch (Exception e) {
-            logger.debug("byterange error", e);
+            logger.debug("byterange error @{}", file, e);
             unsatisfiable = true;
         }
     }

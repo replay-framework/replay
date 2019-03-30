@@ -12,6 +12,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 class ByteRange {
     private static final Logger logger = LoggerFactory.getLogger(ByteRange.class);
 
+    private final String file;
     private final RandomAccessFile raf;
     final long start;
     final long end;
@@ -19,7 +20,8 @@ class ByteRange {
     private int servedHeader;
     private int servedRange;
 
-    ByteRange(RandomAccessFile raf, long start, long end, long fileLength, String contentType, boolean includeHeader) {
+    ByteRange(String file, RandomAccessFile raf, long start, long end, long fileLength, String contentType, boolean includeHeader) {
+        this.file = file;
         this.raf = raf;
         this.start = start;
         this.end = end;
@@ -43,7 +45,7 @@ class ByteRange {
     }
 
     int fill(byte[] into, int offset) {
-        logger.trace("fill at {}", offset);
+        logger.trace("fill {} at {}", file, offset);
         int count = 0;
         for(; offset < into.length && servedHeader < header.length; offset++, servedHeader++, count++) {
             into[offset] = header[servedHeader];
@@ -53,7 +55,7 @@ class ByteRange {
                 raf.seek(start + servedRange);
                 long maxToRead = remaining() > (into.length - offset) ? (into.length - offset) : remaining();
                 if(maxToRead > Integer.MAX_VALUE) {
-                    logger.debug("FileService: maxToRead >= 2^32 !");
+                    logger.debug("FileService: maxToRead >= 2^32 !   ({})", file);
                     maxToRead = Integer.MAX_VALUE;
                 }
                 int read = raf.read(into, offset, (int) maxToRead);
@@ -71,6 +73,6 @@ class ByteRange {
 
     @Override
     public String toString() {
-        return "ByteRange(" + start + "," + end + ")";
+        return "ByteRange(" + start + "," + end + "@" + file + ")";
     }
 }
