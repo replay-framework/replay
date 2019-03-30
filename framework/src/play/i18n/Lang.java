@@ -19,7 +19,7 @@ public class Lang {
     @Deprecated
     static final ThreadLocal<String> current = new ThreadLocal<>();
 
-    private static Map<String, Locale> cache = new HashMap<>();
+    private static final Map<String, Locale> cache = new HashMap<>();
     
     /**
      * Retrieve the current language or null
@@ -230,7 +230,7 @@ public class Lang {
 
     private static Locale findLocale(String localeStr) {
         String lang = localeStr;
-        int splitPos = lang.indexOf("_");
+        int splitPos = lang.indexOf('_');
         if (splitPos > 0) {
             lang = lang.substring(0, splitPos);
         }
