@@ -6,6 +6,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
+import liquibase.lockservice.LockServiceFactory;
 import liquibase.resource.ResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ public final class LiquibaseMigration {
 
     try (Connection cnx = getConnection()) {
       Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
+      if (cnx.getMetaData().getURL().contains(":h2:")) {
+        LockServiceFactory.getInstance().register(new NonLockingLockService());
+      }
 
       try {
         ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
