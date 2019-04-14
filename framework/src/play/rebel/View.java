@@ -20,6 +20,9 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * 200 OK with a template rendering
  */
@@ -72,7 +75,7 @@ public class View extends Result {
   }
 
   private void renderView(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws IOException {
-    long start = System.currentTimeMillis();
+    long start = nanoTime();
     Template template = resolveTemplate();
 
     Map<String, Object> templateBinding = new HashMap<>();
@@ -85,7 +88,7 @@ public class View extends Result {
     templateBinding.put("errors", Validation.errors());
 
     this.content = template.render(templateBinding);
-    this.renderTime = System.currentTimeMillis() - start;
+    this.renderTime = NANOSECONDS.toMillis(nanoTime() - start);
     String contentType = MimeTypes.getContentType(template.name, "text/plain");
     response.out.write(content.getBytes(response.encoding));
     setContentTypeIfNotSet(response, contentType);

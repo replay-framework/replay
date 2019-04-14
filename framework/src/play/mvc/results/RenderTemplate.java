@@ -11,6 +11,9 @@ import play.templates.Template;
 
 import java.util.Map;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * 200 OK with a template rendering
  */
@@ -27,9 +30,9 @@ public class RenderTemplate extends Result {
         }
         this.name = template.name;
         this.arguments = arguments;
-        long start = System.currentTimeMillis();
+        long start = nanoTime();
         this.content = template.render(arguments);
-        this.renderTime = System.currentTimeMillis() - start;
+        this.renderTime = NANOSECONDS.toMillis(nanoTime() - start);
     }
 
     @Override

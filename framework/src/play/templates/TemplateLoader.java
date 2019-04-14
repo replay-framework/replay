@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.apache.commons.io.FileUtils.copyURLToFile;
 
 public class TemplateLoader {
@@ -114,11 +116,11 @@ public class TemplateLoader {
 
     private static void scan(List<Template> templates, VirtualFile current) {
         if (!current.isDirectory() && !current.getName().startsWith(".")) {
-            long start = System.currentTimeMillis();
+            long start = nanoTime();
             Template template = load(current);
             if (template != null) {
                 template.compile();
-                logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
+                logger.trace("{} ms to load {}", NANOSECONDS.toMillis(nanoTime() - start), current.getName());
                 templates.add(template);
             }
         } else if (current.isDirectory() && !current.getName().startsWith(".")) {
