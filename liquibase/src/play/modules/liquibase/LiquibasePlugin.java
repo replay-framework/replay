@@ -6,7 +6,6 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
-import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class LiquibasePlugin extends PlayPlugin {
   }
 
   private Liquibase createLiquibase(Database database) throws LiquibaseException {
-    ResourceAccessor accessor = createResourceAccessor();
+    ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
 
     String changeLogPath = Play.configuration.getProperty("liquibase.changelog", "mainchangelog.xml");
     Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
@@ -92,19 +91,6 @@ public class LiquibasePlugin extends PlayPlugin {
         String val = props.getProperty(name);
         liquibase.setChangeLogParameter(name, val);
       }
-    }
-  }
-
-  private ResourceAccessor createResourceAccessor() {
-    String scanner = Play.configuration.getProperty("liquibase.scanner", "jar");
-
-    switch (scanner) {
-      case "jar":
-        return new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
-      case "src":
-        return new FileSystemResourceAccessor(Play.applicationPath.getAbsolutePath());
-      default:
-        throw new LiquibaseUpdateException("No valid scanner found liquibase operation " + scanner);
     }
   }
 
