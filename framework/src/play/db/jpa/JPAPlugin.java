@@ -189,11 +189,6 @@ public class JPAPlugin extends PlayPlugin {
         properties.put("javax.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
         properties.put("hibernate.dialect", getDefaultDialect(dbConfig, dbConfig.getProperty("db.driver")));
         properties.put("hibernate.type_contributors", new DynamicTypeContributorList());
-
-        if (!dbConfig.getProperty("jpa.ddl", Play.mode.isDev() ? "update" : "none").equals("none")) {
-            properties.setProperty("hibernate.hbm2ddl.auto", dbConfig.getProperty("jpa.ddl", "update"));
-        }
-
         properties.put("hibernate.connection.datasource", DB.getDataSource(dbName));
         return properties;
     }

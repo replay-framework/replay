@@ -256,7 +256,6 @@ public class ConfigurationTest {
         Play.configuration.put("javax.persistence.lock.timeout", "1000");
         //jpa
         Play.configuration.put("jpa.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        Play.configuration.put("jpa.ddl", "update");
         Play.configuration.put("jpa.debugSQL", "true");
         //hibernate
         Play.configuration.put("hibernate.ejb.event.post-insert", "postInsert");
@@ -281,7 +280,6 @@ public class ConfigurationTest {
         assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
         //jpa
         assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("update", properties.get("jpa.ddl"));
         assertEquals("true", properties.get("jpa.debugSQL"));
         //hibernate
         assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));
@@ -333,7 +331,6 @@ public class ConfigurationTest {
         assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
         //jpa
         assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("update", properties.get("jpa.ddl"));
         assertEquals("true", properties.get("jpa.debugSQL"));
         //hibernate
         assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));
