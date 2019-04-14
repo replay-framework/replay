@@ -65,7 +65,9 @@ public final class LiquibaseMigration {
         restoreFromDump(cnx);
       }
 
-      runLiquiBase(cnx);
+      if (!dumpFile.exists() || isChangelogNewerThanDump()) {
+        runLiquiBase(cnx);
+      }
 
       logger.info("{} finished in {} ms.", changeLogPath, NANOSECONDS.toMillis(nanoTime() - start));
     }
@@ -125,6 +127,27 @@ public final class LiquibaseMigration {
     else {
       logger.info("{} DB dump {} not found, creating DB from scratch", dbName, dumpFile);
     }
+  }
+
+  @SuppressWarnings("ConstantConditions")
+  private boolean isChangelogNewerThanDump() {
+    File lastModifiedChangelogFile = Arrays.stream(changeLogPath.getParentFile().listFiles())
+      .filter(file -> !file.getAbsolutePath().equals(dumpFile.getAbsolutePath()))
+      .max(comparingLong(File::lastModified)).get();
+
+    if (lastModifiedChangelogFile.lastModified() >= dumpFile.lastModified()) {
+      logger.info("Dump {} is older than changelog {} - let's run LiquiBase", fileInfo(dumpFile), fileInfo(lastModifiedChangelogFile));
+      return true;
+    }
+    else {
+      logger.info("Dump {} is newer than changelog {} - skipping LiquiBase", fileInfo(dumpFile), fileInfo(lastModifiedChangelogFile));
+      return false;
+    }
+  }
+
+  private String fileInfo(File file) {
+    DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    return String.format("%s (last modified %s)", file, df.format(new Date(file.lastModified())));
   }
 
   private void close(Database database) {
