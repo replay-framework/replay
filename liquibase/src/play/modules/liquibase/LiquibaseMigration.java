@@ -7,7 +7,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.lockservice.LockServiceFactory;
-import liquibase.resource.ResourceAccessor;
+import liquibase.resource.FileSystemResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -18,9 +18,14 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.nanoTime;
+import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public final class LiquibaseMigration {
@@ -28,17 +33,17 @@ public final class LiquibaseMigration {
   private static final Logger logger = LoggerFactory.getLogger(LiquibaseMigration.class);
 
   private final String dbName;
-  private final String changeLogPath;
+  private final File changeLogPath;
   private final File dumpFile;
   private final String driver;
   private final String url;
   private final String username;
   private final String password;
 
-  public LiquibaseMigration(String dbName, String changeLogPath, String dumpFile, String driver, String url, String username, String password) {
+  public LiquibaseMigration(String dbName, File changeLogPath, String driver, String url, String username, String password) {
     this.dbName = dbName;
     this.changeLogPath = changeLogPath;
-    this.dumpFile = new File(dumpFile);
+    this.dumpFile = new File(changeLogPath.getAbsolutePath() + ".dump.sql");
     this.driver = driver;
     this.url = url;
     this.username = username;
@@ -58,26 +63,36 @@ public final class LiquibaseMigration {
     try (Connection cnx = getConnection()) {
       if (isH2()) {
         restoreFromDump(cnx);
-        LockServiceFactory.getInstance().register(new NonLockingLockService());
       }
 
-      Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
-      try {
-        ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
-        Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
-        liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
-        if (isH2()) {
-          storeDump(cnx);
-        }
-      }
-      finally {
-        close(database);
-      }
+      runLiquiBase(cnx);
 
       logger.info("{} finished in {} ms.", changeLogPath, NANOSECONDS.toMillis(nanoTime() - start));
     }
     catch (SQLException | LiquibaseException sqe) {
       throw new LiquibaseUpdateException("Failed to migrate " + changeLogPath, sqe);
+    }
+  }
+
+  private void runLiquiBase(Connection cnx) throws LiquibaseException {
+    if (isH2()) {
+      LockServiceFactory.getInstance().register(new NonLockingLockService());
+    }
+
+    Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
+    try {
+      FileSystemResourceAccessor accessor = new FileSystemResourceAccessor() {
+        @Override protected void init() {
+        }
+      };
+      Liquibase liquibase = new Liquibase(changeLogPath.getPath(), accessor, database);
+      liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
+      if (isH2()) {
+        storeDump(cnx);
+      }
+    }
+    finally {
+      close(database);
     }
   }
 
