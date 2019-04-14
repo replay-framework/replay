@@ -29,9 +29,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import static java.lang.System.nanoTime;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hibernate.FlushMode.MANUAL;
 
 
@@ -96,11 +98,13 @@ public class JPAPlugin extends PlayPlugin {
      */
     @Override
     public void onApplicationStart() {
-        long start = System.currentTimeMillis();
+        long start = nanoTime();
         org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.OFF);
 
         Set<String> dBNames = Configuration.getDbNames();
         for (String dbName : dBNames) {
+            long startDb = nanoTime();
+
             Configuration dbConfig = new Configuration(dbName);
             
             if (dbConfig.getProperty("jpa.debugSQL", "false").equals("true")) {
@@ -108,12 +112,11 @@ public class JPAPlugin extends PlayPlugin {
             }
 
             logger.info("Initializing JPA for {}...", dbName);
-
             JPA.emfs.put(dbName, newEntityManagerFactory(dbName, dbConfig));
+            logger.info("Initialized JPA for {} in {} ms", dbName, NANOSECONDS.toMillis(nanoTime() - startDb));
         }
         JPQL.instance = new JPQL();
-        long end = System.currentTimeMillis();
-        logger.info("JPA initialized in {} ms.", end - start);
+        logger.info("JPA initialized in {} ms.", NANOSECONDS.toMillis(nanoTime() - start));
     }
     
     private List<Class> entityClasses(String dbName) {
