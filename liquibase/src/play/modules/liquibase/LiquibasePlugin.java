@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -44,8 +43,7 @@ public class LiquibasePlugin extends PlayPlugin {
 
       try {
         Liquibase liquibase = createLiquibase(database);
-        String contexts = parseContexts();
-        liquibase.update(contexts);
+        liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
       }
       finally {
         close(database);
@@ -76,11 +74,6 @@ public class LiquibasePlugin extends PlayPlugin {
     catch (DatabaseException | RuntimeException e) {
       logger.warn("problem closing connection: " + e, e);
     }
-  }
-
-  @Nullable String parseContexts() {
-    String contexts = Play.configuration.getProperty("liquibase.contexts", "").trim();
-    return contexts.isEmpty() ? null : contexts;
   }
 
   private void configureLiquibaseProperties(Liquibase liquibase) {
