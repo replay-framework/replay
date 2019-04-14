@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.nanoTime;
@@ -53,7 +52,8 @@ public final class LiquibaseMigration {
       Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
 
       try {
-        Liquibase liquibase = createLiquibase(database, changeLogPath);
+        ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
+        Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
         liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
       }
       finally {
@@ -68,32 +68,12 @@ public final class LiquibaseMigration {
     }
   }
 
-  private Liquibase createLiquibase(Database database, String changeLogPath) throws LiquibaseException {
-    ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
-
-    Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
-
-    configureLiquibaseProperties(liquibase);
-    return liquibase;
-  }
-
   private void close(Database database) {
     try {
       database.close();
     }
     catch (DatabaseException | RuntimeException e) {
       logger.warn("{} problem closing connection: " + e, changeLogPath, e);
-    }
-  }
-
-  private void configureLiquibaseProperties(Liquibase liquibase) {
-    Properties props = Play.configuration;
-
-    for (String name : props.stringPropertyNames()) {
-      if (name.startsWith("db.") || name.startsWith("liquibase.")) {
-        String val = props.getProperty(name);
-        liquibase.setChangeLogParameter(name, val);
-      }
     }
   }
 
