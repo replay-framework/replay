@@ -10,7 +10,6 @@ import liquibase.resource.ResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.PlayPlugin;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -22,27 +21,39 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class LiquibasePlugin extends PlayPlugin {
+public final class LiquibaseMigration {
 
-  private static final Logger logger = LoggerFactory.getLogger(LiquibasePlugin.class);
+  private static final Logger logger = LoggerFactory.getLogger(LiquibaseMigration.class);
 
-  @Override
-  public void onApplicationStart() {
+  private final String changeLogPath;
+  private final String driver;
+  private final String url;
+  private final String username;
+  private final String password;
+
+  public LiquibaseMigration(String changeLogPath, String driver, String url, String username, String password) {
+    this.changeLogPath = changeLogPath;
+    this.driver = driver;
+    this.url = url;
+    this.username = username;
+    this.password = password;
+  }
+
+  public void migrate() {
     String autoUpdate = Play.configuration.getProperty("liquibase.active", "false");
 
     if (!parseBoolean(autoUpdate)) {
-      logger.info("Auto update flag [{}] != true  => skipping structural update", autoUpdate);
+      logger.info("{} Auto update flag [{}] != true  => skipping structural update", changeLogPath, autoUpdate);
       return;
     }
 
     long start = nanoTime();
-    logger.info("Auto update flag found and positive => let's get on with changelog update");
 
     try (Connection cnx = getConnection()) {
       Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
 
       try {
-        Liquibase liquibase = createLiquibase(database);
+        Liquibase liquibase = createLiquibase(database, changeLogPath);
         liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
       }
       finally {
@@ -50,17 +61,16 @@ public class LiquibasePlugin extends PlayPlugin {
       }
     }
     catch (SQLException | LiquibaseException sqe) {
-      throw new LiquibaseUpdateException(sqe.getMessage(), sqe);
+      throw new LiquibaseUpdateException("Failed to migrate " + changeLogPath, sqe);
     }
     finally {
-      logger.info("LiquibasePlugin finished with {} ms.", NANOSECONDS.toMillis(nanoTime() - start));
+      logger.info("{} finished in {} ms.", changeLogPath, NANOSECONDS.toMillis(nanoTime() - start));
     }
   }
 
-  private Liquibase createLiquibase(Database database) throws LiquibaseException {
+  private Liquibase createLiquibase(Database database, String changeLogPath) throws LiquibaseException {
     ResourceAccessor accessor = new DuplicatesIgnoringResourceAccessor(Thread.currentThread().getContextClassLoader());
 
-    String changeLogPath = Play.configuration.getProperty("liquibase.changelog", "mainchangelog.xml");
     Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
 
     configureLiquibaseProperties(liquibase);
@@ -72,7 +82,7 @@ public class LiquibasePlugin extends PlayPlugin {
       database.close();
     }
     catch (DatabaseException | RuntimeException e) {
-      logger.warn("problem closing connection: " + e, e);
+      logger.warn("{} problem closing connection: " + e, changeLogPath, e);
     }
   }
 
@@ -89,11 +99,7 @@ public class LiquibasePlugin extends PlayPlugin {
 
   @SuppressWarnings("CallToDriverManagerGetConnection")
   private Connection getConnection() throws SQLException {
-    String driver = Play.configuration.getProperty("db.driver");
-    String url = Play.configuration.getProperty("liquibase.db.url", Play.configuration.getProperty("db.url"));
-    String username = Play.configuration.getProperty("liquibase.db.user", Play.configuration.getProperty("db.user"));
-    String password = Play.configuration.getProperty("liquibase.db.pass", Play.configuration.getProperty("db.pass"));
-    logger.info("Migrate DB: {} @ {}", username, url);
+    logger.info("Migrate {}: {} @ {}", changeLogPath, username, url);
 
     initDriver(driver);
     return DriverManager.getConnection(url, username, password);
@@ -104,7 +110,7 @@ public class LiquibasePlugin extends PlayPlugin {
       Driver d = (Driver) Class.forName(driver).newInstance();
       DriverManager.registerDriver(d);
     } catch (Exception e) {
-      throw new RuntimeException("jdbc driver class not found", e);
+      throw new LiquibaseUpdateException("jdbc driver class not found: " + driver, e);
     }
   }
 }
