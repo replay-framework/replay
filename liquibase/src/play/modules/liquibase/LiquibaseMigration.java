@@ -7,7 +7,6 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.lockservice.LockServiceFactory;
-import liquibase.resource.FileSystemResourceAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -32,18 +31,21 @@ public final class LiquibaseMigration {
 
   private static final Logger logger = LoggerFactory.getLogger(LiquibaseMigration.class);
 
+  private final PlayFileResourceAccessor accessor = new PlayFileResourceAccessor();
   private final String dbName;
-  private final File changeLogPath;
+  private final File changelogFile;
+  private final String changeLogPath;
   private final File dumpFile;
   private final String driver;
   private final String url;
   private final String username;
   private final String password;
 
-  public LiquibaseMigration(String dbName, File changeLogPath, String driver, String url, String username, String password) {
+  public LiquibaseMigration(String dbName, String changeLogPath, String driver, String url, String username, String password) {
     this.dbName = dbName;
     this.changeLogPath = changeLogPath;
-    this.dumpFile = new File(changeLogPath.getAbsolutePath() + ".dump.sql");
+    this.changelogFile = accessor.findFile(changeLogPath);
+    this.dumpFile = new File(changelogFile.getAbsolutePath() + ".dump.sql");
     this.driver = driver;
     this.url = url;
     this.username = username;
@@ -65,7 +67,7 @@ public final class LiquibaseMigration {
         restoreFromDump(cnx);
       }
 
-      if (!dumpFile.exists() || isChangelogNewerThanDump()) {
+      if (!isH2() || !dumpFile.exists() || isChangelogNewerThanDump()) {
         runLiquiBase(cnx);
       }
 
@@ -83,11 +85,7 @@ public final class LiquibaseMigration {
 
     Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(cnx));
     try {
-      FileSystemResourceAccessor accessor = new FileSystemResourceAccessor() {
-        @Override protected void init() {
-        }
-      };
-      Liquibase liquibase = new Liquibase(changeLogPath.getPath(), accessor, database);
+      Liquibase liquibase = new Liquibase(changeLogPath, accessor, database);
       liquibase.update(Play.configuration.getProperty("liquibase.contexts", ""));
       if (isH2()) {
         storeDump(cnx);
@@ -131,7 +129,7 @@ public final class LiquibaseMigration {
 
   @SuppressWarnings("ConstantConditions")
   private boolean isChangelogNewerThanDump() {
-    File lastModifiedChangelogFile = Arrays.stream(changeLogPath.getParentFile().listFiles())
+    File lastModifiedChangelogFile = Arrays.stream(changelogFile.getParentFile().listFiles())
       .filter(file -> !file.getAbsolutePath().equals(dumpFile.getAbsolutePath()))
       .max(comparingLong(File::lastModified)).get();
 
