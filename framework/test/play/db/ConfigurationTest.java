@@ -262,6 +262,7 @@ public class ConfigurationTest {
         Play.configuration.put("hibernate.ejb.event.post-update", "postUpdate");
         //org.hibernate
         Play.configuration.put("org.hibernate.flushMode", "AUTO");
+        Play.configuration.put("hibernate.default_batch_fetch_size", "66");
 
         Configuration dbConfig = new Configuration("default");
         Map<String, String> properties = dbConfig.getProperties();
@@ -286,6 +287,7 @@ public class ConfigurationTest {
         assertEquals("postUpdate", properties.get("hibernate.ejb.event.post-update"));
         //org.hibernate
         assertEquals("AUTO", properties.get("org.hibernate.flushMode"));
+        assertEquals("66", properties.get("hibernate.default_batch_fetch_size"));
 
         assertEquals(Play.configuration.size(), properties.size());
     }
