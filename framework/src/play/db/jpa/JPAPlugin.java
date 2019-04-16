@@ -186,7 +186,7 @@ public class JPAPlugin extends PlayPlugin {
         Properties properties = new Properties();
         properties.putAll(dbConfig.getProperties());
         properties.put("javax.persistence.transaction", "RESOURCE_LOCAL");
-        properties.put("javax.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
+        properties.put("javax.persistence.provider", "org.hibernate.jpa.HibernatePersistence");
         properties.put("hibernate.dialect", getDefaultDialect(dbConfig, dbConfig.getProperty("db.driver")));
         properties.put("hibernate.type_contributors", new DynamicTypeContributorList());
         properties.put("hibernate.connection.datasource", DB.getDataSource(dbName));
