@@ -1,9 +1,9 @@
 dependencies {
   compile('com.google.code.findbugs:jsr305:3.0.2')
-  compile('io.github.classgraph:classgraph:4.8.15')
+  compile('io.github.classgraph:classgraph:4.8.29')
   compile('com.zaxxer:HikariCP:3.3.1')
   compile('org.ow2.asm:asm:7.1')
-  compile('cglib:cglib:3.2.10') {transitive = false}
+  compile('cglib:cglib:3.2.12') {transitive = false}
   compile('com.google.code.gson:gson:2.8.5')
   compile('com.jamonapi:jamon:2.81') {transitive = false}
   compile('com.ning:async-http-client:1.9.40') {
@@ -18,7 +18,7 @@ dependencies {
   compile('commons-io:commons-io:2.6')
   compile('commons-lang:commons-lang:2.6')
   compile('commons-logging:commons-logging:1.2')
-  compile('com.h2database:h2:1.4.197')
+  compile('com.h2database:h2:1.4.199')
   compile('javax.activation:activation:1.1.1')
   compile('javax.mail:mail:1.4.7')
   compile('javax.inject:javax.inject:1')
@@ -26,7 +26,7 @@ dependencies {
   compile('jaxen:jaxen:1.1.6')
   compile('joda-time:joda-time:2.10.1')
   compile('log4j:log4j:1.2.17')
-  compile('org.ehcache:ehcache:3.7.0')
+  compile('org.ehcache:ehcache:3.7.1')
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
   compile('net.sf.oval:oval:1.90')
@@ -54,8 +54,8 @@ dependencies {
   compile('xmlpull:xmlpull:1.1.3.4d_b4_min')
 
   testCompile('junit:junit:4.12')
-  testCompile 'org.mockito:mockito-core:2.25.1'
-  testCompile('org.assertj:assertj-core:3.11.1')
+  testCompile 'org.mockito:mockito-core:2.27.0'
+  testCompile('org.assertj:assertj-core:3.12.2')
 }
 
 task generateReplayVersion(type: Exec) {
