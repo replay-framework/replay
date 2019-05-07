@@ -256,13 +256,13 @@ public class ConfigurationTest {
         Play.configuration.put("javax.persistence.lock.timeout", "1000");
         //jpa
         Play.configuration.put("jpa.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        Play.configuration.put("jpa.ddl", "update");
         Play.configuration.put("jpa.debugSQL", "true");
         //hibernate
         Play.configuration.put("hibernate.ejb.event.post-insert", "postInsert");
         Play.configuration.put("hibernate.ejb.event.post-update", "postUpdate");
         //org.hibernate
         Play.configuration.put("org.hibernate.flushMode", "AUTO");
+        Play.configuration.put("hibernate.default_batch_fetch_size", "66");
 
         Configuration dbConfig = new Configuration("default");
         Map<String, String> properties = dbConfig.getProperties();
@@ -281,13 +281,13 @@ public class ConfigurationTest {
         assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
         //jpa
         assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("update", properties.get("jpa.ddl"));
         assertEquals("true", properties.get("jpa.debugSQL"));
         //hibernate
         assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));
         assertEquals("postUpdate", properties.get("hibernate.ejb.event.post-update"));
         //org.hibernate
         assertEquals("AUTO", properties.get("org.hibernate.flushMode"));
+        assertEquals("66", properties.get("hibernate.default_batch_fetch_size"));
 
         assertEquals(Play.configuration.size(), properties.size());
     }
@@ -333,7 +333,6 @@ public class ConfigurationTest {
         assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
         //jpa
         assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("update", properties.get("jpa.ddl"));
         assertEquals("true", properties.get("jpa.debugSQL"));
         //hibernate
         assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));

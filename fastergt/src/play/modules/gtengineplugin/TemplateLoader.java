@@ -19,6 +19,9 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 public class TemplateLoader {
     private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
@@ -196,9 +199,9 @@ public class TemplateLoader {
 
     private static void scan(List<Template> templates, VirtualFile current) {
         if (!current.isDirectory() && !current.getName().startsWith(".")) {
-            long start = System.currentTimeMillis();
+            long start = nanoTime();
             Template template = load(current);
-            logger.trace("{}ms to load {}", System.currentTimeMillis() - start, current.getName());
+            logger.trace("{}ms to load {}", NANOSECONDS.toMillis(nanoTime() - start), current.getName());
             templates.add(template);
         } else if (current.isDirectory() && !current.getName().startsWith(".")) {
             for (VirtualFile virtualFile : current.list()) {

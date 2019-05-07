@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * 200 OK with application/excel
  * 
@@ -60,14 +63,14 @@ public class RenderExcel extends Result {
     public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
         if (null == excel) {
             logger.debug("use sync excel rendering");
-            long start = System.currentTimeMillis();
+            long start = nanoTime();
             try {
                 InputStream is = file.inputstream();
                 Workbook workbook = new XLSTransformer()
                         .transformXLS(is, beans);
                 workbook.write(response.out);
                 is.close();
-                logger.debug("Excel sync render takes {}ms", System.currentTimeMillis() - start);
+                logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
             } catch (Exception e) {
                 throw new UnexpectedException(e);
             }

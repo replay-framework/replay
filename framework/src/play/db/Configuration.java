@@ -102,7 +102,7 @@ public class Configuration {
             Matcher matcher = compiledRegexDbRelatedSettings.matcher(keyName);
             if (matcher.matches()) {
                 final String key_prefix_for_db_related_setting = matcher.group(1);
-                if (keyName.startsWith(key_prefix_for_db_related_setting + "." + this.configName)) {
+                if (keyName.startsWith(key_prefix_for_db_related_setting + "." + this.configName + ".")) {
                     String type = key_prefix_for_db_related_setting;
                     String newKey = type;
                     if (keyName.length() > (type + "." + this.configName).length()) {
@@ -113,8 +113,8 @@ public class Configuration {
                     boolean isDefaultProperty = true;
                     Set<String> dBNames = getDbNames();
                     for (String dbName : dBNames) {
-                        if (keyName.startsWith("db." + dbName) ||
-                            keyName.startsWith("hibernate." + dbName)) {
+                        if (keyName.startsWith("db." + dbName + ".") ||
+                            keyName.startsWith("hibernate." + dbName + ".")) {
                             isDefaultProperty = false;
                             break;
                         }

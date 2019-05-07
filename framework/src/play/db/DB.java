@@ -190,7 +190,7 @@ public class DB {
             return connection;
         } catch (NullPointerException e) {
             if (getDataSource(name) == null) {
-                throw new DatabaseException("No database found. Check the configuration of your application.", e);
+                throw new DatabaseException("No database found: '" + name + "'", e);
             }
             throw e;
         } catch (SQLException e) {
