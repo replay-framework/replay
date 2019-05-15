@@ -24,4 +24,8 @@ public abstract class Result extends FastRuntimeException {
     protected void setContentTypeIfNotSet(Response response, String contentType) {
         response.setContentTypeIfNotSet(contentType);
     }
+
+    public boolean isRenderingTemplate() {
+        return false;
+    }
 }

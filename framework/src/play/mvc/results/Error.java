@@ -72,4 +72,9 @@ public class Error extends Result {
     public int getStatus() {
         return status;
     }
+
+    @Override
+    public boolean isRenderingTemplate() {
+        return true;
+    }
 }

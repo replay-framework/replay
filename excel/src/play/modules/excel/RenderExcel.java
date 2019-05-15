@@ -85,4 +85,9 @@ public class RenderExcel extends Result {
     }
 
     private byte[] excel;
+
+    @Override
+    public boolean isRenderingTemplate() {
+        return true;
+    }
 }

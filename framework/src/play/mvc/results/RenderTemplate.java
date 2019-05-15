@@ -61,4 +61,9 @@ public class RenderTemplate extends Result {
     public long getRenderTime() {
         return renderTime;
     }
+
+    @Override
+    public boolean isRenderingTemplate() {
+        return true;
+    }
 }

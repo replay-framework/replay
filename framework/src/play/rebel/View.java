@@ -122,5 +122,10 @@ public class View extends Result {
     arguments.put(name, value);
     return this;
   }
+
+  @Override
+  public boolean isRenderingTemplate() {
+      return true;
+  }
 }
 

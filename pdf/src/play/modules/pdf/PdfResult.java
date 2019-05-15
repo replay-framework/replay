@@ -74,4 +74,9 @@ public class PdfResult extends Result {
     pdfTemplate.pageSize(pageSize);
     return this;
   }
+
+  @Override
+  public boolean isRenderingTemplate() {
+      return true;
+  }
 }

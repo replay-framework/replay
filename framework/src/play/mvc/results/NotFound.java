@@ -63,4 +63,9 @@ public class NotFound extends Result {
             throw new UnexpectedException(e);
         }
     }
+
+    @Override
+    public boolean isRenderingTemplate() {
+        return true;
+    }
 }
