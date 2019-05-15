@@ -28,21 +28,6 @@ public class RenderJson extends Result {
         json = GSON.toJson(response);
     }
 
-    public RenderJson(Object response, Type type) {
-        this.response = response;
-        json = GSON.toJson(response, type);
-    }
-
-    public RenderJson(Object response, JsonSerializer<?>... adapters) {
-        this.response = response;
-        GsonBuilder gson = new GsonBuilder();
-        for (Object adapter : adapters) {
-            Type t = getMethod(adapter.getClass(), "serialize").getParameterTypes()[0];
-            gson.registerTypeAdapter(t, adapter);
-        }
-        json = gson.create().toJson(response);
-    }
-
     public RenderJson(String jsonString) {
         json = jsonString;
         this.response = null;
@@ -73,17 +58,5 @@ public class RenderJson extends Result {
 
     public Object getResponse() {
         return response;
-    }
-
-    private static Method getMethod(Class clazz, String methodName) {
-        Method bestMatch = null;
-        for (Method m : clazz.getDeclaredMethods()) {
-            if (m.getName().equals(methodName) && !m.isBridge()) {
-                if (bestMatch == null || !Object.class.equals(m.getParameterTypes()[0])) {
-                    bestMatch = m;
-                }
-            }
-        }
-        return bestMatch;
     }
 }
