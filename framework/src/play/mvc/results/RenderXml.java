@@ -1,6 +1,5 @@
 package play.mvc.results;
 
-import com.thoughtworks.xstream.XStream;
 import org.w3c.dom.Document;
 import play.exceptions.UnexpectedException;
 import play.libs.XML;
@@ -23,14 +22,6 @@ public class RenderXml extends Result {
 
     public RenderXml(Document document) {
         this.xml = XML.serialize(document);
-    }
-
-    public RenderXml(Object o, XStream xstream) {
-        this.xml = xstream.toXML(o);
-    }
-
-    public RenderXml(Object o) {
-        this(o, new XStream());
     }
 
     @Override
