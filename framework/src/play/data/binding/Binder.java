@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -657,6 +658,11 @@ public abstract class Binder {
         // BigDecimal binding
         if (clazz.equals(BigDecimal.class)) {
             return nullOrEmpty ? null : new BigDecimal(value);
+        }
+
+        // BigInteger binding
+        if (clazz.equals(BigInteger.class)) {
+            return nullOrEmpty ? null : new BigInteger(value);
         }
 
         // boolean or Boolean binding
