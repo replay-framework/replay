@@ -194,7 +194,7 @@ public class Messages {
                 } catch (NumberFormatException ignore) {
                     result[i] = null;
                 } catch (RuntimeException e) {
-                    logger.error("Invalid value: " + args[i], e);
+                    logger.error("Invalid value: {}", args[i], e);
                     result[i] = null;
                 }
             }

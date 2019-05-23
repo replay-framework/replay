@@ -32,7 +32,7 @@ public class SessionDataEncoder {
           map.put(URLDecoder.decode(splitted[0], UTF_8), URLDecoder.decode(splitted[1], UTF_8));
         }
         catch (Exception e) {
-          logger.error("!!! Cookie parsing failed: " + e + ",\ncookie.key=" + splitted[0] + "\n  Data: " + data);
+          logger.error("!!! Cookie parsing failed: {},\ncookie.key={}\n  Data: {}", e, splitted[0], data);
         }
       }
     }

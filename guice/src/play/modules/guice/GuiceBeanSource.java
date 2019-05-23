@@ -21,7 +21,7 @@ public class GuiceBeanSource implements BeanSource {
 
   public GuiceBeanSource(@Nonnull List<Module> modules) {
     long start = nanoTime();
-    logger.info("Initializing guice modules: " + modules);
+    logger.info("Initializing guice modules: {}", modules);
     this.injector = Guice.createInjector(modules);
     logger.info("Initialized guice in {} ms", NANOSECONDS.toMillis(nanoTime() - start));
   }

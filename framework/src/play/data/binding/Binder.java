@@ -578,7 +578,7 @@ public abstract class Binder {
 
         // custom types
         for (Class<?> c : supportedTypes.keySet()) {
-            logger.trace("directBind: value [{}] c [" + c + "] Class [" + clazz + "]", value);
+            logger.trace("directBind: value [{}] c [{}] Class [{}]", value, c, clazz);
 
             if (c.isAssignableFrom(clazz)) {
                 logger.trace("directBind: isAssignableFrom is true");

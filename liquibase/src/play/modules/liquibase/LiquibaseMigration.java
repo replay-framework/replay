@@ -153,7 +153,7 @@ public final class LiquibaseMigration {
       database.close();
     }
     catch (DatabaseException | RuntimeException e) {
-      logger.warn("{} problem closing connection: " + e, changeLogPath, e);
+      logger.warn("{} problem closing connection", changeLogPath, e);
     }
   }
 

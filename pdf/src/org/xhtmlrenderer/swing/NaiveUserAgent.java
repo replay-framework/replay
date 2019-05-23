@@ -148,7 +148,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
       return connection.getInputStream();
     }
     catch (Exception e) {
-      logger.error("bad URL given: " + uri, e);
+      logger.error("bad URL given: {}", uri, e);
       XRLog.exception("bad URL given: " + uri, e);
     }
     return null;
@@ -190,11 +190,11 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
           _imageCache.put(uri, ir);
         }
         catch (FileNotFoundException e) {
-          logger.error("Can't read image file; image at URI '" + uri + "' not found", e);
+          logger.error("Can't read image file; image at URI '{}' not found", uri, e);
           XRLog.exception("Can't read image file; image at URI '" + uri + "' not found");
         }
         catch (IOException e) {
-          logger.error("Can't read image file; unexpected problem for URI '" + uri + "'", e);
+          logger.error("Can't read image file; unexpected problem for URI '{}'", uri, e);
           XRLog.exception("Can't read image file; unexpected problem for URI '" + uri + "'", e);
         }
         finally {
@@ -318,14 +318,14 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
       return new URL(uri).toString();
     }
     catch (IOException e) {
-      logger.debug(uri + " is not a URL; may be relative. Testing using parent URL " + _baseURL);
+      logger.debug("{} is not a URL; may be relative. Testing using parent URL {}", uri, _baseURL);
       XRLog.load(uri + " is not a URL; may be relative. Testing using parent URL " + _baseURL);
       try {
         URL result = new URL(new URL(_baseURL), uri);
         ret = result.toString();
       }
       catch (MalformedURLException e1) {
-        logger.error("The default NaiveUserAgent cannot resolve the URL " + uri + " with base URL " + _baseURL);
+        logger.error("The default NaiveUserAgent cannot resolve the URL {} with base URL {}", uri, _baseURL);
         XRLog.exception("The default NaiveUserAgent cannot resolve the URL " + uri + " with base URL " + _baseURL);
       }
     }
