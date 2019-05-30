@@ -10,7 +10,6 @@ import org.xml.sax.InputSource;
 import play.Play;
 import play.PlayPlugin;
 import play.libs.ws.WSAsync;
-import play.libs.ws.WSUrlFetch;
 import play.mvc.Http;
 import play.mvc.Http.Header;
 import play.utils.HTTP;
@@ -22,7 +21,10 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Simple HTTP client to make webservices requests.
@@ -49,7 +51,7 @@ import java.util.*;
 public class WS extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(WS.class);
 
-    private static WSImpl wsImpl = null;
+    private static WSImpl wsImpl;
 
     public enum Scheme {
         BASIC, DIGEST, NTLM, KERBEROS, SPNEGO
@@ -96,7 +98,6 @@ public class WS extends PlayPlugin {
          * @return a WSRequest on which you can add params, file headers using a chaining style programming.
          */
         public WSRequest url(String url) {
-            init();
             return wsImpl.newRequest(url, encoding);
         }
 
@@ -131,37 +132,7 @@ public class WS extends PlayPlugin {
     @Override
     public void onApplicationStart() {
         wsWithDefaultEncoding = new WSWithEncoding(Play.defaultWebEncoding);
-    }
-
-    private static synchronized void init() {
-        if (wsImpl != null)
-            return;
-        String implementation = Play.configuration.getProperty("webservice", "async");
-        if (implementation.equals("urlfetch")) {
-            wsImpl = new WSUrlFetch();
-            logger.trace("Using URLFetch for web service");
-        } else if (implementation.equals("async")) {
-            logger.trace("Using Async for web service");
-            wsImpl = new WSAsync();
-        } else {
-            try {
-                wsImpl = (WSImpl) Class.forName(implementation).newInstance();
-                logger.trace("Using the class: {} for web service", implementation);
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to load the class: " + implementation + " for web service", e);
-            }
-        }
-    }
-
-    /**
-     * URL-encode a string to be used as a query string parameter.
-     * 
-     * @param part
-     *            string to encode
-     * @return url-encoded string
-     */
-    public static String encode(String part) {
-        return wsWithDefaultEncoding.encode(part);
+        wsImpl = new WSAsync();
     }
 
     /**
@@ -225,13 +196,9 @@ public class WS extends PlayPlugin {
         /**
          * Timeout: value in seconds
          */
-        public Integer timeout = 60;
+        public int timeout = 60;
 
-        public WSRequest() {
-            this.encoding = Play.defaultWebEncoding;
-        }
-
-        public WSRequest(String url, Charset encoding) {
+        protected WSRequest(String url, Charset encoding) {
             try {
                 this.url = new URI(url).toASCIIString();
             } catch (Exception e) {
@@ -457,7 +424,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a PATCH request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> patchAsync() {
@@ -473,7 +440,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a POST request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> postAsync() {
@@ -489,7 +456,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a PUT request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> putAsync() {
@@ -505,7 +472,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a DELETE request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> deleteAsync() {
@@ -521,7 +488,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a OPTIONS request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> optionsAsync() {
@@ -537,7 +504,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a HEAD request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> headAsync() {
@@ -553,7 +520,7 @@ public class WS extends PlayPlugin {
 
         /**
          * Execute a TRACE request asynchronously.
-         * 
+         *
          * @return The HTTP response
          */
         public Promise<HttpResponse> traceAsync() {
@@ -571,34 +538,6 @@ public class WS extends PlayPlugin {
                 throw new RuntimeException(e);
             }
         }
-
-        protected String createQueryString() {
-            StringBuilder sb = new StringBuilder();
-            for (String key : this.parameters.keySet()) {
-                if (sb.length() > 0) {
-                    sb.append("&");
-                }
-                Object value = this.parameters.get(key);
-
-                if (value != null) {
-                    if (value instanceof Collection<?> || value.getClass().isArray()) {
-                        Collection<?> values = value.getClass().isArray() ? Arrays.asList((Object[]) value) : (Collection<?>) value;
-                        boolean first = true;
-                        for (Object v : values) {
-                            if (!first) {
-                                sb.append("&");
-                            }
-                            first = false;
-                            sb.append(encode(key)).append("=").append(encode(v.toString()));
-                        }
-                    } else {
-                        sb.append(encode(key)).append("=").append(encode(this.parameters.get(key).toString()));
-                    }
-                }
-            }
-            return sb.toString();
-        }
-
     }
 
     public static class FileParam {

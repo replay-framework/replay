@@ -5,12 +5,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 public class WSSSLContext {
     public static SSLContext getSslContext(String keyStore, String keyStorePass, Boolean CAValidation) {
-        SSLContext sslCTX = null;
+        SSLContext sslCTX;
 
         try {
             // Keystore
@@ -26,8 +25,8 @@ public class WSSSLContext {
             KeyManager[] keyManagers = kmf.getKeyManagers();
 
             // Trustmanager
-            TrustManager[] trustManagers = null;
-            if (CAValidation == true) {
+            TrustManager[] trustManagers;
+            if (CAValidation) {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 tmf.init(ks);
                 trustManagers = tmf.getTrustManagers();
@@ -35,11 +34,11 @@ public class WSSSLContext {
                 trustManagers = new TrustManager[]{
                         new X509TrustManager() {
                             @Override
-                            public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                            public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
                             }
 
                             @Override
-                            public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                            public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
                             }
 
                             @Override

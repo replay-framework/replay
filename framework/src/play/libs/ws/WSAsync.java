@@ -406,13 +406,13 @@ public class WSAsync implements WSImpl {
                     authScheme = AuthScheme.BASIC;
                     break;
                 default:
-                    throw new RuntimeException("Scheme " + this.scheme + " not supported by the UrlFetch WS backend.");
+                    throw new RuntimeException("Scheme " + this.scheme + " not supported by WS backend.");
                 }
                 builder.setRealm((new RealmBuilder()).setScheme(authScheme).setPrincipal(this.username).setPassword(this.password)
                         .setUsePreemptiveAuth(true).build());
             }
-            for (String key : this.headers.keySet()) {
-                builder.addHeader(key, headers.get(key));
+            for (Map.Entry<String, String> entry : this.headers.entrySet()) {
+                builder.addHeader(entry.getKey(), entry.getValue());
             }
             builder.setFollowRedirects(this.followRedirects);
             builder.setRequestTimeout(this.timeout * 1000);
@@ -481,9 +481,7 @@ public class WSAsync implements WSImpl {
                 boolean isPostPut = "POST".equals(this.type) || ("PUT".equals(this.type));
 
                 if (isPostPut) {
-                    // Since AHC is hard-coded to encode to use UTF-8, we must
-                    // build
-                    // the content ourself..
+                    // Since AHC is hard-coded to encode to use UTF-8, we must build the content ourselves
                     StringBuilder sb = new StringBuilder();
 
                     for (String key : this.parameters.keySet()) {
