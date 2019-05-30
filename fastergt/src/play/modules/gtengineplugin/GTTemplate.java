@@ -12,8 +12,9 @@ import play.template2.GTTemplateLocation;
 import play.templates.Template;
 
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GTTemplate extends Template {
 
@@ -26,12 +27,6 @@ public class GTTemplate extends Template {
         this.name = templateLocation.relativePath;
     }
 
-    public GTTemplate(GTTemplateLocation templateLocation) {
-        this.templateLocation = templateLocation;
-        this.gtJavaBase = null;
-        this.name = templateLocation.relativePath;
-    }
-
     @Override
     public void compile() {
         //Don't have to do anything here..
@@ -39,18 +34,10 @@ public class GTTemplate extends Template {
 
     @Override
     protected String internalRender(Map<String, Object> args) {
-
-
         GTRenderingResult renderingResult = internalGTRender(args);
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        renderingResult.writeOutput(out, "utf-8");
-
-        try {
-            return new String(out.toByteArray(), "utf-8");
-        } catch ( UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        renderingResult.writeOutput(out, UTF_8);
+        return new String(out.toByteArray(), UTF_8);
     }
 
     public GTRenderingResult internalGTRender(Map<String, Object> args) {
@@ -88,11 +75,5 @@ public class GTTemplate extends Template {
     @Override
     public String render(Map<String, Object> args) {
         return internalRender(args);
-    }
-    
-    public void loadSource() {
-        if ( source == null) {
-            source = templateLocation.readSource();
-        }
     }
 }

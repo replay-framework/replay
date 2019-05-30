@@ -19,6 +19,7 @@ import play.mvc.Http.Request;
 import play.utils.HTTP;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -504,7 +505,7 @@ public class ApacheMultipartParser extends DataParser {
                     }
                     if (fileItem.isFormField()) {
                         // must resolve encoding
-                        String _encoding = request.encoding; // this is our default
+                        Charset _encoding = request.encoding; // this is our default
                         String _contentType = fileItem.getContentType();
                         if (_contentType != null) {
                             HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
@@ -513,7 +514,7 @@ public class ApacheMultipartParser extends DataParser {
                             }
                         }
 
-                        putMapEntry(result, fileItem.getFieldName(), fileItem.getString(_encoding));
+                        putMapEntry(result, fileItem.getFieldName(), fileItem.getString(_encoding.name()));
                     } else {
                         @SuppressWarnings("unchecked")
                         List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
@@ -952,7 +953,7 @@ public class ApacheMultipartParser extends DataParser {
          * @throws IOException
          *             An I/O error occurred.
          */
-        FileItemIteratorImpl(InputStream input, String contentType, String charEncoding) throws FileUploadException, IOException {
+        FileItemIteratorImpl(InputStream input, String contentType, Charset charEncoding) throws FileUploadException, IOException {
 
             if ((null == contentType) || (!contentType.toLowerCase().startsWith(MULTIPART))) {
                 throw new InvalidContentTypeException("the request doesn't contain a " + MULTIPART_FORM_DATA + " or " + MULTIPART_MIXED

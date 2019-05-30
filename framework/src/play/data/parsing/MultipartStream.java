@@ -5,7 +5,11 @@ import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.util.Closeable;
 import org.apache.commons.fileupload.util.Streams;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * <p> Low level API for processing file uploads.
@@ -220,7 +224,7 @@ public class MultipartStream {
     /**
      * The content encoding to use when reading headers.
      */
-    private String headerEncoding;
+    private Charset headerEncoding;
     /**
      * The progress notifier, if any, or null.
      */
@@ -290,7 +294,7 @@ public class MultipartStream {
      *
      * @return The encoding used to read part headers.
      */
-    public String getHeaderEncoding() {
+    public Charset getHeaderEncoding() {
         return headerEncoding;
     }
 
@@ -301,7 +305,7 @@ public class MultipartStream {
      *
      * @param encoding The encoding used to read part headers.
      */
-    public void setHeaderEncoding(String encoding) {
+    public void setHeaderEncoding(Charset encoding) {
         headerEncoding = encoding;
     }
 
@@ -445,13 +449,7 @@ public class MultipartStream {
 
         String headers = null;
         if (headerEncoding != null) {
-            try {
-                headers = baos.toString(headerEncoding);
-            } catch (UnsupportedEncodingException e) {
-                // Fall back to platform default if specified encoding is not
-                // supported.
-                headers = baos.toString();
-            }
+            headers = baos.toString(headerEncoding);
         } else {
             headers = baos.toString();
         }

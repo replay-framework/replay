@@ -16,7 +16,7 @@ public class TextParserTest {
   @Test
   public void parsesRequestBodyAsText() throws IOException {
     Http.Request request = new Http.Request();
-    request.encoding = UTF_8.name();
+    request.encoding = UTF_8;
     request.body = new ByteArrayInputStream("Don't reset me please".getBytes(UTF_8));
 
     assertThat(parser.parse(request).get("body"))

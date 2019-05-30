@@ -22,6 +22,8 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -110,7 +112,7 @@ public class Play {
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
      */
-    public static final String defaultWebEncoding = "utf-8";
+    public static final Charset defaultWebEncoding = StandardCharsets.UTF_8;
 
     public static Invoker invoker;
 

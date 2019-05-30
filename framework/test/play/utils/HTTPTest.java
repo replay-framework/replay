@@ -3,6 +3,7 @@ package play.utils;
 import org.junit.Test;
 import play.mvc.Http;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HTTPTest {
@@ -23,20 +24,20 @@ public class HTTPTest {
     public void testQuotedCharsetInHttpHeader() {
 
         HTTP.ContentTypeWithEncoding standardContentType = HTTP.parseContentType("text/html; charset=utf-8");
-        assertThat(standardContentType.encoding).isEqualTo("utf-8");
+        assertThat(standardContentType.encoding).isEqualTo(UTF_8);
         assertThat(standardContentType.contentType).isEqualTo("text/html");
         
         
         HTTP.ContentTypeWithEncoding doubleQuotedCharsetContentType = HTTP.parseContentType("text/html; charset=\"utf-8\"");
-        assertThat(doubleQuotedCharsetContentType.encoding).isEqualTo("utf-8");
+        assertThat(doubleQuotedCharsetContentType.encoding).isEqualTo(UTF_8);
         assertThat(doubleQuotedCharsetContentType.contentType).isEqualTo("text/html");
 
         HTTP.ContentTypeWithEncoding simpleQuotedCharsetContentType = HTTP.parseContentType("text/html; charset='utf-8'");
-        assertThat(simpleQuotedCharsetContentType.encoding).isEqualTo("utf-8");
+        assertThat(simpleQuotedCharsetContentType.encoding).isEqualTo(UTF_8);
         assertThat(simpleQuotedCharsetContentType.contentType).isEqualTo("text/html");
 
         HTTP.ContentTypeWithEncoding defaultContentType = HTTP.parseContentType(null);
-        assertThat(defaultContentType.encoding).isEqualTo("utf-8");
+        assertThat(defaultContentType.encoding).isEqualTo(UTF_8);
         assertThat(defaultContentType.contentType).isEqualTo("text/html");
     }
 

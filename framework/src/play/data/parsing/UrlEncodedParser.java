@@ -11,7 +11,7 @@ import play.utils.Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,15 +29,11 @@ public class UrlEncodedParser extends DataParser {
     
     boolean forQueryString;
     
-    public static Map<String, String[]> parse(String urlEncoded, String encoding) {
-        try {
-            return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )), encoding);
-        } catch (UnsupportedEncodingException ex) {
-            throw new UnexpectedException(ex);
-        }
+    public static Map<String, String[]> parse(String urlEncoded, Charset encoding) {
+        return new UrlEncodedParser().parse(new ByteArrayInputStream(urlEncoded.getBytes( encoding )), encoding);
     }
     
-    public static Map<String, String[]> parseQueryString(InputStream is, String encoding) {
+    public static Map<String, String[]> parseQueryString(InputStream is, Charset encoding) {
         UrlEncodedParser parser = new UrlEncodedParser();
         parser.forQueryString = true;
         return parser.parse(is, encoding);
@@ -48,7 +44,7 @@ public class UrlEncodedParser extends DataParser {
         return parse(request.body, request.encoding);
     }
 
-    public Map<String, String[]> parse(InputStream is, String encoding) {
+    public Map<String, String[]> parse(InputStream is, Charset encoding) {
         try {
             Map<String, String[]> params = new LinkedHashMap<>();
             String data = new String(toByteArray(is), encoding);
@@ -96,7 +92,7 @@ public class UrlEncodedParser extends DataParser {
             }
 
             // Second phase - look for _charset_ param and do the encoding
-            String charset = encoding;
+            Charset charset = encoding;
             if (params.containsKey("_charset_")) {
                 // The form contains a _charset_ param - When this is used together
                 // with accept-charset, we can use _charset_ to extract the encoding.
@@ -106,7 +102,7 @@ public class UrlEncodedParser extends DataParser {
                 // Must be sure the providedCharset is a valid encoding..
                 try {
                     "test".getBytes(providedCharset);
-                    charset = providedCharset; // it works..
+                    charset = Charset.forName(providedCharset); // it works..
                 } catch (Exception e) {
                     logger.debug("Got invalid _charset_ in form: {}", providedCharset, e);
                     // lets just use the default one..
@@ -119,13 +115,13 @@ public class UrlEncodedParser extends DataParser {
             for (Map.Entry<String, String[]> e : params.entrySet()) {
                 String key = e.getKey();
                 try {
-                    key = codec.decode(e.getKey(), charset);
+                    key = codec.decode(e.getKey(), charset.name());
                 } catch (Throwable z) {
                     // Nothing we can do about, ignore
                 }
                 for (String value : e.getValue()) {
                     try {
-                        Utils.Maps.mergeValueInMap(decodedParams, key, (value == null ? null : codec.decode(value, charset)));
+                        Utils.Maps.mergeValueInMap(decodedParams, key, (value == null ? null : codec.decode(value, charset.name())));
                     } catch (Throwable z) {
                         // Nothing we can do about, lets fill in with the non decoded value
                         Utils.Maps.mergeValueInMap(decodedParams, key, value);

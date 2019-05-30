@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Formattable;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
 
     @Override
-    public void writeOutput(OutputStream ps, String encoding) {
+    public void writeOutput(OutputStream ps, Charset encoding) {
         // if we have extended another template, we must pass this on to this template-instance,
         // because "it" has all the output
         if (extendedTemplate != null) {

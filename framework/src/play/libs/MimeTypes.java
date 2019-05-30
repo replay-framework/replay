@@ -6,6 +6,7 @@ import play.Play;
 import play.mvc.Http;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -106,17 +107,9 @@ public class MimeTypes {
         }
     }
 
-    private static String getCurrentCharset() {
-        String charset;
+    private static Charset getCurrentCharset() {
         Http.Response currentResponse = Http.Response.current();
-
-        if (currentResponse != null) {
-            charset = currentResponse.encoding;
-        } else {
-            charset = Play.defaultWebEncoding;
-        }
-
-        return charset;
+        return currentResponse != null ? currentResponse.encoding : Play.defaultWebEncoding;
     }
 
     private static synchronized void initMimetypes() {

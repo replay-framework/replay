@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -65,21 +66,10 @@ public class WS extends PlayPlugin {
      * encoding. This makes this encoding-enabling backward compatible
      */
     public static class WSWithEncoding {
-        public final String encoding;
+        public final Charset encoding;
 
-        public WSWithEncoding(String encoding) {
+        public WSWithEncoding(Charset encoding) {
             this.encoding = encoding;
-        }
-
-        /**
-         * Use this method to get an instance to WS with different encoding
-         * 
-         * @param newEncoding
-         *            the encoding to use in the communication
-         * @return a new instance of WS with specified encoding
-         */
-        public WSWithEncoding withEncoding(String newEncoding) {
-            return new WSWithEncoding(newEncoding);
         }
 
         /**
@@ -130,17 +120,6 @@ public class WS extends PlayPlugin {
 
     }
 
-    /**
-     * Use thos method to get an instance to WS with diferent encoding
-     * 
-     * @param encoding
-     *            the encoding to use in the communication
-     * @return a new instance of WS with specified encoding
-     */
-    public static WSWithEncoding withEncoding(String encoding) {
-        return wsWithDefaultEncoding.withEncoding(encoding);
-    }
-
     @Override
     public void onApplicationStop() {
         if (wsImpl != null) {
@@ -151,9 +130,7 @@ public class WS extends PlayPlugin {
 
     @Override
     public void onApplicationStart() {
-
         wsWithDefaultEncoding = new WSWithEncoding(Play.defaultWebEncoding);
-
     }
 
     private static synchronized void init() {
@@ -214,7 +191,7 @@ public class WS extends PlayPlugin {
     }
 
     public interface WSImpl {
-        WSRequest newRequest(String url, String encoding);
+        WSRequest newRequest(String url, Charset encoding);
 
         void stop();
     }
@@ -226,7 +203,7 @@ public class WS extends PlayPlugin {
          * The virtual host this request will use
          */
         public String virtualHost;
-        public final String encoding;
+        protected final Charset encoding;
         public String username;
         public String password;
         public Scheme scheme;
@@ -254,7 +231,7 @@ public class WS extends PlayPlugin {
             this.encoding = Play.defaultWebEncoding;
         }
 
-        public WSRequest(String url, String encoding) {
+        public WSRequest(String url, Charset encoding) {
             try {
                 this.url = new URI(url).toASCIIString();
             } catch (Exception e) {
@@ -647,7 +624,7 @@ public class WS extends PlayPlugin {
      */
     public abstract static class HttpResponse {
 
-        private String _encoding = null;
+        private Charset _encoding;
 
         /**
          * the HTTP status code
@@ -679,7 +656,7 @@ public class WS extends PlayPlugin {
             return getHeader("content-type") != null ? getHeader("content-type") : getHeader("Content-Type");
         }
 
-        public String getEncoding() {
+        public Charset getEncoding() {
             // Have we already parsed it?
             if (_encoding != null) {
                 return _encoding;
@@ -721,10 +698,10 @@ public class WS extends PlayPlugin {
          *            xml charset encoding
          * @return a DOM document
          */
-        public Document getXml(String encoding) {
+        public Document getXml(Charset encoding) {
             try {
                 InputSource source = new InputSource(new StringReader(getString()));
-                source.setEncoding(encoding);
+                source.setEncoding(encoding.name());
                 DocumentBuilder builder = XML.newDocumentBuilder();
                 return builder.parse(source);
             } catch (Exception e) {
@@ -746,7 +723,7 @@ public class WS extends PlayPlugin {
          *            string charset encoding
          * @return the body of the http response
          */
-        public abstract String getString(String encoding);
+        public abstract String getString(Charset encoding);
 
         /**
          * Parse the response string as a query string.
@@ -757,7 +734,7 @@ public class WS extends PlayPlugin {
             Map<String, String> result = new HashMap<>();
             String body = getString();
             for (String entry : body.split("&")) {
-                int pos = entry.indexOf("=");
+                int pos = entry.indexOf('=');
                 if (pos > -1) {
                     result.put(entry.substring(0, pos), entry.substring(pos + 1));
                 } else {

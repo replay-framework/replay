@@ -3,9 +3,11 @@ package play.template2;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GTRenderingResult {
 
@@ -18,7 +20,7 @@ public class GTRenderingResult {
         this.allOuts = allOuts;
     }
 
-    public void writeOutput(OutputStream os, String encoding) {
+    public void writeOutput(OutputStream os, Charset encoding) {
         for ( StringWriter s : allOuts) {
             try {
                 os.write(s.getBuffer().toString().getBytes(encoding));
@@ -36,12 +38,8 @@ public class GTRenderingResult {
      */
     public String getAsString() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        writeOutput(out, "utf-8");
-        try {
-            return out.toString("utf-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        writeOutput(out, UTF_8);
+        return out.toString(UTF_8);
     }
 
 }

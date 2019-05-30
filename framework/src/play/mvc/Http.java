@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -211,7 +212,7 @@ public class Http {
          * This is the encoding used to decode this request. If encoding-info is not found in request, then
          * Play.defaultWebEncoding is used
          */
-        public String encoding = Play.defaultWebEncoding;
+        public Charset encoding = Play.defaultWebEncoding;
         /**
          * Controller to invoke
          */
@@ -647,7 +648,8 @@ public class Http {
         /**
          * The encoding used when writing response to client
          */
-        public String encoding = Play.defaultWebEncoding;
+        public Charset encoding = Play.defaultWebEncoding;
+
         /**
          * Bind to thread
          */

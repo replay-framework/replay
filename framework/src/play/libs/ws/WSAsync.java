@@ -25,8 +25,8 @@ import play.mvc.Http.Header;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -126,7 +126,7 @@ public class WSAsync implements WSImpl {
     }
 
     @Override
-    public WSRequest newRequest(String url, String encoding) {
+    public WSRequest newRequest(String url, Charset encoding) {
         return new WSAsyncRequest(url, encoding);
     }
 
@@ -135,7 +135,7 @@ public class WSAsync implements WSImpl {
         protected String type;
         private String generatedContentType;
 
-        protected WSAsyncRequest(String url, String encoding) {
+        protected WSAsyncRequest(String url, Charset encoding) {
             super(url, encoding);
         }
 
@@ -183,34 +183,30 @@ public class WSAsync implements WSImpl {
             int i = url.indexOf('?');
             if (i > 0) {
 
-                try {
-                    // extract query-string-part
-                    String queryPart = url.substring(i + 1);
+                // extract query-string-part
+                String queryPart = url.substring(i + 1);
 
-                    // parse queryPart - and decode it... (it is going to be
-                    // re-encoded later)
-                    for (String param : queryPart.split("&")) {
+                // parse queryPart - and decode it... (it is going to be
+                // re-encoded later)
+                for (String param : queryPart.split("&")) {
 
-                        i = param.indexOf('=');
-                        String name;
-                        String value = null;
-                        if (i <= 0) {
-                            // only a flag
-                            name = URLDecoder.decode(param, encoding);
-                        } else {
-                            name = URLDecoder.decode(param.substring(0, i), encoding);
-                            value = URLDecoder.decode(param.substring(i + 1), encoding);
-                        }
-
-                        if (value == null) {
-                            requestBuilder.addQueryParam(URLEncoder.encode(name, encoding), null);
-                        } else {
-                            requestBuilder.addQueryParam(URLEncoder.encode(name, encoding), URLEncoder.encode(value, encoding));
-                        }
-
+                    i = param.indexOf('=');
+                    String name;
+                    String value = null;
+                    if (i <= 0) {
+                        // only a flag
+                        name = URLDecoder.decode(param, encoding);
+                    } else {
+                        name = URLDecoder.decode(param.substring(0, i), encoding);
+                        value = URLDecoder.decode(param.substring(i + 1), encoding);
                     }
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("Error parsing query-part of url", e);
+
+                    if (value == null) {
+                        requestBuilder.addQueryParam(URLEncoder.encode(name, encoding), null);
+                    } else {
+                        requestBuilder.addQueryParam(URLEncoder.encode(name, encoding), URLEncoder.encode(value, encoding));
+                    }
+
                 }
             }
         }
@@ -457,28 +453,22 @@ public class WSAsync implements WSImpl {
                 // could be optimized, we know the size of this array.
                 for (int i = 0; i < this.fileParams.length; i++) {
                     builder.addBodyPart(new FilePart(this.fileParams[i].paramName, this.fileParams[i].file,
-                            MimeTypes.getMimeType(this.fileParams[i].file.getName()), Charset.forName(encoding)));
+                            MimeTypes.getMimeType(this.fileParams[i].file.getName()), encoding));
                 }
                 if (this.parameters != null) {
-                    try {
-                        // AHC only supports ascii chars in keys in multipart
-                        for (String key : this.parameters.keySet()) {
-                            Object value = this.parameters.get(key);
-                            if (value instanceof Collection<?> || value.getClass().isArray()) {
-                                Collection<?> values = value.getClass().isArray() ? Arrays.asList((Object[]) value) : (Collection<?>) value;
-                                for (Object v : values) {
-                                    Part part = new ByteArrayPart(key, v.toString().getBytes(encoding), "text/plain",
-                                            Charset.forName(encoding), null);
-                                    builder.addBodyPart(part);
-                                }
-                            } else {
-                                Part part = new ByteArrayPart(key, value.toString().getBytes(encoding), "text/plain",
-                                        Charset.forName(encoding), null);
+                    // AHC only supports ascii chars in keys in multipart
+                    for (String key : this.parameters.keySet()) {
+                        Object value = this.parameters.get(key);
+                        if (value instanceof Collection<?> || value.getClass().isArray()) {
+                            Collection<?> values = value.getClass().isArray() ? Arrays.asList((Object[]) value) : (Collection<?>) value;
+                            for (Object v : values) {
+                                Part part = new ByteArrayPart(key, v.toString().getBytes(encoding), "text/plain", encoding, null);
                                 builder.addBodyPart(part);
                             }
+                        } else {
+                            Part part = new ByteArrayPart(key, value.toString().getBytes(encoding), "text/plain", encoding, null);
+                            builder.addBodyPart(part);
                         }
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
                     }
                 }
 
@@ -523,12 +513,8 @@ public class WSAsync implements WSImpl {
                             sb.append(encode(value.toString()));
                         }
                     }
-                    try {
-                        byte[] bodyBytes = sb.toString().getBytes(this.encoding);
-                        builder.setBody(bodyBytes);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
+                    byte[] bodyBytes = sb.toString().getBytes(this.encoding);
+                    builder.setBody(bodyBytes);
 
                     setResolvedContentType("application/x-www-form-urlencoded; charset=" + encoding);
 
@@ -558,12 +544,8 @@ public class WSAsync implements WSImpl {
                 if (this.body instanceof InputStream) {
                     builder.setBody((InputStream) this.body);
                 } else {
-                    try {
-                        byte[] bodyBytes = this.body.toString().getBytes(this.encoding);
-                        builder.setBody(bodyBytes);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
+                    byte[] bodyBytes = this.body.toString().getBytes(this.encoding);
+                    builder.setBody(bodyBytes);
                 }
                 setResolvedContentType("text/html; charset=" + encoding);
             }
@@ -650,17 +632,17 @@ public class WSAsync implements WSImpl {
         @Override
         public String getString() {
             try {
-                return response.getResponseBody(getEncoding());
-            } catch (Exception e) {
+                return response.getResponseBody(getEncoding().name());
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public String getString(String encoding) {
+        public String getString(Charset encoding) {
             try {
-                return response.getResponseBody(encoding);
-            } catch (Exception e) {
+                return response.getResponseBody(encoding.name());
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -16,9 +16,9 @@ import play.utils.Utils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -312,12 +312,7 @@ public class Scope {
             __mergeWith(request.routeArgs);
 
             if (request.querystring != null) {
-                try {
-                    _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
-                }
-                catch (UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e);
-                }
+                _mergeWith(UrlEncodedParser.parseQueryString(new ByteArrayInputStream(request.querystring.getBytes(request.encoding)), request.encoding));
             }
             String contentType = request.contentType;
             if (contentType != null) {
@@ -406,7 +401,7 @@ public class Scope {
         @Nonnull
         public String urlEncode(@Nonnull Http.Response response) {
             checkAndParse();
-            String encoding = response.encoding;
+            Charset encoding = response.encoding;
             StringBuilder ue = new StringBuilder();
             for (Map.Entry<String, String[]> entry : data.entrySet()) {
                 if ("body".equals(entry.getKey())) {

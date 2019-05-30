@@ -1,8 +1,9 @@
 package play.template2;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Convenient class that makes it easy to compile and render source in our tests
@@ -24,8 +25,8 @@ public class TemplateSourceRenderer {
         t.renderTemplate( args );
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        t.writeOutput(out, "utf-8");
+        t.writeOutput(out, UTF_8);
 
-        return new String(out.toByteArray(), StandardCharsets.UTF_8);
+        return new String(out.toByteArray(), UTF_8);
     }
 }

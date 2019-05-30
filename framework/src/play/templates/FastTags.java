@@ -23,6 +23,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -164,8 +165,8 @@ public class FastTags {
         if (args.containsKey("name")) {
             name = args.get("name").toString();
         }
-        String encoding = Http.Response.current().encoding;
-        out.println("<form action=\"" + htmlEscape(actionDef.url) + "\" method=\"" + actionDef.method.toLowerCase() + "\" accept-charset=\"" + htmlEscape(encoding)
+        Charset encoding = Http.Response.current().encoding;
+        out.println("<form action=\"" + htmlEscape(actionDef.url) + "\" method=\"" + actionDef.method.toLowerCase() + "\" accept-charset=\"" + encoding.name()
                 + "\" enctype=\"" + htmlEscape(enctype) + "\" " + serialize(args, "name", "action", "method", "accept-charset", "enctype")
                 + (name != null ? "name=\"" + name + "\"" : "") + ">");
         if (!"GET".equals(actionDef.method)) {

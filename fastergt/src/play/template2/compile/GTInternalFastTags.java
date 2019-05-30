@@ -1,14 +1,19 @@
 package play.template2.compile;
 
+import play.Play;
 import play.template2.*;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTContentRendererFakeClosure;
-import play.utils.HTML;
 
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.binarySearch;
 import static play.utils.HTML.htmlEscape;
 
@@ -61,16 +66,12 @@ public class GTInternalFastTags extends GTFastTag {
             key = args.get("arg").toString();
             // render content to string
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            String encoding = (String)content.getRuntimeProperty("_response_encoding");
+            Charset encoding = (Charset) content.getRuntimeProperty("_response_encoding");
             if ( encoding == null ) {
-                encoding = "utf-8"; // need a default encoding
+                encoding = Play.defaultWebEncoding;
             }
             content.render().writeOutput(out, encoding);
-            try {
-                value = out.toString(encoding);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+            value = out.toString(encoding);
         }
 
         if ( key != null ) {
@@ -186,14 +187,8 @@ public class GTInternalFastTags extends GTFastTag {
         } else {
             // render body to string and store it with the name in as
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            body.render().writeOutput(out, "utf-8");
-            String contentString;
-            try {
-                contentString = out.toString("utf-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-            body.setRuntimeProperty(as, contentString);
+            body.render().writeOutput(out, UTF_8);
+            body.setRuntimeProperty(as, out.toString(UTF_8));
 
         }
 
@@ -217,13 +212,8 @@ public class GTInternalFastTags extends GTFastTag {
         }
         GTRenderingResult renderingResult = _content.render();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        renderingResult.writeOutput(out, "utf-8");
-        String result;
-        try {
-            result = new String(out.toByteArray(), "utf-8");
-        } catch( UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        renderingResult.writeOutput(out, UTF_8);
+        String result = new String(out.toByteArray(), UTF_8);
         template.cacheSet(key, result, duration);
         template.out.append(result);
     }

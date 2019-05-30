@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +32,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class WSUrlFetch implements WSImpl {
     private static final Logger logger = LoggerFactory.getLogger(WSUrlFetch.class);
 
-    private static SSLContext sslCTX = null;
+    private static SSLContext sslCTX;
 
     public WSUrlFetch() {
     }
@@ -41,13 +42,13 @@ public class WSUrlFetch implements WSImpl {
     }
 
     @Override
-    public play.libs.WS.WSRequest newRequest(String url, String encoding) {
+    public play.libs.WS.WSRequest newRequest(String url, Charset encoding) {
         return new WSUrlfetchRequest(url, encoding);
     }
 
     public class WSUrlfetchRequest extends WSRequest {
 
-        protected WSUrlfetchRequest(String url, String encoding) {
+        protected WSUrlfetchRequest(String url, Charset encoding) {
             super(url, encoding);
         }
 
@@ -360,12 +361,8 @@ public class WSUrlFetch implements WSImpl {
         }
 
         @Override
-        public String getString(String encoding) {
-            try {
-                return new String(body.getBytes(UTF_8), encoding);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+        public String getString(Charset encoding) {
+            return new String(body.getBytes(UTF_8), encoding);
         }
 
         /**
@@ -375,11 +372,7 @@ public class WSUrlFetch implements WSImpl {
          */
         @Override
         public InputStream getStream() {
-            try {
-                return new ByteArrayInputStream(body.getBytes(getEncoding()));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+            return new ByteArrayInputStream(body.getBytes(getEncoding()));
         }
     }
 }

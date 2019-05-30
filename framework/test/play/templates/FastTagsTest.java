@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -34,7 +35,7 @@ public class FastTagsTest {
     // or use String.format in expected code with the placeholder '%n' for any expected line separation.
     System.setProperty("line.separator", "\n");
     Http.Response.setCurrent(new Http.Response());
-    Http.Response.current().encoding = "UTF-8";
+    Http.Response.current().encoding = UTF_8;
     template.setProperty("session", sessionWithAuthenticityToken("1234"));
   }
 

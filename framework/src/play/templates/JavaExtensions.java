@@ -6,6 +6,7 @@ import groovy.util.slurpersupport.GPathResult;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Play;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.libs.I18N;
@@ -15,8 +16,8 @@ import play.utils.HTML;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.*;
 import java.util.*;
 
@@ -235,16 +236,11 @@ public class JavaExtensions {
     }
 
     public static String urlEncode(String entity) {
-        try {
-            String encoding = play.Play.defaultWebEncoding;
-            if (Http.Response.current() != null) {
-                encoding = Http.Response.current().encoding;
-            }
-            return URLEncoder.encode(entity, encoding);
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Failed to encode: '{}'", entity, e);
+        Charset encoding = Play.defaultWebEncoding;
+        if (Http.Response.current() != null) {
+            encoding = Http.Response.current().encoding;
         }
-        return entity;
+        return URLEncoder.encode(entity, encoding);
     }
 
     public static String formatSize(Long bytes) {

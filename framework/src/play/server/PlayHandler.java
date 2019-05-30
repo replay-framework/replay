@@ -44,6 +44,7 @@ import play.vfs.VirtualFile;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -641,16 +642,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
 
     private static void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorHtml) {
-        try {
-            byte[] bytes = errorHtml.getBytes(Response.current().encoding);
-            ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
-            setContentLength(nettyResponse, bytes.length);
-            nettyResponse.setContent(buf);
-            ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
-            writeFuture.addListener(ChannelFutureListener.CLOSE);
-        } catch (UnsupportedEncodingException fex) {
-            logger.error("(encoding ?)", fex);
-        }
+        byte[] bytes = errorHtml.getBytes(Response.current().encoding);
+        ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
+        setContentLength(nettyResponse, bytes.length);
+        nettyResponse.setContent(buf);
+        ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
+        writeFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
     // TODO: add request and response as parameter
@@ -662,7 +659,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         Request request = Request.current();
         Response response = Response.current();
 
-        String encoding = response.encoding;
+        Charset encoding = response.encoding;
 
         try {
             if (!(e instanceof RuntimeException)) {
@@ -712,16 +709,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             } catch (Throwable ex) {
                 logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
                 logger.error("Error during the 500 response generation", ex);
-                try {
-                    byte[] bytes = "Internal Error".getBytes(encoding);
-                    ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
-                    setContentLength(nettyResponse, bytes.length);
-                    nettyResponse.setContent(buf);
-                    ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
-                    writeFuture.addListener(ChannelFutureListener.CLOSE);
-                } catch (UnsupportedEncodingException fex) {
-                    logger.error("(encoding ?)", fex);
-                }
+                byte[] bytes = "Internal Error".getBytes(encoding);
+                ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
+                setContentLength(nettyResponse, bytes.length);
+                nettyResponse.setContent(buf);
+                ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
+                writeFuture.addListener(ChannelFutureListener.CLOSE);
             }
         } catch (Throwable exxx) {
             try {

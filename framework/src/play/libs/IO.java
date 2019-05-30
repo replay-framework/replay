@@ -6,9 +6,11 @@ import play.exceptions.UnexpectedException;
 import play.utils.OrderSafeProperties;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
@@ -43,7 +45,7 @@ public class IO {
      * @return The String content
      */
     public static String readContentAsString(InputStream is) {
-        return readContentAsString(is, "utf-8");
+        return readContentAsString(is, UTF_8);
     }
 
     /**
@@ -55,7 +57,7 @@ public class IO {
      *            Encoding to used
      * @return The String content
      */
-    public static String readContentAsString(InputStream is, String encoding) {
+    public static String readContentAsString(InputStream is, Charset encoding) {
         try {
             return IOUtils.toString(is, encoding);
         } catch (Exception e) {
@@ -91,26 +93,22 @@ public class IO {
         }
     }
 
-    public static List<String> readLines(InputStream is) {
-        List<String> lines = null;
+    public static List<String> readLines(InputStream is, Charset encoding) {
         try {
-            lines = IOUtils.readLines(is);
-        } catch (IOException ex) {
+           return IOUtils.readLines(is, encoding);
+        }
+        catch (IOException ex) {
             throw new UnexpectedException(ex);
         }
-        return lines;
     }
 
-    public static List<String> readLines(File file, String encoding) {
+    public static List<String> readLines(File file, Charset encoding) {
         try {
             return FileUtils.readLines(file, encoding);
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             throw new UnexpectedException(ex);
         }
-    }
-
-    public static List<String> readLines(File file) {
-        return readLines(file, "utf-8");
     }
 
     /**
@@ -126,65 +124,6 @@ public class IO {
         } catch (IOException e) {
             throw new UnexpectedException(e);
         }
-    }
-
-    /**
-     * Read binary content of a stream (warning does not use on large file !)
-     * 
-     * @param is
-     *            The stream to read
-     * @return The binary data
-     */
-    public static byte[] readContent(InputStream is) {
-        try {
-            return IOUtils.toByteArray(is);
-        } catch (IOException e) {
-            throw new UnexpectedException(e);
-        }
-    }
-
-    /**
-     * Write String content to a stream (always use utf-8)
-     * 
-     * @param content
-     *            The content to write
-     * @param os
-     *            The stream to write
-     */
-    public static void writeContent(CharSequence content, OutputStream os) {
-        writeContent(content, os, "utf-8");
-    }
-
-    /**
-     * Write String content to a stream (always use utf-8)
-     * 
-     * @param content
-     *            The content to write
-     * @param os
-     *            The stream to write
-     * @param encoding
-     *            Encoding to used
-     */
-    public static void writeContent(CharSequence content, OutputStream os, String encoding) {
-        try {
-            IOUtils.write(content, os, encoding);
-        } catch (IOException e) {
-            throw new UnexpectedException(e);
-        } finally {
-            closeQuietly(os);
-        }
-    }
-
-    /**
-     * Write String content to a file (always use utf-8)
-     * 
-     * @param content
-     *            The content to write
-     * @param file
-     *            The file to write
-     */
-    public static void writeContent(CharSequence content, File file) {
-        writeContent(content, file, "utf-8");
     }
 
     /**
