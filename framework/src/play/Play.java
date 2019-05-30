@@ -23,9 +23,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Main framework class
@@ -112,7 +113,7 @@ public class Play {
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
      */
-    public static final Charset defaultWebEncoding = StandardCharsets.UTF_8;
+    public static final Charset defaultWebEncoding = UTF_8;
 
     public static Invoker invoker;
 
@@ -340,7 +341,7 @@ public class Play {
                 } else if (module.isDirectory()) {
                     addModule(appRoot, module.getName(), module);
                 } else {
-                    File modulePath = new File(IO.readContentAsString(module).trim());
+                    File modulePath = new File(IO.readContentAsString(module, UTF_8).trim());
                     if (!modulePath.exists() || !modulePath.isDirectory()) {
                         logger.error("Module {} will not be loaded because {} does not exist", module.getName(), modulePath.getAbsolutePath());
                     } else {

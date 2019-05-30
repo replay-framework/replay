@@ -1,9 +1,9 @@
 package play.libs.ws;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.libs.IO;
 import play.libs.WS.HttpResponse;
 import play.libs.WS.WSImpl;
 import play.libs.WS.WSRequest;
@@ -306,7 +306,7 @@ public class WSUrlFetch implements WSImpl {
                   // 4xx/5xx may return a response via getErrorStream()
                   connection.getErrorStream() : connection.getInputStream()) {
                     if (is != null) {
-                        this.body = IO.readContentAsString(is, getEncoding());
+                        this.body = IOUtils.toString(is, getEncoding());
                     }
                 }
             } catch (Exception ex) {

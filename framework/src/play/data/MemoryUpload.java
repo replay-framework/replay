@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 public class MemoryUpload implements Upload {
 
-    FileItem fileItem;
+    private final FileItem fileItem;
 
     public MemoryUpload(FileItem fileItem) {
         this.fileItem = fileItem;
@@ -45,13 +45,7 @@ public class MemoryUpload implements Upload {
     }
 
     @Override
-    public Long getSize() {
+    public long getSize() {
         return fileItem.getSize();
     }
-
-    @Override
-    public boolean isInMemory() {
-        return fileItem.isInMemory();
-    }
-
 }

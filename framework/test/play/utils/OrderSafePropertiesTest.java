@@ -70,14 +70,12 @@ public class OrderSafePropertiesTest {
     }
 
     @Test
-    public void verifyUTF8_via_readUtf8Properties() {
-
-        InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties");
-        assertThat(in).isNotNull();
-        Properties p = IO.readUtf8Properties(in);
-
-
-        verifyPropertiesContent(p);
+    public void verifyUTF8_via_readUtf8Properties() throws IOException {
+        try (InputStream in = getClass().getResourceAsStream("/play/utils/OrderSaferPropertiesTest.properties")) {
+            assertThat(in).isNotNull();
+            Properties p = IO.readUtf8Properties(in);
+            verifyPropertiesContent(p);
+        }
     }
 
     private void verifyPropertiesContent(Properties p) {

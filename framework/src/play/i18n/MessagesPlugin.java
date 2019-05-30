@@ -8,9 +8,6 @@ import play.libs.IO;
 import play.vfs.VirtualFile;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,12 +66,7 @@ public class MessagesPlugin extends PlayPlugin {
     Properties read(File file) {
         Properties propsFromFile = null;
         if (file != null && !file.isDirectory()) {
-            try (InputStream inStream = new FileInputStream(file)) {
-                propsFromFile = IO.readUtf8Properties(inStream);
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            propsFromFile = IO.readUtf8Properties(file);
 
             // Include
             Map<Object, Object> toInclude = new HashMap<>(16);

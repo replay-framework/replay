@@ -1,17 +1,19 @@
 package play.utils;
 
+import org.apache.commons.io.IOUtils;
 import play.Play;
-import play.libs.IO;
+import play.exceptions.UnexpectedException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class HTTP {
@@ -62,19 +64,24 @@ public class HTTP {
         Map<String, String> map = new HashMap<>();
 
         String path = "/play/utils/http_headers.properties";
-        InputStream in = HTTP.class.getResourceAsStream(path);
-        if (in == null) {
+
+        try (InputStream in = HTTP.class.getResourceAsStream(path)) {
+          if (in == null) {
             throw new RuntimeException("Error reading " + path);
-        }
-        List<String> lines = IO.readLines(in, UTF_8);
-        for (String line : lines) {
+          }
+          List<String> lines = IOUtils.readLines(in, UTF_8);
+          for (String line : lines) {
             line = line.trim();
             if (!line.startsWith("#")) {
-                map.put(line.toLowerCase(), line);
+              map.put(line.toLowerCase(), line);
             }
+          }
+        }
+        catch (IOException e) {
+            throw new UnexpectedException(e);
         }
 
-        return Collections.unmodifiableMap(map);
+        return unmodifiableMap(map);
     }
 
     /**

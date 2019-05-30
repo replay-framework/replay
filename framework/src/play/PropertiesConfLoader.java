@@ -30,7 +30,7 @@ public class PropertiesConfLoader implements ConfLoader {
             throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
         }
 
-        Properties propsFromFile = IO.readUtf8Properties(conf.inputstream());
+        Properties propsFromFile = IO.readUtf8Properties(conf);
         confs.add(conf);
 
         if (inheritedId == null) {
