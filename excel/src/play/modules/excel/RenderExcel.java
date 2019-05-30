@@ -1,6 +1,7 @@
 package play.modules.excel;
 
 import net.sf.jxls.transformer.XLSTransformer;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * 200 OK with application/excel
- * 
+ *
  * This Result try to render Excel file with given template and beans map The
  * code use jxls and poi library to render Excel
  */
@@ -45,13 +46,13 @@ public class RenderExcel extends Result {
         this.beans = beans;
         this.fileName = fileName == null ? fileName_(file.relativePath()) : fileName;
     }
-    
+
     public String getFileName() {
         return fileName;
     }
 
     private static String fileName_(String path) {
-        if (RenderArgs.current().data.containsKey(RA_FILENAME)) 
+        if (RenderArgs.current().data.containsKey(RA_FILENAME))
             return RenderArgs.current().get(RA_FILENAME, String.class);
         int i = path.lastIndexOf("/");
         if (-1 == i)
@@ -61,30 +62,16 @@ public class RenderExcel extends Result {
 
     @Override
     public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
-        if (null == excel) {
-            logger.debug("use sync excel rendering");
-            long start = nanoTime();
-            try {
-                InputStream is = file.inputstream();
-                Workbook workbook = new XLSTransformer()
-                        .transformXLS(is, beans);
-                workbook.write(response.out);
-                is.close();
-                logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
-            } catch (Exception e) {
-                throw new UnexpectedException(e);
-            }
-        } else {
-            logger.debug("use async excel rendering...");
-            try {
-                response.out.write(excel);
-            } catch (IOException e) {
-                throw new UnexpectedException(e);
-            }
-        }
+          logger.debug("use sync excel rendering");
+          try (InputStream is = file.inputstream()) {
+              long start = nanoTime();
+              Workbook workbook = new XLSTransformer().transformXLS(is, beans);
+              workbook.write(response.out);
+              logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
+          } catch (IOException | InvalidFormatException e) {
+              throw new UnexpectedException(e);
+          }
     }
-
-    private byte[] excel;
 
     @Override
     public boolean isRenderingTemplate() {
