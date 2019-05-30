@@ -1,6 +1,7 @@
 package play.libs;
 
 import org.junit.Test;
+import play.libs.ws.DummyHttpResponse;
 
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class WSTest {
     
     @Test
     public void getQueryStringTest(){
-        TestHttpResponse response = new TestHttpResponse("a=&b= etc");
+        DummyHttpResponse response = new DummyHttpResponse(200, "a=&b= etc");
         Map<String, String>  queryStr = response.getQueryString();
         assertNotNull(queryStr);
         assertEquals("", queryStr.get("a"));
@@ -25,7 +26,7 @@ public class WSTest {
     
     @Test
     public void getQueryStringTest1(){
-        TestHttpResponse response = new TestHttpResponse("a&b= etc&&&d=test toto");
+        DummyHttpResponse response = new DummyHttpResponse(200, "a&b= etc&&&d=test toto");
         Map<String, String>  queryStr = response.getQueryString();
         assertNotNull(queryStr);
         assertEquals("", queryStr.get("a"));
@@ -37,7 +38,7 @@ public class WSTest {
     
     @Test
     public void getQueryStringTest2(){
-        TestHttpResponse response = new TestHttpResponse("&a&b= etc&&d=**");
+        DummyHttpResponse response = new DummyHttpResponse(200, "&a&b= etc&&d=**");
         Map<String, String>  queryStr = response.getQueryString();
         assertNotNull(queryStr);
         assertEquals("", queryStr.get("a"));
