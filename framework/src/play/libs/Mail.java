@@ -19,11 +19,7 @@ import javax.mail.Session;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.*;
 
-/**
- * Mail utils
- */
 public class Mail {
     private static final Logger logger = LoggerFactory.getLogger(Mail.class);
 
@@ -42,8 +38,7 @@ public class Mail {
 
     }
 
-    public static Session session;
-    public static boolean asynchronousSend = true;
+    private static Session session;
     protected static AbstractMailSystemFactory mailSystemFactory = AbstractMailSystemFactory.DEFAULT;
 
     /**
@@ -53,10 +48,9 @@ public class Mail {
      *            An Email message
      * @return true if email successfully send
      */
-    public static Future<Boolean> send(Email email) {
+    public static boolean send(Email email) {
         try {
-            email = buildMessage(email);
-            return currentMailSystem().sendMessage(email);
+            return currentMailSystem().sendMessage(buildMessage(email));
         } catch (EmailException ex) {
             throw new MailException("Cannot send email", ex);
         }
@@ -78,10 +72,6 @@ public class Mail {
      */
     public static void useMailSystem(MailSystem mailSystem) {
         mailSystemFactory = new StaticMailSystemFactory(mailSystem);
-    }
-
-    public static void resetMailSystem() {
-        mailSystemFactory = AbstractMailSystemFactory.DEFAULT;
     }
 
     public static Email buildMessage(Email email) throws EmailException {
@@ -110,7 +100,7 @@ public class Mail {
         if (session == null) {
             Properties props = new Properties();
             // Put a bogus value even if we are on dev mode, otherwise JavaMail will complain
-            props.put("mail.smtp.host", Play.configuration.getProperty("mail.smtp.host", "localhost"));
+            props.setProperty("mail.smtp.host", Play.configuration.getProperty("mail.smtp.host", "localhost"));
 
             String channelEncryption;
             if (Play.configuration.containsKey("mail.smtp.protocol")
@@ -122,18 +112,18 @@ public class Mail {
             }
 
             if ("clear".equals(channelEncryption)) {
-                props.put("mail.smtp.port", "25");
+                props.setProperty("mail.smtp.port", "25");
             } else if ("ssl".equals(channelEncryption)) {
                 // port 465 + setup yes ssl socket factory (won't verify that the server certificate is signed with a
                 // root ca.)
-                props.put("mail.smtp.port", "465");
-                props.put("mail.smtp.socketFactory.port", "465");
-                props.put("mail.smtp.socketFactory.class", YesSSLSocketFactory.class.getName());
-                props.put("mail.smtp.socketFactory.fallback", "false");
+                props.setProperty("mail.smtp.port", "465");
+                props.setProperty("mail.smtp.socketFactory.port", "465");
+                props.setProperty("mail.smtp.socketFactory.class", YesSSLSocketFactory.class.getName());
+                props.setProperty("mail.smtp.socketFactory.fallback", "false");
             } else if ("starttls".equals(channelEncryption)) {
                 // port 25 + enable starttls + ssl socket factory
-                props.put("mail.smtp.port", "25");
-                props.put("mail.smtp.starttls.enable", "true");
+                props.setProperty("mail.smtp.port", "25");
+                props.setProperty("mail.smtp.starttls.enable", "true");
                 // can't install our socket factory. will work only with server that has a signed certificate
                 // story to be continued in javamail 1.4.2 : https://glassfish.dev.java.net/issues/show_bug.cgi?id=5189
             }
@@ -157,7 +147,7 @@ public class Mail {
             session = null;
 
             if (authenticator != null) {
-                props.put("mail.smtp.auth", "true");
+                props.setProperty("mail.smtp.auth", "true");
                 try {
                     session = Session.getInstance(props, (Authenticator) Class.forName(authenticator).newInstance());
                 } catch (Exception e) {
@@ -167,7 +157,7 @@ public class Mail {
 
             if (session == null) {
                 if (user != null && password != null) {
-                    props.put("mail.smtp.auth", "true");
+                    props.setProperty("mail.smtp.auth", "true");
                     session = Session.getInstance(props, new SMTPAuthenticator(user, password));
                 } else {
                     props.remove("mail.smtp.auth");
@@ -189,63 +179,17 @@ public class Mail {
      *            An Email message
      * @return true if email successfully send
      */
-    public static Future<Boolean> sendMessage(final Email msg) {
-        if (asynchronousSend) {
-            return executor.submit(new Callable<Boolean>() {
-
-                @Override
-                public Boolean call() {
-                    try {
-                        msg.setSentDate(new Date());
-                        msg.send();
-                        return true;
-                    } catch (Throwable e) {
-                        MailException me = new MailException("Error while sending email", e);
-                        logger.error("The email has not been sent", me);
-                        return false;
-                    }
-                }
-            });
-        } else {
-            final StringBuilder result = new StringBuilder();
-            try {
-                msg.setSentDate(new Date());
-                msg.send();
-            } catch (Throwable e) {
-                MailException me = new MailException("Error while sending email", e);
-                logger.error("The email has not been sent", me);
-                result.append("oops");
-            }
-            return new Future<Boolean>() {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    return false;
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return false;
-                }
-
-                @Override
-                public boolean isDone() {
-                    return true;
-                }
-
-                @Override
-                public Boolean get() {
-                    return result.length() == 0;
-                }
-
-                @Override
-                public Boolean get(long timeout, TimeUnit unit) {
-                    return result.length() == 0;
-                }
-            };
+    public static boolean sendMessage(final Email msg) {
+        try {
+            msg.setSentDate(new Date());
+            msg.send();
+            return true;
+        } catch (Throwable e) {
+            MailException me = new MailException("Error while sending email", e);
+            logger.error("The email has not been sent", me);
+            return false;
         }
     }
-
-    static ExecutorService executor = Executors.newCachedThreadPool();
 
     public static class SMTPAuthenticator extends Authenticator {
 
@@ -267,7 +211,6 @@ public class Mail {
      * Just kept for compatibility reasons, use test double substitution mechanism instead.
      *
      * @see Mail#useMailSystem(MailSystem)
-     * @author Andreas Simon &lt;a.simon@quagilis.de&gt;
      */
     public static LegacyMockMailSystem Mock = new LegacyMockMailSystem();
 }

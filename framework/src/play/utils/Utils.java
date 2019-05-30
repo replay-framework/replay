@@ -85,7 +85,7 @@ public class Utils {
                 }
                 return filtered;
             } catch (Exception iex) {
-                return null;
+                throw new RuntimeException("Failed to create " + map.getClass().getName(), iex);
             }
         }
     }

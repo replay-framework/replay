@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Mail;
 import play.libs.mail.MailSystem;
-import play.utils.ImmediateFuture;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -16,26 +15,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Future;
 
 /**
  * Just kept for compatibility reasons, use test double substitution mechanism instead.
  *
  * @see    Mail#Mock
  * @see    Mail#useMailSystem(MailSystem)
- * @author Andreas Simon &lt;a.simon@quagilis.de&gt;
  */
 public class LegacyMockMailSystem implements MailSystem {
     private static final Logger logger = LoggerFactory.getLogger(LegacyMockMailSystem.class);
 
-    Map<String, String> emails = new HashMap<>();
+    private final Map<String, String> emails = new HashMap<>();
 
     @Override
-    public Future<Boolean> sendMessage(Email email) {
+    public boolean sendMessage(Email email) {
         try {
             StringBuilder content = new StringBuilder();
             Properties props = new Properties();
-            props.put("mail.smtp.host", "myfakesmtpserver.com");
+            props.setProperty("mail.smtp.host", "myfakesmtpserver.com");
 
             Session session = Session.getInstance(props);
             email.setMailSession(session);
@@ -48,8 +45,6 @@ public class LegacyMockMailSystem implements MailSystem {
             String body = getContent(msg);
 
             content.append("From Mock Mailer\n\tNew email received by");
-
-
             content.append("\n\tFrom: ").append(email.getFromAddress().getAddress());
             content.append("\n\tReplyTo: ").append(email.getReplyToAddresses().get(0).getAddress());
 
@@ -67,11 +62,12 @@ public class LegacyMockMailSystem implements MailSystem {
                 content.append(", ").append(add);
                 emails.put(((InternetAddress) add).getAddress(), content.toString());
             }
+            return true;
 
         } catch (Exception e) {
             logger.error("error sending mock email", e);
+            return false;
         }
-        return new ImmediateFuture();
     }
 
 

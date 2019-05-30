@@ -8,21 +8,18 @@ import org.junit.Test;
 import play.PlayBuilder;
 import play.exceptions.MailException;
 import play.libs.mail.MailSystem;
-import play.utils.ImmediateFuture;
-
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 
 public class MailTest {
 
     private static class SpyingMailSystem implements MailSystem {
-        public Email receivedEmail = null;
+        public Email receivedEmail;
 
         @Override
-        public Future<Boolean> sendMessage(Email email) {
+        public boolean sendMessage(Email email) {
             receivedEmail = email;
-            return new ImmediateFuture();
+            return true;
         }
     }
 
