@@ -110,7 +110,7 @@ public class Play {
     /**
      * This is used as default encoding everywhere related to the web: request, response, WS
      */
-    public static String defaultWebEncoding = "utf-8";
+    public static final String defaultWebEncoding = "utf-8";
 
     public static Invoker invoker;
 
@@ -232,7 +232,6 @@ public class Play {
             initLangs();
             TemplateLoader.cleanCompiledCache();
             initSecretKey();
-            initDefaultWebEncoding();
             Router.detectChanges();
             Cache.init();
             pluginCollection.onApplicationStart();
@@ -304,20 +303,6 @@ public class Play {
         secretKey = configuration.getProperty("application.secret", "").trim();
         if (secretKey.isEmpty()) {
             logger.warn("No secret key defined. Sessions will not be encrypted");
-        }
-    }
-
-    private static void initDefaultWebEncoding() {
-        String _defaultWebEncoding = configuration.getProperty("application.web_encoding");
-        if (_defaultWebEncoding != null) {
-            logger.info("Using custom default web encoding: {}", _defaultWebEncoding);
-            defaultWebEncoding = _defaultWebEncoding;
-            // Must update current response also, since the request/response triggering
-            // this configuration-loading in dev-mode have already been
-            // set up with the previous encoding
-            if (Http.Response.current() != null) {
-                Http.Response.current().encoding = _defaultWebEncoding;
-            }
         }
     }
 
