@@ -225,9 +225,9 @@ public abstract class GTJavaBase extends GTRenderingResult {
         }
     }
 
-    private boolean isRawData(Object o) {
+    private boolean isRawData(Object value) {
         Class rawDataClass = getRawDataClass();
-        return rawDataClass != null && rawDataClass.isAssignableFrom(o.getClass());
+        return rawDataClass != null && rawDataClass.isAssignableFrom(value.getClass());
     }
 
     public boolean evaluateCondition(Object test) {
@@ -318,7 +318,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
     }
 
     protected String handleMessageTag(Object _args) {
-        List argsList = (List) _args;
+        List<Object> argsList = (List<Object>) _args;
 
         switch (argsList.size()) {
             case 0: throw new GTTemplateRuntimeException("It looks like you don't have anything in your Message tag");
@@ -336,19 +336,27 @@ public abstract class GTJavaBase extends GTRenderingResult {
         return key;
     }
 
-    private Object[] messageArguments(List argsList) {
+    private Object[] messageArguments(List<Object> argsList) {
         Object[] args = new Object[argsList.size() - 1];
         for (int i = 1; i < argsList.size(); i++) {
-            args[i - 1] = escapeMessageArgument(argsList.get(i));
+            args[i - 1] = escapeMessageArgument(assertArgNotNull(argsList, i));
         }
         return args;
+    }
+
+    private Object assertArgNotNull(List<Object> argsList, int index) {
+        Object arg = argsList.get(index);
+        if (arg == null) {
+            throw new IllegalArgumentException(String.format("Argument #%s is null at %s: %s", index, templateLocation.relativePath, argsList));
+        }
+        return arg;
     }
 
     private Object escapeMessageArgument(Object arg) {
         return arg instanceof Formattable ? arg : objectToString(arg);
     }
 
-    protected Iterator convertToIterator(final Object o) {
+    protected Iterator<Object> convertToIterator(final Object o) {
 
         if ( o instanceof Iterator) {
             return (Iterator)o;
