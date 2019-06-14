@@ -8,7 +8,6 @@ import play.inject.DefaultBeanSource;
 import play.inject.Injector;
 import play.jobs.Job;
 import play.libs.IO;
-import play.mvc.Http;
 import play.mvc.PlayController;
 import play.mvc.Router;
 import play.plugins.PluginCollection;
@@ -190,12 +189,6 @@ public class Play {
         routes = appRoot.child("conf/routes");
         modulesRoutes.clear();
         loadModules(appRoot);
-
-        // Default cookie domain
-        Http.Cookie.defaultDomain = configuration.getProperty("application.defaultCookieDomain", null);
-        if (Http.Cookie.defaultDomain != null) {
-            logger.info("Using default cookie domain: {}", Http.Cookie.defaultDomain);
-        }
 
         pluginCollection.loadPlugins();
         Play.invoker = new Invoker();

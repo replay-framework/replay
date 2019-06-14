@@ -115,15 +115,6 @@ public class Http {
      * An HTTP Cookie
      */
     public static class Cookie implements Serializable {
-
-        /**
-         * When creating cookie without specifying domain, this value is used. Can be configured using the property
-         * 'application.defaultCookieDomain' in application.conf.
-         *
-         * This feature can be used to allow sharing session/cookies between multiple sub domains.
-         */
-        public static String defaultDomain;
-
         /**
          * Cookie name
          */
@@ -781,8 +772,6 @@ public class Http {
                 cookie.httpOnly = httpOnly;
                 if (domain != null) {
                     cookie.domain = domain;
-                } else {
-                    cookie.domain = Cookie.defaultDomain;
                 }
                 if (maxAge != null) {
                     cookie.maxAge = maxAge;
