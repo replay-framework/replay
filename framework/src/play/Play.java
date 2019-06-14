@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -66,10 +65,6 @@ public class Play {
      * All paths to search for files
      */
     public static List<VirtualFile> roots = new ArrayList<>(16);
-    /**
-     * All paths to search for Java files
-     */
-    public static List<VirtualFile> javaPath = new CopyOnWriteArrayList<>();
     /**
      * All paths to search for templates files
      */
@@ -185,10 +180,6 @@ public class Play {
         VirtualFile appRoot = VirtualFile.open(applicationPath);
         roots.clear();
         roots.add(appRoot);
-
-        javaPath.clear();
-        javaPath.add(appRoot.child("app"));
-        javaPath.add(appRoot.child("conf"));
 
         // Build basic templates path
         templatesPath.clear();
@@ -365,9 +356,6 @@ public class Play {
     private void addModule(VirtualFile appRoot, String name, File path) {
         VirtualFile root = VirtualFile.open(path);
         modules.put(name, root);
-        if (root.child("app").exists()) {
-            javaPath.add(root.child("app"));
-        }
         if (root.child("app/views").exists()
                 || (usePrecompiled && appRoot.child("precompiled/templates/from_module_" + name + "/app/views").exists())) {
             templatesPath.add(root.child("app/views"));

@@ -1,6 +1,5 @@
 package play;
 
-import play.classloading.ApplicationClasses;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
@@ -8,7 +7,6 @@ import play.mvc.Scope.RenderArgs;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -19,17 +17,8 @@ import java.util.Properties;
  */
 public class PlayBuilder {
 
-    public Properties configuration = new Properties();
-
-    public PlayBuilder withConfiguration(Properties config) {
-        this.configuration = config;
-        return this;
-    }
-
-    @SuppressWarnings({ "deprecation" })
     public void build() {
-        Play.configuration = configuration;
-        Play.javaPath = new ArrayList<>();
+        Play.configuration = new Properties();
         Play.applicationPath = new File(".");
     }
 
