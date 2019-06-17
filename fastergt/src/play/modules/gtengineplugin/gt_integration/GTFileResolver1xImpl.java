@@ -5,6 +5,7 @@ import play.template2.GTFileResolver;
 import play.template2.GTTemplateLocationReal;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,6 +22,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
         templateFolders = templatesPaths.stream().map(path -> path.getRealFile()).collect(toList());
     }
 
+    @Nullable
     @Override 
     public GTTemplateLocationReal getTemplateLocationReal(String queryPath) {
         // look for template file in all folders in templateFolders-list
@@ -69,6 +71,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
         return null;
     }
 
+    @Nullable
     @Override 
     public GTTemplateLocationReal getTemplateLocationFromRelativePath(String relativePath) {
         

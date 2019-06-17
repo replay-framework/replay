@@ -9,18 +9,19 @@ import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 import play.template2.exceptions.GTException;
 import play.template2.exceptions.GTTemplateNotFound;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GTTemplateRepo {
 
-    public final boolean checkForChanges;
-    public final GTPreCompilerFactory preCompilerFactory;
-    public final boolean preCompiledMode;
-    public final File folderToDumpClassesIn;
+    private final boolean checkForChanges;
+    private final GTPreCompilerFactory preCompilerFactory;
+    private final boolean preCompiledMode;
+    @Nullable private final File folderToDumpClassesIn;
 
-    private Map<String, TemplateInfo> loadedTemplates = new ConcurrentHashMap<>();
+    private final Map<String, TemplateInfo> loadedTemplates = new ConcurrentHashMap<>();
     protected Map<String, TemplateInfo> classname2TemplateInfo = new ConcurrentHashMap<>();
 
 
@@ -95,7 +96,7 @@ public class GTTemplateRepo {
     }
 
 
-    public GTTemplateRepo(boolean checkForChanges, GTPreCompilerFactory preCompilerFactory, boolean preCompiledMode, File folderToDumpClassesIn) {
+    public GTTemplateRepo(boolean checkForChanges, GTPreCompilerFactory preCompilerFactory, boolean preCompiledMode, @Nullable File folderToDumpClassesIn) {
         this.checkForChanges = checkForChanges;
 
         this.preCompilerFactory = preCompilerFactory;
@@ -131,11 +132,13 @@ public class GTTemplateRepo {
         classname2TemplateInfo.put(ti.getTemplateClass().getName(), ti);
     }
 
+    @Nullable
     public GTJavaBase getTemplateInstance( final GTTemplateLocation templateLocation) throws GTTemplateNotFound {
         return getTemplateInstance(templateLocation, true);
     }
 
-    protected GTJavaBase getTemplateInstance( final GTTemplateLocation templateLocation, boolean doCompile) throws GTTemplateNotFound {
+    @Nullable
+    private GTJavaBase getTemplateInstance( final GTTemplateLocation templateLocation, boolean doCompile) throws GTTemplateNotFound {
 
         // Is this a loaded template ?
         TemplateInfo ti = loadedTemplates.get(templateLocation.relativePath);
@@ -199,6 +202,7 @@ public class GTTemplateRepo {
 
     // If running in precompiled mode, we look in parent classloader,
     // if not we're looking for class on disk.
+    @Nullable
     private TemplateInfo lookForPreCompiledOrCached(GTTemplateLocation templateLocation) {
         String templateClassName = GTPreCompiler.generatedPackageName + "." + GTPreCompiler.generateTemplateClassname( templateLocation.relativePath);
         if (preCompiledMode) {
@@ -219,6 +223,7 @@ public class GTTemplateRepo {
         return null;
     }
 
+    @Nullable
     private TemplateInfo loadTemplateFromDisk(GTTemplateLocation templateLocation, String templateClassName) {
         // generate filename
         final String classFilenameWithPath = templateClassName.replace('.','/') + ".class";
@@ -270,12 +275,6 @@ public class GTTemplateRepo {
         return new TemplateInfo( templateLocationReal, new GTTemplateInstanceFactoryLive(compiledTemplate) );
         
 
-    }
-
-    public void removeTemplate(GTTemplateLocation templateLocation) {
-        synchronized(loadedTemplates) {
-            removeTemplate( templateLocation.relativePath);
-        }
     }
 
     public TemplateInfo compileTemplate(GTTemplateLocation templateLocation) throws GTException {

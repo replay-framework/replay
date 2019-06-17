@@ -1,5 +1,7 @@
 package play.template2;
 
+import javax.annotation.Nullable;
+
 public class GTFileResolver {
 
     /**
@@ -8,7 +10,7 @@ public class GTFileResolver {
     public static Resolver impl;
 
     public interface Resolver {
-        GTTemplateLocationReal getTemplateLocationReal(String queryPath);
-        GTTemplateLocationReal getTemplateLocationFromRelativePath(String relativePath);
+        @Nullable GTTemplateLocationReal getTemplateLocationReal(String queryPath);
+        @Nullable GTTemplateLocationReal getTemplateLocationFromRelativePath(String relativePath);
     }
 }

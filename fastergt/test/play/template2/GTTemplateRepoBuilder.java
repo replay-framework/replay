@@ -38,7 +38,7 @@ public class GTTemplateRepoBuilder {
         //public GTTemplateRepo templateRepo;
 
         @Override public GTPreCompiler createCompiler(GTTemplateRepo templateRepo) {
-            return new GTPreCompiler(templateRepo) {
+            return new GTPreCompiler(templateRepo, null) {
                 @Override
                 public Class<? extends GTJavaBase> getJavaBaseClass() {
                     return GTJavaBaseTesterImpl.class;

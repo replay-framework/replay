@@ -1,7 +1,5 @@
 package play.modules.gtengineplugin;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateNotFoundException;
 import play.modules.gtengineplugin.gt_integration.GTFileResolver1xImpl;
@@ -16,15 +14,8 @@ import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.System.nanoTime;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class TemplateLoader {
-    private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
-
     private static GTTemplateRepo templateRepo;
 
     public static void init() {
@@ -83,7 +74,7 @@ public class TemplateLoader {
 
     /**
      * Load a template from a String
-     * @param key A unique identifier for the template, used for retreiving a cached template
+     * @param key A unique identifier for the template, used for retrieving a cached template
      * @param source The template source
      * @return A Template
      */
@@ -95,59 +86,6 @@ public class TemplateLoader {
         GTJavaBase gtJavaBase = getGTTemplateInstance(tl);
 
         return new GTTemplate(tl, gtJavaBase);
-    }
-
-    /**
-     * Clean the cache for that key
-     * Then load a template from a String
-     * @param key A unique identifier for the template, used for retreiving a cached template
-     * @param source The template source
-     * @return A Template
-     */
-    public static Template load(String key, String source, boolean reload) {
-        // reload is also ignored in the old template implementation...
-
-        GTTemplateLocationWithEmbeddedSource tl = new GTTemplateLocationWithEmbeddedSource(key, source);
-
-        // remove it first
-        templateRepo.removeTemplate(tl);
-
-        // get it or compile it
-        GTJavaBase gtJavaBase = getGTTemplateInstance(tl);
-
-        return new GTTemplate(tl, gtJavaBase);
-    }
-
-    /**
-     * Load template from a String, but don't cache it
-     * @param source The template source
-     * @return A Template
-     */
-    public static Template loadString(final String source) {
-
-        GTTemplateLocationWithEmbeddedSource templateLocation = new GTTemplateLocationWithEmbeddedSource(source);
-
-        GTTemplateRepo.TemplateInfo ti = templateRepo.compileTemplate(templateLocation);
-
-        GTJavaBase gtJavaBase = ti.templateInstanceFactory.create(templateRepo);
-
-        return new GTTemplate(templateLocation, gtJavaBase);
-    }
-
-    /**
-     * Cleans the cache for all templates
-     */
-    public static void cleanCompiledCache() {
-        init();
-    }
-
-    /**
-     * Cleans the specified key from the cache
-     * @param key The template key
-     */
-    public static void cleanCompiledCache(String key) {
-        // should only clean cached templates without source
-        templateRepo.removeTemplate(new GTTemplateLocation(key));
     }
 
     /**
@@ -163,7 +101,7 @@ public class TemplateLoader {
             }
             VirtualFile tf = vf.child(path);
             if (tf.exists()) {
-                template = TemplateLoader.load(tf);
+                template = load(tf);
                 break;
             }
         }
@@ -171,42 +109,11 @@ public class TemplateLoader {
         if (template == null) {
             VirtualFile tf = Play.getVirtualFile(path);
             if (tf != null && tf.exists()) {
-                template = TemplateLoader.load(tf);
+                template = load(tf);
             } else {
                 throw new TemplateNotFoundException(path);
             }
         }
         return template;
-    }
-
-    /**
-     * List all found templates
-     * @return A list of executable templates
-     */
-    public static List<Template> getAllTemplate() {
-        List<Template> res = new ArrayList<>();
-        for (VirtualFile virtualFile : Play.templatesPath) {
-            scan(res, virtualFile);
-        }
-        for (VirtualFile root : Play.roots) {
-            VirtualFile vf = root.child("conf/routes");
-            if (vf != null && vf.exists()) {
-                load(vf);
-            }
-        }
-        return res;
-    }
-
-    private static void scan(List<Template> templates, VirtualFile current) {
-        if (!current.isDirectory() && !current.getName().startsWith(".")) {
-            long start = nanoTime();
-            Template template = load(current);
-            logger.trace("{}ms to load {}", NANOSECONDS.toMillis(nanoTime() - start), current.getName());
-            templates.add(template);
-        } else if (current.isDirectory() && !current.getName().startsWith(".")) {
-            for (VirtualFile virtualFile : current.list()) {
-                scan(templates, virtualFile);
-            }
-        }
     }
 }

@@ -5,6 +5,7 @@ import play.template2.exceptions.GTCompilationException;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 import play.template2.legacy.GTLegacyFastTagResolver;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,14 +16,15 @@ import java.util.regex.Pattern;
 // TODO: This parsing code need some refactoring...
 public class GTPreCompiler {
 
-    public static String generatedPackageName = "play.template2.generated_templates";
+    public static final String generatedPackageName = "play.template2.generated_templates";
 
-    private GTInternalTagsCompiler gtInternalTagsCompiler = new GTInternalTagsCompiler();
+    private final GTInternalTagsCompiler gtInternalTagsCompiler = new GTInternalTagsCompiler();
 
     private Map<String, String> expression2GroovyMethodLookup;
     private Map<String, String> tagArgs2GroovyMethodLookup;
 
-    public GTFastTagResolver customFastTagResolver;
+    @Nullable
+    private final GTFastTagResolver customFastTagResolver;
 
     private final String varName = "ev";
 
@@ -97,8 +99,9 @@ public class GTPreCompiler {
         }
     }
 
-    public GTPreCompiler(GTTemplateRepo templateRepo) {
+    public GTPreCompiler(GTTemplateRepo templateRepo, @Nullable GTFastTagResolver customFastTagResolver) {
         this.templateRepo = templateRepo;
+        this.customFastTagResolver = customFastTagResolver;
     }
 
     public Output compile(final GTTemplateLocation templateLocation) {
@@ -182,7 +185,7 @@ public class GTPreCompiler {
     }
 
     public static String generateTemplateClassname(String relativePath) {
-        return "GTTemplate_"+ fixStringForCode( relativePath.replaceAll("[\\{\\}/\\\\\\.:!]", "_"), null ).toLowerCase();
+        return "GTTemplate_"+ fixStringForCode( relativePath.replaceAll("[{}/\\\\.:!]", "_"), null ).toLowerCase();
     }
 
     public static class GTFragment {
@@ -233,15 +236,15 @@ public class GTPreCompiler {
 
     // pattern that find any of the '#/$/& etc we're intercepting. it find the next one - so we know what to look for
     // and start of comment and code-block
-    static final Pattern partsP = Pattern.compile("([#\\$&]|@?@)\\{|(\\*\\{)|(%\\{)");
+    private static final Pattern partsP = Pattern.compile("([#$&]|@?@)\\{|(\\*\\{)|(%\\{)");
 
     // pattern that finds all kinds of tags
-    final Pattern tagBodyP = Pattern.compile("([^\\s]+)(?:\\s*$|\\s+(.+))");
+    private static final Pattern tagBodyP = Pattern.compile("([^\\s]+)(?:\\s*$|\\s+(.+))");
 
-    static final Pattern endCommentP = Pattern.compile("\\}\\*");
-    static final Pattern endScriptP = Pattern.compile("\\}%");
+    private static final Pattern endCommentP = Pattern.compile("}\\*");
+    private static final Pattern endScriptP = Pattern.compile("}%");
 
-    static final Pattern findEndBracketOrStringStart = Pattern.compile("(\\}|'|\"|\\{)");
+    private static final Pattern findEndBracketOrStringStart = Pattern.compile("([}'\"{])");
     
     /**
      * Finds the next '}', which is not inside a string, on the current line.
@@ -308,7 +311,8 @@ public class GTPreCompiler {
         return -1;
     }
 
-    protected GTFragment processNextFragment( SourceContext sc) {
+    @Nullable
+    private GTFragment processNextFragment( SourceContext sc) {
         // find next something..
 
         int startLine = sc.currentLineNo;
@@ -473,7 +477,7 @@ public class GTPreCompiler {
                 sc.lineOffset = m.end();
 
                 // what did we find?
-                int correctOffset = m.start();
+                m.start();
 
                 tagExpressionEtcTypeFound = m.group(1);
                 boolean commentStart = m.group(2) != null;
@@ -578,6 +582,7 @@ public class GTPreCompiler {
         return new GTFragmentCode(startLine, javaCode);
     }
 
+    @Nullable
     private GTFragmentCode createGTFragmentCodeForPlainText(int startLine, String plainText) {
         if (plainText == null) {
             return null;
@@ -592,6 +597,7 @@ public class GTPreCompiler {
         }
     }
 
+    @Nullable
     private String checkForPlainText(SourceContext sc, int startLine, int startOffset, int endOfLastLine) {
         if (sc.currentLineNo == startLine && sc.lineOffset == startOffset && sc.lineOffset == endOfLastLine) {
             return null;
@@ -706,7 +712,7 @@ public class GTPreCompiler {
 
     private static final Pattern validCodeString = Pattern.compile("^[A-Za-z_1234567890@]+$");
 
-    protected static String fixStringForCode( String s, SourceContext sc) {
+    protected static String fixStringForCode( String s, @Nullable SourceContext sc) {
         // some tags (tag-files) can contain dots int the name - must remove them
         s = s.replace(".","_1").replace("-", "_2").replace("@", "_3");
 
@@ -765,11 +771,11 @@ public class GTPreCompiler {
                     generateFastTagInvocation(sc, fullnameToFastTagMethod, contentMethodName);
                 } else {
 
-                    // look for lecacy fastTags
+                    // look for legacy fastTags
                     GTLegacyFastTagResolver legacyFastTagResolver = getGTLegacyFastTagResolver();
                     GTLegacyFastTagResolver.LegacyFastTagInfo legacyFastTagInfo;
                     if ( legacyFastTagResolver != null && (legacyFastTagInfo = legacyFastTagResolver.resolveLegacyFastTag(tagName))!=null) {
-                        generateLegacyFastTagInvocation(tagName, sc, legacyFastTagInfo, contentMethodName);
+                        generateLegacyFastTagInvocation(sc, legacyFastTagInfo, contentMethodName);
                     } else {
 
                         // look for tag-file
@@ -812,6 +818,7 @@ public class GTPreCompiler {
     }
 
     // returns the type/file extension for this template (by looking at filename)
+    @Nullable
     private String getTemplateType(SourceContext sc) {
         String path = sc.templateLocation.relativePath;
 
@@ -873,7 +880,7 @@ public class GTPreCompiler {
         sc.jprintln(" };", sc.currentLineNo);
     }
 
-    private void generateLegacyFastTagInvocation(String tagName, SourceContext sc, GTLegacyFastTagResolver.LegacyFastTagInfo legacyFastTagInfo, String contentMethodName) {
+    private void generateLegacyFastTagInvocation(SourceContext sc, GTLegacyFastTagResolver.LegacyFastTagInfo legacyFastTagInfo, String contentMethodName) {
         // must create an inline impl of GTContentRenderer which can render/call the contentMethod and grab the output
         String contentRendererName = "cr_"+(sc.nextMethodIndex++);
         generateGTContentRenderer(sc, contentMethodName, contentRendererName);
@@ -953,8 +960,8 @@ public class GTPreCompiler {
     }
 
     // override it to return correct GTLegacyFastTagResolver
+    @Nullable
     public GTLegacyFastTagResolver getGTLegacyFastTagResolver() {
         return null;
     }
-
 }

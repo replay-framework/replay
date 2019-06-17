@@ -14,12 +14,14 @@ import play.template2.GTGroovyBase;
 import play.template2.GTJavaBase;
 import play.utils.Java;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GTGroovyBase1xImpl extends GTGroovyBase {
 
+    @Nullable
     @Override
     public Object getProperty(String property) {
         try {

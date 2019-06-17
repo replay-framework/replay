@@ -13,8 +13,7 @@ public class GTPreCompiler1xImpl extends GTPreCompiler {
     private final GTLegacyFastTagResolver legacyFastTagResolver = new GTLegacyFastTagResolver1X();
 
     public GTPreCompiler1xImpl(GTTemplateRepo templateRepo) {
-        super(templateRepo);
-        this.customFastTagResolver = new GTFastTagResolver1x();
+        super(templateRepo, new GTFastTagResolver1x());
     }
 
 

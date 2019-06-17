@@ -14,7 +14,7 @@ public class ReverseRoutingTest {
 
     protected static class ReverseRoutingGTPreCompiler extends GTPreCompiler {
         public ReverseRoutingGTPreCompiler(GTTemplateRepo templateRepo) {
-            super(templateRepo);
+            super(templateRepo, null);
         }
 
         @Override

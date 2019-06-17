@@ -4,6 +4,7 @@ import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
 import play.template2.exceptions.GTException;
 
+import javax.annotation.Nullable;
 import java.io.PrintWriter;
 
 public class GTGroovyBase extends Script {
@@ -16,6 +17,7 @@ public class GTGroovyBase extends Script {
     /**
      * All first-level property resolving is done through here
      */
+    @Nullable
     @Override
     public Object getProperty(String property) {
         try {
