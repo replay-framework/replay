@@ -1,5 +1,5 @@
 dependencies {
   compile project(':framework')
-  compile('org.eclipse.jdt:org.eclipse.jdt.core:3.16.0') {transitive = false}
+  compile('org.eclipse.jdt:org.eclipse.jdt.core:3.18.0') {transitive = false}
   testCompile project(':framework').sourceSets.test.compileClasspath
 }
