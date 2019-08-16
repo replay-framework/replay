@@ -1,8 +1,7 @@
 package play.modules.excel;
 
-import net.sf.jxls.transformer.XLSTransformer;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
@@ -65,10 +64,9 @@ public class RenderExcel extends Result {
           logger.debug("use sync excel rendering");
           try (InputStream is = file.inputstream()) {
               long start = nanoTime();
-              Workbook workbook = new XLSTransformer().transformXLS(is, beans);
-              workbook.write(response.out);
+              JxlsHelper.getInstance().processTemplate(is, response.out, new Context(beans));
               logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
-          } catch (IOException | InvalidFormatException e) {
+          } catch (IOException e) {
               throw new UnexpectedException(e);
           }
     }

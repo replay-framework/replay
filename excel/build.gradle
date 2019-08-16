@@ -2,12 +2,12 @@ dependencies {
   compile project(':framework')
   testCompile project(':framework').sourceSets.test.compileClasspath
   
-  compile('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
-  compile('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
-  compile('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
-  compile('org.apache.poi:poi:3.11') {transitive = false}
-  compile('org.apache.poi:poi-ooxml:3.11') {transitive = false}
-  compile('org.apache.poi:poi-ooxml-schemas:3.11') {transitive = false}
-  compile('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
+  compile('org.jxls:jxls:2.6.0') {transitive = false}
+  compile('org.jxls:jxls-poi:1.2.0') {transitive = false}
+  compile('org.apache.commons:commons-jexl3:3.1') {transitive = false}
+  compile('org.apache.poi:poi:4.1.0') {transitive = false}
+  compile('org.apache.poi:poi-ooxml:4.1.0') {transitive = false}
+  compile('org.apache.poi:poi-ooxml-schemas:4.1.0') {transitive = false}
+  compile('org.apache.xmlbeans:xmlbeans:3.1.0') {transitive = false}
   compile('commons-digester:commons-digester:2.1') {transitive = false}
 }
