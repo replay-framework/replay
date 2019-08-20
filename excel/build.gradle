@@ -5,7 +5,7 @@ dependencies {
   compile('org.jxls:jxls:2.6.0') {transitive = false}
   compile('org.jxls:jxls-poi:1.2.0') {transitive = false}
   compile('org.apache.commons:commons-jexl3:3.1') {transitive = false}
-  compile('org.apache.poi:poi:4.1.0') {transitive = false}
+  compile('org.apache.poi:poi:4.1.0')
   compile('org.apache.poi:poi-ooxml:4.1.0') {transitive = false}
   compile('org.apache.poi:poi-ooxml-schemas:4.1.0') {transitive = false}
   compile('org.apache.xmlbeans:xmlbeans:3.1.0') {transitive = false}

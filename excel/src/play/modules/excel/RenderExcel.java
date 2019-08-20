@@ -1,5 +1,9 @@
 package play.modules.excel;
 
+import org.jxls.area.Area;
+import org.jxls.area.XlsArea;
+import org.jxls.builder.xls.XlsCommentAreaBuilder;
+import org.jxls.command.EachCommand;
 import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
 import org.slf4j.Logger;
@@ -15,9 +19,11 @@ import play.vfs.VirtualFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.System.nanoTime;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
@@ -35,6 +41,10 @@ public class RenderExcel extends Result {
     private final VirtualFile file;
     private final String fileName; // recommended report file name
     private final Map<String, Object> beans;
+
+    static {
+        XlsCommentAreaBuilder.addCommandMapping("forEach", EachCommand.class);
+    }
 
     public RenderExcel(VirtualFile file, Map<String, Object> beans) {
         this(file, beans, null);
@@ -64,7 +74,16 @@ public class RenderExcel extends Result {
           logger.debug("use sync excel rendering");
           try (InputStream is = file.inputstream()) {
               long start = nanoTime();
-              JxlsHelper.getInstance().processTemplate(is, response.out, new Context(beans));
+              JxlsHelper helper = JxlsHelper.getInstance();
+              helper.setAreaBuilder(new XlsCommentAreaBuilder() {
+                  @Override public List<Area> build() {
+                      return asList(new XlsArea("Sheet1!A1:J17", getTransformer()));
+//                      return asList(new XlsArea("Sheet1", getTransformer()));
+                  }
+              });
+//              helper.setDeleteTemplateSheet(true);
+              helper.setUseFastFormulaProcessor(false);
+              helper.processTemplate(is, response.out, new Context(beans));
               logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
           } catch (IOException e) {
               throw new UnexpectedException(e);
