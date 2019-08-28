@@ -1,30 +1,25 @@
 import java.nio.file.*
 
-defaultTasks 'clean', 'test', 'jar', 'uploadArchives'
-
-ext {
-  REPO = project.properties['repo'] ?: "${rootDir}/repo"
-}
+defaultTasks 'clean', 'test', 'install'
 
 subprojects {
 
   group='com.codeborne.replay'
-  version='1.6-git'
+  version=project.properties['revision'] ?: '1.7-SNAPSHOT'
 
   apply plugin: 'java'
   apply plugin: 'maven'
 
-  archivesBaseName = 'replay-' + project.name
-
   [compileJava, compileTestJava]*.options.collect {options -> options.encoding = 'UTF-8'}
   [compileJava, compileTestJava]*.options.collect {options -> options.debug = true}
   compileJava.options.debugOptions.debugLevel = "source,lines,vars"
-  sourceCompatibility = 1.10
-  targetCompatibility = 1.10
+  sourceCompatibility = 11
+  targetCompatibility = 11
 
   repositories {
     jcenter()
     mavenCentral()
+    mavenLocal()
   }
 
   sourceSets {
@@ -46,6 +41,8 @@ subprojects {
   }
 
   jar {
+    from sourceSets.main.allSource
+
     manifest {
       attributes(
         "Implementation-Title": project.group + '.' + project.name,
@@ -53,33 +50,12 @@ subprojects {
         "Implementation-Vendor": "Codeborne")
     }
   }
-
-  task sourcesJar(type: Jar, dependsOn:classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-  }
-
-  artifacts {
-    archives jar
-    archives sourcesJar
-  }
-
-  uploadArchives {
-    doFirst {
-      new File(REPO).mkdirs()
-    }
-    repositories {
-      mavenDeployer {
-        repository(url: "file://${REPO}")
-      }
-    }
-  }
 }
 
 def fetchDependencies(destination, dependencies) {
   delete destination
   new File(destination).mkdirs()
-  dependencies.grep{it.name.endsWith(".jar")}.grep{!it.name.contains("replay-")}.toSet().each {
+  dependencies.grep{it.name.endsWith(".jar")}.toSet().each {
       Files.createSymbolicLink(Paths.get("${destination}/${it.name}"), Paths.get(it.path));
   }
 }

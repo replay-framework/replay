@@ -6,9 +6,3 @@ dependencies {
   compile('com.google.inject.extensions:guice-multibindings:4.2.2') {transitive = false}
   compile('aopalliance:aopalliance:1.0') {transitive = false}
 }
-
-repositories {
-  maven {
-    url uri("${rootDir}/replay/repo")
-  }
-}
