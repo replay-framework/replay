@@ -177,7 +177,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
   @Override public ImageResource getImageResource(String uri) {
     uri = resolveURI(uri);
     ImageResource ir = _imageCache.get(uri);
-    //TODO: check that cached image is still valid
+    //TO DO: check that cached image is still valid
     if (ir == null) {
       InputStream is = resolveAndOpenStream(uri);
       if (is != null) {

@@ -59,7 +59,6 @@ public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
                 ctx.sendUpstream(e);
             }
         } else {
-            // TODO: If less that threshold then in memory
             // Merge the received chunk into the content of the current message.
             HttpChunk chunk = (HttpChunk) msg;
             if (maxContentLength != -1 && (localFile.length() > (maxContentLength - chunk.getContent().readableBytes()))) {

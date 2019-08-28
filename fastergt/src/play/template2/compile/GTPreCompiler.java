@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: This parsing code need some refactoring...
+// This parsing code need some refactoring...
 public class GTPreCompiler {
 
     public static final String generatedPackageName = "play.template2.generated_templates";

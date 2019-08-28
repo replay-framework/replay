@@ -274,7 +274,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
         // Used in selenium.html-template and by users (eg: Greenscript)
         completeTagArgs.put("_body", new GTContentRendererFakeClosure(this, contentRenderer));
 
-        // TODO: Must handle tag args like  _:_
+        // TO DO: Must handle tag args like  _:_
 
         // and of course the tag args:
         // must prefix all tag args with '_'

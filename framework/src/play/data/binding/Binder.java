@@ -44,7 +44,7 @@ public abstract class Binder {
 
     static final Map<Class<?>, TypeBinder<?>> supportedTypes = new HashMap<>();
 
-    // TODO: something a bit more dynamic? The As annotation allows you to inject your own binder
+    // TO DO: something a bit more dynamic? The As annotation allows you to inject your own binder
     static {
         supportedTypes.put(Date.class, new DateBinder());
         supportedTypes.put(DateTime.class, new DateTimeBinder());

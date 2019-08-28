@@ -650,7 +650,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         writeFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
-    // TODO: add request and response as parameter
+    // TO DO: add request and response as parameter
     public void serve500(Exception e, ChannelHandlerContext ctx) {
         logger.trace("serve500: begin");
 
