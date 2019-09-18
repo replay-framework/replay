@@ -3,7 +3,11 @@ package play.data.binding;
 import play.mvc.Http;
 import play.mvc.Scope;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -14,7 +18,6 @@ public @interface As {
 
     String[] value() default {""};
     String[] lang() default {"*"};
-    String[] format() default {"html"};
     Class<? extends TypeBinder<?>> binder() default DEFAULT.class;
     Class<? extends TypeUnbinder<?>> unbinder() default DEFAULT.class;
 

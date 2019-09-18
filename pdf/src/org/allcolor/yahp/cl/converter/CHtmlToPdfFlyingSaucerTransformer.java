@@ -17,7 +17,11 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.*;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -56,7 +60,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
 
   private static final Logger log = LoggerFactory.getLogger(CHtmlToPdfFlyingSaucerTransformer.class);
 
-  private static boolean accept(final File dir, final String name) {
+  private static boolean accept(String name) {
     return name.toLowerCase().endsWith(".ttf");
   }
 
@@ -69,7 +73,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         }
       }
     }
-    else if (accept(f.getParentFile(), f.getName())) {
+    else if (accept(f.getName())) {
       if (!renderer.isKnown(f.getAbsolutePath())) {
         try {
           renderer.getFontResolver().addFont(f.getAbsolutePath(),

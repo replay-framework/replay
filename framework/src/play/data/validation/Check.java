@@ -4,10 +4,6 @@ public abstract class Check {
 
     public CheckWithCheck checkWithCheck;
 
-    public Check() {
-
-    }
-
     public abstract boolean isSatisfied(Object validatedObject, Object value);
 
     public void setMessage(String message, String... vars) {
@@ -18,9 +14,4 @@ public abstract class Check {
         }
         checkWithCheck.setVariables();
     }
-
-    public CheckWithCheck getCheckWithCheck() {
-        return this.checkWithCheck;
-    }
-
 }

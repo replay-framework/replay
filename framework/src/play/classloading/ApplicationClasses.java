@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.replace;
@@ -80,17 +82,6 @@ public class ApplicationClasses {
     }
 
     /**
-     * Get a class by name
-     * 
-     * @param name
-     *            The fully qualified class name
-     * @return The ApplicationClass or null
-     */
-    public Class getApplicationClass(String name) {
-        return classes().get(name);
-    }
-
-    /**
      * Retrieve all application classes with a specific annotation.
      *
      * @param clazz
@@ -101,17 +92,6 @@ public class ApplicationClasses {
         return classes().values().stream().filter(applicationClass ->
           applicationClass != null && applicationClass.isAnnotationPresent(clazz))
           .collect(toList());
-    }
-
-    /**
-     * Does this class is already loaded ?
-     * 
-     * @param name
-     *            The fully qualified class name
-     * @return true if the class is loaded
-     */
-    public boolean hasClass(String name) {
-        return classes().containsKey(name);
     }
 
     @Override

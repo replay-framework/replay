@@ -7,10 +7,6 @@ public class BindingAnnotations {
     private String[] profiles;
     private String[] noBindingProfiles;
 
-    public BindingAnnotations() {
-        this(null);
-    }
-
     public BindingAnnotations(Annotation[] annotations) {
         this.annotations = annotations;
     }

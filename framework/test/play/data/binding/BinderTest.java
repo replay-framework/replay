@@ -4,22 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import play.PlayBuilder;
 import play.mvc.Http;
-import play.mvc.Scope;
 import play.mvc.Scope.Session;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.math.BigDecimal.TEN;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -142,7 +136,7 @@ public class BinderTest {
     }
 
      @Test
-     public void verify_binding_of_simple_bean_collections() {
+     public void verify_binding_of_simple_bean_collections() throws NoSuchFieldException {
 
          Map<String, String[]> params = new HashMap<>();
 
@@ -164,7 +158,7 @@ public class BinderTest {
          RootParamNode rootParamNode = ParamNode.convert(params);
 
          lst = (List<Data2>) Binder.bind(request, session, rootParamNode, "data2", lst.getClass(),
-           GenericListProvider.class.getDeclaredFields()[0].getGenericType(), noAnnotations);
+           GenericListProvider.class.getDeclaredField("listOfData2").getGenericType(), noAnnotations);
          //check the size and the order
          assertThat(lst.size()).isEqualTo(13);
          assertThat(lst.get(0).a).isEqualTo("a0");
@@ -206,7 +200,7 @@ public class BinderTest {
         d3.b = 3;
 
         Data1[] datasArray = {d1, d2};
-        List<Data1> datas = Arrays.asList(new Data1[]{d2, d1, d3});
+        List<Data1> datas = asList(d2, d1, d3);
 
         Map<String, Data1> mapData = new HashMap<>();
         mapData.put(d1.a, d1);
