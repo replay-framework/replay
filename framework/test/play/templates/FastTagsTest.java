@@ -7,6 +7,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.Scope.Session;
+import play.utils.DummyUuidGenerator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

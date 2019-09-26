@@ -1,8 +1,8 @@
-package play.templates;
+package play.utils;
 
 import java.util.UUID;
 
-class UuidGenerator {
+public class UuidGenerator {
   public String randomUUID() {
     return UUID.randomUUID().toString();
   }

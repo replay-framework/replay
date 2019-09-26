@@ -1,4 +1,4 @@
-package play.templates;
+package play.utils;
 
 public class DummyUuidGenerator extends UuidGenerator {
   private final String uuid;

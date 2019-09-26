@@ -15,6 +15,7 @@ import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
 import play.templates.BaseTemplate.RawData;
+import play.utils.UuidGenerator;
 
 import javax.annotation.Nullable;
 import java.io.PrintWriter;
@@ -32,10 +33,10 @@ import java.util.Map;
 import static play.utils.HTML.htmlEscape;
 
 public class FastTags {
-    private final UuidGenerator uuidGenerator;
+    private final play.utils.UuidGenerator uuidGenerator;
 
     public FastTags() {
-        this(new UuidGenerator());
+        this(new play.utils.UuidGenerator());
     }
 
     FastTags(UuidGenerator uuidGenerator) {
