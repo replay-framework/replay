@@ -19,11 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
@@ -60,6 +56,7 @@ public class Scope {
      * Flash scope
      */
     public static class Flash {
+        final Set<String> used = new HashSet<>();
         final Map<String, String> data;
         final Map<String, String> out = new HashMap<>();
 
@@ -136,6 +133,7 @@ public class Scope {
 
         @Nullable
         public String get(@Nonnull String key) {
+            used.add(key);
             return data.get(key);
         }
 
@@ -148,6 +146,7 @@ public class Scope {
         }
 
         public boolean contains(@Nonnull String key) {
+            used.add(key);
             return data.containsKey(key);
         }
 

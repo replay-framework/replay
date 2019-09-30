@@ -8,6 +8,7 @@ import play.libs.Signer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import java.util.Map;
 
 import static play.mvc.Scope.COOKIE_PREFIX;
 import static play.mvc.Scope.COOKIE_SECURE;
@@ -53,6 +54,9 @@ public class FlashStore {
           // Some request like WebSocket don't have any response
           return;
       }
+
+      warnIfFlashIsGone(flash, request);
+
       if (flash.out.isEmpty()) {
           if (request.cookies.containsKey(COOKIE_PREFIX + "_FLASH")) {
               response.setCookie(COOKIE_PREFIX + "_FLASH", "", null, "/", 0, COOKIE_SECURE, SESSION_HTTPONLY);
@@ -77,5 +81,13 @@ public class FlashStore {
       } catch (Exception e) {
           throw new UnexpectedException("Flash serializationProblem", e);
       }
+  }
+
+  private void warnIfFlashIsGone(Scope.Flash flash, Http.Request request) {
+    for (Map.Entry<String, String> entry : flash.data.entrySet()) {
+      if (!flash.out.containsKey(entry.getKey()) && !flash.used.contains(entry.getKey())) {
+        logger.info("Unused flash param: {}={} in request {}", entry.getKey(), entry.getValue(), request.path);
+      }
+    }
   }
 }
