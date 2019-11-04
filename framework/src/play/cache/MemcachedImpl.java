@@ -7,14 +7,12 @@ import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.auth.AuthDescriptor;
 import net.spy.memcached.auth.PlainCallbackHandler;
 import net.spy.memcached.transcoders.SerializingTranscoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.ConfigurationException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -26,13 +24,10 @@ import java.util.concurrent.TimeUnit;
  * expiration is specified in seconds
  */
 public class MemcachedImpl implements CacheImpl {
-    private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
-
     private static MemcachedImpl uniqueInstance;
 
-    MemcachedClient client;
-
-    SerializingTranscoder tc;
+    private MemcachedClient client;
+    private final SerializingTranscoder tc;
 
     public static MemcachedImpl getInstance() throws IOException {
       return getInstance(false);
@@ -52,38 +47,7 @@ public class MemcachedImpl implements CacheImpl {
     }
 
     private MemcachedImpl() throws IOException {
-        tc = new SerializingTranscoder() {
-            @Override
-            protected Object deserialize(byte[] data) {
-                try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data)) {
-                    @Override
-                    protected Class<?> resolveClass(ObjectStreamClass desc)
-                      throws ClassNotFoundException {
-                        return Class.forName(desc.getName(), false, Thread.currentThread().getContextClassLoader());
-                    }
-                }) {
-                    return in.readObject();
-                }
-                catch (Exception e) {
-                    logger.error("Could not deserialize", e);
-                }
-                return null;
-            }
-
-            @Override
-            protected byte[] serialize(Object object) {
-                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-                        oos.writeObject(object);
-                        return bos.toByteArray();
-                    }
-                }
-                catch (IOException e) {
-                    logger.error("Could not serialize", e);
-                }
-                return null;
-            }
-        };
+        tc = new MemcachedTranscoder();
         initClient();
     }
 
