@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class MemcachedImpl implements CacheImpl {
   private final MemcachedClient client;
   private final String mdcParameterName;
+  private final MemcachedTranscoder tc = new MemcachedTranscoder();
 
   public MemcachedImpl(Properties configuration) throws IOException {
     System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.Log4JLogger");
@@ -28,7 +29,7 @@ public class MemcachedImpl implements CacheImpl {
   @Override
   @Nullable
   public Object get(@Nonnull String key) {
-    Future<Object> future = client.asyncGet(key, new MemcachedTranscoder(mdcParameterName, MDC.get(mdcParameterName)));
+    Future<Object> future = client.asyncGet(key, new MDCAwareTranscoder(tc, mdcParameterName, MDC.get(mdcParameterName)));
     try {
       return future.get(1, TimeUnit.SECONDS);
     }
@@ -50,7 +51,7 @@ public class MemcachedImpl implements CacheImpl {
 
   @Override
   public void set(@Nonnull String key, Object value, int expiration) {
-    client.set(key, expiration, value, new MemcachedTranscoder(mdcParameterName, MDC.get(mdcParameterName)));
+    client.set(key, expiration, value, tc);
   }
 
   @Override
