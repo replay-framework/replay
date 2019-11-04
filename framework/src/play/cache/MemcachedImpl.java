@@ -1,7 +1,7 @@
 package play.cache;
 
 import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.transcoders.SerializingTranscoder;
+import org.slf4j.MDC;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,17 +17,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class MemcachedImpl implements CacheImpl {
   private final MemcachedClient client;
-  private final SerializingTranscoder tc = new MemcachedTranscoder();
+  private final String mdcParameterName;
 
   public MemcachedImpl(Properties configuration) throws IOException {
     System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.Log4JLogger");
     client = new MemcachedClientBuilder().build(configuration);
+    mdcParameterName = configuration.getProperty("memcached.mdc.parameter", "");
   }
 
   @Override
   @Nullable
   public Object get(@Nonnull String key) {
-    Future<Object> future = client.asyncGet(key, tc);
+    Future<Object> future = client.asyncGet(key, new MemcachedTranscoder(mdcParameterName, MDC.get(mdcParameterName)));
     try {
       return future.get(1, TimeUnit.SECONDS);
     }
@@ -49,7 +50,7 @@ public class MemcachedImpl implements CacheImpl {
 
   @Override
   public void set(@Nonnull String key, Object value, int expiration) {
-    client.set(key, expiration, value, tc);
+    client.set(key, expiration, value, new MemcachedTranscoder(mdcParameterName, MDC.get(mdcParameterName)));
   }
 
   @Override
