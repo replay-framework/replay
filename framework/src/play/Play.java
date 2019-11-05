@@ -52,7 +52,6 @@ public class Play {
         }
     }
 
-    public static boolean initialized;
     public static boolean started;
     public static String id = System.getProperty("play.id", "");
     public static Mode mode = Mode.DEV;
@@ -192,7 +191,6 @@ public class Play {
 
         pluginCollection.loadPlugins();
         Play.invoker = new Invoker();
-        Play.initialized = true;
     }
 
     /**
