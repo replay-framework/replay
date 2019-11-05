@@ -26,6 +26,10 @@ public class MemcachedImpl implements CacheImpl {
     mdcParameterName = configuration.getProperty("memcached.mdc.parameter", "");
   }
 
+  public MemcachedClient getClient() {
+    return client;
+  }
+
   @Override
   @Nullable
   public Object get(@Nonnull String key) {
