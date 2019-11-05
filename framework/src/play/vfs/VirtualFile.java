@@ -98,14 +98,16 @@ public class VirtualFile {
     public InputStream inputstream() {
         try {
             return new FileInputStream(realFile);
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
+        } catch (IOException e) {
+            throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
         }
     }
 
-    public void writeTo(Writer output) throws IOException {
+    public void writeTo(Writer output) {
         try (InputStream in = inputstream()) {
             IOUtils.copy(in, output, UTF_8);
+        } catch (IOException e) {
+            throw new UnexpectedException("Failed to copy " + realFile.getAbsolutePath(), e);
         }
     }
 
@@ -155,7 +157,7 @@ public class VirtualFile {
         try {
             return readFileToString(realFile, UTF_8);
         } catch (IOException e) {
-            throw new UnexpectedException(e);
+            throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
         }
     }
 
@@ -167,7 +169,7 @@ public class VirtualFile {
         try {
             return readFileToByteArray(realFile);
         } catch (IOException e) {
-            throw new UnexpectedException(e);
+            throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
         }
     }
 

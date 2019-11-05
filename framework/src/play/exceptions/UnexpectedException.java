@@ -7,7 +7,7 @@ public class UnexpectedException extends PlayException {
     }
 
     public UnexpectedException(Throwable exception) {
-        super("Unexpected Error", exception);
+        super(exception);
     }
     
     public UnexpectedException(String message, Throwable cause) {
