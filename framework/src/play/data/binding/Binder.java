@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -49,6 +50,7 @@ public abstract class Binder {
         supportedTypes.put(Date.class, new DateBinder());
         supportedTypes.put(DateTime.class, new DateTimeBinder());
         supportedTypes.put(LocalDate.class, new LocalDateBinder());
+        supportedTypes.put(LocalTime.class, new LocalTimeBinder());
         supportedTypes.put(LocalDateTime.class, new LocalDateTimeBinder());
         supportedTypes.put(File.class, new FileBinder());
         supportedTypes.put(File[].class, new FileArrayBinder());
