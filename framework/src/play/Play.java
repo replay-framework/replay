@@ -3,7 +3,6 @@ package play;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
 import play.classloading.ApplicationClasses;
-import play.exceptions.UnexpectedException;
 import play.inject.BeanSource;
 import play.inject.DefaultBeanSource;
 import play.inject.Injector;
@@ -113,18 +112,19 @@ public class Play {
     public static final Charset defaultWebEncoding = UTF_8;
 
     public static Invoker invoker;
-    private ActionInvoker actionInvoker;
 
     private final ConfLoader confLoader;
     private final BeanSource beanSource;
+    private final ActionInvoker actionInvoker;
 
     public Play() {
-        this(new PropertiesConfLoader(), new DefaultBeanSource());
+        this(new PropertiesConfLoader(), new DefaultBeanSource(), new CookieSessionStore());
     }
 
-    public Play(ConfLoader confLoader, BeanSource beanSource) {
+    public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
         this.confLoader = confLoader;
         this.beanSource = beanSource;
+        this.actionInvoker = new ActionInvoker(sessionStore);
     }
 
     /**
@@ -196,7 +196,6 @@ public class Play {
 
         pluginCollection.loadPlugins();
         Play.invoker = new Invoker();
-        actionInvoker = new ActionInvoker(createSessionStore());
     }
 
     public ActionInvoker getActionInvoker() {
@@ -209,21 +208,6 @@ public class Play {
     private void readConfiguration() {
         configuration = confLoader.readConfiguration(Play.id);
         pluginCollection.onConfigurationRead();
-    }
-
-    private SessionStore createSessionStore() {
-        String sessionStoreClass = Play.configuration.getProperty("application.session.storeClass");
-        if (sessionStoreClass == null) {
-            return beanSource.getBeanOfType(CookieSessionStore.class);
-        }
-
-        try {
-            logger.info("Storing sessions using {}", sessionStoreClass);
-            return (SessionStore) beanSource.getBeanOfType(Class.forName(sessionStoreClass));
-        }
-        catch (Exception e) {
-            throw new UnexpectedException("Cannot create instance of " + sessionStoreClass, e);
-        }
     }
 
     /**
