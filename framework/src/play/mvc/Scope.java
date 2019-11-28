@@ -6,9 +6,7 @@ import play.Play;
 import play.data.parsing.DataParser;
 import play.data.parsing.DataParsers;
 import play.data.parsing.UrlEncodedParser;
-import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
-import play.inject.Injector;
 import play.libs.Codec;
 import play.libs.Signer;
 import play.utils.Utils;
@@ -34,23 +32,6 @@ public class Scope {
     public static final boolean COOKIE_SECURE = "true".equals(Play.configuration.getProperty("application.session.secure", "false").toLowerCase());
     public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
     public static final boolean SESSION_HTTPONLY = "true".equals(Play.configuration.getProperty("application.session.httpOnly", "false").toLowerCase());
-
-    public static SessionStore sessionStore = createSessionStore();
-
-    private static SessionStore createSessionStore() {
-        String sessionStoreClass = Play.configuration.getProperty("application.session.storeClass");
-        if (sessionStoreClass == null) {
-            return Injector.getBeanOfType(CookieSessionStore.class);
-        }
-
-        try {
-            logger.info("Storing sessions using {}", sessionStoreClass);
-            return (SessionStore) Injector.getBeanOfType(sessionStoreClass);
-        }
-        catch (Exception e) {
-            throw new UnexpectedException("Cannot create instance of " + sessionStoreClass, e);
-        }
-    }
 
     /**
      * Flash scope
@@ -168,18 +149,6 @@ public class Scope {
         protected static final String UA_KEY = "___UA";
         private static final Signer signer = new Signer("auth-token");
 
-        @Nonnull
-        public static Session restore(@Nonnull Http.Request request) {
-            Session session = sessionStore.restore(request);
-            String storedUserAgent = session.get(UA_KEY);
-            String requestUserAgent = getUserAgent(request);
-            if (storedUserAgent != null && !Objects.equals(requestUserAgent, storedUserAgent)) {
-                logger.warn(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
-                                  storedUserAgent, requestUserAgent));
-            }
-            return session;
-        }
-
         Map<String, String> data = new HashMap<>();
         boolean changed;
 
@@ -207,19 +176,6 @@ public class Scope {
 
         void change() {
             changed = true;
-        }
-
-        public void save(@Nonnull Http.Request request, @Nullable Http.Response response) {
-            if (!isEmpty() && !contains(UA_KEY)) {
-                put(UA_KEY, getUserAgent(request));
-            }
-            sessionStore.save(this, request, response);
-        }
-
-        @Nullable
-        private static String getUserAgent(@Nonnull Http.Request request) {
-            Http.Header agent = request.headers.get("user-agent");
-            return agent != null ? agent.value() : "n/a";
         }
 
         public void put(@Nonnull String key, @Nullable String value) {

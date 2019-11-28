@@ -10,6 +10,7 @@ import play.utils.HTTP;
 import play.utils.Utils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -523,6 +524,12 @@ public class Http {
                 return false;
             }
             return "XMLHttpRequest".equals(headers.get("x-requested-with").value());
+        }
+
+        @Nullable
+        public String getUserAgent() {
+            Http.Header agent = headers.get("user-agent");
+            return agent != null ? agent.value() : "n/a";
         }
 
         /**

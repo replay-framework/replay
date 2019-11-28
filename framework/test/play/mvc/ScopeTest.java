@@ -1,6 +1,5 @@
 package play.mvc;
 
-import org.junit.After;
 import org.junit.Test;
 import play.PlayBuilder;
 import play.i18n.Messages;
@@ -18,25 +17,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static play.mvc.Scope.Session.UA_KEY;
 
 public class ScopeTest {
 
-    Request request = new Request();
-    Response response = new Response();
+    private final Request request = new Request();
 
     @org.junit.Before
     public void playBuilderBefore() {
         new PlayBuilder().build();
-        Scope.sessionStore = mock(SessionStore.class);
-    }
-
-    @After
-    public void tearDown() {
-        Scope.sessionStore = null;
     }
 
     private static void mockRequestAndResponse() {
@@ -144,70 +132,6 @@ public class ScopeTest {
         Session session = new Session();
         session.put("hello", "world");
         assertEquals("world", session.get("hello"));
-    }
-
-    @Test
-    public void sessionSave_storesUserAgentInSession() {
-        Session session = new Session();
-        session.put("hello", "world");
-        request.setHeader("User-Agent", "Android; Windows Phone");
-
-        session.save(request, new Response());
-
-        assertEquals("Android; Windows Phone", session.get(UA_KEY));
-    }
-
-    @Test
-    public void sessionSave_doesNotStoreUserAgent_ifSessionIsEmpty() {
-        Session session = new Session();
-        request.setHeader("User-Agent", "Android; Windows Phone");
-
-        session.save(request, new Response());
-
-        assertThat(session.get(UA_KEY)).isNull();
-    }
-
-    @Test
-    public void sessionSave_withoutUserAgent() {
-        Session session = new Session();
-        session.put("hello", "world");
-
-        session.save(request, new Response());
-
-        assertEquals("n/a", session.get(UA_KEY));
-    }
-
-    @Test
-    public void sessionSave_doesNotAddUserAgentIfAlreadyPresent() {
-        Session session = spy(new Session());
-        session.put(UA_KEY, "Chrome;");
-        request.setHeader("User-Agent", "Chrome;");
-
-        session.save(request, new Response());
-
-        verify(session, times(1)).put(eq(UA_KEY), anyString());
-    }
-
-    @Test
-    public void restore() {
-        Session session = spy(new Session());
-        session.put(UA_KEY, "Chrome;");
-        request.setHeader("User-Agent", "Chrome;");
-        when(Scope.sessionStore.restore(request)).thenReturn(session);
-
-        assertThat(Session.restore(request)).isSameAs(session);
-
-        verify(session, never()).clear();
-        verify(Scope.sessionStore, never()).save(session, request, response);
-    }
-
-    @Test
-    public void restore_skipsCheckForUserAgent_ifUserAgentNotStoredYet() {
-        Session session = new Session();
-        request.setHeader("User-Agent", "Chrome;");
-        when(Scope.sessionStore.restore(request)).thenReturn(session);
-
-        assertThat(Session.restore(request)).isSameAs(session);
     }
 
     @Test

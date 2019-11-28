@@ -8,12 +8,17 @@ import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import play.Invoker;
+import play.mvc.ActionInvoker;
+
+import javax.inject.Inject;
 
 public class HttpServerPipelineFactory implements ChannelPipelineFactory {
     private final Invoker invoker;
+    private final ActionInvoker actionInvoker;
 
-    public HttpServerPipelineFactory(Invoker invoker) {
+    @Inject HttpServerPipelineFactory(Invoker invoker, ActionInvoker actionInvoker) {
         this.invoker = invoker;
+        this.actionInvoker = actionInvoker;
     }
 
     @Override
@@ -22,7 +27,7 @@ public class HttpServerPipelineFactory implements ChannelPipelineFactory {
     }
 
     class PlayChannelPipeline extends DefaultChannelPipeline {
-        private final PlayHandler playHandler = new PlayHandler(invoker);
+        private final PlayHandler playHandler = new PlayHandler(invoker, actionInvoker);
 
         PlayChannelPipeline() {
             addChannelHandler(new FlashPolicyHandler());

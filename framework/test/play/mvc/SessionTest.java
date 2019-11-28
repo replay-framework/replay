@@ -4,7 +4,9 @@ import org.junit.Test;
 import play.PlayBuilder;
 import play.mvc.Scope.Session;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Scope.Session.TS_KEY;
 
 public class SessionTest {
@@ -12,7 +14,6 @@ public class SessionTest {
     @org.junit.Before
     public void playBuilderBefore() {
         new PlayBuilder().build();
-        Scope.sessionStore = null;
     }
 
     @Test

@@ -18,12 +18,14 @@ public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static int httpPort;
+    private final Play play;
 
-    public Server() {
-        this(parseInt(Play.configuration.getProperty("http.port", "9000")));
+    public Server(Play play) {
+        this(play, parseInt(Play.configuration.getProperty("http.port", "9000")));
     }
 
-    public Server(int port) {
+    public Server(Play play, int port) {
+        this.play = play;
         httpPort = port;
     }
 
@@ -34,7 +36,7 @@ public class Server {
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool())
         );
         InetAddress address = address();
-        bootstrap.setPipelineFactory(new HttpServerPipelineFactory(Play.invoker));
+        bootstrap.setPipelineFactory(new HttpServerPipelineFactory(Play.invoker, play.getActionInvoker()));
         bootstrap.bind(new InetSocketAddress(address, httpPort));
         bootstrap.setOption("child.tcpNoDelay", true);
 

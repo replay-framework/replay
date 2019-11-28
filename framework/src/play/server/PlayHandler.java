@@ -41,7 +41,11 @@ import play.templates.TemplateLoader;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -67,11 +71,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     public Map<String, ChannelHandler> pipelines = new HashMap<>();
 
     private final Invoker invoker;
-    private final ActionInvoker actionInvoker = new ActionInvoker();
+    private final ActionInvoker actionInvoker;
     private final FileService fileService = new FileService();
 
-    public PlayHandler(Invoker invoker) {
+    public PlayHandler(Invoker invoker, ActionInvoker actionInvoker) {
         this.invoker = invoker;
+        this.actionInvoker = actionInvoker;
     }
 
     @Override

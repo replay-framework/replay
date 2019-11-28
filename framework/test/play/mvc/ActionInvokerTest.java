@@ -13,17 +13,28 @@ import play.mvc.results.Result;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static play.mvc.ActionInvokerTest.TestInterceptor.aftersCounter;
 import static play.mvc.ActionInvokerTest.TestInterceptor.beforesCounter;
+import static play.mvc.Scope.Session.UA_KEY;
 
 public class ActionInvokerTest {
-    private Object[] noArgs = new Object[0];
-    Http.Request request = new Http.Request();
-    Session session = new Session();
+    private final Object[] noArgs = new Object[0];
+    private final Http.Request request = new Http.Request();
+    private final Session session = new Session();
+    private final SessionStore sessionStore = mock(SessionStore.class);
+    private final ActionInvoker invoker = new ActionInvoker(sessionStore);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         new PlayBuilder().build();
         Http.Request.removeCurrent();
         CachedBoundActionMethodArgs.init();
@@ -147,6 +158,71 @@ public class ActionInvokerTest {
         m = ActionInvoker.findActionMethod("actionMethod", ActionClassChild.class);
         assertNotNull(m);
         assertEquals("actionMethod", m.invoke( new ActionClassChild()));
+    }
+
+    @Test
+    public void sessionSave_storesUserAgentInSession() {
+        Session session = new Session();
+        session.put("hello", "world");
+        request.setHeader("User-Agent", "Android; Windows Phone");
+
+        invoker.saveSession(session, request, new Http.Response());
+
+        assertEquals("Android; Windows Phone", session.get(UA_KEY));
+    }
+
+    @Test
+    public void sessionSave_doesNotStoreUserAgent_ifSessionIsEmpty() {
+        Session session = new Session();
+        request.setHeader("User-Agent", "Android; Windows Phone");
+
+        invoker.saveSession(session, request, new Http.Response());
+
+        assertThat(session.get(UA_KEY)).isNull();
+    }
+
+    @Test
+    public void sessionSave_withoutUserAgent() {
+        Session session = new Session();
+        session.put("hello", "world");
+
+        invoker.saveSession(session, request, new Http.Response());
+
+        assertEquals("n/a", session.get(UA_KEY));
+    }
+
+    @Test
+    public void sessionSave_doesNotAddUserAgentIfAlreadyPresent() {
+        Session session = spy(new Session());
+        session.put(UA_KEY, "Chrome;");
+        request.setHeader("User-Agent", "Chrome;");
+
+        invoker.saveSession(session, request, new Http.Response());
+
+        verify(session, times(1)).put(eq(UA_KEY), anyString());
+    }
+
+    @Test
+    public void restore() {
+        Http.Response response = new Http.Response();
+        Session session = spy(new Session());
+        session.put(UA_KEY, "Chrome;");
+        request.setHeader("User-Agent", "Chrome;");
+        when(sessionStore.restore(request)).thenReturn(session);
+
+        assertThat(invoker.restoreSession(request)).isSameAs(session);
+
+        verify(session, never()).clear();
+        verify(sessionStore, never()).save(session, request, response);
+    }
+
+    @Test
+    public void restore_skipsCheckForUserAgent_ifUserAgentNotStoredYet() {
+        Session session = new Session();
+        request.setHeader("User-Agent", "Chrome;");
+        when(sessionStore.restore(request)).thenReturn(session);
+
+        assertThat(invoker.restoreSession(request)).isSameAs(session);
     }
 
     private void ensureNotActionMethod(String name) throws NoSuchMethodException {
