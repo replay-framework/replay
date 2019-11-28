@@ -182,8 +182,6 @@ public class ActionInvoker {
     private void applyResult(Http.Request request, Http.Response response, Session session, Flash flash, RenderArgs renderArgs, Result result) {
         Play.pluginCollection.onActionInvocationResult(request, response, session, flash, renderArgs, result);
 
-        session.save(request, response);
-
         try {
             result.apply(request, response, session, renderArgs, flash);
         }
@@ -204,6 +202,7 @@ public class ActionInvoker {
         // It's important to send "flash" and "session" cookies to browser AFTER html is applied.
         // Because sometimes html does change flash.
         // For example, some html might execute %{flash.discard('info')}%`
+        session.save(request, response);
         flashStore.save(flash, request, response);
 
         handleFinallies(request, session, null);
