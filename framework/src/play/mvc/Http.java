@@ -375,7 +375,7 @@ public class Http {
             }
         }
 
-        protected void parseXForwarded() {
+        private void parseXForwarded() {
             String _host = this.host;
             if (Play.configuration.containsKey("XForwardedSupport") && headers.get("x-forwarded-for") != null) {
                 if (!"ALL".equalsIgnoreCase(Play.configuration.getProperty("XForwardedSupport"))
@@ -390,7 +390,7 @@ public class Http {
                         this.host = this.headers.get("x-forwarded-host").value();
                     }
                     if (this.headers.get("x-forwarded-for") != null) {
-                        this.remoteAddress = this.headers.get("x-forwarded-for").value();
+                        this.remoteAddress = cleanupRemoteAddresses(this.headers.get("x-forwarded-for").value());
                     }
                 }
             }
@@ -406,6 +406,12 @@ public class Http {
                     this.domain = this.host;
                 }
             }
+        }
+
+        @Nonnull
+        static String cleanupRemoteAddresses(String remoteAddress) {
+            int index = remoteAddress.lastIndexOf(',');
+            return index == -1 ? remoteAddress : remoteAddress.substring(index + 1).trim();
         }
 
         private boolean isRequestSecure() {
