@@ -99,7 +99,7 @@ public class ActionInvoker {
 
     public void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
-        Session session = sessionStore.restore(request);
+        Session session = actionNeedsSession(request) ? sessionStore.restore(request) : new Session();
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         ActionContext context = new ActionContext(request, response, session, flash, renderArgs, Validation.current());
@@ -178,6 +178,10 @@ public class ActionInvoker {
         }
     }
 
+    boolean actionNeedsSession(Http.Request request) {
+        return !request.invokedMethod.isAnnotationPresent(NoSession.class);
+    }
+
     private PlayController createController(ActionContext context) {
         PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
         if (controller instanceof Controller) {
@@ -209,7 +213,9 @@ public class ActionInvoker {
         // It's important to send "flash" and "session" cookies to browser AFTER html is applied.
         // Because sometimes html does change flash.
         // For example, some html might execute %{flash.discard('info')}%`
-        sessionStore.save(session, request, response);
+        if (actionNeedsSession(request)) {
+            sessionStore.save(session, request, response);
+        }
         flashStore.save(flash, request, response);
 
         handleFinallies(request, session, null);

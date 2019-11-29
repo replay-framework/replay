@@ -13,11 +13,13 @@ import play.mvc.results.Result;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static play.mvc.ActionInvokerTest.TestInterceptor.aftersCounter;
 import static play.mvc.ActionInvokerTest.TestInterceptor.beforesCounter;
 
@@ -25,6 +27,7 @@ public class ActionInvokerTest {
     private final Object[] noArgs = new Object[0];
     private final Http.Request request = new Http.Request();
     private final Session session = new Session();
+    private final ActionInvoker invoker = new ActionInvoker(mock(SessionStore.class));
 
     @Before
     public void setUp() {
@@ -153,6 +156,20 @@ public class ActionInvokerTest {
         assertEquals("actionMethod", m.invoke( new ActionClassChild()));
     }
 
+    @Test
+    public void everyActionNeedsSessionByDefault() throws NoSuchMethodException {
+        request.invokedMethod = ActionClass.class.getMethod("actionMethod");
+
+        assertThat(invoker.actionNeedsSession(request)).isTrue();
+    }
+
+    @Test
+    public void actionCanOptOutUsingSession() throws NoSuchMethodException {
+        request.invokedMethod = ActionClass.class.getMethod("prefetchUserData");
+
+        assertThat(invoker.actionNeedsSession(request)).isFalse();
+    }
+
     private void ensureNotActionMethod(String name) throws NoSuchMethodException {
         assertNull(ActionInvoker.findActionMethod(ActionClass.class.getDeclaredMethod(name).getName(), ActionClass.class));
     }
@@ -201,6 +218,11 @@ public class ActionInvokerTest {
 
         public static String actionMethod() {
             return "actionMethod";
+        }
+
+        @NoSession
+        public String prefetchUserData() {
+            return "this is a background request which should not affect session";
         }
 
         @play.mvc.Before
