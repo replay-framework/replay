@@ -99,7 +99,7 @@ public class ActionInvoker {
 
     public void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
-        Session session = actionNeedsSession(request) ? sessionStore.restore(request) : new Session();
+        Session session = actionNeedsSession(request) ? sessionStore.restore(request) : new ReadonlySession();
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         ActionContext context = new ActionContext(request, response, session, flash, renderArgs, Validation.current());

@@ -149,16 +149,27 @@ public class Scope {
         private static final String UA_KEY = "___UA";
         private static final Signer signer = new Signer("auth-token");
 
+        private String id;
         Map<String, String> data = new HashMap<>();
         boolean changed;
 
+        public Session() {
+        }
+
+        protected Session(String id) {
+            this.id = id;
+        }
+
         @Nonnull
         public String getId() {
-            if (!data.containsKey(ID_KEY)) {
-                this.put(ID_KEY, Codec.UUID());
+            if (id == null) {
+                id = data.get(ID_KEY);
+                if (id == null) {
+                    id = Codec.UUID();
+                    data.put(ID_KEY, id);
+                }
             }
-            return data.get(ID_KEY);
-
+            return id;
         }
 
         @Nonnull
@@ -229,7 +240,7 @@ public class Scope {
          */
         public boolean isEmpty() {
             for (String key : data.keySet()) {
-                if (!TS_KEY.equals(key) && !UA_KEY.equals(key)) {
+                if (!TS_KEY.equals(key) && !UA_KEY.equals(key) && !ID_KEY.equals(key)) {
                     return false;
                 }
             }
