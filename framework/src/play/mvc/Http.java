@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -610,6 +611,14 @@ public class Http {
         public void setHeader(String key, String value) {
             key = key.toLowerCase();
             headers.put(key, new Http.Header(key, value));
+        }
+
+        public <T extends Annotation> T getActionAnnotation(Class<T> annotationClass) {
+            T annotation = invokedMethod.getAnnotation(annotationClass);
+            if (annotation == null) {
+                annotation = controllerClass.getAnnotation(annotationClass);
+            }
+            return annotation;
         }
     }
 
