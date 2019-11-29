@@ -146,7 +146,7 @@ public class Scope {
         private static final String AT_KEY = "___AT";
         private static final String ID_KEY = "___ID";
         protected static final String TS_KEY = "___TS";
-        protected static final String UA_KEY = "___UA";
+        private static final String UA_KEY = "___UA";
         private static final Signer signer = new Signer("auth-token");
 
         Map<String, String> data = new HashMap<>();
@@ -238,6 +238,15 @@ public class Scope {
 
         public boolean contains(@Nonnull String key) {
             return data.containsKey(key);
+        }
+
+        @Nullable
+        public String getUserAgent() {
+            return get(UA_KEY);
+        }
+
+        public void setUserAgent(@Nonnull String userAgent) {
+            put(UA_KEY, userAgent);
         }
 
         @Override

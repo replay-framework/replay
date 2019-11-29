@@ -250,9 +250,9 @@ public class PluginCollection {
           plugin.onActionInvocationResult(request, response, session, flash, renderArgs, result));
     }
 
-    public void afterActionInvocation(Request request, Response response, Flash flash) {
+    public void afterActionInvocation(Request request, Response response, Session session, Flash flash) {
         getEnabledPlugins().forEach(plugin ->
-          plugin.afterActionInvocation(request, response, flash));
+          plugin.afterActionInvocation(request, response, session, flash));
     }
 
     public void onActionInvocationFinally(@Nonnull Request request) {

@@ -22,6 +22,7 @@ public class CookieSessionStore implements SessionStore {
     private final String COOKIE_EXPIRE = Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING);
     private final Signer signer = new Signer("session-");
 
+    @Nonnull
     @Override
     public Session restore(@Nonnull Http.Request request) {
         try {

@@ -27,8 +27,6 @@ import play.mvc.results.Result;
 import play.utils.Java;
 import play.utils.Utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.InputStream;
@@ -38,9 +36,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import static play.mvc.Scope.Session.UA_KEY;
 
 /**
  * Invoke an action after an HTTP request.
@@ -103,7 +99,7 @@ public class ActionInvoker {
 
     public void invoke(Http.Request request, Http.Response response) {
         Monitor monitor = null;
-        Session session = restoreSession(request);
+        Session session = sessionStore.restore(request);
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
         ActionContext context = new ActionContext(request, response, session, flash, renderArgs, Validation.current());
@@ -208,34 +204,15 @@ public class ActionInvoker {
             }
         }
 
-        Play.pluginCollection.afterActionInvocation(request, response, flash);
+        Play.pluginCollection.afterActionInvocation(request, response, session, flash);
 
         // It's important to send "flash" and "session" cookies to browser AFTER html is applied.
         // Because sometimes html does change flash.
         // For example, some html might execute %{flash.discard('info')}%`
-        saveSession(session, request, response);
+        sessionStore.save(session, request, response);
         flashStore.save(flash, request, response);
 
         handleFinallies(request, session, null);
-    }
-
-    void saveSession(@Nonnull Scope.Session session, @Nonnull Http.Request request, @Nullable Http.Response response) {
-        if (!session.isEmpty() && !session.contains(UA_KEY)) {
-            session.put(UA_KEY, request.getUserAgent());
-        }
-        sessionStore.save(session, request, response);
-    }
-
-    @Nonnull
-    Session restoreSession(@Nonnull Http.Request request) {
-        Session session = sessionStore.restore(request);
-        String storedUserAgent = session.get(UA_KEY);
-        String requestUserAgent = request.getUserAgent();
-        if (storedUserAgent != null && !Objects.equals(requestUserAgent, storedUserAgent)) {
-            logger.warn(String.format("User agent changed: existing user agent '%s', request user agent '%s'",
-              storedUserAgent, requestUserAgent));
-        }
-        return session;
     }
 
     private static void invokeControllerCatchMethods(Http.Request request, Session session, Throwable throwable) throws Exception {

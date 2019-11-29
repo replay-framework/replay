@@ -8,5 +8,5 @@ import javax.annotation.Nullable;
  */
 public interface SessionStore {
     void save(@Nonnull Scope.Session session, @Nonnull Http.Request request, @Nullable Http.Response response);
-    Scope.Session restore(@Nonnull Http.Request request);
+    @Nonnull Scope.Session restore(@Nonnull Http.Request request);
 }

@@ -197,7 +197,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     /**
      * Called at the end of the action invocation.
      */
-    public void afterActionInvocation(Request request, Response response, Flash flash) {
+    public void afterActionInvocation(Request request, Response response, Session session, Flash flash) {
     }
 
     /**
