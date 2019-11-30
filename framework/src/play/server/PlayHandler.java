@@ -50,14 +50,11 @@ import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
@@ -560,12 +557,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         Map<String, Http.Header> headers = new HashMap<>(16);
 
         for (String key : nettyRequest.headers().names()) {
-            Http.Header hd = new Http.Header();
-            hd.name = key.toLowerCase();
-            hd.values = new ArrayList<>();
-            for (String next : nettyRequest.headers().getAll(key)) {
-                hd.values.add(next);
-            }
+            List<String> headerValues = unmodifiableList(nettyRequest.headers().getAll(key));
+            Http.Header hd = new Http.Header(key.toLowerCase(), headerValues);
             headers.put(hd.name, hd);
         }
 

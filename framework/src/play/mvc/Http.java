@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -73,24 +74,12 @@ public class Http {
      * An HTTP Header
      */
     public static class Header implements Serializable {
-
-        /**
-         * Header name
-         */
-        public String name;
-        /**
-         * Header value
-         */
-        public List<String> values;
-
-        public Header() {
-            this.values = new ArrayList<>(5);
-        }
+        public final String name;
+        public final List<String> values;
 
         public Header(String name, String value) {
             this.name = name;
-            this.values = new ArrayList<>(5);
-            this.values.add(value);
+            this.values = asList(value);
         }
 
         public Header(String name, List<String> values) {
@@ -379,7 +368,7 @@ public class Http {
             String _host = this.host;
             if (Play.configuration.containsKey("XForwardedSupport") && headers.get("x-forwarded-for") != null) {
                 if (!"ALL".equalsIgnoreCase(Play.configuration.getProperty("XForwardedSupport"))
-                        && !Arrays.asList(Play.configuration.getProperty("XForwardedSupport", "127.0.0.1").split("[\\s,]+"))
+                        && !asList(Play.configuration.getProperty("XForwardedSupport", "127.0.0.1").split("[\\s,]+"))
                                 .contains(remoteAddress)) {
                     throw new RuntimeException("This proxy request is not authorized: " + remoteAddress);
                 } else {
@@ -568,7 +557,7 @@ public class Http {
                 return Collections.emptyList();
             }
             String acceptLanguage = headers.get("accept-language").value();
-            List<String> languages = Arrays.asList(acceptLanguage.split(","));
+            List<String> languages = asList(acceptLanguage.split(","));
             languages.sort((lang1, lang2) -> {
                 double q1 = 1.0;
                 double q2 = 1.0;
@@ -714,10 +703,7 @@ public class Http {
          *            Header value
          */
         public void setHeader(String name, String value) {
-            Header h = new Header();
-            h.name = name;
-            h.values = new ArrayList<>(1);
-            h.values.add(value);
+            Header h = new Header(name, value);
             headers.put(name, h);
         }
 
