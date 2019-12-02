@@ -28,9 +28,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 
-/**
- * HTTP interface
- */
 public class Http {
     private static final Logger logger = LoggerFactory.getLogger(Http.class);
 
@@ -70,9 +67,6 @@ public class Http {
         }
     }
 
-    /**
-     * An HTTP Header
-     */
     public static class Header implements Serializable {
         public final String name;
         public final List<String> values;
@@ -98,49 +92,25 @@ public class Http {
 
         @Override
         public String toString() {
-            return values.toString();
+            return name + "=" + values;
         }
     }
 
-    /**
-     * An HTTP Cookie
-     */
     public static class Cookie implements Serializable {
-        /**
-         * Cookie name
-         */
-        public String name;
-        /**
-         * Cookie domain
-         */
+        public final String name;
         public String domain;
-        /**
-         * Cookie path
-         */
         public String path = "/";
-        /**
-         * for HTTPS ?
-         */
         public boolean secure;
-        /**
-         * Cookie value
-         */
         public String value;
         /**
-         * Cookie max-age in second
+         * Cookie max-age in seconds
          */
         public Integer maxAge;
         /**
          * Don't use
          */
         public boolean sendOnError;
-        /**
-         * See http://www.owasp.org/index.php/HttpOnly
-         */
         public boolean httpOnly;
-
-        public Cookie() {
-        }
 
         public Cookie(String name, String value) {
             this.value = value;
@@ -148,23 +118,13 @@ public class Http {
         }
     }
 
-    /**
-     * An HTTP Request
-     */
-    public static class Request implements Serializable {
+    private static final ThreadLocal<Request> currentRequest = new ThreadLocal<>();
+
+    public static class Request {
         private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-fA-F]*");
 
-        /**
-         * Server host
-         */
         public String host;
-        /**
-         * Request path
-         */
         public String path;
-        /**
-         * QueryString
-         */
         public String querystring;
         /**
          * URL path (excluding scheme, host and port), starting with '/'<br>
@@ -174,54 +134,21 @@ public class Http {
          * =&gt; <b>url</b> will be {@code /path0/path1}
          */
         public String url;
-        /**
-         * HTTP method
-         */
         public String method;
-        /**
-         * Server domain
-         */
         public String domain;
-        /**
-         * Client address
-         */
         public String remoteAddress;
-        /**
-         * Request content-type
-         */
         public String contentType;
         /**
          * This is the encoding used to decode this request. If encoding-info is not found in request, then
          * Play.defaultWebEncoding is used
          */
         public Charset encoding = Play.defaultWebEncoding;
-        /**
-         * Controller to invoke
-         */
         public String controller;
-        /**
-         * Action method name
-         */
         public String actionMethod;
-        /**
-         * HTTP port
-         */
         public Integer port;
-        /**
-         * is HTTPS ?
-         */
         public Boolean secure = false;
-        /**
-         * HTTP Headers
-         */
         public Map<String, Http.Header> headers;
-        /**
-         * HTTP Cookies
-         */
         public Map<String, Http.Cookie> cookies;
-        /**
-         * Body stream
-         */
         public transient InputStream body;
         /**
          * Additional HTTP params extracted from route
@@ -235,30 +162,18 @@ public class Http {
          * Full action (ex: Application.index)
          */
         public String action;
-        /**
-         * Bind to thread
-         */
-        private static final ThreadLocal<Request> current = new ThreadLocal<>();
-        /**
-         * The really invoker Java method
-         */
-        public transient Method invokedMethod;
-        /**
-         * The invoked controller class
-         */
-        public transient Class<? extends PlayController> controllerClass;
-        /**
-         * The instance of invoked controller in case it uses non-static action methods.
-         */
-        public transient PlayController controllerInstance;
+
+        public Method invokedMethod;
+        public Class<? extends PlayController> controllerClass;
+        public PlayController controllerInstance;
         /**
          * Free space to store your request specific data
          */
-        public Map<String, Object> args = new HashMap<>(16);
+        public final Map<String, Object> args = new HashMap<>(16);
         /**
          * When the request has been received
          */
-        public Date date = new Date();
+        public final Date date = new Date();
         /**
          * HTTP Basic User
          */
@@ -275,9 +190,7 @@ public class Http {
          * ActionInvoker.resolvedRoutes was called?
          */
         boolean resolved;
-        /**
-         * Params
-         */
+
         @Nonnull
         public final Scope.Params params = new Scope.Params(this);
 
@@ -293,41 +206,6 @@ public class Http {
             cookies = new HashMap<>(16);
         }
 
-        /**
-         * All creation / initiating of new requests should use this method. The purpose of this is to "show" what is
-         * needed when creating new Requests.
-         * 
-         * @param _remoteAddress
-         *            The remote IP address
-         * @param _method
-         *            the Method
-         * @param _path
-         *            path
-         * @param _querystring
-         *            The query String
-         * @param _contentType
-         *            The content Type
-         * @param _body
-         *            The request body
-         * @param _url
-         *            The request URL
-         * @param _host
-         *            The request host
-         * @param _isLoopback
-         *            Indicate if the request comes from loopback interface
-         * @param _port
-         *            The request port
-         * @param _domain
-         *            The request domain
-         * @param _secure
-         *            Indicate is request is secure or not
-         * @param _headers
-         *            The request headers
-         * @param _cookies
-         *            The request cookies
-         * 
-         * @return the newly created Request object
-         */
         public static Request createRequest(String _remoteAddress, String _method, String _path, String _querystring, String _contentType,
                 InputStream _body, String _url, String _host, boolean _isLoopback, int _port, String _domain, boolean _secure,
                 Map<String, Http.Header> _headers, Map<String, Http.Cookie> _cookies) {
@@ -489,25 +367,16 @@ public class Http {
          */
         @Deprecated
         public static Request current() {
-            return current.get();
+            return currentRequest.get();
         }
 
         @Deprecated
         public static void setCurrent(Request request) {
-            current.set(request);
+            currentRequest.set(request);
         }
 
         public static void removeCurrent() {
-            current.remove();
-        }
-
-        /**
-         * Useful because we sometime use a lazy request loader
-         * 
-         * @return itself
-         */
-        public Request get() {
-            return this;
+            currentRequest.remove();
         }
 
         /**
@@ -516,10 +385,8 @@ public class Http {
          * @return True is the request is an Ajax, false otherwise
          */
         public boolean isAjax() {
-            if (!headers.containsKey("x-requested-with")) {
-                return false;
-            }
-            return "XMLHttpRequest".equals(headers.get("x-requested-with").value());
+            Header header = headers.get("x-requested-with");
+            return header != null && "XMLHttpRequest".equals(header.value());
         }
 
         @Nullable
@@ -617,63 +484,29 @@ public class Http {
         }
     }
 
-    /**
-     * An HTTP response
-     */
+    private static final ThreadLocal<Response> currentResponse = new ThreadLocal<>();
+
     public static class Response {
-
-        /**
-         * Response status code
-         */
-        public Integer status = 200;
-        /**
-         * Response content type
-         */
+        public Integer status = StatusCode.OK;
         public String contentType;
-        /**
-         * Response headers
-         */
-        public Map<String, Http.Header> headers = new HashMap<>(16);
-        /**
-         * Response cookies
-         */
+        public final Map<String, Http.Header> headers = new HashMap<>(16);
         public Map<String, Http.Cookie> cookies = new HashMap<>(16);
-        /**
-         * Response body stream
-         */
         public ByteArrayOutputStream out;
-        /**
-         * Send this file directly
-         */
         public Object direct;
-
-        /**
-         * The encoding used when writing response to client
-         */
         public Charset encoding = Play.defaultWebEncoding;
 
-        /**
-         * Bind to thread
-         */
-        private static final ThreadLocal<Response> current = new ThreadLocal<>();
-
-        /**
-         * Retrieve the current response
-         * 
-         * @return the current response
-         */
         @Deprecated
         public static Response current() {
-            return current.get();
+            return currentResponse.get();
         }
 
         @Deprecated
         public static void setCurrent(Response response) {
-            current.set(response);
+            currentResponse.set(response);
         }
 
         public static void removeCurrent() {
-            current.remove();
+            currentResponse.remove();
         }
 
         /**
@@ -683,28 +516,20 @@ public class Http {
          *            Header name case-insensitive
          * @return the header value as a String
          */
-        public String getHeader(String name) {
-            for (String key : headers.keySet()) {
-                if (key.toLowerCase().equals(name.toLowerCase())) {
-                    if (headers.get(key) != null) {
-                        return headers.get(key).value();
+        @Nullable
+        public String getHeader(@Nonnull String name) {
+            for (Map.Entry<String, Header> entry : headers.entrySet()) {
+                if (entry.getKey().toLowerCase().equals(name.toLowerCase())) {
+                    if (entry.getValue() != null) {
+                        return entry.getValue().value();
                     }
                 }
             }
             return null;
         }
 
-        /**
-         * Set a response header
-         * 
-         * @param name
-         *            Header name
-         * @param value
-         *            Header value
-         */
         public void setHeader(String name, String value) {
-            Header h = new Header(name, value);
-            headers.put(name, h);
+            headers.put(name, new Header(name, value));
         }
 
         public void setContentTypeIfNotSet(String contentType) {
@@ -713,49 +538,21 @@ public class Http {
             }
         }
 
-        /**
-         * Set a new cookie
-         * 
-         * @param name
-         *            Cookie name
-         * @param value
-         *            Cookie value
-         */
         public void setCookie(String name, String value) {
             setCookie(name, value, null, "/", null, false);
         }
 
-        /**
-         * Removes the specified cookie with path /
-         * 
-         * @param name
-         *            cookie name
-         */
         public void removeCookie(String name) {
             removeCookie(name, "/");
         }
 
-        /**
-         * Removes the cookie
-         * 
-         * @param name
-         *            cookie name
-         * @param path
-         *            cookie path
-         */
         public void removeCookie(String name, String path) {
             setCookie(name, "", null, path, 0, false);
         }
 
         /**
          * Set a new cookie that will expire in (current) + duration
-         * 
-         * @param name
-         *            the cookie name
-         * @param value
-         *            The cookie value
-         * @param duration
-         *            the cookie duration (Ex: 3d)
+         * @param duration the cookie duration (Ex: "3d")
          */
         public void setCookie(String name, String value, String duration) {
             setCookie(name, value, null, "/", Time.parseDuration(duration), false);
@@ -772,9 +569,7 @@ public class Http {
                 cookies.get(name).maxAge = maxAge;
                 cookies.get(name).secure = secure;
             } else {
-                Cookie cookie = new Cookie();
-                cookie.name = name;
-                cookie.value = value;
+                Cookie cookie = new Cookie(name, value);
                 cookie.path = path;
                 cookie.secure = secure;
                 cookie.httpOnly = httpOnly;
@@ -868,21 +663,16 @@ public class Http {
             }
         }
 
-        public void print(Object o) {
+        public void print(String text) {
             try {
-                out.write(o.toString().getBytes(encoding));
+                out.write(text.getBytes(encoding));
             } catch (IOException ex) {
-                throw new UnexpectedException("Encoding problem ?", ex);
+                throw new UnexpectedException("Failed to print response '" + text + "'", ex);
             }
         }
 
-        public void reset() {
-            out.reset();
-        }
-
-        // Chunked stream
         public boolean chunked;
-        final List<Consumer<Object>> writeChunkHandlers = new ArrayList<>();
+        private final List<Consumer<Object>> writeChunkHandlers = new ArrayList<>();
 
         public void writeChunk(Object o) {
             this.chunked = true;

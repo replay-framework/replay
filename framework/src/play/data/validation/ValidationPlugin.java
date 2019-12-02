@@ -158,12 +158,10 @@ public class ValidationPlugin extends PlayPlugin {
         }
     }
 
-    static void clear(@Nonnull Response response) {
+    private void clear(@Nonnull Response response) {
         try {
             if (response.cookies != null) {
-                Cookie cookie = new Cookie();
-                cookie.name = Scope.COOKIE_PREFIX + "_ERRORS";
-                cookie.value = "";
+                Cookie cookie = new Cookie(Scope.COOKIE_PREFIX + "_ERRORS", "");
                 cookie.sendOnError = true;
                 response.cookies.put(cookie.name, cookie);
             }

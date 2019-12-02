@@ -218,7 +218,7 @@ public class Router {
     public static String getFullUrl(String action, Map<String, Object> args, Http.Request request) {
         ActionDefinition actionDefinition = reverse(action, args);
         String base = getBaseUrl(request);
-        if (actionDefinition.method.equals("WS")) {
+        if ("WS".equals(actionDefinition.method)) {
             return base.replaceFirst("https?", "ws") + actionDefinition;
         }
         return base + actionDefinition;
@@ -422,15 +422,12 @@ public class Router {
                     qs = qs.substring(0, qs.length() - 1);
                 }
                 ActionDefinition actionDefinition = new ActionDefinition();
-                actionDefinition.url = qs.length() == 0 ? path : path + "?" + qs;
-                actionDefinition.method = route.method == null || route.method.equals("*") ? "GET" : route.method.toUpperCase();
+                actionDefinition.url = qs.isEmpty() ? path : path + "?" + qs;
+                actionDefinition.method = route.method == null || "*".equals(route.method) ? "GET" : route.method.toUpperCase();
                 actionDefinition.star = "*".equals(route.method);
                 actionDefinition.action = action;
                 actionDefinition.args = argsbackup;
                 actionDefinition.host = host;
-                if (Boolean.parseBoolean(Play.configuration.getProperty("application.forceSecureReverseRoutes", "false"))) {
-                    actionDefinition.secure();
-                }
                 return actionDefinition;
             }
         }
@@ -503,26 +500,21 @@ public class Router {
             return reverse(action, args);
         }
 
-        public ActionDefinition addRef(String fragment) {
-            url += "#" + fragment;
-            return this;
-        }
-
         @Override
         public String toString() {
             return url;
         }
 
-        public void absolute() {
-            boolean isSecure = Http.Request.current() == null ? false : Http.Request.current().secure;
+        public void absolute(@Nullable Http.Request request) {
+            boolean isSecure = request == null ? false : request.secure;
             String base = getBaseUrl();
             String hostPart = host;
-            String domain = Http.Request.current() == null ? "" : Http.Request.current().get().domain;
-            int port = Http.Request.current() == null ? 80 : Http.Request.current().get().port;
+            String domain = request == null ? "" : request.domain;
+            int port = request == null ? 80 : request.port;
             if (port != 80 && port != 443) {
                 hostPart += ":" + port;
             }
-            // ~
+
             if (!url.startsWith("http")) {
                 if (StringUtils.isEmpty(host)) {
                     url = base + url;
@@ -537,18 +529,10 @@ public class Router {
                 } else {
                     url = (isSecure ? "https://" : "http://") + hostPart + url;
                 }
-                if (method.equals("WS")) {
+                if ("WS".equals(method)) {
                     url = url.replaceFirst("https?", "ws");
                 }
             }
-        }
-
-        public ActionDefinition secure() {
-            if (!url.contains("http://") && !url.contains("https://")) {
-                absolute();
-            }
-            url = url.replace("http:", "https:");
-            return this;
         }
     }
 
@@ -577,12 +561,12 @@ public class Router {
             this.routesFileLine = line;
 
             if (action.startsWith("staticDir:") || action.startsWith("staticFile:")) {
-                if (!method.equalsIgnoreCase("*") && !method.equalsIgnoreCase("GET")) {
+                if (!"*".equalsIgnoreCase(method) && !"GET".equalsIgnoreCase(method)) {
                     throw new IllegalArgumentException("Static route only support GET method");
                 }
             }
             if (action.startsWith("staticDir:")) {
-                if (!path.endsWith("/") && !path.equals("/")) {
+                if (!path.endsWith("/") && !"/".equals(path)) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
                 this.pattern = Pattern.compile("^" + path + ".*$");
@@ -637,10 +621,8 @@ public class Router {
          * @return route args or null
          */
         public Map<String, String> matches(String method, String path) {
-            // Normalize
-            if ("".equals(path)) {
-                path = path + "/";
-            }
+            path = normalizePath(path);
+
             // If method is HEAD and we have a GET
             if (method == null || "*".equals(this.method) || method.equalsIgnoreCase(this.method)
                     || ("head".equalsIgnoreCase(method) && "get".equalsIgnoreCase(this.method))) {
@@ -682,6 +664,10 @@ public class Router {
                 }
             }
             return null;
+        }
+
+        private static String normalizePath(String path) {
+            return "".equals(path) ? "/" : path;
         }
 
         static class Arg {
