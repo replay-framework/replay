@@ -175,16 +175,12 @@ public class CookieDataCodecTest {
         Set<Cookie> cookieSet = ServerCookieDecoder.STRICT.decode(data);
         if (cookieSet != null) {
             for (Cookie cookie : cookieSet) {
-                Http.Cookie playCookie = new Http.Cookie();
-                playCookie.name = cookie.name();
+                Http.Cookie playCookie = new Http.Cookie(cookie.name(), cookie.value());
                 playCookie.path = cookie.path();
                 playCookie.domain = cookie.domain();
                 playCookie.secure = cookie.isSecure();
-                playCookie.value = cookie.value();
                 playCookie.httpOnly = cookie.isHttpOnly();
             }
         }
-
     }
-
 }

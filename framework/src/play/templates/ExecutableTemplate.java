@@ -178,8 +178,9 @@ public abstract class ExecutableTemplate extends Script {
         @SuppressWarnings("unchecked")
         public Object invokeMethod(String name, Object param) {
             try {
+                Http.Request request = Http.Request.current();
                 if (controller == null) {
-                    controller = Http.Request.current().controller;
+                    controller = request.controller;
                 }
                 String action = controller + "." + name;
                 if (action.endsWith(".call")) {
@@ -213,9 +214,9 @@ public abstract class ExecutableTemplate extends Script {
                             }
                         }
                     }
-                    Router.ActionDefinition def = Router.reverse(action, r);
+                    Router.ActionDefinition def = Router.reverse(action, r, request, Http.Response.current());
                     if (absolute) {
-                        def.absolute();
+                        def.absolute(request);
                     }
                     if (template.template.name.endsWith(".xml")) {
                         def.url = def.url.replace("&", "&amp;");

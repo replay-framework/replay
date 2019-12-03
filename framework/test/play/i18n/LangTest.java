@@ -117,34 +117,26 @@ public class LangTest {
 
         req = newRequest();
 
-        Http.Cookie cookie = new Http.Cookie();
-        cookie.name = "PLAY_LANG";
-        cookie.value = "x";//not found in cookie
+        Http.Cookie cookie = new Http.Cookie("PLAY_LANG", "x"); // not found in cookie
         req.cookies.put(cookie.name, cookie);
         req.headers.put("accept-language", new Http.Header("accept-language", "en"));
         Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
-        cookie = new Http.Cookie();
-        cookie.name = "PLAY_LANG";
-        cookie.value = "en";
+        cookie = new Http.Cookie("PLAY_LANG", "en");
         req.cookies.put(cookie.name, cookie);
         Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
-        cookie = new Http.Cookie();
-        cookie.name = "PLAY_LANG";
-        cookie.value = "en_q";
+        cookie = new Http.Cookie("PLAY_LANG", "en_q");
         req.cookies.put(cookie.name, cookie);
         Http.Request.setCurrent(req);
         Lang.current.set(null);
         assertLocale(new Locale("en"));
 
-        cookie = new Http.Cookie();
-        cookie.name = "PLAY_LANG";
-        cookie.value = "en_GB";
+        cookie = new Http.Cookie("PLAY_LANG", "en_GB");
         req.cookies.put(cookie.name, cookie);
         Http.Request.setCurrent(req);
         Lang.current.set(null);
@@ -158,7 +150,7 @@ public class LangTest {
       assertThat(Lang.getLocale()).isEqualTo(locale);
     }
 
-    public static Http.Request newRequest() {
+    private Http.Request newRequest() {
         return Http.Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
     }
 }

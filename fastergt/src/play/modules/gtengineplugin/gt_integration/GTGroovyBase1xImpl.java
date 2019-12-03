@@ -47,9 +47,9 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
 
     public static class ActionBridge extends GroovyObjectSupport {
 
-        String templateName;
-        String controller;
-        boolean absolute;
+        private final String templateName;
+        private String controller;
+        private boolean absolute;
 
         public ActionBridge(String templateName, String controllerPart, boolean absolute) {
             this.templateName = templateName;
@@ -75,8 +75,10 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
         @SuppressWarnings("unchecked")
         public Object invokeMethod(String name, Object param) {
                 try {
+                    Http.Request request = Http.Request.current();
+                    Http.Response response = Http.Response.current();
                     if (controller == null) {
-                        controller = Http.Request.current().controller;
+                        controller = request.controller;
                     }
                     String action = controller + "." + name;
                     if (action.endsWith(".call")) {
@@ -110,9 +112,9 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
                                 }
                             }
                         }
-                        Router.ActionDefinition def = Router.reverse(action, r);
+                        Router.ActionDefinition def = Router.reverse(action, r, request, response);
                         if (absolute) {
-                            def.absolute();
+                            def.absolute(request);
                         }
                         if (templateName.endsWith(".xml")) {
                             def.url = def.url.replace("&", "&amp;");

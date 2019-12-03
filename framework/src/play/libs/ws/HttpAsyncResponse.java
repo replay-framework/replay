@@ -7,16 +7,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An HTTP response wrapper
  */
 public class HttpAsyncResponse extends HttpResponse {
 
-    private Response response;
+    private final Response response;
 
     /**
      * You shouldn't have to create an HttpResponse yourself
@@ -55,12 +55,9 @@ public class HttpAsyncResponse extends HttpResponse {
 
     @Override
     public List<Http.Header> getHeaders() {
-        Map<String, List<String>> hdrs = response.getHeaders();
-        List<Http.Header> result = new ArrayList<>();
-        for (String key : hdrs.keySet()) {
-            result.add(new Http.Header(key, hdrs.get(key)));
-        }
-        return result;
+        return ((Map<String, List<String>>) response.getHeaders()).entrySet().stream()
+          .map(entry -> new Http.Header(entry.getKey(), entry.getValue()))
+          .collect(Collectors.toList());
     }
 
     @Override
