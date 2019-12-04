@@ -45,6 +45,17 @@ public class AuthenticityTokenPluginTest {
   }
 
   @Test
+  public void writesWarningInCaseOfDuplicateToken() throws NoSuchMethodException {
+    Http.Request request = new Http.Request();
+    request.method = "POST";
+    request.invokedMethod = SomeController.class.getMethod("withAuthenticityTokenAction");
+    request.params.put("authenticityToken", new String[] {"mega-unique-uuid", "mega-unique-uuid"});
+    session.put("___AT", "mega-unique-uuid");
+
+    plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null);
+  }
+
+  @Test
   public void checkForAuthenticityTokenCanBeSuppressedWithAnnotation() throws NoSuchMethodException {
     Http.Request request = new Http.Request();
     request.method = "POST";
@@ -74,6 +85,18 @@ public class AuthenticityTokenPluginTest {
     assertThatThrownBy(() -> plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
       .isInstanceOf(Forbidden.class)
       .hasMessage("Bad authenticity token");
+  }
+
+  @Test
+  public void postRequestWithMultipleAuthTokensShouldBeForbidden() throws NoSuchMethodException {
+    Http.Request request = new Http.Request();
+    request.method = "POST";
+    request.params.put("authenticityToken", new String[] {"uuid1", "uuid1", "uuid2"});
+    request.invokedMethod = SomeController.class.getMethod("withAuthenticityTokenAction");
+
+    assertThatThrownBy(() -> plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
+      .isInstanceOf(Forbidden.class)
+      .hasMessage("Multiple authenticity tokens");
   }
 
   private static class SomeController {
