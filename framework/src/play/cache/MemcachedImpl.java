@@ -1,6 +1,7 @@
 package play.cache;
 
 import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.transcoders.SerializingTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -13,6 +14,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Memcached implementation (using http://code.google.com/p/spymemcached/)
@@ -38,7 +41,7 @@ public class MemcachedImpl implements CacheImpl {
   @Override
   @Nullable
   public Object get(@Nonnull String key) {
-    Future<Object> future = client.asyncGet(key, new MDCAwareTranscoder(tc, mdcParameterName, MDC.get(mdcParameterName)));
+    Future<Object> future = client.asyncGet(key, transcoder());
     try {
       return future.get(1, TimeUnit.SECONDS);
     }
@@ -51,6 +54,12 @@ public class MemcachedImpl implements CacheImpl {
       future.cancel(true);
     }
     return null;
+  }
+
+  @Nonnull SerializingTranscoder transcoder() {
+    return isEmpty(mdcParameterName) ?
+      tc :
+      new MDCAwareTranscoder(tc, mdcParameterName, MDC.get(mdcParameterName));
   }
 
   @Override
