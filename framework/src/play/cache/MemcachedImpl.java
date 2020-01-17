@@ -1,14 +1,18 @@
 package play.cache;
 
 import net.spy.memcached.MemcachedClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Memcached implementation (using http://code.google.com/p/spymemcached/)
@@ -16,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * expiration is specified in seconds
  */
 public class MemcachedImpl implements CacheImpl {
+  private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
   private final MemcachedClient client;
   private final String mdcParameterName;
   private final MemcachedTranscoder tc = new MemcachedTranscoder();
@@ -37,8 +42,13 @@ public class MemcachedImpl implements CacheImpl {
     try {
       return future.get(1, TimeUnit.SECONDS);
     }
-    catch (Exception e) {
-      future.cancel(false);
+    catch (TimeoutException | InterruptedException e) {
+      logger.warn("Cache miss due to timeout. key={}, cause={}", key, e.toString());
+      future.cancel(true);
+    }
+    catch (ExecutionException e) {
+      logger.error("Cache miss due to error. key={}", key, e);
+      future.cancel(true);
     }
     return null;
   }
