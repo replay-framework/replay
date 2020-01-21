@@ -1,7 +1,6 @@
 package play.data.binding;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -48,7 +47,6 @@ public abstract class Binder {
     // TO DO: something a bit more dynamic? The As annotation allows you to inject your own binder
     static {
         supportedTypes.put(Date.class, new DateBinder());
-        supportedTypes.put(DateTime.class, new DateTimeBinder());
         supportedTypes.put(LocalDate.class, new LocalDateBinder());
         supportedTypes.put(LocalTime.class, new LocalTimeBinder());
         supportedTypes.put(LocalDateTime.class, new LocalDateTimeBinder());
