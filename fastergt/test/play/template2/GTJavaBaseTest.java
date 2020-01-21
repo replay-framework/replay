@@ -4,6 +4,8 @@ import org.junit.Test;
 import play.i18n.Messages;
 import play.template2.exceptions.GTTemplateRuntimeException;
 
+import java.util.Iterator;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,4 +37,27 @@ public class GTJavaBaseTest {
     assertThat(template.handleMessageTag(asList("payment.status.unknown", "<script>alert('angry hack')</script>")))
       .isEqualTo("Unknown status: &lt;script&gt;alert('angry hack')&lt;/script&gt;");
   }
+
+  @Test
+  public void convertToIterator_array() {
+    GTJavaBase template = new TestTemplate("/app/views/home.html") {};
+
+    Iterator it = template.convertToIterator(new int[] {1, 2, 3});
+    assertThat(it.next()).isEqualTo(1);
+    assertThat(it.next()).isEqualTo(2);
+    assertThat(it.next()).isEqualTo(3);
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  public void convertToIterator_enum() {
+    GTJavaBase template = new TestTemplate("/app/views/home.html") {};
+
+    Iterator it = template.convertToIterator(Gender.class);
+    assertThat(it.next()).isEqualTo(Gender.MALE);
+    assertThat(it.next()).isEqualTo(Gender.FEMALE);
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  private enum Gender {MALE, FEMALE}
 }

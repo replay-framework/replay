@@ -2,7 +2,6 @@ package play.template2;
 
 import groovy.lang.Binding;
 import groovy.lang.Script;
-import org.apache.commons.collections.iterators.ArrayIterator;
 import play.template2.exceptions.GTCompilationException;
 import play.template2.exceptions.GTRuntimeException;
 import play.template2.exceptions.GTTemplateNotFoundWithSourceInfo;
@@ -15,12 +14,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Formattable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public abstract class GTJavaBase extends GTRenderingResult {
