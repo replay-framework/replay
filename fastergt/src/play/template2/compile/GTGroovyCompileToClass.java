@@ -2,6 +2,7 @@ package play.template2.compile;
 
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.*;
+import org.codehaus.groovy.control.CompilationUnit.GroovyClassOperation;
 import org.codehaus.groovy.control.messages.Message;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
@@ -14,6 +15,7 @@ import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,13 +30,12 @@ public class GTGroovyCompileToClass {
             //optimizer = new GTOptimizerVisitor(this);
         }
 
-        public LinkedList[] getPhases() {
-            LinkedList[] phases;
+        public Collection<GroovyClassOperation>[] getPhases() {
             try {
                 Field phasesF = CompilationUnit.class.getDeclaredField("phaseOperations");
                 phasesF.setAccessible(true);
-                phases = (LinkedList[]) phasesF.get(this);
-                return phases;
+                //noinspection unchecked
+                return (Collection<GroovyClassOperation>[]) phasesF.get(this);
             } catch (Exception e) {
                 throw new RuntimeException("Not supposed to happen", e);
             }
@@ -48,12 +49,12 @@ public class GTGroovyCompileToClass {
             compilerConfiguration.setSourceEncoding("utf-8");
             GTCompilationUnit compilationUnit = new GTCompilationUnit(compilerConfiguration);
             compilationUnit.addSource(new SourceUnit("", groovySource, compilerConfiguration, classLoader, compilationUnit.getErrorCollector()));
-            List<CompilationUnit.GroovyClassOperation>[] phases = compilationUnit.getPhases();
+            Collection<GroovyClassOperation>[] phases = compilationUnit.getPhases();
 
-            LinkedList<CompilationUnit.GroovyClassOperation> output = new LinkedList<>();
+            LinkedList<GroovyClassOperation> output = new LinkedList<>();
             phases[Phases.OUTPUT] = output;
             final List<GroovyClass> groovyClassesForThisTemplate = new ArrayList<>();
-            output.add(new CompilationUnit.GroovyClassOperation() {
+            output.add(new GroovyClassOperation() {
                 @Override public void call(GroovyClass groovyClass) {
                     groovyClassesForThisTemplate.add(groovyClass);
                 }
