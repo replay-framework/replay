@@ -50,7 +50,9 @@ public class PrecompileTemplates {
         // will be precompiled by GTEnginePlugin
         return Optional.empty();
       }
-      if (file.getName().endsWith(".xls") || file.getName().endsWith(".js")) {
+      if (file.getName().endsWith(".xls") || file.getName().endsWith(".js") || file.getName().endsWith(".xml") ||
+        file.getName().endsWith(".txt") || file.getName().endsWith(".json") || file.getName().endsWith(".md") ||
+        file.getName().endsWith(".cer")) {
         // no need to precompile
         return Optional.of(dummyTemplate);
       }
