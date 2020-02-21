@@ -46,12 +46,13 @@ public class PrecompileTemplates {
     private final DummyTemplate dummyTemplate = new DummyTemplate();
 
     @Override public Optional<Template> loadTemplate(VirtualFile file) {
-      if (file.getName().endsWith(".html") || file.getName().endsWith(".tag")) {
+      if (file.getName().endsWith(".html") || file.getName().endsWith(".tag")
+        || file.getName().endsWith(".xml") || file.getName().endsWith(".json") || file.getName().endsWith(".txt")) {
         // will be precompiled by GTEnginePlugin
         return Optional.empty();
       }
-      if (file.getName().endsWith(".xls") || file.getName().endsWith(".js") || file.getName().endsWith(".xml") ||
-        file.getName().endsWith(".txt") || file.getName().endsWith(".json") || file.getName().endsWith(".md") ||
+      if (file.getName().endsWith(".xls") || file.getName().endsWith(".js") ||
+        file.getName().endsWith(".md") ||
         file.getName().endsWith(".cer")) {
         // no need to precompile
         return Optional.of(dummyTemplate);
