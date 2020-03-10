@@ -28,10 +28,10 @@ dependencies {
   compile('net.sf.ezmorph:ezmorph:1.0.6')
   compile('net.sf.jsr107cache:jsr107cache:1.1')
   compile('net.sf.oval:oval:1.90')
-  compile('org.codehaus.groovy:groovy:3.0.0')
-  compile('org.codehaus.groovy:groovy-dateutil:3.0.0')
-  compile('org.codehaus.groovy:groovy-datetime:3.0.0')
-  compile('org.codehaus.groovy:groovy-xml:3.0.0')
+  compile('org.codehaus.groovy:groovy:3.0.2')
+  compile('org.codehaus.groovy:groovy-dateutil:3.0.2')
+  compile('org.codehaus.groovy:groovy-datetime:3.0.2')
+  compile('org.codehaus.groovy:groovy-xml:3.0.2')
   compile('org.hibernate:hibernate-core:5.4.10.Final')
   compile('org.hibernate.common:hibernate-commons-annotations:5.1.0.Final')
   compile('org.hibernate:hibernate-validator:6.1.1.Final')
@@ -48,7 +48,7 @@ dependencies {
   compile('xmlpull:xmlpull:1.1.3.4d_b4_min')
 
   testCompile('junit:junit:4.13')
-  testCompile('org.mockito:mockito-core:3.2.4')
+  testCompile('org.mockito:mockito-core:3.3.0')
   testCompile('org.assertj:assertj-core:3.15.0')
 }
 
