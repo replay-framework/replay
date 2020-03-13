@@ -86,7 +86,7 @@ public class FlashStore {
   private void warnIfFlashIsGone(Scope.Flash flash, Http.Request request) {
     for (Map.Entry<String, String> entry : flash.data.entrySet()) {
       if (!flash.out.containsKey(entry.getKey()) && !flash.used.contains(entry.getKey())) {
-        logger.info("Unused flash param: {}={} in request {}", entry.getKey(), entry.getValue(), request.path);
+        logger.debug("Unused flash param: {}={} in request {}", entry.getKey(), entry.getValue(), request.path);
       }
     }
   }
