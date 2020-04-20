@@ -19,7 +19,6 @@ import static play.mvc.Scope.Session.TS_KEY;
  */
 public class CookieSessionStore implements SessionStore {
 
-    private final String COOKIE_EXPIRE = Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING);
     private final Signer signer = new Signer("session-");
 
     @Nonnull
@@ -28,8 +27,7 @@ public class CookieSessionStore implements SessionStore {
         try {
             Session session = new Session();
             Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_SESSION");
-            int duration = Time.parseDuration(COOKIE_EXPIRE);
-            long expiration = duration * 1000L;
+            long expiration = cookieLifetimeInSeconds() * 1000L;
 
             if (cookie != null && Play.started && cookie.value != null && !cookie.value.trim().isEmpty()) {
                 String value = cookie.value;
@@ -41,28 +39,23 @@ public class CookieSessionStore implements SessionStore {
                         CookieDataCodec.decode(session.data, data);
                     }
                 }
-                if (COOKIE_EXPIRE != null) {
-                    // Verify that the session contains a timestamp, and
-                    // that it's not expired
-                    if (!session.contains(TS_KEY)) {
-                        session = new Session();
-                    } else {
-                        if ((Long.parseLong(session.get(TS_KEY))) < System.currentTimeMillis()) {
-                            // Session expired
-                            session = new Session();
-                        }
-                    }
-                    session.put(TS_KEY, System.currentTimeMillis() + expiration);
+
+                // Verify that the session contains a timestamp, and
+                // that it's not expired
+                if (!session.contains(TS_KEY)) {
+                    session = new Session();
                 } else {
-                    // Just restored. Nothing changed. No cookie-expire.
-                    session.changed = false;
+                    if ((Long.parseLong(session.get(TS_KEY))) < System.currentTimeMillis()) {
+                        // Session expired
+                        session = new Session();
+                    }
                 }
+                session.put(TS_KEY, System.currentTimeMillis() + expiration);
+
             } else {
                 // no previous cookie to restore; but we may have to set the
                 // timestamp in the new cookie
-                if (COOKIE_EXPIRE != null) {
-                    session.put(TS_KEY, (System.currentTimeMillis() + expiration));
-                }
+                session.put(TS_KEY, (System.currentTimeMillis() + expiration));
             }
 
             return session;
@@ -77,11 +70,6 @@ public class CookieSessionStore implements SessionStore {
             // Some request like WebSocket don't have any response
             return;
         }
-        if (!session.changed && COOKIE_EXPIRE == null) {
-            // Nothing changed and no cookie-expire, consequently send
-            // nothing back.
-            return;
-        }
         if (session.isEmpty()) {
             // The session is empty: delete the cookie
             if (request.cookies.containsKey(COOKIE_PREFIX + "_SESSION")) {
@@ -92,15 +80,14 @@ public class CookieSessionStore implements SessionStore {
         try {
             String sessionData = CookieDataCodec.encode(session.data);
             String sign = signer.sign(sessionData);
-            if (COOKIE_EXPIRE == null) {
-                response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/", null, COOKIE_SECURE,
-                        SESSION_HTTPONLY);
-            } else {
-                response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/",
-                        Time.parseDuration(COOKIE_EXPIRE), COOKIE_SECURE, SESSION_HTTPONLY);
-            }
+            response.setCookie(COOKIE_PREFIX + "_SESSION", sign + "-" + sessionData, null, "/",
+                cookieLifetimeInSeconds(), COOKIE_SECURE, SESSION_HTTPONLY);
         } catch (Exception e) {
             throw new UnexpectedException("Session serializationProblem", e);
         }
+    }
+
+    private int cookieLifetimeInSeconds() {
+        return Time.parseDuration(Play.configuration.getProperty(Scope.COOKIE_EXPIRATION_SETTING));
     }
 }

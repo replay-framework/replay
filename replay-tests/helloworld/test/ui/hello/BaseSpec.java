@@ -17,7 +17,7 @@ public class BaseSpec {
       play.start();
 
       int port = findFreePort();
-      new Server(port).start();
+      new Server(play, port).start();
 
       Configuration.baseUrl = "http://localhost:" + port;
       Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);
