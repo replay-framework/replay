@@ -43,7 +43,7 @@ subprojects {
     compile("com.codeborne.replay:fastergt:${version}")
 
     testCompile('org.assertj:assertj-core:3.16.1')
-    testCompile('com.codeborne:selenide:5.11.1')
+    testCompile('com.codeborne:selenide:5.12.2')
     testCompile('junit:junit:4.13')
     testCompile('org.mockito:mockito-core:3.3.3')
   }
