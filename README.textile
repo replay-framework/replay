@@ -1,12 +1,12 @@
 h1. Welcome to RePlay framework
 
-!https://travis-ci.org/codeborne/replay.svg?branch=master!:https://travis-ci.org/codeborne/replay !https://badges.gitter.im/codeborne/replay.svg!
+!https://travis-ci.org/codeborne/replay.svg?branch=master!:https://travis-ci.org/codeborne/replay !https://badges.gitter.im/codeborne/replay.svg!:https://gitter.im/codeborne/replay
 
 h2. Introduction
 
 RePlay is a fork of Play1! framework made by Codeborne.
 
-This fork is significantly changed comparing to the original Play 1.5.0
+This fork is significantly changed (compared to the original Play 1.5.0).
 
 The goal of this fork is to make some breaking changes that would not be possible in the original Play framework without breaking backward compatibility:
 
