@@ -1,3 +1,3 @@
 rootProject.name = 'replay-tests'
 
-include 'helloworld', 'dependency-injection'
+include 'helloworld', 'helloworld-kotlin', 'dependency-injection'
