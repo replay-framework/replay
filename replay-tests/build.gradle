@@ -1,7 +1,7 @@
 subprojects {
   apply plugin: 'java'
 
-  version=project.properties['revision'] ?: '1.7-SNAPSHOT'
+  version=project.properties['revision'] ?: '1.7'
 
   task libsProd(type: Sync) {
     from configurations.compile

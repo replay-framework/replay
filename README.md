@@ -7,17 +7,17 @@
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
 The fork was needed to make some breaking changes that would otherwise not be possible.
-RePlay originally forked Play 1.5.0 but regularly pulls in improvements made to Play1 when applicable to RePlay.
+RePlay originally forked Play 1.5.0 but regularly pulls in improvements made to Play1 to RePlay (when applicable).
 
-Advantages of RePlay over Play1:
+#### Advantages of RePlay over Play1:
 
-* Uses the [Gradle build tool](https://gradle.org/) for dependency management and builds (no verdor code in your project's version control).
-* Removes all built-in Play modules (console, docviewer, grizzly, secure, testrunner).
+* Uses the [Gradle build tool](https://gradle.org/) for dependency management and builds (no vendor code in your project's version control).
+* Removes most of built-in Play modules (console, docviewer, grizzly, secure, testrunner) that we actually didn't use.
 * Improved compile times.
 * New, faster [Groovy templating engine](https://github.com/mbknor/gt-engine) (makes use of Groovy 3).
 * Allows using [Kotlin out of the box](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin).
 * Less magic (like enhancers and creative use of exceptions).
-* Follows OO best practices (removes all static fields/methods from Play itself).
+* Follows OO best practices (removes most of static fields/methods from Play itself).
 * More actively maintained.
 * Promotes [dependency injection](/codeborne/replay/tree/master/replay-tests/dependency-injection) for decoupling concerns (using Google's [Guice](https://github.com/google/guice) as a DI provider).
 
@@ -50,5 +50,8 @@ API docs for the RePlay `framework` package are generated with `./gradlew :frame
 
 ## Licence
 
-Play framework is distributed under [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0.html).
+RePlay framework is distributed under [MIT license](https://github.com/codeborne/replay/blob/master/LICENSE).
+
+The original Play1 framework is distributed under [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0.html).
+
 

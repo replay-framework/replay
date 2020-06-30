@@ -1,11 +1,9 @@
-import java.nio.file.*
-
 defaultTasks 'clean', 'test', 'install'
 
 subprojects {
 
   group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '1.7-SNAPSHOT'
+  version=project.properties['revision'] ?: '1.7'
 
   apply plugin: 'java'
   apply plugin: 'maven'
@@ -39,35 +37,10 @@ subprojects {
     include 'play/**/*'
     systemProperties['file.encoding'] = 'UTF-8'
   }
-
-  jar {
-    from sourceSets.main.allSource
-
-    manifest {
-      attributes(
-        "Implementation-Title": project.group + '.' + project.name,
-        "Implementation-Version": version,
-        "Implementation-Vendor": "Codeborne")
-    }
-  }
 }
 
-def fetchDependencies(destination, dependencies) {
-  delete destination
-  new File(destination).mkdirs()
-  dependencies.grep{it.name.endsWith(".jar")}.toSet().each {
-      Files.createSymbolicLink(Paths.get("${destination}/${it.name}"), Paths.get(it.path));
-  }
-}
-
-task deps {
-  doLast {
-    def compileDependencies = subprojects.collect{it.configurations.compile.collect{it}}.flatten()
-    def testDependencies = subprojects.collect{it.configurations.testRuntime.collect{it}}.flatten() - compileDependencies
-    fetchDependencies("${rootDir}/build/lib", compileDependencies)
-    fetchDependencies("${rootDir}/build/lib-test", testDependencies)
-  }
-}
+apply from: rootProject.file('gradle/dependencies.gradle')
+apply from: rootProject.file('gradle/deploy.gradle')
 
 task integrationTests(type: GradleBuild) {
   buildFile = 'replay-tests/build.gradle'
