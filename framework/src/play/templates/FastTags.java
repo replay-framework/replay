@@ -29,14 +29,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static play.utils.HTML.htmlEscape;
 
 public class FastTags {
-    private final play.utils.UuidGenerator uuidGenerator;
+    private final UuidGenerator uuidGenerator;
 
     public FastTags() {
-        this(new play.utils.UuidGenerator());
+        this(new UuidGenerator());
     }
 
     FastTags(UuidGenerator uuidGenerator) {
@@ -200,24 +202,35 @@ public class FastTags {
         field.put("flash", getArgValueFromFlash(template, _arg));
         field.put("error", Validation.error(_arg));
         field.put("errorClass", field.get("error") != null ? "hasError" : "");
-        String[] pieces = _arg.split("\\.");
-        Object obj = body.getProperty(pieces[0]);
-        if (obj != null) {
-            if (pieces.length > 1) {
-                try {
-                    String path = _arg.substring(_arg.indexOf(".") + 1);
-                    Object value = PropertyUtils.getProperty(obj, path);
-                    field.put("value", value);
-                } catch (Exception e) {
-                    // if there is a problem reading the field we dont set any
-                    // value
-                }
-            } else {
-                field.put("value", obj);
-            }
-        }
+        getValue(body, _arg).ifPresent(value -> field.put("value", value));
         body.setProperty("field", field);
         body.call();
+    }
+
+    Optional<Object> getValue(Closure body, String _arg) {
+        if (isEmpty(_arg)) {
+            // don't set any value if no arg given
+            return Optional.empty();
+        }
+
+        String[] pieces = _arg.split("\\.");
+        Object obj = body.getProperty(pieces[0]);
+        if (obj == null) {
+            return Optional.empty();
+        }
+
+        if (pieces.length <= 1) {
+            return Optional.of(obj);
+        }
+
+        try {
+            String path = _arg.substring(_arg.indexOf('.') + 1);
+            Object value = PropertyUtils.getProperty(obj, path);
+            return Optional.of(value);
+        } catch (Exception e) {
+            // if there is a problem reading the field we dont set any value
+            return Optional.empty();
+        }
     }
 
     @Nullable
@@ -257,13 +270,11 @@ public class FastTags {
             _authenticityToken(args, body, out, template, fromLine);
             out.print("</form>");
             out.print("<a href=\"javascript:document.getElementById('" + id + "').submit();\" " + serialize(args, "href") + ">");
-            out.print(JavaExtensions.toString(body));
-            out.print("</a>");
         } else {
             out.print("<a href=\"" + actionDef.url + "\" " + serialize(args, "href") + ">");
-            out.print(JavaExtensions.toString(body));
-            out.print("</a>");
         }
+        out.print(JavaExtensions.toString(body));
+        out.print("</a>");
     }
 
     public static void _ifErrors(Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
