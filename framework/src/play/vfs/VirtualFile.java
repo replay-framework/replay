@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -163,6 +164,10 @@ public class VirtualFile {
 
     public File getRealFile() {
         return realFile;
+    }
+
+    public URI getURI() {
+        return getRealFile().toURI();
     }
 
     public byte[] content() {

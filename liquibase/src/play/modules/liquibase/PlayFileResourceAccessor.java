@@ -1,40 +1,52 @@
 package play.modules.liquibase;
 
 import liquibase.resource.AbstractResourceAccessor;
+import liquibase.resource.InputStreamList;
 import play.Play;
 import play.vfs.VirtualFile;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toCollection;
 
 public class PlayFileResourceAccessor extends AbstractResourceAccessor {
-  public File findFile(String changeLogPath) {
+  File findFile(String changeLogPath) {
     VirtualFile virtualFile = findVirtualFile(changeLogPath);
     if (virtualFile == null) throw new IllegalArgumentException("Changelog file not found: app/" + changeLogPath);
     return virtualFile.getRealFile();
-  }
-
-  @Override public Set<InputStream> getResourcesAsStream(String path) {
-    VirtualFile virtualFile = findVirtualFile(path);
-    return virtualFile == null ? emptySet() : Set.of(virtualFile.inputstream());
   }
 
   private VirtualFile findVirtualFile(String path) {
     return Play.getVirtualFile("app/" + path);
   }
 
-  @Override protected void init() {
+  @Override public InputStreamList openStreams(String relativeTo, String streamPath) {
+    String path = getPath(relativeTo, streamPath);
+    VirtualFile virtualFile = findVirtualFile(path);
+    InputStreamList returnList = new InputStreamList();
+    if (virtualFile != null) {
+      returnList.add(virtualFile.getURI(), virtualFile.inputstream());
+    }
+    return returnList;
+  }
+
+  String getPath(String relativeTo, String streamPath) {
+    if (relativeTo == null) return streamPath;
+    if (relativeTo.endsWith("/")) return relativeTo + streamPath;
+    int index = relativeTo.lastIndexOf('/');
+    return index == -1 ? streamPath : relativeTo.substring(0, index + 1) + streamPath;
   }
 
   @Override
-  public Set<String> list(String relativeTo, String path, boolean includeFiles, boolean includeDirectories, boolean recursive) {
+  public SortedSet<String> list(String relativeTo, String path, boolean recursive, boolean includeFiles, boolean includeDirectories) {
     throw new UnsupportedOperationException(getClass().getName() + ".list");
   }
 
-  @Override public ClassLoader toClassLoader() {
-    throw new UnsupportedOperationException(getClass().getName() + ".toClassLoader");
+  @Override public SortedSet<String> describeLocations() {
+    return Play.roots.stream()
+      .map(vf -> vf.getRealFile().getAbsolutePath())
+      .collect(toCollection(TreeSet::new));
   }
 }

@@ -11,11 +11,17 @@ import play.utils.DummyUuidGenerator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class FastTagsTest {
   private final StringWriter out = new StringWriter();
@@ -26,6 +32,7 @@ public class FastTagsTest {
     }
   };
   private final FastTags tags = new FastTags(new DummyUuidGenerator("some-uuid"));
+  private final Closure body = mock(Closure.class);
 
   @Before
   public void setUp() {
@@ -206,5 +213,63 @@ public class FastTagsTest {
         "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n" +
         "\n" +
         "</form>", out.toString());
+  }
+
+  @Test
+  public void getValue_noArg() {
+    assertThat(tags.getValue(body, "")).isEmpty();
+    verifyNoMoreInteractions(body);
+  }
+
+  @Test
+  public void getValue_simpleArg() {
+    when(body.getProperty(anyString())).thenReturn("42.99");
+
+    assertThat(tags.getValue(body, "amount")).hasValue("42.99");
+
+    verify(body).getProperty("amount");
+    verifyNoMoreInteractions(body);
+  }
+
+  @Test
+  public void getValue_simpleArg_butMissingProperty() {
+    when(body.getProperty(anyString())).thenReturn(null);
+
+    assertThat(tags.getValue(body, "width")).isEmpty();
+
+    verify(body).getProperty("width");
+    verifyNoMoreInteractions(body);
+  }
+
+  @Test
+  public void getValue_argWithDots() {
+    when(body.getProperty(anyString())).thenReturn(new Payment(new BigDecimal("42.99")));
+
+    assertThat(tags.getValue(body, "payment.amount")).hasValue(new BigDecimal("42.99"));
+
+    verify(body).getProperty("payment");
+    verifyNoMoreInteractions(body);
+  }
+
+  @Test
+  public void getValue_argWithDots_butMissingProperty() {
+    when(body.getProperty(anyString())).thenReturn(new Payment(new BigDecimal("42.99")));
+
+    assertThat(tags.getValue(body, "payment.height")).isEmpty();
+
+    verify(body).getProperty("payment");
+    verifyNoMoreInteractions(body);
+  }
+
+  public static final class Payment {
+    private final BigDecimal amount;
+
+    private Payment(BigDecimal amount) {
+      this.amount = amount;
+    }
+
+    public BigDecimal getAmount() {
+      return amount;
+    }
   }
 }

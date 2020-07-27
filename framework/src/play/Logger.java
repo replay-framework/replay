@@ -1,8 +1,8 @@
 package play;
 
-import org.apache.log4j.Log4jJava9Support;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.net.URL;
 
@@ -24,6 +24,7 @@ public class Logger {
             PropertyConfigurator.configure(log4jConf);
         }
 
-        Log4jJava9Support.initMDC();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 }
