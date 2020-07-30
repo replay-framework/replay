@@ -3,7 +3,7 @@ defaultTasks 'clean', 'test', 'install'
 subprojects {
 
   group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '1.8.1'
+  version=project.properties['revision'] ?: '1.8.2'
 
   apply plugin: 'java'
   apply plugin: 'maven'
