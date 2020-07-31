@@ -48,7 +48,7 @@ These steps describe how to do that with IntelliJ IDEA and the [criminals exampl
   * Name: *put the name of your application here*
   * Main class: `appname.Application` (replace `appname` with the package name that matches your application name in `app/`)
   * Use classpath of module: `appname.main`
-  * JRE: select one you prefer (8+ should work), e.g. `11`
+  * JRE: select one you prefer (Java 11 is a minimum requirement), e.g. `11`
 
 Now a run configuration with the name of your app shows up in the top-right of the screen.
 You can press the "Run" button (with the green play icon) to start the application from the IDE.
