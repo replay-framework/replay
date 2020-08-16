@@ -1,7 +1,7 @@
 subprojects {
   apply plugin: 'java'
 
-  version=project.properties['revision'] ?: '1.8.2'
+  version=project.properties['revision'] ?: '1.8.3'
 
   task libsProd(type: Sync) {
     from configurations.compile
@@ -43,9 +43,9 @@ subprojects {
     compile("com.codeborne.replay:fastergt:${version}")
 
     testCompile('org.assertj:assertj-core:3.16.1')
-    testCompile('com.codeborne:selenide:5.13.0')
+    testCompile('com.codeborne:selenide:5.14.0')
     testCompile('junit:junit:4.13')
-    testCompile('org.mockito:mockito-core:3.4.6')
+    testCompile('org.mockito:mockito-core:3.5.0')
   }
 
   test {
