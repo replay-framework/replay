@@ -149,7 +149,7 @@ public class Mail {
             if (authenticator != null) {
                 props.setProperty("mail.smtp.auth", "true");
                 try {
-                    session = Session.getInstance(props, (Authenticator) Class.forName(authenticator).newInstance());
+                    session = Session.getInstance(props, (Authenticator) Class.forName(authenticator).getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     logger.error("Cannot instantiate custom SMTP authenticator ({})", authenticator, e);
                 }

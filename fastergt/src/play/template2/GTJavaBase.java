@@ -127,7 +127,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
             this.binding.setProperty("java_class", this);
             // must init our groovy script
 
-            groovyScript = groovyClass.newInstance();
+            groovyScript = groovyClass.getDeclaredConstructor().newInstance();
             groovyScript.setBinding( binding );
 
 

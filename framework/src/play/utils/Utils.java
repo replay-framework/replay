@@ -1,18 +1,21 @@
 package play.utils;
 
 import play.Play;
-import play.vfs.VirtualFile;
 
 import java.lang.annotation.Annotation;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
-/**
- * Generic utils
- */
 public class Utils {
 
     public static <T> String join(Iterable<T> values, String separator) {
@@ -36,16 +39,6 @@ public class Utils {
 
     public static String join(Annotation[] values, String separator) {
         return (values == null) ? "" : join(Arrays.asList(values), separator);
-    }
-
-    public static String open(String file, Integer line) {
-        if (Play.configuration.containsKey("play.editor")) {
-            VirtualFile vfile = VirtualFile.fromRelativePath(file);
-            if (vfile != null) {
-                return String.format(Play.configuration.getProperty("play.editor"), vfile.getRealFile().getAbsolutePath(), line);
-            }
-        }
-        return null;
     }
 
     /**
@@ -76,7 +69,7 @@ public class Utils {
         public static <K, V> Map<K, V> filterMap(Map<K, V> map, String keypattern) {
             try {
                 @SuppressWarnings("unchecked")
-                Map<K, V> filtered = map.getClass().newInstance();
+                Map<K, V> filtered = map.getClass().getDeclaredConstructor().newInstance();
                 for (Map.Entry<K, V> entry : map.entrySet()) {
                     K key = entry.getKey();
                     if (key.toString().matches(keypattern)) {
@@ -119,10 +112,11 @@ public class Utils {
 
         public Date parse(String source) throws ParseException {
             for (SimpleDateFormat dateFormat : formats) {
-                if (source.length() == dateFormat.toPattern().replace("\'", "").length()) {
+                if (source.length() == dateFormat.toPattern().replace("'", "").length()) {
                     try {
                         return dateFormat.parse(source);
-                    } catch (ParseException ex) {
+                    }
+                    catch (ParseException ignore) {
                     }
                 }
             }

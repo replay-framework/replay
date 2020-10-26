@@ -43,10 +43,10 @@ public class GenericModel extends JPABase {
     @Nonnull
     public static <T extends JPABase> T create(Http.Request request, Scope.Session session, ParamNode rootParamNode, String name, Class<?> type, Annotation[] annotations) {
         try {
-            Constructor c = type.getDeclaredConstructor();
+            Constructor<?> c = type.getDeclaredConstructor();
             c.setAccessible(true);
             Object model = c.newInstance();
-            return (T) edit(request, session, rootParamNode, name, model, annotations);
+            return edit(request, session, rootParamNode, name, model, annotations);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
