@@ -2,5 +2,5 @@ dependencies {
   compile project(':framework')
   testCompile project(':framework').sourceSets.test.compileClasspath
 
-  compile('org.liquibase:liquibase-core:4.2.2') {transitive = false}
+  compile('org.liquibase:liquibase-core:4.4.0') {transitive = false}
 }

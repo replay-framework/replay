@@ -1,7 +1,7 @@
 subprojects {
   apply plugin: 'java'
 
-  version=project.properties['revision'] ?: '1.8.7'
+  version=project.properties['revision'] ?: '1.8.8'
 
   task libsProd(type: Sync) {
     from configurations.compile
@@ -16,7 +16,7 @@ subprojects {
   compileJava.dependsOn libsProd, libsTest
 
   repositories {
-    jcenter()
+    mavenCentral()
     mavenLocal()
   }
 
@@ -42,10 +42,10 @@ subprojects {
     compile("com.codeborne.replay:framework:${version}")
     compile("com.codeborne.replay:fastergt:${version}")
 
-    testCompile('org.assertj:assertj-core:3.18.1')
-    testCompile('com.codeborne:selenide:5.17.3')
-    testCompile('junit:junit:4.13.1')
-    testCompile('org.mockito:mockito-core:3.7.0')
+    testCompile('org.assertj:assertj-core:3.20.2')
+    testCompile('com.codeborne:selenide:5.22.1')
+    testCompile('junit:junit:4.13.2')
+    testCompile('org.mockito:mockito-core:3.11.2')
   }
 
   test {
