@@ -25,8 +25,8 @@ dependencies {
 }
 
 repositories {
-  maven {
-    url uri('https://dl.bintray.com/allcolor/alc-web')
+  flatDir {
+    dirs 'dependencies'
   }
 }
 
