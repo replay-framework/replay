@@ -1,7 +1,5 @@
 # Welcome to RePlay framework
 
-[![travis-ci](https://travis-ci.org/codeborne/replay.svg?branch=master)](https://travis-ci.org/codeborne/replay) [![gitter chat](https://badges.gitter.im/codeborne/replay.svg)](https://gitter.im/codeborne/replay)
-
 
 ## Introduction
 
