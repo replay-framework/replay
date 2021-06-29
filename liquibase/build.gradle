@@ -4,3 +4,5 @@ dependencies {
 
   compile('org.liquibase:liquibase-core:4.4.0') {transitive = false}
 }
+
+apply from: rootProject.file('gradle/deploy.gradle')
