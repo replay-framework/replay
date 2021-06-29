@@ -2,8 +2,10 @@ plugins {
   id 'org.jetbrains.kotlin.jvm' version '1.5.10'
 }
 dependencies {
-  compile('com.google.guava:guava:30.1.1-jre') {transitive = false}
+  implementation('com.google.guava:guava:30.1.1-jre') {transitive = false}
   implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  implementation project(':pdf')
+  testImplementation "com.codeborne:pdf-test:1.6.1"
 }
 repositories {
   mavenCentral()
