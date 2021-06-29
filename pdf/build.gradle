@@ -52,3 +52,5 @@ jar.dependsOn extractThirdPartyJars
 jar {
   from sourceSets.main.output + "$buildDir/thirdParty/"
 }
+
+apply from: rootProject.file('gradle/deploy.gradle')

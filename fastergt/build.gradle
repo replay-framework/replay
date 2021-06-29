@@ -3,3 +3,5 @@ dependencies {
   compile('org.eclipse.jdt:org.eclipse.jdt.core:3.26.0') {transitive = false}
   testCompile project(':framework').sourceSets.test.compileClasspath
 }
+
+apply from: rootProject.file('gradle/deploy.gradle')

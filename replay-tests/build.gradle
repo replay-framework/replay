@@ -1,32 +1,4 @@
 subprojects {
-  apply plugin: 'java'
-
-  version=project.properties['revision'] ?: '1.8.8'
-
-  task libsProd(type: Sync) {
-    from configurations.compile
-    into "build/lib"
-  }
-
-  task libsTest(type: Sync) {
-    from configurations.testRuntime
-    into "build/lib-test"
-  }
-
-  compileJava.dependsOn libsProd, libsTest
-
-  repositories {
-    mavenCentral()
-    mavenLocal()
-  }
-
-  compileJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
-    options.fork = true
-    options.compilerArgs << '-parameters'
-    options.encoding = 'UTF-8'
-  }
-
   sourceSets {
     main {
       java {srcDir "app"}
@@ -39,8 +11,8 @@ subprojects {
   }
 
   dependencies {
-    compile("com.codeborne.replay:framework:${version}")
-    compile("com.codeborne.replay:fastergt:${version}")
+    compile project(':framework')
+    compile project(':fastergt')
 
     testCompile('org.assertj:assertj-core:3.20.2')
     testCompile('com.codeborne:selenide:5.22.1')
@@ -55,11 +27,5 @@ subprojects {
   task uitest(type: Test) {
     include 'ui/**/*'
     systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
-  }
-
-  tasks.withType(Test).all { testTask ->
-    testTask.systemProperties['file.encoding'] = 'UTF-8'
-    testTask.testLogging {exceptionFormat = 'full'}
-    testTask.outputs.upToDateWhen { false }
   }
 }

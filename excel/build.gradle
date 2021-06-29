@@ -11,3 +11,5 @@ dependencies {
   compile('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
   compile('commons-digester:commons-digester:2.1') {transitive = false}
 }
+
+apply from: rootProject.file('gradle/deploy.gradle')

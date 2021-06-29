@@ -21,4 +21,4 @@ install: true
 
 script:
 - ./gradlew --no-daemon --console=plain -i
-- ./gradlew integrationTests --no-daemon --console=plain -i
+- ./gradlew uitest --no-daemon --console=plain -i
