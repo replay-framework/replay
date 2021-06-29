@@ -1,1 +1,2 @@
 GET    /          HelloWorld.hello
+GET    /pdf       HelloWorld.helloPdf
