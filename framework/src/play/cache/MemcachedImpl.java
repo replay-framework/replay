@@ -46,14 +46,34 @@ public class MemcachedImpl implements CacheImpl {
       return future.get(1, TimeUnit.SECONDS);
     }
     catch (TimeoutException | InterruptedException e) {
-      logger.warn("Cache miss due to timeout. key={}, cause={}", key, e.toString());
+      logger.warn("Cache miss due to timeout. key={}, cause={}, connection={}, connectionStatus={}",
+        key, e, getConnectionDescription(), getConnectionStatus());
       future.cancel(true);
     }
     catch (ExecutionException e) {
-      logger.error("Cache miss due to error. key={}", key, e);
+      logger.error("Cache miss due to error. key={}, connection={}, connectionStatus={}",
+        key, getConnectionDescription(), getConnectionStatus(), e);
       future.cancel(true);
     }
     return null;
+  }
+
+  private String getConnectionDescription() {
+    try {
+      return client.getConnection().connectionsStatus();
+    }
+    catch (RuntimeException e) {
+      return "Failed to get connection details: " + e;
+    }
+  }
+
+  private String getConnectionStatus() {
+    try {
+      return client.getConnection().connectionsStatus();
+    }
+    catch (RuntimeException e) {
+      return "Failed to check connection status: " + e;
+    }
   }
 
   @Nonnull SerializingTranscoder transcoder() {

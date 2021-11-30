@@ -1,8 +1,12 @@
 package play.utils;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
 /**
@@ -75,43 +79,6 @@ public class Properties extends HashMap<String, String> {
         wr.close();
     }
 
-    public boolean getBoolean(String key) throws IllegalArgumentException {
-        String s = get(key);
-        if (s == null || "".equals(s)) {
-            throw new IllegalArgumentException("Setting must be an boolean (values:true/false/yes/no/on/off) : " + key);
-        }
-        s = s.trim().toLowerCase();
-        return "true".equals(s) || "on".equals(s) || "yes".equals(s);
-    }
-
-    public boolean getBoolean(String key, boolean defval) {
-        String s = get(key);
-        if (s == null || "".equals(s)) {
-            return defval;
-        }
-        s = s.trim().toLowerCase();
-        return "true".equals(s) || "on".equals(s) || "yes".equals(s);
-    }
-
-    public Object getClassInstance(String key) throws IllegalArgumentException {
-        String s = get(key);
-        if (s == null || "".equals(s)) {
-            throw new IllegalArgumentException("Setting " + key + " must be a valid classname  : " + key);
-        }
-        try {
-            return Class.forName(s).newInstance();
-        } catch (ClassNotFoundException nfe) {
-            throw new IllegalArgumentException(s + ": invalid class name for key " + key, nfe);
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new IllegalArgumentException(s + ": class could not be reflected " + s, e);
-        }
-    }
-
-    public Object getClassInstance(String key, Object defaultinstance)
-            throws IllegalArgumentException {
-        return (containsKey(key) ? getClassInstance(key) : defaultinstance);
-    }
-
     public double getDouble(String key) throws IllegalArgumentException {
         String s = get(key);
         try {
@@ -121,10 +88,10 @@ public class Properties extends HashMap<String, String> {
         }
     }
 
-    public double getDouble(String key, long defval) throws IllegalArgumentException {
+    public double getDouble(String key, long defaultValue) throws IllegalArgumentException {
         String s = get(key);
         if (s == null) {
-            return defval;
+            return defaultValue;
         }
         try {
             return Double.parseDouble(s);
@@ -137,31 +104,6 @@ public class Properties extends HashMap<String, String> {
         put(key, Double.toString(val));
     }
 
-    public float getFloat(String key) throws IllegalArgumentException {
-        String s = get(key);
-        try {
-            return Float.parseFloat(s);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Property must be an float value :" + key, e);
-        }
-    }
-
-    public float getFloat(String key, float defval) throws IllegalArgumentException {
-        String s = get(key);
-        if (s == null) {
-            return defval;
-        }
-        try {
-            return Float.parseFloat(s);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Property must be an float value :" + key, e);
-        }
-    }
-
-    public void setFloat(String key, float val) {
-        put(key, Float.toString(val));
-    }
-
     public int getInt(String key) throws IllegalArgumentException {
         String s = get(key);
         try {
@@ -171,10 +113,10 @@ public class Properties extends HashMap<String, String> {
         }
     }
 
-    public int getInt(String key, int defval) throws IllegalArgumentException {
+    public int getInt(String key, int defaultValue) throws IllegalArgumentException {
         String s = get(key);
         if (s == null) {
-            return defval;
+            return defaultValue;
         }
         try {
             return Integer.parseInt(s);
@@ -187,36 +129,7 @@ public class Properties extends HashMap<String, String> {
         put(key, Integer.toString(val));
     }
 
-    public long getLong(String key) throws IllegalArgumentException {
-        String s = get(key);
-        try {
-            return Long.parseLong(s);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Property must be an long value :" + key, e);
-        }
-    }
-
-    public long getLong(String key, long defval) throws IllegalArgumentException {
-        String s = get(key);
-        if (s == null) {
-            return defval;
-        }
-        try {
-            return Long.parseLong(s);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Property must be an long value :" + key, e);
-        }
-    }
-
     public void setLong(String key, long val) {
         put(key, Long.toString(val));
-    }
-
-    public URL getURL(String key) throws IllegalArgumentException {
-        try {
-            return new URL(get(key));
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Property " + key + " must be a valid URL (" + get(key) + ")", e);
-        }
     }
 }

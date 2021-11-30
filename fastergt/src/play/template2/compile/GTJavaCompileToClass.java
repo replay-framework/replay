@@ -214,7 +214,8 @@ public class GTJavaCompileToClass {
                 }
             }
 
-            @Override public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+            @Override
+            public boolean isPackage(char[][] parentPackageName, char[] packageName) {
                 // Rebuild something usable
                 StringBuilder sb = new StringBuilder();
                 if (parentPackageName != null) {
@@ -223,30 +224,46 @@ public class GTJavaCompileToClass {
                         sb.append(".");
                     }
                 }
-                sb.append(new String(packageName));
+
+                String child = new String(packageName);
+                sb.append(".");
+                sb.append(child);
                 String name = sb.toString();
-                if (packagesCache.containsKey(name)) {
-                    return packagesCache.get(name);
+
+                boolean isPackage;
+
+                // Currently there is no complete package dictionary so a couple of simple
+                // checks hopefully suffices.
+                if (Character.isUpperCase(child.charAt(0))) {
+                    // Typically only a class begins with a capital letter.
+                    isPackage = false;
+                }
+                else if (packagesCache.containsKey(name)) {
+                    // Check the cache if this was a class identified earlier.
+                    isPackage = packagesCache.get(name);
+                }
+                else {
+                    // Does there exist a class with this name?
+                    boolean isClass = false;
+                    try {
+                        parentClassLoader.loadClass(name);
+                        isClass = true;
+                    }
+                    catch (Exception e) {
+                        // nop
+                    }
+
+                    isPackage = !isClass;
+                    packagesCache.put(name, isPackage);
                 }
 
-                // does there exist a class with this name?
-                boolean isClass = false;
-                try {
-                    parentClassLoader.loadClass(name);
-                    isClass = true;
-                } catch (Exception e) {
-                    // nop
-                }
-
-                boolean isPackage = !isClass;
-                packagesCache.put(name, isPackage);
                 return isPackage;
             }
 
-            @Override public void cleanup() {
+            @Override
+            public void cleanup() {
             }
         };
-
 
         MyICompilerRequestor compilerRequestor = new MyICompilerRequestor();
 

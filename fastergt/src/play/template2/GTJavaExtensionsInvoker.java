@@ -198,7 +198,7 @@ public abstract class GTJavaExtensionsInvoker {
             if ( object instanceof Class ) {
                 // try to create an instance of the class
                 try {
-                    Object instance = ((Class)object).newInstance();
+                    Object instance = ((Class)object).getDeclaredConstructor().newInstance();
                     mm = InvokerHelper.getMetaClass(instance).pickMethod(methodName, argsTypes);
                     if ( mm != null ) {
                         // found it

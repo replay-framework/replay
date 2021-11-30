@@ -19,9 +19,9 @@ public class GTFastTagResolver1x implements GTFastTagResolver {
                 fastTagClasses = new ArrayList<>();
                 for (Class<? extends GTFastTag> appClass : Play.classes.getAssignableClasses(GTFastTag.class) ) {
                     try {
-                        fastTagClasses.add(appClass.newInstance());
+                        fastTagClasses.add(appClass.getDeclaredConstructor().newInstance());
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Failed to instantiate class " + appClass.getName(), e);
                     }
                 }
             }

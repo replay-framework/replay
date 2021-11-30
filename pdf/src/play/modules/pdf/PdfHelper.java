@@ -18,6 +18,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
+
 class PdfHelper {
   protected static IHtmlToPdfTransformer transformer;
 
@@ -67,7 +70,7 @@ class PdfHelper {
   void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties,
                  OutputStream out) throws UnsupportedEncodingException, CConvertException {
     IHtmlToPdfTransformer.PageSize pageSize = doc.options != null ? doc.options.pageSize : IHtmlToPdfTransformer.A4P;
-    getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes("UTF-8")),
+    getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
       uri, pageSize, doc.getHeaderFooterList(),
       properties, out);
   }
@@ -75,7 +78,7 @@ class PdfHelper {
   private synchronized IHtmlToPdfTransformer getTransformer() {
     if (transformer == null) {
       try {
-        transformer = (IHtmlToPdfTransformer) Class.forName(IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER).newInstance();
+        transformer = (IHtmlToPdfTransformer) Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
       }
       catch (Exception e) {
         throw new RuntimeException("Exception initializing pdf module", e);
