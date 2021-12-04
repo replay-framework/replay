@@ -106,7 +106,7 @@ The RePlay project comes with the following plugins:
 * `play.i18n.MessagesPlugin` 🟊 — The internationalization system for UI strings.
 * `play.jobs.JobsPlugin` 🟊 — Simple cron-style or out-of-request-cycle jobs runner.
 * `play.libs.WS` 🟊 — Simple HTTP client (to make webservices requests).
-* `play.modules.excel.Plugins` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library). In Play1 this is available as a community plugin.
+* `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library). In Play1 this is available as a community plugin.
 * `play.modules.gtengineplugin.GTEnginePlugin` 🟊🟊 — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
 * `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occured and includes them in the status report.
 * `play.plugins.PlayStatusPlugin` 🟊 — Installs the authenticated `/@status` endpoint.
@@ -135,7 +135,15 @@ The following list breaks down the porting effort into tasks:
 * Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the [RePlay example project](https://github.com/asolntsev/criminals/tree/master/app/criminals) for inspiration). 
 * Port the controller classes over to RePlay. This is likely the biggest task of the porting effort and cannot be performed from your Play1 application like some other porting tasks.
-  * Make controllers methods (actions) non-static.
+  * Make all controller classes action methods (the ones pointed at by `conf/routes`) non-static. You may need to remove the `static` keyword from some non-action methods as well.
+  * Make all controller classes action methods return `play.mvc.Result` instead of `void` (as RePlay does abuse exceptions for non-exceptional control flow).
+  * `renderJson(...);` becomes `return new RenderJson(...);`.
+  * `render(...);` becomes `return View(...);`, with slightly different arguments e.g.:
+    * `render(token);` becomes `return new View("path/to/ControllerName/template.html", Map.of("token", token));`  
+  * Triggering **redirects** using the bytecode mingled Play1 idiom `Controller.actionMethod(...);` or just `actionMethod()` (in the same class) becomes `return Redirect(...);` where the *path* is provided as first argument.
+  * `Http.Request.current()` becomes `request` (as in Play1 many things are static that are not in RePlay).
+  * `notFoundIfNull(token);` becomes `if (token == null) return new NotFound("Token missing");`.
+  * Methods annotated with `@Before` and `@After` also return `Result`, and should return `null` to signify continuation (especially in case of `@Before`).
   * Since `play.result.Result` no longer extends `Exception`, your controllers should return `Result` instead of throwing it. In Play1 the controller methods that trigger the request's response (like `render(...)` and `forbidden()`) throw an exception to ensure the rest of the method will not be executed. In RePlay this is considered abuse of the exception system, and the good old `return` statement is used to achieve the same. The following changes to your controller classes are required:
     * TODO: explain how to deal with redirects, returning `Result` (or `null`), etc.
   * **TIP**: Start by moving your controller classes to an `unported/` folder, and copy them one-by-one back to `controller/` while porting them.
