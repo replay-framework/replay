@@ -1,5 +1,6 @@
 package play;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.LoggerFactory;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 public class PropertiesConfLoader implements ConfLoader {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PropertiesConfLoader.class);
     private final Pattern overrideKeyPattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
+    private final Pattern envVarInterpolationPattern = Pattern.compile("\\$\\{([^}]+)}");
 
     @Override public Properties readConfiguration(String playId) {
         return readOneConfigurationFile(playId, "application.conf");
@@ -39,11 +41,40 @@ public class PropertiesConfLoader implements ConfLoader {
         }
         propsFromFile = resolvePlayIdOverrides(propsFromFile, playId, inheritedId);
 
+        resolveEnvironmentVariables(propsFromFile, conf); // the ${...} interpolation syntax
+
         resolveIncludes(propsFromFile, playId, inheritedId, confs);
 
         return propsFromFile;
     }
 
+    @VisibleForTesting
+    void resolveEnvironmentVariables(Properties propsFromFile, final VirtualFile conf) {
+        for (Object key : propsFromFile.keySet()) {
+            String value = propsFromFile.getProperty(key.toString());
+            Matcher matcher = envVarInterpolationPattern.matcher(value);
+            StringBuilder newValue = new StringBuilder(100);
+            while (matcher.find()) {
+                String envVarKey = matcher.group(1);
+                String envVarValue = getEnvVar(envVarKey);
+                if (envVarValue == null) {
+                    logger.warn("Cannot replace {} in {} ({}={})",
+                        envVarKey, conf == null ? "null" : conf.relativePath(), key, value);
+                    continue;
+                }
+                matcher.appendReplacement(newValue, envVarValue.replaceAll("\\\\", "\\\\\\\\"));
+            }
+            matcher.appendTail(newValue);
+            propsFromFile.setProperty(key.toString(), newValue.toString());
+        }
+    }
+
+    @VisibleForTesting
+    String getEnvVar(final String envVarKey) {
+        return System.getenv(envVarKey);
+    }
+
+    @VisibleForTesting
     Properties resolvePlayIdOverrides(Properties propsFromFile, String playId, String inheritedId) {
         Properties newConfiguration = new OrderSafeProperties();
 
