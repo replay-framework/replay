@@ -1,24 +1,23 @@
-# Welcome to RePlay framework
-
-
-## Introduction
+# The RePlay framework
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
-The fork was needed to make some breaking changes (detailed below) that would otherwise not be possible.
+Forking was needed to make some breaking changes (detailed below) that would otherwise not be possible.
 
 RePlay originally forked Play 1.5.0, applicable improvements made in the Play1 project are regularly copied into RePlay.
 
 
 #### Main differences between RePlay and Play1
 
-* It uses the [Gradle build tool](https://gradle.org/) for dependency management and builds (no vendor code in the projects version control, no need for Ivy2 and Python scripts to manage dependencies).
+* It uses the [Gradle build tool](https://gradle.org) for dependency management and builds (better incremental builds, no vendor code in the framework project's version control, no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies).
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) that were not used at Codeborne.
-* Improved compile times, mostly by avoiding reliance on [JBoss Javassist](https://www.javassist.org) for bytecode manipulating *enhancers*.
-* Allows using [Kotlin out of the box](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin).
-* Less magic (like *enhancers* and creative use of exceptions for redirecting/responding/returning from controller methods).
-* Follows OO best practices (removes most of static fields/methods from Play itself).
+* Improved compile times, mostly by avoiding reliance on [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers".
+* Support for [Kotlin out of the box](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin) (impossible in Play1 due to runtime bytecode manipulation).
+* Less magic (like "enhancers" and creative use of exceptions for redirecting/responding/returning from controller methods).
+* Follows OO best practices: no need for using static fields/methods throughout your application code like in Play1.
 * More actively maintained.
 * Promotes [dependency injection](/codeborne/replay/tree/master/replay-tests/dependency-injection) for decoupling concerns (using Google's [Guice](https://github.com/google/guice) as a DI provider).
+* More modular: where possible functionality has been refactored into plugins (more on that below).
+* Much improved development flow by greatly improved build and start-up times (due to Gradle and lack of runtime bytecode manipulation).
 
 
 ## Getting started
@@ -28,12 +27,14 @@ Unlike with Play1, RePlay does not make use of the `play` command line tool (wri
 Therefore, there `play new` scaffolding is not available. It is advised to simply start with RePlay's [up-to-date demo application](https://github.com/asolntsev/criminals), and work from there.
 The projects in RePLay's `replay-tests/` folder also show how to do certain things in RePlay (like the use of Kotlin and dependency injection with Guice).
 
+**NOTE**: Due to its small community, RePlay is not likely the best choice for a new project. Same holds true for Play1 and even Play2. RePlay primarily caters to Play1 codebases. It provides a simpler, more standard framework with greatly improved developer ergonomics.
+
 
 ## Documentation
 
-For a large part the [documentation of Play1](https://www.playframework.com/documentation/1.5.x/home) may be used as a reference. It is important te keep the main differences between Play1 and RePlay in mind, to know what parts of Play1's documentation to ignore.
+For a large part the [documentation of Play1](https://www.playframework.com/documentation/1.5.x/home) may be used as a reference. Keep the main differences between Play1 and RePlay (outlined above) in mind, to know what parts of Play1's documentation to ignore.
 
-API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder.
+API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder. The [javadoc.io](https://javadoc.io) project provides online access to the javadocs for RePlay's [framework](https://javadoc.io/doc/com.codeborne.replay/framework), [fastergt](https://javadoc.io/doc/com.codeborne.replay/fastergt), [guice](https://javadoc.io/doc/com.codeborne.replay/guice), [excel](https://javadoc.io/doc/com.codeborne.replay/excel), [pdf](https://javadoc.io/doc/com.codeborne.replay/pdf) and [liquibase](https://javadoc.io/doc/com.codeborne.replay/liquibase) packages.
 
 
 ## Development flow (auto-compilation and hot-swapping)
@@ -67,11 +68,11 @@ If hot-swapping failed for some reason, you will see a notification in IDEA afte
 
 The `./gradlew jar` command produces the `build/libs/appname.jar` file.
 
-The following should start your application from the command line:
+The following should start your application from the command line (possibly adding additional flags):
 
     java -cp "build/lib/*:build/libs/*:build/classes/java/main" appname.Application
 
-The classpath string (after `-cp`) contains three parts:
+Replace `appname` with the name of the package your `Application` class resides in. The classpath string (after `-cp`) contains three parts:
 
 1. The first bit (`build/lib/*`) points to the dependencies of the project as installed by Gradle.
 2. The second bit (`build/libs/*`) points the application JAR file as build Gradle.
@@ -87,23 +88,67 @@ Add this flag `--add-opens java.base/java.lang=ALL-UNNAMED` to reduce "illegal r
 The "illegal reflective access" warnings from `netty` are harder to fix: RePlay should upgrade it's `netty` dependency from `3.10.6.Final` to `io.netty:netty-all:4.1.43.Final` or greater.
 
 
+## Plugins
+
+Play1 [installs some plugins out-of-the-box](https://github.com/playframework/play1/blob/master/framework/src/play.plugins) which you can then disable in your project.
+The plugins that Play1 setup by default will need to be explicitly added to your RePlay project's `play.plugins` file. The ability to disable plugins is no longer needed.
+
+Some Play1 plugins do not have a RePlay equivalent, such as: `play.plugins.EnhancerPlugin` (RePlay does not do byte-code "enhancing" by design),
+`play.ConfigurationChangeWatcherPlugin`, `play.db.Evolutions`, `play.plugins.ConfigurablePluginDisablingPlugin` (no longer needed as you pick the plugins you need in your own project).
+
+The RePlay project comes with the following plugins:
+
+* `play.data.parsing.TempFilePlugin` 🟊 — Creates temporary folders for file parsing and deletes them after request completion.
+* `play.data.validation.ValidationPlugin` 🟊 — Adds validation on controller methods parameters based on annotations.
+* `play.db.DBBrowserPlugin` 🟊 — Mounts the H2 Console on `/@db` in development mode. Only works for the in-memory H2 database. 
+* `play.db.DBPlugin` 🟊 — Sets up the Postgres, MySQL or H2 data source based on the configuration values.
+* `play.db.jpa.JPAPlugin` 🟊 — Initialises required JPA EntityManagerFactories. 
+* `play.i18n.MessagesPlugin` 🟊 — The internationalization system for UI strings.
+* `play.jobs.JobsPlugin` 🟊 — Simple cron-style or out-of-request-cycle jobs runner.
+* `play.libs.WS` 🟊 — Simple HTTP client (to make webservices requests).
+* `play.modules.excel.Plugins` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library). In Play1 this is available as a community plugin.
+* `play.modules.gtengineplugin.GTEnginePlugin` 🟊🟊 — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
+* `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occured and includes them in the status report.
+* `play.plugins.PlayStatusPlugin` 🟊 — Installs the authenticated `/@status` endpoint.
+* `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken` to mitigate [CSRF attacks](https://en.wikipedia.org/wiki/Cross-site_request_forgery). In Play1 the `checkAuthenticity()` method is built into the `Controller` class and needs to be explicitly called.
+
+🟊) Installed by default in Play1.
+
+🟊🟊) Built into the Play1 framework (not as a plugin), became a plugin in RePlay.
+
+A community [plugin for creating PDFs](https://github.com/pepite/play--pdf) exists for Play1.
+In RePlay this functionality is [part of the main project](https://github.com/codeborne/replay/tree/master/pdf) and available as a regular library (no longer a plugin) named `com.codeborne.replay.pdf`.
+
+RePlay projects put `play.plugins` file in `conf/`. The syntax of the `play.plugins` file remains the same.
+
+Write your own plugins by extending `play.PlayPlugin` is still possible.
+
+
 ## Porting a Play1 application over to RePlay
 
-Porting a Play1 application to RePlay requires quite a bit of work, depending on the size of the application.
-This amount of work will be significantly less than porting the application to [Play2](https://www.playframework.com) or the currently very popular [Spring Boot](https://spring.io/projects/spring-boot).
+Porting a Play1 application to RePlay requires quite some work, depending on the size of the application.
+The work will be significantly less than porting the application to [Play2](https://www.playframework.com) or a currently popular Java MVC framework (like [Spring Boot](https://spring.io/projects/spring-boot)).
 
-* Move your dependencies over from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
-* Make controllers methods (actions) non-static, and subclass from `RebelController`, while doing so you need to mind the following:
-  * TODO: explain how to deal with redirects, returning `Result` (or `null`), etc.
-  * Since `play.result.Result` no longer extends `Exception`, your controllers should return `Result` instead of throwing it.
+The following list breaks down the porting effort into tasks:
+
+* Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
+* Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
+* Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the [RePlay example project](https://github.com/asolntsev/criminals/tree/master/app/criminals) for inspiration). 
+* Port the controller classes over to RePlay. This is likely the biggest task of the porting effort and cannot be performed from your Play1 application like some other porting tasks.
+  * Make controllers methods (actions) non-static.
+  * Since `play.result.Result` no longer extends `Exception`, your controllers should return `Result` instead of throwing it. In Play1 the controller methods that trigger the request's response (like `render(...)` and `forbidden()`) throw an exception to ensure the rest of the method will not be executed. In RePlay this is considered abuse of the exception system, and the good old `return` statement is used to achieve the same. The following changes to your controller classes are required:
+    * TODO: explain how to deal with redirects, returning `Result` (or `null`), etc.
+  * **TIP**: Start by moving your controller classes to an `unported/` folder, and copy them one-by-one back to `controller/` while porting them.
 * `play.libs.Crypto` has been slimmed down and is now called `Crypter`.
   * **TIP**: You can simply copy the `play.libs.Crypto` file from Play1 into your project.
-* `Check` and `CheckWith` have been removed from the `play.data.validation` package.
-  * **TIP**: Copy those files from Play1 into your project, but using validation methods explicitly from the body of controller methods (opposed to configuring validations through annotations) allows more control over error responses.
-* The `params.get()` method now always returns a `String`, use `parseXYZ()` methods (like: `Boolean.parseBoolean()`) to convert results.
+* `Check`, `CheckWith` and `CheckWithCheck` have been removed from the `play.data.validation` package.
+  * They have been removed in favour of calling validation methods explicitly from the body of controller methods (opposed to configuring validations through annotations). This allows much needed control over your application's response in case of validation errors.
+  * **TIP**: Copy those files from Play1 into your project to ease the porting effort.
+* The `params.get()` method now always returns a `String`, use `parseXYZ()` methods (like `Boolean.parseBoolean()`) to convert results.
 * `play.libs.WS` has been split up into the `play.libs.ws` package containing the classes that have been split out.
-* `Router.absolute()` now takes a param, simple pass it: `Http.Request.current()`.
+* `Router.absolute()` now takes a param. Fix this by passing it `Router.absolute(Http.Request.current())`.
 * `IO.readFileAsString()` now needs an additional `Charset` argument (usually `StandardCharsets.UTF_8` suffices).
+* RePlay does not use the `${...}` syntax for interpolating environment variables into the `application.conf` file. This [may change](https://github.com/codeborne/replay/issues/29) in a future release.
 * The `play.mvc.Mailer` class was dropped, use the `play.libs.Mail` class instead.
   * **TIP**: Copy RePlay's `play.libs.Mail` class into your Play1 project and port over the mail logic while your application is still running on top of Play1.
   * Here an example of a simple text mail:
@@ -132,8 +177,10 @@ public class TextMails extends Mail {
 
         plugins.disable.0=play.db.jpa.JPAPlugin
         plugins.disable.1=play.modules.jpastats.JPAStatsPlugin
-  
-  * **TIP**: Split the files in `app/models/` into entities and repositories. The repository classes can make use of the `play.db.jpa.JPARepository` class to ease the reimplementation of the removed methods mentioned earlier.
+
+  * **TIP**: The repository methods can make use of RePlay's `play.db.jpa.JPARepository` to ease the reimplementation of the removed *enhancer* methods mentioned earlier.
+
+  * **TIP**: Split the files in `app/models/` into entities (e.g. a `User` class with the Hibernate entity definition) and repositories (e.g. a `UserRepository` class with the static methods for retrieving `User` entities from the database).
 
 ```java
 public class UserRepo {
@@ -145,14 +192,13 @@ public class UserRepo {
 ```
 
 * `refresh()` has been removed from `play.db.jpa.GenericModel`; simply replace with: `JPA.em().refresh(entityYouWantToRefresh)`
-
-* `play.Logger` has been slimmed down: in RePlay it just initializes the *slf4j* logger, it cannot be used for actual logging statements.
+* `play.Logger` has been slimmed down. In RePlay it merely initializes the *slf4j* logger within the framework, it cannot be used for actual logging statements (e.g. `Logger.warn(...)`).
   * Where the `Logger` of Play1 uses the `String.format` interpolation (with `%s`, `%d`, etc.), the *slf4j* uses `{}` for interpolation (which is a bit faster).
   * **TIP**: You can already replace the use of `play.Logger` with the *slf4j* logger in your Play1 application.
   * In RePlay logging is done as follows (common Java idiom):
 
 ```java
-import org.slf4j.Logger; // add these
+import org.slf4j.Logger; // replace `import play.Logger;` these
 import org.slf4j.LoggerFactory;
 
 public class YourClassThatNeedsLogging {
@@ -165,6 +211,25 @@ public class YourClassThatNeedsLogging {
   // ...
 }
 ```
+
+* `Play.classloader` is removed; replace it with `CurrentClass.class.getClassLoader()`.
+* `play.cache.Cache.get(...)` only takes one argument, removing additional arguments is usually enough.
+* `play.Plugin` changed some of the method signatures.
+* `play.data.binding.TypeBinder` changed some of the method signatures.
+* `play.jobs.Job` requires overriding of `doJobWithResult()` instead of `doJob()`. If the job does not have any return value the subclass should be parameterized over `Void` and `return null;`. For example:
+
+```java
+@OnApplicationStart
+public class LoadMenuJob extends Job<Void> {
+
+  @Override
+  public Void doJobWithResult() {
+    // ...
+    return null;
+  }
+}
+```
+
 
 ## Licence
 
