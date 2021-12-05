@@ -200,7 +200,7 @@ public class UserRepo {
 ```
 
 * `refresh()` has been removed from `play.db.jpa.GenericModel`; simply replace with: `JPA.em().refresh(entityYouWantToRefresh)`
-* `play.Logger` has been slimmed down. In RePlay it merely initializes the *slf4j* logger within the framework, it cannot be used for actual logging statements (e.g. `Logger.warn(...)`).
+* `play.Logger` has been slimmed down (and renamed to `PlayLoggingSetup`). In RePlay it merely initializes the *slf4j* logger within the framework, it cannot be used for actual logging statements (e.g. `Logger.warn(...)`).
   * Where the `Logger` of Play1 uses the `String.format` interpolation (with `%s`, `%d`, etc.), the *slf4j* uses `{}` for interpolation (which is a bit faster).
   * **TIP**: You can already replace the use of `play.Logger` with the *slf4j* logger in your Play1 application.
   * In RePlay logging is done as follows (common Java idiom):
