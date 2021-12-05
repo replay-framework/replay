@@ -32,24 +32,29 @@ public class PropertiesConfLoader implements ConfLoader {
             throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
         }
 
-        Properties propsFromFile = IO.readUtf8Properties(conf);
         confs.add(conf);
+        Properties propsFromFile = IO.readUtf8Properties(conf);
 
         if (inheritedId == null) {
             inheritedId = propsFromFile.getProperty("%" + playId);
-            if (inheritedId != null && inheritedId.startsWith("%")) inheritedId = inheritedId.substring(1);
+            if (inheritedId != null && inheritedId.startsWith("%")) {
+                inheritedId = inheritedId.substring(1);
+            }
         }
         propsFromFile = resolvePlayIdOverrides(propsFromFile, playId, inheritedId);
 
-        resolveEnvironmentVariables(propsFromFile, conf); // the ${...} interpolation syntax
+        resolveEnvironmentVariables(propsFromFile, conf);
 
         resolveIncludes(propsFromFile, playId, inheritedId, confs);
 
         return propsFromFile;
     }
 
+    /**
+     * the ${...} interpolation syntax
+     */
     @VisibleForTesting
-    void resolveEnvironmentVariables(Properties propsFromFile, final VirtualFile conf) {
+    void resolveEnvironmentVariables(Properties propsFromFile, VirtualFile conf) {
         for (Object key : propsFromFile.keySet()) {
             String value = propsFromFile.getProperty(key.toString());
             Matcher matcher = envVarInterpolationPattern.matcher(value);
@@ -70,7 +75,7 @@ public class PropertiesConfLoader implements ConfLoader {
     }
 
     @VisibleForTesting
-    String getEnvVar(final String envVarKey) {
+    String getEnvVar(String envVarKey) {
         return System.getenv(envVarKey);
     }
 
