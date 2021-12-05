@@ -14,10 +14,10 @@ subprojects {
     compile project(':framework')
     compile project(':fastergt')
 
-    testCompile('org.assertj:assertj-core:3.20.2')
-    testCompile('com.codeborne:selenide:5.23.0')
+    testCompile('org.assertj:assertj-core:3.21.0')
+    testCompile('com.codeborne:selenide:6.1.1')
     testCompile('junit:junit:4.13.2')
-    testCompile('org.mockito:mockito-core:3.11.2')
+    testCompile('org.mockito:mockito-core:4.1.0')
   }
 
   test {

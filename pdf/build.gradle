@@ -24,6 +24,7 @@ test {
 dependencies {
   compile project(':framework')
   testCompile project(':framework').sourceSets.test.compileClasspath
+  testCompile('org.mockito:mockito-core:4.1.0')
 
   thirdParty("org.xhtmlrenderer:flying-saucer-core:$FLYING_SOURCER_VERSION")
   compile("org.xhtmlrenderer:flying-saucer-pdf:$FLYING_SOURCER_VERSION") {
