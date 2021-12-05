@@ -31,6 +31,12 @@ public class IO {
         }
     }
 
+    public static Properties readUtf8Properties(String fileName) throws IOException {
+        try (InputStream in = IO.class.getResourceAsStream(fileName)) {
+            return readUtf8Properties(in);
+        }
+    }
+
     public static Properties readUtf8Properties(InputStream is) throws IOException {
         Properties properties = new OrderSafeProperties();
         properties.load(is);

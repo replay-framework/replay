@@ -1,6 +1,7 @@
 package play;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import play.utils.OrderSafeProperties;
@@ -10,8 +11,9 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertiesConfLoaderTest {
-  PropertiesConfLoader loader = new PropertiesConfLoader();
+  private final PropertiesConfLoader loader = new PropertiesConfLoader();
 
+  @Before
   @After
   public void tearDown() {
     Play.id = "";

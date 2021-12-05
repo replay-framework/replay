@@ -44,8 +44,8 @@ public class HTTPTest {
     @Test @SuppressWarnings("deprecation")
     public void setHeader() {
         Http.Request request = new Http.Request();
-        request.setHeader("X-Forwared-For", "127.0.0.1");
+        request.setHeader("X-Forwarded-For", "127.0.0.1");
 
-        assertThat(request.headers.get("x-forwared-for").value()).isEqualTo("127.0.0.1");
+        assertThat(request.headers.get("x-forwarded-for").value()).isEqualTo("127.0.0.1");
     }
 }
