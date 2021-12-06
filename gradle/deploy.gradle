@@ -1,13 +1,9 @@
-apply plugin: 'maven'
-
 jar {
-  from sourceSets.main.allSource
-
   manifest {
     attributes(
         "Automatic-Module-Name": project.group + '.' + project.name,
         "Implementation-Title": project.group + '.' + project.name,
-        "Implementation-Version": version,
+        "Implementation-Version": archiveVersion,
         "Implementation-Vendor": "Codeborne")
   }
 }
@@ -19,6 +15,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 javadoc {
   failOnError = false
+  options.encoding = 'UTF-8'
   source = sourceSets.main.allJava
 }
 
@@ -27,72 +24,66 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
-artifacts {
-  archives jar
-  archives sourcesJar
-  archives javadocJar
-}
-
-
 if (project.hasProperty("signing.keyId")) {
   apply plugin: 'signing'
+  apply plugin: 'maven-publish'
 
   signing {
-    sign configurations.archives
+    afterEvaluate {
+      sign publishing.publications.mavenJava
+    }
   }
 
-  uploadArchives {
+  artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+  }
+
+  publishing {
     repositories {
-      mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-        repository(url: project.version.endsWith("-SNAPSHOT") ?
+      maven {
+        name 'Maven'
+        url project.version.endsWith("-SNAPSHOT") ?
             'https://oss.sonatype.org/content/repositories/snapshots/' :
-            'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-          authentication(userName: "$sonatypeUsername", password: "$sonatypePassword")
+            'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+        credentials {
+          username "$sonatypeUsername"
+          password "$sonatypePassword"
         }
+      }
+    }
 
-        pom.project {
-          name archivesBaseName
-          packaging 'jar'
-          description 'RePlay is a fork of the Play1 framework, made and maintained by Codeborne.'
-          url 'https://github.com/codeborne/replay'
+    publications {
+      mavenJava(MavenPublication) {
+        groupId "${project.group}"
+        artifactId "${project.name}"
 
-          scm {
-            url 'scm:git@github.com:codeborne/replay.git'
-            connection 'scm:git@github.com:codeborne/replay.git'
-            developerConnection 'scm:git@github.com:codeborne/replay.git'
-          }
+        from components.java
+        artifact(sourcesJar)
+        artifact(javadocJar)
 
+        pom {
+          name = archivesBaseName
+          description = 'RePlay is a fork of the Play1 framework, made and maintained by Codeborne.'
+          url = 'https://github.com/codeborne/replay'
           licenses {
             license {
-              name 'MIT'
-              url 'https://opensource.org/licenses/MIT'
-              distribution 'repo'
+              name = 'MIT'
+              url = 'https://opensource.org/licenses/MIT'
             }
           }
-
           developers {
             developer {
-              id 'asolntsev'
-              name 'Andrei Solntsev'
+              id = 'asolntsev'
+              name = 'Andrei Solntsev'
             }
           }
-        }
-
-        //mess with the generated pom to set the 'packaging' tag
-        pom.withXml { XmlProvider xmlProvider ->
-          def xml = xmlProvider.asString()
-          def pomXml = new XmlParser().parse(new ByteArrayInputStream(xml.toString().bytes))
-
-          pomXml.version[0] + { packaging('jar') }
-
-          def newXml = new StringWriter()
-          def printer = new XmlNodePrinter(new PrintWriter(newXml))
-          printer.preserveWhitespace = true
-          printer.print(pomXml)
-          xml.setLength(0)
-          xml.append(newXml.toString())
+          scm {
+            connection = 'scm:git@github.com:codeborne/replay.git'
+            developerConnection = 'scm:git@github.com:codeborne/replay.git'
+            url = 'https://github.com/codeborne/replay'
+          }
         }
       }
     }

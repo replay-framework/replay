@@ -6,8 +6,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.net.URL;
 
-class PlayLoggingSetup {
-  protected void init() {
+public class PlayLoggingSetup {
+  public void init() {
     String log4jPath = Play.configuration.getProperty("application.log.path", "/log4j.xml");
     URL log4jConf = PlayLoggingSetup.class.getResource(log4jPath);
     if (log4jConf == null) {

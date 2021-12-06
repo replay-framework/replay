@@ -1,15 +1,15 @@
 dependencies {
-  compile project(':framework')
-  testCompile project(':framework').sourceSets.test.compileClasspath
+  implementation project(':framework')
+  testImplementation project(':framework').sourceSets.test.compileClasspath
   
-  compile('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
-  compile('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
-  compile('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
-  compile('org.apache.poi:poi:3.17') {transitive = false}
-  compile('org.apache.poi:poi-ooxml:3.17') {transitive = false}
-  compile('org.apache.poi:poi-ooxml-schemas:3.17') {transitive = false}
-  compile('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
-  compile('commons-digester:commons-digester:2.1') {transitive = false}
+  api('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
+  api('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
+  implementation('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
+  api('org.apache.poi:poi:3.17') {transitive = false}
+  api('org.apache.poi:poi-ooxml:3.17') {transitive = false}
+  api('org.apache.poi:poi-ooxml-schemas:3.17') {transitive = false}
+  api('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
+  implementation('commons-digester:commons-digester:2.1') {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

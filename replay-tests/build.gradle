@@ -11,13 +11,13 @@ subprojects {
   }
 
   dependencies {
-    compile project(':framework')
-    compile project(':fastergt')
+    implementation project(':framework')
+    implementation project(':fastergt')
 
-    testCompile('org.assertj:assertj-core:3.21.0')
-    testCompile('com.codeborne:selenide:6.1.1')
-    testCompile('junit:junit:4.13.2')
-    testCompile('org.mockito:mockito-core:4.1.0')
+    testImplementation('org.assertj:assertj-core:3.21.0')
+    testImplementation('com.codeborne:selenide:6.1.1')
+    testImplementation('junit:junit:4.13.2')
+    testImplementation('org.mockito:mockito-core:4.1.0')
   }
 
   test {

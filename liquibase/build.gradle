@@ -1,8 +1,8 @@
 dependencies {
-  compile project(':framework')
-  testCompile project(':framework').sourceSets.test.compileClasspath
+  implementation project(':framework')
+  testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  compile('org.liquibase:liquibase-core:4.6.2') {transitive = false}
+  implementation('org.liquibase:liquibase-core:4.6.2') {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
