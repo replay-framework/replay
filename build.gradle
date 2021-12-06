@@ -27,32 +27,24 @@ subprojects {
       java {
         srcDir 'src'
         include '**/*.java'
+        include '**/*.kt'
       }
       resources {
         srcDir 'src'
-        include '**/*.html'
-        include '**/*.json'
-        include '**/*.xml'
-        include '**/*.tag'
-        include '**/*.txt'
-        include '**/*.properties'
-        include 'META-INF/**/*'
+        exclude '**/*.java'
+        exclude '**/*.kt'
       }
     }
     test {
       java {
         srcDir 'test'
         include '**/*.java'
+        include '**/*.kt'
       }
       resources {
         srcDir 'test'
-        include '**/*.sql'
-        include '**/*.tag'
-        include '**/*.txt'
-        include '**/*play*plugins*'
-        include '**/*.xml'
-        include '**/*.properties'
-        include 'META-INF/**/*'
+        exclude '**/*.java'
+        exclude '**/*.kt'
       }
     }
   }

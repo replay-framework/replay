@@ -20,3 +20,5 @@ compileTestKotlin {
     jvmTarget = "11"
   }
 }
+
+apply from: '../replay-tests.gradle'

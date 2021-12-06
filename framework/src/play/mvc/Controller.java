@@ -33,10 +33,24 @@ public class Controller implements PlayController {
     }
   }
 
+  /**
+   * This "Play1-style" method throws {@link play.mvc.results.Forbidden} exception.
+   *
+   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your code clear and testable.
+   *   Use method {@link #forbiddenResult()}.
+   */
+  @Deprecated
   protected static void forbidden() {
     throw new Forbidden("Access denied");
   }
 
+  /**
+   * This "Play1-style" method throws {@link play.mvc.results.Forbidden} exception.
+   *
+   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your code clear and testable.
+   * Use method {@link #forbiddenResult()}.
+   */
+  @Deprecated
   protected static void forbidden(String reason) {
     throw new Forbidden(reason);
   }

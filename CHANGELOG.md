@@ -5,6 +5,7 @@
 * add support for MySql 8 driver  --  thanks Cies Breijs for PR #32
 * #29 replace environment variables in `${...}` in application.conf  --  thanks Cies Breijs for PR #31
 * improve readme file  --  thanks Cies Breijs for PR #30
+* Deprecate Play1-style static methods `Controller.forbidden` 
 
 ## 1.8.8 (released 30.06.2021)
 * upgrade dependencies: Eclipse compiler 3.26.0, Groovy 3.0.8, hibernate 5.5.2, Hikari CP 4.0.3 etc.

@@ -3,3 +3,5 @@ dependencies {
   implementation project(':pdf')
   testImplementation "com.codeborne:pdf-test:1.7.0"
 }
+
+apply from: '../replay-tests.gradle'
