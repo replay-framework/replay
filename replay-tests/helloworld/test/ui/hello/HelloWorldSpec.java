@@ -8,7 +8,7 @@ import static com.codeborne.selenide.Selenide.open;
 
 public class HelloWorldSpec extends BaseSpec {
   @Test
-  public void name() {
+  public void openHelloWorldPage() {
     open("/");
     $("h1").shouldHave(text("Hello, world!"));
   }

@@ -1,0 +1,33 @@
+sourceSets {
+  main {
+    java {srcDir "app"}
+    resources {srcDir "app"}
+    resources {
+      srcDir 'conf'
+      include '**/*'
+    }
+  }
+  test {
+    java {srcDir "test"}
+    resources {srcDir "test"}
+  }
+}
+
+dependencies {
+  implementation project(':framework')
+  implementation project(':fastergt')
+
+  testImplementation('org.assertj:assertj-core:3.21.0')
+  testImplementation('com.codeborne:selenide:6.1.1')
+  testImplementation('junit:junit:4.13.2')
+  testImplementation('org.mockito:mockito-core:4.1.0')
+}
+
+test {
+  exclude 'ui/**'
+}
+
+task uitest(type: Test) {
+  include 'ui/**/*'
+  systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
+}

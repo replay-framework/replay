@@ -1,10 +1,9 @@
 dependencies {
-  compile project(':framework')
-  testCompile project(':framework').sourceSets.test.compileClasspath
+  api project(':framework')
+  testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  compile('com.google.inject:guice:5.0.1')
-  // compile('com.google.inject.extensions:guice-multibindings:4.2.3') {transitive = false}
-  compile('aopalliance:aopalliance:1.0') {transitive = false}
+  api('com.google.inject:guice:5.0.1')
+  implementation('aopalliance:aopalliance:1.0') {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

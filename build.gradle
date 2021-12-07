@@ -1,11 +1,12 @@
-defaultTasks 'clean', 'test', 'install'
+defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 subprojects {
 
   group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '1.8.8'
+  version=project.properties['revision'] ?: '1.9.0'
 
   apply plugin: 'java'
+  apply plugin: 'java-library'
 
   [compileJava, compileTestJava]*.options.collect {options ->
     options.encoding = 'UTF-8'
@@ -23,14 +24,31 @@ subprojects {
 
   sourceSets {
     main {
-      java {srcDir 'src'}
-      resources {srcDir 'src'}
+      java {
+        srcDir 'src'
+        include '**/*.java'
+        include '**/*.kt'
+      }
+      resources {
+        srcDir 'src'
+        exclude '**/*.java'
+        exclude '**/*.kt'
+      }
     }
     test {
-      java {srcDir 'test'}
-      resources {srcDir 'test'}
+      java {
+        srcDir 'test'
+        include '**/*.java'
+        include '**/*.kt'
+      }
+      resources {
+        srcDir 'test'
+        exclude '**/*.java'
+        exclude '**/*.kt'
+      }
     }
   }
+
 
   test {
     include 'play/**/*'

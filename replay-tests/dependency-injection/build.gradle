@@ -1,3 +1,6 @@
 dependencies {
-  compile project(':guice')
+  implementation project(':guice')
 }
+
+apply from: '../replay-tests.gradle'
+
