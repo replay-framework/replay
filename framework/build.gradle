@@ -24,7 +24,7 @@ dependencies {
   api('javax.validation:validation-api:2.0.1.Final')
   implementation('jaxen:jaxen:1.2.0')
   implementation('log4j:log4j:1.2.17')
-  implementation('org.ehcache:ehcache:3.9.6')
+  api('org.ehcache:ehcache:3.9.6')
   implementation('net.sf.ezmorph:ezmorph:1.0.6')
   implementation('net.sf.jsr107cache:jsr107cache:1.1')
   api('net.sf.oval:oval:3.2.1')
