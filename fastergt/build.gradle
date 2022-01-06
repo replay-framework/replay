@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':framework')
-  implementation('org.eclipse.jdt:org.eclipse.jdt.core:3.27.0') {transitive = false}
+  implementation('org.eclipse.jdt:org.eclipse.jdt.core:3.28.0') {transitive = false}
   testImplementation project(':framework').sourceSets.test.compileClasspath
 }
 
