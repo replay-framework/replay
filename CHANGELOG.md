@@ -2,6 +2,7 @@
 
 ## 1.9.1 (released 06.01.2022)
 * #36 fix annotation-based validation
+* upgrade to EHCache 3.9.9, Eclipse compiler 3.28.0 etc
 
 ## 1.9.0 (released 06.12.2021)
 * upgrade to Gradle 7.x (incl. declaring dependencies with `api` or `compile`)
