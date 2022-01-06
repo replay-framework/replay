@@ -9,7 +9,7 @@ Any contributions to RePlay are both welcomed and appreciated.
 
 ## How to build
 
-    ./gradlew check uitest install
+    ./gradlew check uitest publishToMavenLocal
 
 This puts the `*.jar` files in your local maven repository at: `~/.m2/repository/com/codeborne/replay`
 

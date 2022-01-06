@@ -93,11 +93,24 @@ public class ValidationPlugin extends PlayPlugin {
     // ~~~~~~
     static class Validator extends Guard {
         public List<ConstraintViolation> validateAction(Http.Request request, Session session, Method actionMethod) {
-            List<ConstraintViolation> violations = new ArrayList<>();
             Object[] rArgs = ActionInvoker.getActionMethodArgs(request, session, actionMethod);
-            validateMethodParameters(null, actionMethod, rArgs, violations);
-            validateMethodPre(null, actionMethod, rArgs, violations);
+
+            List<ConstraintViolation> violations = new ArrayList<>();
+            violations.addAll(validateMethodParameters(actionMethod, rArgs));
+            violations.addAll(validateMethodPre(actionMethod, rArgs));
             return violations;
+        }
+
+        private List<ConstraintViolation> validateMethodParameters(Method actionMethod, Object[] rArgs) {
+            InternalValidationCycle cycle1 = new InternalValidationCycle(null, null);
+            validateMethodParameters(null, actionMethod, rArgs, cycle1);
+            return cycle1.violations;
+        }
+
+        private List<ConstraintViolation> validateMethodPre(Method actionMethod, Object[] rArgs) {
+            InternalValidationCycle cycle2 = new InternalValidationCycle(null, null);
+            validateMethodPre(null, actionMethod, rArgs, cycle2);
+            return cycle2.violations;
         }
     }
 
