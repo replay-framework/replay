@@ -79,13 +79,13 @@ The `./gradlew jar` command produces the `build/libs/appname.jar` file.
 
 The following should start your application from the command line (possibly adding additional flags):
 
-    java -cp "build/lib/*:build/libs/*:build/classes/java/main" appname.Application
+    java -cp "build/classes/java/main:build/libs/*:build/lib/*" appname.Application
 
 Replace `appname` with the name of the package your `Application` class resides in. The classpath string (after `-cp`) contains three parts:
 
-1. The first bit (`build/lib/*`) points to the dependencies of the project as installed by Gradle.
-2. The second bit (`build/libs/*`) points the application JAR file as build Gradle.
-3. The last bit points to the folder with the application's `.class` files (`build/classes/java/main`) built by the Gradle build script, as that's what RePlay (and Play1 as well) use instead of the copies of these files as found in the application's JAR file.
+1. The first bit points to the folder with the application's `.class` files (`build/classes/java/main`) built by the Gradle build script, as that's what RePlay (and Play1 as well) use instead of the copies of these files as found in the application's JAR file.
+2. The second bit (`build/libs/*`) points the application JAR file as build by Gradle (e.g.: `./gradlew jar`).
+3. The last bit (`build/lib/*`) points to the dependencies of the project as installed by Gradle (should be last or they may overshadow project definitions).
 
 
 ## Troubleshooting
