@@ -46,13 +46,13 @@ API docs for the RePlay `framework` package are generated with `./gradlew :frame
 The [javadoc.io](https://javadoc.io) project provides online access to the javadocs for RePlay's [framework](https://javadoc.io/doc/com.codeborne.replay/framework), [fastergt](https://javadoc.io/doc/com.codeborne.replay/fastergt), [guice](https://javadoc.io/doc/com.codeborne.replay/guice), [excel](https://javadoc.io/doc/com.codeborne.replay/excel), [pdf](https://javadoc.io/doc/com.codeborne.replay/pdf) and [liquibase](https://javadoc.io/doc/com.codeborne.replay/liquibase) packages.
 
 
-## Development flow (auto-compilation and hot-swapping)
+## Development flow (hot-swapping)
 
 RePlay does not use the `play` CLI command, which is used to start a Play1 application in development mode (i.e.: with `play run`) providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
 
-These steps set up an auto-compiling and hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/asolntsev/criminals) RePlay example application:
+These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/asolntsev/criminals) RePlay example application:
 
 0. Clone the [criminals](https://github.com/asolntsev/criminals) repository in a directory named `criminals`
 1. Use IntelliJ IDEA to `File > Open...` the criminals project (not "import") by selecting the root of this project's repository
@@ -67,10 +67,12 @@ These steps set up an auto-compiling and hot-swapping development flow with Inte
 Now a "Run/Debug Configuration" with the name of your app shows up in the top-right of the screen.
 You can press the "Run" button (with the green play icon) to start the application from the IDE.
 
-Code changes are compiled and hot-swapped automatically into the running application. Until you change signatures of some methods it is nearly instantaneous.  
-You do not even need to save the file you are working on: simply reload the page in your browser to see the changes in effect.
+To run the application in debug mode press the "Debug" button (with a little bug icon, next to the "Run" button) and all should work.
 
-If hot-swapping fails for some reason, you will see a notification in IDEA prompting you to restart the application.  
+When in debug mode use `CTRL-SHIFT-F9` to compile and hot-swap code changes into the running application.
+This only works when class/method signatures were not changed.
+If hot-swapping failed, you will see a notification in IDEA after which you need to restart the application.
+To fully restart the project use `SHIFT-F9` or press the bug icon button again.
 
 
 ## Deploying
