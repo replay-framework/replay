@@ -9,14 +9,14 @@ RePlay originally forked Play 1.5.0, applicable improvements made in the Play1 p
 #### Main differences between RePlay and Play1
 
 * It uses the [Gradle build tool](https://gradle.org) for dependency management and builds:
-  * better compiletimes by incremental builds,
+  * better compile times by incremental builds,
   * no vendor code in the RePlay project's version control,
   * and no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies.
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) that were not used at Codeborne.
 * Does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
   * shorter application startup times (seriously improves development cycles),
   * and [support for Kotlin](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin) out of the box.
-* Less "magic", like the afore mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
+* Less "magic", like the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
 * More actively maintained.
 * Promotes [dependency injection](/codeborne/replay/tree/master/replay-tests/dependency-injection) for decoupling concerns (using Google's [Guice](https://github.com/google/guice) as a DI provider).
@@ -33,7 +33,7 @@ The projects in RePlay's `replay-tests/` folder also show how to do certain thin
 For an over
 
 **NOTE**: Due to its small community, RePlay is not likely the best choice for a new project. Same holds true for Play1 and even Play2.
-RePlay primarily caters to Play1 codebases. It provides a simpler, more standard framework with greatly improved developer ergonomics.
+RePlay primarily caters to Play1 codebase. It provides a simpler, more standard framework with greatly improved developer ergonomics.
 This README has a section on porting Play1 applications.
 
 
@@ -120,7 +120,7 @@ The RePlay project comes with the following plugins:
 * `play.libs.WS` 🟊 — Simple HTTP client (to make webservices requests).
 * `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library). In Play1 this is available as a community plugin.
 * `play.modules.gtengineplugin.GTEnginePlugin` 🟊🟊 — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
-* `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occured and includes them in the status report.
+* `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occurred and includes them in the status report.
 * `play.plugins.PlayStatusPlugin` 🟊 — Installs the authenticated `/@status` endpoint.
 * `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken` to mitigate [CSRF attacks](https://en.wikipedia.org/wiki/Cross-site_request_forgery). In Play1 the `checkAuthenticity()` method is built into the `Controller` class and needs to be explicitly called.
 
@@ -141,7 +141,7 @@ Write your own plugins by extending `play.PlayPlugin` is still possible, porting
 Porting a Play1 application to RePlay requires quite some work, depending on the size of the application.
 The work will be significantly less than porting the application to [Play2](https://www.playframework.com) or a currently popular Java MVC framework (like [Spring Boot](https://spring.io/projects/spring-boot)).
 
-A serious part of the work stems from the removal of Play1's "Enhancers", these use JBoss Javasist to apply runtime bytecode manipulation which add methods and intercept method calls or member field access. Removing the enhancers gives RePlay many of it's benefits: quick builds, reduce start-up times, allow non-Java JVM language interop, reduce magic, make mocking easier and results in more idiomatic Java code.
+A serious part of the work stems from the removal of Play1's "Enhancers", these use JBoss Javassist to apply runtime bytecode manipulation which add methods and intercept method calls or member field access. Removing the enhancers gives RePlay many of it's benefits: quick builds, reduce start-up times, allow non-Java JVM language interop, reduce magic, make mocking easier and results in more idiomatic Java code.
 
 The following list breaks down the porting effort into tasks:
 
@@ -149,7 +149,7 @@ The following list breaks down the porting effort into tasks:
 * Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the [RePlay example project](https://github.com/asolntsev/criminals/tree/master/app/criminals) for inspiration). 
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
-  * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard. In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and (3) implements the default constructor (a public constructor that takes no arguments). All `@Entity` annotated classes (e.g. model classes) should adhere to the Bean standard. Play1's `PropertiesEnhancer` creates the default constructor in case it is absent, creates getter/setter methods and intecepts access to public member fields (`obj.memberField;` and `obj.memberField = newValue;`) and replaces those with calls to the corresponding getter/setter methods.
+  * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard. In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and (3) implements the default constructor (a public constructor that takes no arguments). All `@Entity` annotated classes (e.g. model classes) should adhere to the Bean standard. Play1's `PropertiesEnhancer` creates the default constructor in case it is absent, creates getter/setter methods and intercepts access to public member fields (`obj.memberField;` and `obj.memberField = newValue;`) and replaces those with calls to the corresponding getter/setter methods.
   * In for a large part the model code still works: adherence to the Java Bean standard is not strictly enforced.
   * In some cases the model code does not work without Play1's PropertiesEnhancer:
     * Runtime errors for lacking default constructors: simply implement them for all `@Entity` annotated classes. In most cases adding `public ClassName() {}` suffices.
@@ -176,7 +176,7 @@ public class UserRepo {
 }
 ```
 
-* `refresh()` has been removed from `play.db.jpa.GenericModel`; simply replace occurences with: `JPA.em().refresh(entityYouWantToRefresh)`
+* `refresh()` has been removed from `play.db.jpa.GenericModel`; simply replace occurrences with: `JPA.em().refresh(entityYouWantToRefresh)`
 * `JPA.setRollbackOnly()` becomes `JPA.em().getTransaction().setRollbackOnly()`
 * `play.Logger` has been slimmed down (and renamed to `PlayLoggingSetup`). In RePlay it merely initializes the *slf4j* logger within the framework, it cannot be used for actual logging statements (e.g. `Logger.warn(...)`).
   * Where the `Logger` of Play1 uses the `String.format` interpolation (with `%s`, `%d`, etc.), the *slf4j* uses `{}` for interpolation (which is a bit faster).
@@ -265,9 +265,9 @@ public class TextMails extends Mail {
     * Sometimes private methods that return a value in Play1 also can trigger a response, because responses are triggered by exceptions in Play1.
     This is no longer allowed using RePlay and thus the code that triggers responses (actual controller code) should be separated from code that merely handles values (probably not controller code).
     In these cases it would be nice if Java already had multiple return values (through sum-types).
-    * Private methods with a `void ` return type that trigger reponses in Play1 (by throwing exceptions) need to return `Result` in replay. In case these private methods do not trigger a response they should return `null` in the RePlay scenario. The call sites of those methods need the following bit of code to pass through `Result` objects: `var result = privateMethod(); if (result != null) return result;`. This ensures the rest of the method is evaluated.
+    * Private methods with a `void ` return type that trigger responses in Play1 (by throwing exceptions) need to return `Result` in replay. In case these private methods do not trigger a response they should return `null` in the RePlay scenario. The call sites of those methods need the following bit of code to pass through `Result` objects: `var result = privateMethod(); if (result != null) return result;`. This ensures the rest of the method is evaluated.
   * `Http.Request.current()` becomes `request` (as in Play1 many things are static that are not in RePlay).
-  * `params.flash();` becomes `params.flash(flash);` (this stores the renderparams in the cookie to survive a redirect).
+  * `params.flash();` becomes `params.flash(flash);` (this stores the render params in the cookie to survive a redirect).
   * **TIP**: Start by moving your controller classes to an `unported/` folder, and move them one-by-one back to `controller/` while porting.
   Ensure that `git` understand files were moved to allow merging in changes from Play1-based branches of your application.
 * `Validation.valid(obj)` needs an additional String as parameter to which the validation results are bound, and thus becomes: `Validation.valid("obj", obj)`
