@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2 (released 18.01.2022)
+* replace log4j:1.2.17 -> reload4j:1.2.18.0
+* upgrade slf4j:1.7.32 -> 1.7.33
+
 ## 1.9.1 (released 06.01.2022)
 * #36 fix annotation-based validation  --  see PR #37
 * #38 upgrade to EHCache 3.9.9, Eclipse compiler 3.28.0 etc
