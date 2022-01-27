@@ -10,9 +10,10 @@ RePlay originally forked Play 1.5.0, applicable improvements made in the Play1 p
 
 * It uses the [Gradle build tool](https://gradle.org) for dependency management and builds:
   * better compile times by incremental builds,
-  * no vendor code in the RePlay project's version control,
+  * no vendor code in your RePlay application's version control,
   * and no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies.
-* Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) that were not used at Codeborne.
+* Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets. These were not used at Codeborne, but could be reintroduced if needed.
+* The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
 * Does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
   * shorter application startup times (seriously improves development cycles),
   * and [support for Kotlin](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin) out of the box.
@@ -33,7 +34,7 @@ The projects in RePlay's `replay-tests/` folder also show how to do certain thin
 For an over
 
 **NOTE**: Due to its small community, RePlay is not likely the best choice for a new project. Same holds true for Play1 and even Play2.
-RePlay primarily caters to Play1 codebase. It provides a simpler, more standard framework with greatly improved developer ergonomics.
+RePlay primarily caters to maintainers of Play1-based applications. Compared to Play1 it is a simpler, more standard/modern framework with greatly improved developer ergonomics.
 This README has a section on porting Play1 applications.
 
 
@@ -149,14 +150,13 @@ The following list breaks down the porting effort into tasks:
 * Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the [RePlay example project](https://github.com/asolntsev/criminals/tree/master/app/criminals) for inspiration). 
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
-  * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard. In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and (3) implements the default constructor (a public constructor that takes no arguments). All `@Entity` annotated classes (e.g. model classes) should adhere to the Bean standard. Play1's `PropertiesEnhancer` creates the default constructor in case it is absent, creates getter/setter methods and intercepts access to public member fields (`obj.memberField;` and `obj.memberField = newValue;`) and replaces those with calls to the corresponding getter/setter methods.
+  * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard. In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and (3) implements the default constructor (a public constructor that takes no arguments). All `@Entity` annotated classes (e.g. model classes) should adhere to the Bean standard. Play1's `PropertiesEnhancer` creates the default constructor in case it is absent, creates getter/setter methods and rewrites direct access to Entities' public member fields (e.g.: `obj.memberField;` and `obj.memberField = newValue;`) to calls to the corresponding getter/setter methods.
   * In for a large part the model code still works: adherence to the Java Bean standard is not strictly enforced.
   * In some cases the model code does not work without Play1's PropertiesEnhancer:
-    * Runtime errors for lacking default constructors: simply implement them for all `@Entity` annotated classes. In most cases adding `public ClassName() {}` suffices.
-    * In some cases a member field's getter needs to be implemented and used (instead of the member field access) for Hibernate to work. This usually results in some Entity's member field still being `null` where you did not expect it.
-    * When a class implemented getters/setters in Play1 code, due to the PropertiesEnhancer, all member field accessors were intercepted and relayed to those getters/setters. In RePlay member field's direct access just be that: direct member field access (including Model's `obj.id = newValue;` becoming `obj.getId();`).
-  * **TIP**: Consider making the member field private when adding its getter and setter: it is safer since you cannot accidentally bypass the getter/setter, but doing so requires a lot of work on the Groovy templates for which your IDE cannot help you (due to a lack of type-safety).
-  * **TIP**: By setting `play.propertiesEnhancer.enabled=false` in `conf/application.conf` of a Play1 project, the work required can be performed on the Play1 based version of the application. This approach can also help get an idea of how much actually breaks.
+    * Runtime errors for lacking default constructors: simply implement them for all `@Entity` annotated classes. In most cases adding `public ClassName() {}` suffices. IntelliJ can help with that.
+    * In some cases a member field's getter needs to be implemented and used (instead of the member field access) for Hibernate to work. IntelliJ can do this per file, right click a file and `Refactor > Encapsulate fields`, where you pick all public non-static fields.
+    * Since Groovy maps direct field access to use the getters and setters, your template code should still work.
+  * **TIP**: By setting `play.propertiesEnhancer.enabled=false` in `conf/application.conf` of a Play1 project, this work required can be performed on the Play1 based version of the application.
 * Play1's `JPAEnhancer` was removed.
   * In RePlay, classes that extend `Model` have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
     * **TIP**: Reimplementing these methods using RePlay's `play.db.jpa.JPARepository`.
@@ -278,6 +278,8 @@ public class TextMails extends Mail {
 * Writing directly to the stream `response.out`, e.g. a final call to `ImageIO.write(outputImage, "png", response.out)` with a Play1 codebase, needs an additional `return new Ok()` with RePlay.
 * While porting the controllers you will find some changes to the views (templates) are required too:
   * In some cases the full package path needs to be provided, e.g.: `Play.configuration.getProperty("key")` becomes `play.Play.configuration.getProperty("key")`.
+* Due to changed encrypting/signing of `CookieSessionStore` all active sessions are logged out when migrating from Play1 to RePlay.
+This means that running the Play1 version of the app side-by-side with the RePlay version is not possible (all users get logged out all the time). 
 
   
 ## Licence
