@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.3 (released 03.02.2022)
+* upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc. 
+
 ## 1.9.2 (released 18.01.2022)
 * replace log4j:1.2.17 -> reload4j:1.2.18.0
 * upgrade slf4j:1.7.32 -> 1.7.33

@@ -17,7 +17,7 @@ test {
 dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  testImplementation('org.mockito:mockito-core:4.2.0')
+  testImplementation('org.mockito:mockito-core:4.3.1')
 
   thirdParty("org.xhtmlrenderer:flying-saucer-core:$FLYING_SOURCER_VERSION")
   implementation("org.xhtmlrenderer:flying-saucer-pdf:$FLYING_SOURCER_VERSION") {
