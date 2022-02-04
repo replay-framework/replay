@@ -1,9 +1,17 @@
 package play.server;
 
 
-import org.jboss.netty.buffer.*;
+import org.jboss.netty.buffer.AbstractChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBufferFactory;
+import org.jboss.netty.buffer.ChannelBufferIndexFinder;
+import org.jboss.netty.buffer.WrappedChannelBuffer;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.GatheringByteChannel;
@@ -15,20 +23,11 @@ import java.nio.channels.ScatteringByteChannel;
  */
 public class FileChannelBuffer extends AbstractChannelBuffer implements WrappedChannelBuffer {
 
-    private final FileInputStream is;
+    private final InputStream is;
 
-
-    public FileChannelBuffer(File file) {
-        if (file == null) {
-            throw new NullPointerException("file");
-        }
-        try {
-            this.is = new FileInputStream(file);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public FileChannelBuffer(File file) throws FileNotFoundException {
+        this.is = new ResettableFileInputStream(file);
     }
-
 
     public InputStream getInputStream() {
         return is;
@@ -113,16 +112,13 @@ public class FileChannelBuffer extends AbstractChannelBuffer implements WrappedC
     }
 
     @Override
-    public int setBytes(int index, InputStream in, int length)
-            throws IOException {
+    public int setBytes(int index, InputStream in, int length) {
         throw new RuntimeException();
     }
 
     @Override
-    public int setBytes(int index, ScatteringByteChannel in, int length)
-            throws IOException {
+    public int setBytes(int index, ScatteringByteChannel in, int length) {
         throw new RuntimeException();
-
     }
 
     @Override

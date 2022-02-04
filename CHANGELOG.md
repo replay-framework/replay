@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.4 (released 04.02.2022)
+* #41 fix "IOException: mark/reset not supported" when parsing http parameters
+
 ## 1.9.3 (released 03.02.2022)
 * upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc. 
 
