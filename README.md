@@ -71,26 +71,24 @@ with the value: `-parameters` (also found in the `build.gradle` file, it put the
 4. Go to `Run -> Edit Configurations...`, click the `+` (Add New Configuration) in the top-right corner and select "Application"
 5. Fill in the following details, and click `OK`:
   * *Name*: `Criminals` (how this run/debug configuration shows up in the IntelliJ UI)
-  * *JDK/JRE*: select one you prefer (Java 11 is a minimum requirement)
+  * *JDK/JRE*: select one you prefer (Java 11 is a minimum requirement, Java 17 seems to work fine)
   * *Use classpath of module*: `criminals.main`
   * *Main class*: `criminals.Application` (the package name, `criminals` should match the package that contains you `Application` class in `app/`)
   * *VM options* (shown with *Modify options* drop-down item *Add VM options*): `-XX:+ShowCodeDetailsInExceptionMessages` (for more helpful errors)
-    * In case you have selected a *JDK/JRE* version 16 or greater also add the following *VM options* (needed by RePlay's `gson` dependency):
-
-```
---add-exports=java.base/jdk.internal.access.foreign=ALL-UNNAMED
---add-opens=java.base/java.nio=ALL-UNNAMED
-```
 
 Now a "Run/Debug Configuration" with the name of your app shows up in the top-right of the screen.
 You can press the "Run" button (with the green play icon) to start the application from the IDE.
 
 To run the application in debug mode press the "Debug" button (with a little bug icon, next to the "Run" button) and all should work.
 
-When in debug mode use `CTRL-SHIFT-F9` to compile and hot-swap code changes into the running application.
+When in debug mode you can use `CTRL-SHIFT-F9` to "Reload Changed Classes" (as IntelliJ calls hot-swapping).
 This only works when class/method signatures were not changed.
 If hot-swapping failed, you will see a notification in IDEA after which you need to restart the application.
-To fully restart the project use `SHIFT-F9` or press the bug icon button again.
+To fully restart the project in debug mode use `SHIFT-F9`, or press the bug icon button again.
+
+Finally, in `File -> Settings... -> Build, Execution, Deployment -> Build Tools -> Gradle` set both
+*Build and run using* and *Run test using* to `IntelliJ IDEA`.
+This should make restarting and hot-swapping much (5-30x) faster!
 
 
 ## Deploying
