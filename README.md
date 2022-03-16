@@ -1,9 +1,14 @@
 # The RePlay Framework
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
-Forking was needed to make some breaking changes (detailed below) that would otherwise not be possible.
+Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
+Compared to Play1, RePlay is a simpler and more standard/modern framework with greatly improved developer ergonomics.
+The main differences between Play1 and RePlay are outlined below.
 
-RePlay originally forked Play 1.5.0, applicable improvements made in the Play1 project are regularly copied into RePlay.
+RePlay originally forked Play v1.5.0. Improvements made in the Play1 project since, are regularly ported to RePlay when applicable.
+[Version 2 of the Play Framework](https://github.com/playframework/playframework) (Play2) is significantly different from Play1.
+Porting a Play1 application to Play2 is really hard and has [questionable benefits](https://groups.google.com/g/play-framework/c/AcZs8GXNWUc).
+RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
 
 #### Main differences between RePlay and Play1
@@ -28,26 +33,26 @@ These were not used at Codeborne, but could be reintroduced if needed.
 
 ## Getting started
 
-RePlay does not come with the `play` command line tool (written in Python 2.7) like Play1.
+RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
+Hence, the `play new` scaffolding generator is not available in RePlay.
+To start a new RePlay application simply clone the [up-to-date demo application](https://github.com/asolntsev/criminals) and work your way up from there.
 
-Therefore, the `play new` scaffolding generator is not available.
-It is advised to simply start with RePlay's [up-to-date demo application](https://github.com/asolntsev/criminals), and work your way up from there.
-The projects in RePlay's `replay-tests/` folder also show how to do certain things in RePlay (like the use of Kotlin and dependency injection with Guice).
-For an over
+Sub-projects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using of Kotlin and dependency injection with Guice).
+
+Documentation for RePlay is found in (or referred to from) this README.
 
 **NOTE**: Due to its small community, RePlay is not likely the best choice for a new project.
 Same holds true for Play1 and even Play2. RePlay primarily caters to maintainers of Play1-based applications.
-Compared to Play1 it is a simpler, more standard/modern framework with greatly improved developer ergonomics.
-This README has a section on porting Play1 applications.
+This README contains an extensive guide for porting Play1 applications to RePlay.
 
 
 ## Documentation
 
 For a large part the [documentation of Play1](https://www.playframework.com/documentation/1.5.x/home) may be used as a reference.
-Keep the main differences between Play1 and RePlay (outlined above) in mind, to know what parts of Play1's documentation to ignore.
+Keep the differences between Play1 and RePlay (outlined above) in mind, in order to know what parts of the Play1 documentation to ignore.
 
 API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder.
-The [javadoc.io](https://javadoc.io) project provides online access to the javadocs for RePlay's
+The [javadoc.io](https://javadoc.io) project provides online access to the *Javadoc* documentation of RePlay's
 [framework](https://javadoc.io/doc/com.codeborne.replay/framework), [fastergt](https://javadoc.io/doc/com.codeborne.replay/fastergt),
 [guice](https://javadoc.io/doc/com.codeborne.replay/guice), [excel](https://javadoc.io/doc/com.codeborne.replay/excel),
 [pdf](https://javadoc.io/doc/com.codeborne.replay/pdf) and [liquibase](https://javadoc.io/doc/com.codeborne.replay/liquibase) packages.
@@ -55,7 +60,7 @@ The [javadoc.io](https://javadoc.io) project provides online access to the javad
 
 ## Development flow (hot-swapping)
 
-RePlay does not use the `play` CLI command, which is used to start a Play1 application in development mode (i.e.: with `play run`)
+RePlay does not come with the `play` command line tool, which is used to start a Play1 application in development mode (i.e.: with `play run`)
 providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
@@ -122,12 +127,13 @@ A [pull request for this exists](https://github.com/codeborne/replay/pull/25), b
 ## Plugins
 
 Play1 [installs some plugins out-of-the-box](https://github.com/playframework/play1/blob/master/framework/src/play.plugins) which you can disable in your project.
-The plugins that Play1 setup by default will need to be explicitly added to your RePlay project's `play.plugins` file. The ability to disable plugins is no longer needed.
+The plugins that Play1 enables by default will need to be explicitly added to your RePlay project's `play.plugins` file.
+The ability to disable plugins is no longer needed (and has therefor been removed).
 
 Some Play1 plugins do not have a RePlay equivalent, such as:
 `play.plugins.EnhancerPlugin` (RePlay does not do byte-code "enhancing" by design),
-`play.ConfigurationChangeWatcherPlugin`, `play.db.Evolutions`, `play.plugins.ConfigurablePluginDisablingPlugin`
-(no longer needed as you pick the plugins you need in your own project).
+`play.ConfigurationChangeWatcherPlugin`, `play.db.Evolutions` and `play.plugins.ConfigurablePluginDisablingPlugin`
+(no longer needed as just explained).
 
 The RePlay project comes with the following plugins:
 
@@ -162,7 +168,7 @@ Write your own plugins by extending `play.PlayPlugin` is still possible, porting
 to RePlay should be straightforward or not needed at all.
 
 
-## Porting a Play1 application over to RePlay
+## Porting a Play1 application to RePlay
 
 Porting a Play1 application to RePlay requires quite some work, depending on the size of the application.
 The work will be significantly less than porting the application to [Play2](https://www.playframework.com) or
@@ -172,6 +178,11 @@ A serious part of the work stems from the removal of Play1's "Enhancers", these 
 apply runtime bytecode manipulation which add methods and intercept method calls or member field access.
 Removing the enhancers gives RePlay many of it's benefits: quick builds, reduce start-up times, allow non-Java JVM language interop,
 reduce magic, make mocking easier and results in more idiomatic Java code.
+
+It is advised to perform the porting work as much as possible while still being based on Play1.
+This allows you to break-up the effort in smaller "testable" steps
+making the effort more incremental and thereby greatly reducing the complexity of actual switch to RePlay.
+Where this is possible the guide below points this out with a **TIP**.
 
 The following list breaks down the porting effort into tasks:
 
