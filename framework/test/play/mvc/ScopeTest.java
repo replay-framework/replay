@@ -135,13 +135,6 @@ public class ScopeTest {
     }
 
     @Test
-    public void sessionWithOnlyId_isEmpty() {
-        Session session = new Session();
-        assertThat(session.getId()).isNotEmpty();
-        assertThat(session.isEmpty()).isTrue();
-    }
-
-    @Test
     public void flashErrorFormat() {
         Flash flash = new Flash();
         flash.error("Your name is %s", "Hello");

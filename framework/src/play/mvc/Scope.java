@@ -240,7 +240,7 @@ public class Scope {
          */
         public boolean isEmpty() {
             for (String key : data.keySet()) {
-                if (!TS_KEY.equals(key) && !UA_KEY.equals(key) && !ID_KEY.equals(key)) {
+                if (!TS_KEY.equals(key) && !UA_KEY.equals(key)) {
                     return false;
                 }
             }
