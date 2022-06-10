@@ -29,7 +29,7 @@ public class MemcachedImpl implements CacheImpl {
   private final MemcachedTranscoder tc = new MemcachedTranscoder();
 
   public MemcachedImpl(Properties configuration) throws IOException {
-    System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.Log4JLogger");
+    System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.SLF4JLogger");
     client = new MemcachedClientBuilder().build(configuration);
     mdcParameterName = configuration.getProperty("memcached.mdc.parameter", "");
   }
