@@ -8,6 +8,7 @@ import play.Play;
 import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Scope;
+import play.mvc.TemplateNameResolver;
 import play.server.Server;
 import play.templates.Template;
 import play.templates.TemplateLoader;
@@ -21,7 +22,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
 
 public class PdfHelper {
-  protected static IHtmlToPdfTransformer transformer;
+  private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
+  private static IHtmlToPdfTransformer transformer;
 
   public void loadHeaderAndFooter(PDFDocument doc, Map<String, Object> args) throws TemplateNotFoundException {
     PDF.Options options = doc.options;
@@ -106,8 +108,7 @@ public class PdfHelper {
   }
 
   public Map<String, Object> templateBinding(Map<String, Object> args) {
-    Map<String, Object> templateBinding = new HashMap<>();
-    templateBinding.putAll(args);
+    Map<String, Object> templateBinding = new HashMap<>(args);
     Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
     if (renderArgs != null) {
       templateBinding.putAll(renderArgs.data);
@@ -116,6 +117,14 @@ public class PdfHelper {
     templateBinding.put("request", Http.Request.current());
 
     return templateBinding;
+  }
+
+  public void generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocument document) {
+    String templateName = templateNameResolver.resolveTemplateName(document.template);
+    Template template = TemplateLoader.load(templateName);
+    document.args.putAll(templateBinding(pdfTemplate.getArguments()));
+    document.content = template.render(new HashMap<>(document.args));
+    loadHeaderAndFooter(document, document.args);
   }
 
   public PDFDocument createSinglePDFDocuments(PdfTemplate pdfTemplate) {
