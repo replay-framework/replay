@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.5 (released 18.07.2022)
+* #50 Make PdfHelper methods public  --  see PR #51
+
 ## 1.9.4 (released 04.02.2022)
 * #41 fix "IOException: mark/reset not supported" when parsing http parameters
 
