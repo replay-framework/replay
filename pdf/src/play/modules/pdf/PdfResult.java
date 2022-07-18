@@ -8,10 +8,6 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
-import play.templates.Template;
-import play.templates.TemplateLoader;
-
-import java.util.HashMap;
 
 public class PdfResult extends Result {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
@@ -52,11 +48,7 @@ public class PdfResult extends Result {
     if (request.secure && helper.isIE(request))
       response.setHeader("Cache-Control", "");
 
-    String templateName1 = templateNameResolver.resolveTemplateName(document.template);
-    Template template = TemplateLoader.load(templateName1);
-    document.args.putAll(helper.templateBinding(pdfTemplate.getArguments()));
-    document.content = template.render(new HashMap<>(document.args));
-    helper.loadHeaderAndFooter(document, document.args);
+    helper.generatePdfFromTemplate(pdfTemplate, document);
     helper.renderPDF(document, response.out, request);
   }
 
