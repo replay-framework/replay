@@ -3,14 +3,17 @@ package controllers;
 import play.mvc.Controller;
 import play.mvc.results.RenderJson;
 
-/** Used by LargePostBodySpec#exerciseFileChannelBufferWithLargePostBody() */
+/**
+ * Used by LargePostBodySpec#exerciseFileChannelBufferWithLargePostBody()
+ */
 public class AcceptPost extends Controller {
 
   public RenderJson respondWithEmptyObject() {
 
-    // this triggers the log warning from TextParser.resetBodyInputStreamIfPossible
-    String body = request.params.get("body");
+    // This triggers the log warning from TextParser.resetBodyInputStreamIfPossible
+    request.params.get("body");
 
-    return new RenderJson("{}");
+    return new RenderJson(
+        String.format("{\"content-length\": %s}", request.headers.get("content-length").value()));
   }
 }
