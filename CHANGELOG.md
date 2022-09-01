@@ -1,7 +1,8 @@
 # Changelog
 
-## 1.9.5 (released 18.07.2022)
+## 1.9.5 (released 01.09.2022)
 * #50 Make PdfHelper methods public  --  see PR #51
+* upgrade dependencies (Eclipse compiler 3.30.0, hibernate:5.6.11.Final, groovy:3.0.12, liquibase:4.15.0, ehcache:3.10.1, slf4j:2.0.0, reload4j:1.2.22, asm:9.3, gson:2.9.1, guava:31.1-jre)
 
 ## 1.9.4 (released 04.02.2022)
 * #41 fix "IOException: mark/reset not supported" when parsing http parameters
