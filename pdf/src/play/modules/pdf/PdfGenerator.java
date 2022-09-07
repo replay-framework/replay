@@ -13,8 +13,8 @@ public class PdfGenerator {
 
   public byte[] generate(PdfTemplate pdfTemplate) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PDFDocument document = helper.createSinglePDFDocuments(pdfTemplate);
-    helper.generatePdfFromTemplate(pdfTemplate, document);
+    PDFDocumentRequest request = helper.createSinglePDFDocuments(pdfTemplate);
+    PDFDocument document = helper.generatePdfFromTemplate(pdfTemplate, request);
     helper.renderPDF(document, out, Http.Request.current());
     return out.toByteArray();
   }

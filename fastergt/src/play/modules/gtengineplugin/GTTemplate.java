@@ -11,17 +11,21 @@ import play.template2.GTRenderingResult;
 import play.template2.GTTemplateLocation;
 import play.templates.Template;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+@ParametersAreNonnullByDefault
 public class GTTemplate extends Template {
 
     private final GTTemplateLocation templateLocation;
     private final GTJavaBase gtJavaBase;
 
-    public GTTemplate(GTTemplateLocation templateLocation, GTJavaBase gtJavaBase) {
+    public GTTemplate(GTTemplateLocation templateLocation, @Nullable GTJavaBase gtJavaBase) {
         this.templateLocation = templateLocation;
         this.gtJavaBase = gtJavaBase;
         this.name = templateLocation.relativePath;
@@ -29,7 +33,7 @@ public class GTTemplate extends Template {
 
     @Override
     public void compile() {
-        //Don't have to do anything here..
+        //Don't have to do anything here
     }
 
     @Override
@@ -37,10 +41,11 @@ public class GTTemplate extends Template {
         GTRenderingResult renderingResult = internalGTRender(args);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         renderingResult.writeOutput(out, UTF_8);
-        return new String(out.toByteArray(), UTF_8);
+        return out.toString(UTF_8);
     }
 
-    public GTRenderingResult internalGTRender(Map<String, Object> args) {
+    public GTRenderingResult internalGTRender(Map<String, Object> templateArgs) {
+        Map<String, Object> args = new HashMap<>(templateArgs);
         Http.Request currentResponse = Http.Request.current();
         if ( currentResponse != null) {
             args.put("_response_encoding", currentResponse.encoding);
@@ -53,7 +58,7 @@ public class GTTemplate extends Template {
     }
 
     protected GTJavaBase getGTTemplateInstance() {
-        if ( gtJavaBase == null) {
+        if (gtJavaBase == null) {
             return TemplateLoader.getGTTemplateInstance(templateLocation);
         } else {
             return gtJavaBase;

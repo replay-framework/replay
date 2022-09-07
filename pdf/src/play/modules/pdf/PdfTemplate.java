@@ -2,55 +2,68 @@ package play.modules.pdf;
 
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
+@ParametersAreNonnullByDefault
 public class PdfTemplate {
+  @Nullable
   private final String templateName;
   private final Map<String, Object> arguments = new HashMap<>();
   private String fileName;
-  private IHtmlToPdfTransformer.PageSize pageSize;
+  private IHtmlToPdfTransformer.PageSize pageSize = IHtmlToPdfTransformer.A4P;
 
   public PdfTemplate() {
     this(null);
   }
 
-  public PdfTemplate(String templateName) {
+  public PdfTemplate(@Nullable String templateName) {
     this.templateName = templateName;
   }
 
+  @Nonnull
   public final PdfTemplate with(String name, Object value) {
     arguments.put(name, value);
     return this;
   }
 
+  @Nonnull
   public final PdfTemplate fileName(String fileName) {
-    this.fileName = fileName;
+    this.fileName = requireNonNull(fileName);
     return this;
   }
 
+  @Nonnull
   public final PdfTemplate pageSize(IHtmlToPdfTransformer.PageSize pageSize) {
-    this.pageSize = pageSize;
+    this.pageSize = requireNonNull(pageSize);
     return this;
   }
 
-  PDF.Options options() {
-    if (fileName == null && pageSize == null) return null;
-    PDF.Options options = new PDF.Options();
-    if (fileName != null) options.filename = fileName;
-    if (pageSize != null) options.pageSize = pageSize;
-    return options;
-  }
-
+  @Nonnull
+  @CheckReturnValue
   public Map<String, Object> getArguments() {
     return arguments;
   }
 
+  @Nullable
   public String getTemplateName() {
     return templateName;
   }
 
+  @Nonnull
+  @CheckReturnValue
+  public IHtmlToPdfTransformer.PageSize getPageSize() {
+    return pageSize;
+  }
+
+  @Nullable
   public String getFileName() {
     return fileName;
   }
