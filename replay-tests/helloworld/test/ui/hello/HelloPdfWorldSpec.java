@@ -15,4 +15,10 @@ public class HelloPdfWorldSpec extends BaseSpec {
     PDF pdf = new PDF(new URL(Configuration.baseUrl + "/pdf"));
     assertThat(pdf).containsExactText("Hello, PDF World!");
   }
+
+  @Test
+  public void downloadHelloWorldPdfGeneratedFromPlainText() throws IOException {
+    PDF pdf = new PDF(new URL(Configuration.baseUrl + "/pdf/text"));
+    assertThat(pdf).containsExactText("Hello, PDF World!");
+  }
 }

@@ -13,4 +13,8 @@ public class HelloWorld implements PlayController {
   public PdfResult helloPdf() {
     return new PdfResult("hello.html").with("who", "PDF World");
   }
+
+  public PdfResult helloPdfFromPlainText() {
+    return new PdfResult("hello.txt").with("who", "PDF World");
+  }
 }
