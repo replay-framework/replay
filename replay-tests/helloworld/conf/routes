@@ -1,3 +1,4 @@
-GET    /          HelloWorld.hello
-GET    /pdf       HelloWorld.helloPdf
-GET    /pdf/text  HelloWorld.helloPdfFromPlainText
+GET    /                   HelloWorld.hello
+GET    /pdf                HelloWorld.helloPdf
+GET    /pdf/text           HelloWorld.helloPdfFromPlainText
+GET    /pdf/text2          HelloWorld.helloPdfUsingRequestFormat
