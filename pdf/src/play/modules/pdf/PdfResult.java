@@ -41,15 +41,19 @@ public class PdfResult extends Result {
     renderArgs.put("session", session);
     renderArgs.put("flash", flash);
 
-    PDFDocumentRequest pdfDocumentRequest = helper.createSinglePDFDocuments(pdfTemplate);
-    response.setHeader("Content-Disposition", contentDisposition(pdfDocumentRequest.filename));
+    String filename = helper.fileName(pdfTemplate);
+    response.setHeader("Content-Disposition", contentDisposition(filename));
     setContentTypeIfNotSet(response, "application/pdf");
-    // FIX IE bug when using SSL
-    if (request.secure && helper.isIE(request))
-      response.setHeader("Cache-Control", "");
+    fixIEbugWhenUsingSSL(request, response);
 
-    PDFDocument document = helper.generatePdfFromTemplate(pdfTemplate, pdfDocumentRequest);
+    PDFDocument document = helper.generatePDF(pdfTemplate);
     helper.renderPDF(document, response.out, request);
+  }
+
+  private static void fixIEbugWhenUsingSSL(Request request, Response response) {
+    if (request.secure && helper.isIE(request)) {
+      response.setHeader("Cache-Control", "");
+    }
   }
 
   @Nonnull
