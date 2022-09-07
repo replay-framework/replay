@@ -10,6 +10,8 @@ import play.server.Server;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
@@ -47,13 +49,15 @@ public class PdfHelper {
     }
   }
 
-  public void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out) throws CConvertException {
+  private void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out) throws CConvertException {
     getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
       uri, doc.pageSize, emptyList(),
       properties, out);
   }
 
-  public synchronized IHtmlToPdfTransformer getTransformer() {
+  @Nonnull
+  @CheckReturnValue
+  private static synchronized IHtmlToPdfTransformer getTransformer() {
     if (transformer == null) {
       try {
         transformer = (IHtmlToPdfTransformer) Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
@@ -66,7 +70,9 @@ public class PdfHelper {
     return transformer;
   }
 
-  public String removeScripts(String html) {
+  @Nonnull
+  @CheckReturnValue
+  String removeScripts(String html) {
     int nextScriptStart = html.indexOf("<script");
     if (nextScriptStart == -1) return html;
 
@@ -81,11 +87,15 @@ public class PdfHelper {
     return sb.toString();
   }
 
-  public String templateNameFromAction(@Nullable String format) {
-    return Http.Request.current().action.replace(".", "/") + "." + (format == null ? "html" : format);
+  @Nonnull
+  @CheckReturnValue
+  private String templateNameFromAction(String format) {
+    return Http.Request.current().action.replace(".", "/") + "." + format;
   }
 
-  public Map<String, Object> templateBinding(Map<String, Object> args) {
+  @Nonnull
+  @CheckReturnValue
+  private Map<String, Object> templateBinding(Map<String, Object> args) {
     Map<String, Object> templateBinding = new HashMap<>(args);
     Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
     if (renderArgs != null) {
@@ -97,7 +107,16 @@ public class PdfHelper {
     return templateBinding;
   }
 
-  public PDFDocument generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocumentRequest pdfDocumentRequest) {
+  @Nonnull
+  @CheckReturnValue
+  public PDFDocument generatePDF(PdfTemplate pdfTemplate) {
+    String templateName = templateName(pdfTemplate);
+    return generatePdfFromTemplate(pdfTemplate, new PDFDocumentRequest(templateName, pdfTemplate.getPageSize(), fileName(pdfTemplate.getFileName(), templateName)));
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  private PDFDocument generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocumentRequest pdfDocumentRequest) {
     String templateName = templateNameResolver.resolveTemplateName(pdfDocumentRequest.template);
     Template template = TemplateLoader.load(templateName);
     
@@ -106,12 +125,21 @@ public class PdfHelper {
     return new PDFDocument(content, pdfDocumentRequest.pageSize);
   }
 
-  public PDFDocumentRequest createSinglePDFDocuments(PdfTemplate pdfTemplate) {
-    String templateName = requireNonNullElseGet(pdfTemplate.getTemplateName(), () -> templateNameFromAction("html"));
-    return new PDFDocumentRequest(templateName, pdfTemplate.getPageSize(), fileName(pdfTemplate.getFileName(), templateName));
+  @Nonnull
+  @CheckReturnValue
+  private String templateName(PdfTemplate pdfTemplate) {
+    return requireNonNullElseGet(pdfTemplate.getTemplateName(), () -> templateNameFromAction("html"));
   }
 
-  public String fileName(@Nullable String providedFileName, String templateName) {
+  @Nonnull
+  @CheckReturnValue
+  String fileName(PdfTemplate pdfTemplate) {
+    return fileName(pdfTemplate.getFileName(), templateName(pdfTemplate));
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  private String fileName(@Nullable String providedFileName, String templateName) {
     return requireNonNullElseGet(providedFileName, () -> getBaseName(templateName) + ".pdf");
   }
 }
