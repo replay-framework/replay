@@ -26,7 +26,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * 200 OK with a template rendering
  */
 public class View extends Result {
-  private static TemplateNameResolver templateNameResolver = new TemplateNameResolver();
+  private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
   private final String templateName;
   private final Map<String, Object> arguments;

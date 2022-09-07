@@ -89,12 +89,6 @@ public class PdfHelper {
 
   @Nonnull
   @CheckReturnValue
-  private String templateNameFromAction(String format) {
-    return Http.Request.current().action.replace(".", "/") + "." + format;
-  }
-
-  @Nonnull
-  @CheckReturnValue
   private Map<String, Object> templateBinding(Map<String, Object> args) {
     Map<String, Object> templateBinding = new HashMap<>(args);
     Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
@@ -111,24 +105,17 @@ public class PdfHelper {
   @CheckReturnValue
   public PDFDocument generatePDF(PdfTemplate pdfTemplate) {
     String templateName = templateName(pdfTemplate);
-    return generatePdfFromTemplate(pdfTemplate, new PDFDocumentRequest(templateName, pdfTemplate.getPageSize(), fileName(pdfTemplate.getFileName(), templateName)));
-  }
+    Template htmlTemplate = TemplateLoader.load(templateName);
 
-  @Nonnull
-  @CheckReturnValue
-  private PDFDocument generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocumentRequest pdfDocumentRequest) {
-    String templateName = templateNameResolver.resolveTemplateName(pdfDocumentRequest.template);
-    Template template = TemplateLoader.load(templateName);
-    
     Map<String, Object> args = new HashMap<>(templateBinding(pdfTemplate.getArguments()));
-    String content = template.render(args);
-    return new PDFDocument(content, pdfDocumentRequest.pageSize);
+    String content = htmlTemplate.render(args);
+    return new PDFDocument(content, pdfTemplate.getPageSize());
   }
 
   @Nonnull
   @CheckReturnValue
   private String templateName(PdfTemplate pdfTemplate) {
-    return requireNonNullElseGet(pdfTemplate.getTemplateName(), () -> templateNameFromAction("html"));
+    return templateNameResolver.resolveTemplateName(pdfTemplate.getTemplateName());
   }
 
   @Nonnull
