@@ -3,6 +3,7 @@
 301:play.db.DBBrowserPlugin
 600:play.libs.WS
 700:play.jobs.JobsPlugin
+750:hello.plugins.PdfGeneratorSamplePlugin
 800:play.modules.gtengineplugin.GTEnginePlugin
 1002:play.db.jpa.JPAPlugin
 100100:play.plugins.PlayStatusPlugin
