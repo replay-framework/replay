@@ -6,11 +6,11 @@ import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
 
+import javax.annotation.Nonnull;
+
 public class PdfResult extends Result {
-  private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
   private static final PdfHelper helper = new PdfHelper();
 
   private final PdfTemplate pdfTemplate;
@@ -41,15 +41,21 @@ public class PdfResult extends Result {
     renderArgs.put("session", session);
     renderArgs.put("flash", flash);
 
-    PDFDocument document = helper.createSinglePDFDocuments(pdfTemplate);
-    response.setHeader("Content-Disposition", (inline ? "inline" : "attachment") + "; filename=\"" + document.filename + "\"");
+    PDFDocumentRequest pdfDocumentRequest = helper.createSinglePDFDocuments(pdfTemplate);
+    response.setHeader("Content-Disposition", contentDisposition(pdfDocumentRequest.filename));
     setContentTypeIfNotSet(response, "application/pdf");
     // FIX IE bug when using SSL
     if (request.secure && helper.isIE(request))
       response.setHeader("Cache-Control", "");
 
-    helper.generatePdfFromTemplate(pdfTemplate, document);
+    PDFDocument document = helper.generatePdfFromTemplate(pdfTemplate, pdfDocumentRequest);
     helper.renderPDF(document, response.out, request);
+  }
+
+  @Nonnull
+  String contentDisposition(String filename) {
+    String type = inline ? "inline" : "attachment";
+    return String.format("%s; filename=\"%s\"", type, filename);
   }
 
   public PdfResult with(String name, Object value) {

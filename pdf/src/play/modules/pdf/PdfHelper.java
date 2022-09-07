@@ -2,10 +2,7 @@ package play.modules.pdf;
 
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import play.Play;
-import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Scope;
 import play.mvc.TemplateNameResolver;
@@ -13,41 +10,23 @@ import play.server.Server;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNullElseGet;
 import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
 
+@ParametersAreNonnullByDefault
 public class PdfHelper {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
   private static IHtmlToPdfTransformer transformer;
-
-  public void loadHeaderAndFooter(PDFDocument doc, Map<String, Object> args) throws TemplateNotFoundException {
-    PDF.Options options = doc.options;
-    if (options == null)
-      return;
-    if (!StringUtils.isEmpty(options.HEADER_TEMPLATE)) {
-      Template template = TemplateLoader.load(options.HEADER_TEMPLATE);
-      options.HEADER = template.render(new HashMap<>(args));
-    }
-    if (!StringUtils.isEmpty(options.FOOTER_TEMPLATE)) {
-      Template template = TemplateLoader.load(options.FOOTER_TEMPLATE);
-      options.FOOTER = template.render(new HashMap<>(args));
-    }
-    if (!StringUtils.isEmpty(options.HEADER))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.HEADER, IHtmlToPdfTransformer.CHeaderFooter.HEADER));
-    if (!StringUtils.isEmpty(options.ALL_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.ALL_PAGES, IHtmlToPdfTransformer.CHeaderFooter.ALL_PAGES));
-    if (!StringUtils.isEmpty(options.EVEN_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.EVEN_PAGES, IHtmlToPdfTransformer.CHeaderFooter.EVEN_PAGES));
-    if (!StringUtils.isEmpty(options.FOOTER))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.FOOTER, IHtmlToPdfTransformer.CHeaderFooter.FOOTER));
-    if (!StringUtils.isEmpty(options.ODD_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.ODD_PAGES, IHtmlToPdfTransformer.CHeaderFooter.ODD_PAGES));
-  }
 
   public boolean isIE(Http.Request request) {
     if (!request.headers.containsKey("user-agent"))
@@ -57,7 +36,7 @@ public class PdfHelper {
     return userAgent.value().contains("MSIE");
   }
 
-  public void renderPDF(PDFDocument document, OutputStream out, Http.Request request) {
+  public void renderPDF(PDFDocument document, OutputStream out, @Nullable Http.Request request) {
     try {
       Map<?, ?> properties = new HashMap<>(Play.configuration);
       String uri = request == null ? "" : ("http://localhost:" + Server.httpPort + request.url);
@@ -69,9 +48,8 @@ public class PdfHelper {
   }
 
   public void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out) throws CConvertException {
-    IHtmlToPdfTransformer.PageSize pageSize = doc.options != null ? doc.options.pageSize : IHtmlToPdfTransformer.A4P;
     getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
-      uri, pageSize, doc.getHeaderFooterList(),
+      uri, doc.pageSize, emptyList(),
       properties, out);
   }
 
@@ -103,7 +81,7 @@ public class PdfHelper {
     return sb.toString();
   }
 
-  public String templateNameFromAction(String format) {
+  public String templateNameFromAction(@Nullable String format) {
     return Http.Request.current().action.replace(".", "/") + "." + (format == null ? "html" : format);
   }
 
@@ -119,22 +97,21 @@ public class PdfHelper {
     return templateBinding;
   }
 
-  public void generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocument document) {
-    String templateName = templateNameResolver.resolveTemplateName(document.template);
+  public PDFDocument generatePdfFromTemplate(PdfTemplate pdfTemplate, PDFDocumentRequest pdfDocumentRequest) {
+    String templateName = templateNameResolver.resolveTemplateName(pdfDocumentRequest.template);
     Template template = TemplateLoader.load(templateName);
-    document.args.putAll(templateBinding(pdfTemplate.getArguments()));
-    document.content = template.render(new HashMap<>(document.args));
-    loadHeaderAndFooter(document, document.args);
+    
+    Map<String, Object> args = new HashMap<>(templateBinding(pdfTemplate.getArguments()));
+    String content = template.render(args);
+    return new PDFDocument(content, pdfDocumentRequest.pageSize);
   }
 
-  public PDFDocument createSinglePDFDocuments(PdfTemplate pdfTemplate) {
-    String templateName = pdfTemplate.getTemplateName() != null ? pdfTemplate.getTemplateName() : templateNameFromAction("html");
-    return new PDFDocument(templateName, pdfTemplate.options(), fileName(templateName, pdfTemplate.options()));
+  public PDFDocumentRequest createSinglePDFDocuments(PdfTemplate pdfTemplate) {
+    String templateName = requireNonNullElseGet(pdfTemplate.getTemplateName(), () -> templateNameFromAction("html"));
+    return new PDFDocumentRequest(templateName, pdfTemplate.getPageSize(), fileName(pdfTemplate.getFileName(), templateName));
   }
 
-  public String fileName(String templateName, PDF.Options options) {
-    return options != null && options.filename != null ?
-      options.filename :
-      FilenameUtils.getBaseName(templateName) + ".pdf";
+  public String fileName(@Nullable String providedFileName, String templateName) {
+    return requireNonNullElseGet(providedFileName, () -> getBaseName(templateName) + ".pdf");
   }
 }
