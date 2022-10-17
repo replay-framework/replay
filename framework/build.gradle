@@ -15,7 +15,7 @@ dependencies {
   api('org.apache.commons:commons-email:1.5') {transitive = false}
   api('commons-fileupload:commons-fileupload:1.4')
   api('commons-io:commons-io:2.11.0')
-  api('commons-lang:commons-lang:2.6')
+  implementation('commons-lang:commons-lang:2.6')
   api('commons-logging:commons-logging:1.2')
   api('com.h2database:h2:1.4.200')
   implementation('javax.activation:activation:1.1.1')
