@@ -25,7 +25,6 @@ dependencies {
   implementation('jaxen:jaxen:1.2.0')
   implementation('ch.qos.reload4j:reload4j:1.2.22')
   implementation('org.ehcache:ehcache:3.10.1')
-  implementation('net.sf.ezmorph:ezmorph:1.0.6')
   implementation('net.sf.jsr107cache:jsr107cache:1.1')
   api('net.sf.oval:oval:3.2.1')
   api('org.codehaus.groovy:groovy:3.0.12')
