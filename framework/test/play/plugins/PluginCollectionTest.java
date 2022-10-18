@@ -41,7 +41,7 @@ public class PluginCollectionTest {
         assertThat(pc.getEnabledPlugins()).containsExactly(
                 pc.getPluginInstance(TempFilePlugin.class),
                 pc.getPluginInstance(ValidationPlugin.class),
-                pc.getPluginInstance(DBPlugin.class), pc.getPluginInstance(play.db.DBBrowserPlugin.class),
+                pc.getPluginInstance(DBPlugin.class),
                 pc.getPluginInstance(JPAPlugin.class),
                 pc.getPluginInstance(MessagesPlugin.class), pc.getPluginInstance(WS.class),
                 pc.getPluginInstance(JobsPlugin.class),
