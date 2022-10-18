@@ -18,7 +18,6 @@ dependencies {
   api('com.h2database:h2:1.4.200')
   api('javax.mail:mail:1.4.7')
   api('javax.inject:javax.inject:1')
-  implementation('jaxen:jaxen:1.2.0')
   implementation('ch.qos.reload4j:reload4j:1.2.22')
   implementation('org.ehcache:ehcache:3.10.1')
   implementation('net.sf.jsr107cache:jsr107cache:1.1')
