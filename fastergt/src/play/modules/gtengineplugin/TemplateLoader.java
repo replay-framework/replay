@@ -12,9 +12,12 @@ import play.template2.compile.GTGroovyPimpTransformer;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.net.MalformedURLException;
 
+@ParametersAreNonnullByDefault
 public class TemplateLoader {
     private static GTTemplateRepo templateRepo;
 
@@ -68,6 +71,7 @@ public class TemplateLoader {
 
     }
 
+    @Nullable
     protected static GTJavaBase getGTTemplateInstance( GTTemplateLocation templateLocation) {
         return templateRepo.getTemplateInstance( templateLocation );
     }

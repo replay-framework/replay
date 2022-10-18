@@ -6,15 +6,11 @@ import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-import play.mvc.TemplateNameResolver;
 import play.mvc.results.Result;
-import play.templates.Template;
-import play.templates.TemplateLoader;
 
-import java.util.HashMap;
+import javax.annotation.Nonnull;
 
 public class PdfResult extends Result {
-  private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
   private static final PdfHelper helper = new PdfHelper();
 
   private final PdfTemplate pdfTemplate;
@@ -45,19 +41,25 @@ public class PdfResult extends Result {
     renderArgs.put("session", session);
     renderArgs.put("flash", flash);
 
-    PDFDocument document = helper.createSinglePDFDocuments(pdfTemplate);
-    response.setHeader("Content-Disposition", (inline ? "inline" : "attachment") + "; filename=\"" + document.filename + "\"");
+    String filename = helper.fileName(pdfTemplate);
+    response.setHeader("Content-Disposition", contentDisposition(filename));
     setContentTypeIfNotSet(response, "application/pdf");
-    // FIX IE bug when using SSL
-    if (request.secure && helper.isIE(request))
-      response.setHeader("Cache-Control", "");
+    fixIEbugWhenUsingSSL(request, response);
 
-    String templateName1 = templateNameResolver.resolveTemplateName(document.template);
-    Template template = TemplateLoader.load(templateName1);
-    document.args.putAll(helper.templateBinding(pdfTemplate.getArguments()));
-    document.content = template.render(new HashMap<>(document.args));
-    helper.loadHeaderAndFooter(document, document.args);
+    PDFDocument document = helper.generatePDF(pdfTemplate);
     helper.renderPDF(document, response.out, request);
+  }
+
+  private static void fixIEbugWhenUsingSSL(Request request, Response response) {
+    if (request.secure && helper.isIE(request)) {
+      response.setHeader("Cache-Control", "");
+    }
+  }
+
+  @Nonnull
+  String contentDisposition(String filename) {
+    String type = inline ? "inline" : "attachment";
+    return String.format("%s; filename=\"%s\"", type, filename);
   }
 
   public PdfResult with(String name, Object value) {

@@ -139,7 +139,6 @@ The RePlay project comes with the following plugins:
 
 * `play.data.parsing.TempFilePlugin` 🟊 — Creates temporary folders for file parsing and deletes them after request completion.
 * `play.data.validation.ValidationPlugin` 🟊 — Adds validation on controller methods parameters based on annotations.
-* `play.db.DBBrowserPlugin` 🟊 — Mounts the H2 Console on `/@db` in development mode. Only works for the in-memory H2 database. 
 * `play.db.DBPlugin` 🟊 — Sets up the Postgres, MySQL or H2 data source based on the configuration values.
 * `play.db.jpa.JPAPlugin` 🟊 — Initialises required JPA EntityManagerFactories. 
 * `play.i18n.MessagesPlugin` 🟊 — The internationalization system for UI strings.

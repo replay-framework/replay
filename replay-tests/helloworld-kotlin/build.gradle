@@ -1,8 +1,8 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+  id 'org.jetbrains.kotlin.jvm' version '1.7.10'
 }
 dependencies {
-  implementation('com.google.guava:guava:31.0.1-jre') {transitive = false}
+  implementation('com.google.guava:guava:31.1-jre') {transitive = false}
   implementation "org.jetbrains.kotlin:kotlin-stdlib"
   implementation project(':pdf')
   testImplementation "com.codeborne:pdf-test:1.7.0"

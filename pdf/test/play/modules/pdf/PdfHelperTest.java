@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 public class PdfHelperTest {
-  PdfHelper helper = new PdfHelper();
-  
+  private final PdfHelper helper = new PdfHelper();
+
   @Test
   public void removesScriptTagFromHtml() {
     assertEquals("", helper.removeScripts("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>"));

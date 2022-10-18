@@ -2,53 +2,35 @@ package play.modules.pdf;
 
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import play.Play;
-import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Scope;
+import play.mvc.TemplateNameResolver;
 import play.server.Server;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNullElseGet;
 import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
 
-class PdfHelper {
-  protected static IHtmlToPdfTransformer transformer;
+@ParametersAreNonnullByDefault
+public class PdfHelper {
+  private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
+  private static IHtmlToPdfTransformer transformer;
 
-  void loadHeaderAndFooter(PDFDocument doc, Map<String, Object> args) throws TemplateNotFoundException {
-    PDF.Options options = doc.options;
-    if (options == null)
-      return;
-    if (!StringUtils.isEmpty(options.HEADER_TEMPLATE)) {
-      Template template = TemplateLoader.load(options.HEADER_TEMPLATE);
-      options.HEADER = template.render(new HashMap<>(args));
-    }
-    if (!StringUtils.isEmpty(options.FOOTER_TEMPLATE)) {
-      Template template = TemplateLoader.load(options.FOOTER_TEMPLATE);
-      options.FOOTER = template.render(new HashMap<>(args));
-    }
-    if (!StringUtils.isEmpty(options.HEADER))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.HEADER, IHtmlToPdfTransformer.CHeaderFooter.HEADER));
-    if (!StringUtils.isEmpty(options.ALL_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.ALL_PAGES, IHtmlToPdfTransformer.CHeaderFooter.ALL_PAGES));
-    if (!StringUtils.isEmpty(options.EVEN_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.EVEN_PAGES, IHtmlToPdfTransformer.CHeaderFooter.EVEN_PAGES));
-    if (!StringUtils.isEmpty(options.FOOTER))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.FOOTER, IHtmlToPdfTransformer.CHeaderFooter.FOOTER));
-    if (!StringUtils.isEmpty(options.ODD_PAGES))
-      doc.addHeaderFooter(new IHtmlToPdfTransformer.CHeaderFooter(options.ODD_PAGES, IHtmlToPdfTransformer.CHeaderFooter.ODD_PAGES));
-  }
-
-  boolean isIE(Http.Request request) {
+  public boolean isIE(Http.Request request) {
     if (!request.headers.containsKey("user-agent"))
       return false;
 
@@ -56,7 +38,7 @@ class PdfHelper {
     return userAgent.value().contains("MSIE");
   }
 
-  void renderPDF(PDFDocument document, OutputStream out, Http.Request request) {
+  public void renderPDF(PDFDocument document, OutputStream out, @Nullable Http.Request request) {
     try {
       Map<?, ?> properties = new HashMap<>(Play.configuration);
       String uri = request == null ? "" : ("http://localhost:" + Server.httpPort + request.url);
@@ -67,15 +49,15 @@ class PdfHelper {
     }
   }
 
-  void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties,
-                 OutputStream out) throws UnsupportedEncodingException, CConvertException {
-    IHtmlToPdfTransformer.PageSize pageSize = doc.options != null ? doc.options.pageSize : IHtmlToPdfTransformer.A4P;
+  private void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out) throws CConvertException {
     getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
-      uri, pageSize, doc.getHeaderFooterList(),
+      uri, doc.pageSize, emptyList(),
       properties, out);
   }
 
-  private synchronized IHtmlToPdfTransformer getTransformer() {
+  @Nonnull
+  @CheckReturnValue
+  private static synchronized IHtmlToPdfTransformer getTransformer() {
     if (transformer == null) {
       try {
         transformer = (IHtmlToPdfTransformer) Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
@@ -88,6 +70,8 @@ class PdfHelper {
     return transformer;
   }
 
+  @Nonnull
+  @CheckReturnValue
   String removeScripts(String html) {
     int nextScriptStart = html.indexOf("<script");
     if (nextScriptStart == -1) return html;
@@ -103,13 +87,10 @@ class PdfHelper {
     return sb.toString();
   }
 
-  String templateNameFromAction(String format) {
-    return Http.Request.current().action.replace(".", "/") + "." + (format == null ? "html" : format);
-  }
-
-  Map<String, Object> templateBinding(Map<String, Object> args) {
-    Map<String, Object> templateBinding = new HashMap<>();
-    templateBinding.putAll(args);
+  @Nonnull
+  @CheckReturnValue
+  private Map<String, Object> templateBinding(Map<String, Object> args) {
+    Map<String, Object> templateBinding = new HashMap<>(args);
     Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
     if (renderArgs != null) {
       templateBinding.putAll(renderArgs.data);
@@ -120,14 +101,32 @@ class PdfHelper {
     return templateBinding;
   }
 
-  PDFDocument createSinglePDFDocuments(PdfTemplate pdfTemplate) {
-    String templateName = pdfTemplate.getTemplateName() != null ? pdfTemplate.getTemplateName() : templateNameFromAction("html");
-    return new PDFDocument(templateName, pdfTemplate.options(), fileName(templateName, pdfTemplate.options()));
+  @Nonnull
+  @CheckReturnValue
+  public PDFDocument generatePDF(PdfTemplate pdfTemplate) {
+    String templateName = templateName(pdfTemplate);
+    Template htmlTemplate = TemplateLoader.load(templateName);
+
+    Map<String, Object> args = new HashMap<>(templateBinding(pdfTemplate.getArguments()));
+    String content = htmlTemplate.render(args);
+    return new PDFDocument(content, pdfTemplate.getPageSize());
   }
 
-  private String fileName(String templateName, PDF.Options options) {
-    return options != null && options.filename != null ?
-      options.filename :
-      FilenameUtils.getBaseName(templateName) + ".pdf";
+  @Nonnull
+  @CheckReturnValue
+  private String templateName(PdfTemplate pdfTemplate) {
+    return templateNameResolver.resolveTemplateName(pdfTemplate.getTemplateName());
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  String fileName(PdfTemplate pdfTemplate) {
+    return fileName(pdfTemplate.getFileName(), templateName(pdfTemplate));
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  private String fileName(@Nullable String providedFileName, String templateName) {
+    return requireNonNullElseGet(providedFileName, () -> getBaseName(templateName) + ".pdf");
   }
 }
