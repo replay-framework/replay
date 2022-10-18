@@ -17,7 +17,6 @@ dependencies {
   api('commons-logging:commons-logging:1.2')
   api('javax.mail:mail:1.4.7')
   api('javax.inject:javax.inject:1')
-  implementation('jaxen:jaxen:1.2.0')
   implementation('ch.qos.reload4j:reload4j:1.2.22')
   implementation('org.ehcache:ehcache:3.10.1')
   api('net.sf.oval:oval:3.2.1')
