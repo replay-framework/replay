@@ -139,11 +139,7 @@ public class Play {
    * @param id The framework id to use
    */
   public void init(String id) {
-    Injector.setBeanSource(beanSource);
-    Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
-    Play.id = id;
-    Play.started = false;
-    Play.applicationPath = new File(System.getProperty("user.dir"));
+    setupBase();
     readConfiguration();
     new PlayLoggingSetup().init();
     logger.info("Starting {}", applicationPath.getAbsolutePath());
@@ -161,16 +157,13 @@ public class Play {
   }
 
   /**
-   * Minimalistic initialization of the framework (no modules, no plugins)
+   * Minimalistic initialization of the framework; allowing DIY-initialization
+   * (no modules, no plugins from .plugins file, no routes from routes file, no config file)
    *
    * @param id The framework id to use
    */
   public void minimalInit(String id) {
-    Injector.setBeanSource(beanSource);
-    Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
-    Play.id = id;
-    Play.started = false;
-    Play.applicationPath = new File(System.getProperty("user.dir"));
+    setupBase();
     new PlayLoggingSetup().init();
     logger.info("Starting {}", applicationPath.getAbsolutePath());
     setupTmpDir();
@@ -178,6 +171,14 @@ public class Play {
     setupAppRoot();
 
     Play.invoker = new Invoker();
+  }
+
+  private void setupBase() {
+    Injector.setBeanSource(beanSource);
+    Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
+    Play.id = id;
+    Play.started = false;
+    Play.applicationPath = new File(System.getProperty("user.dir"));
   }
 
   private static void setupTmpDir() {
