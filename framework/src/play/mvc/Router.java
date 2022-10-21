@@ -85,16 +85,19 @@ public class Router {
         instance.setRoutes(emptyList());
     }
 
-    public static void resetForTests(List<Route> routes) {
-        instance.setRoutes(routes);
+    /**
+     * Parse the routes file and load the routing definitions. This is called at normal startup.
+     */
+    private static void load() {
+        load(new RoutesParser().parse(Play.routes));
+        lastLoading = System.currentTimeMillis();
     }
 
     /**
-     * Parse the routes file. This is called at startup.
+     * Load the routing definitions.
      */
-    private static void load() {
-        instance.setRoutes(new RoutesParser().parse(Play.routes));
-        lastLoading = System.currentTimeMillis();
+    public static void load(List<Route> routes) {
+        instance.setRoutes(routes);
     }
 
     /**

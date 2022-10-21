@@ -45,13 +45,16 @@ public class PluginCollection {
     private static final Logger logger = LoggerFactory.getLogger(PluginCollection.class);
 
     /**
-     * List that holds all loaded plugins, enabled or disabled
+     * List that holds all loaded plugins, both enabled and disabled
      */
     private final List<PlayPlugin> allPlugins = new ArrayList<>();
 
+    /**
+     * Load plugins from .plugin files, if any
+     */
     public void loadPlugins() {
         logger.trace("Loading plugins");
-        List<URL> urls = loadPlayPluginDescriptors();
+        List<URL> urls = getPlayPluginFileUrls();
 
         // First we build one big SortedSet of all plugins to load (sorted based on index)
         // This must be done to make sure the enhancing is happening
@@ -74,6 +77,10 @@ public class PluginCollection {
             }
         }
 
+        loadPlugins(pluginsToLoad);
+    }
+
+    public void loadPlugins(SortedSet<PluginDescriptor> pluginsToLoad) {
         for (PluginDescriptor info : pluginsToLoad) {
             logger.trace("Loading plugin {}", info.name);
             PlayPlugin plugin = Injector.getBeanOfType(info.name);
@@ -81,17 +88,15 @@ public class PluginCollection {
             addPlugin(plugin);
             logger.trace("Plugin {} loaded", plugin);
         }
-        // Now we must call onLoad for all plugins - and we must detect if a
-        // plugin
-        // disables another plugin the old way, by removing it from
-        // Play.plugins.
+        // Now we call onLoad for all plugins and we detect if a plugin disables another plugin the
+        // old way, by removing it from Play.plugins.
         getEnabledPlugins().forEach(plugin -> {
-          logger.trace("Initializing plugin {}", plugin);
-          plugin.onLoad();
+            logger.trace("Initializing plugin {}", plugin);
+            plugin.onLoad();
         });
     }
 
-    List<URL> loadPlayPluginDescriptors() {
+    List<URL> getPlayPluginFileUrls() {
         String[] pluginsDescriptorFilenames = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins").split(",");
         List<URL> pluginDescriptors = Arrays.stream(pluginsDescriptorFilenames)
           .map(f -> getResources(f))
