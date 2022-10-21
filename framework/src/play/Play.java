@@ -146,9 +146,41 @@ public class Play {
     Play.applicationPath = new File(System.getProperty("user.dir"));
     readConfiguration();
     new PlayLoggingSetup().init();
-
     logger.info("Starting {}", applicationPath.getAbsolutePath());
+    setupTmpDir();
+    setupApplicationMode();
+    VirtualFile appRoot = setupAppRoot();
+    routes = appRoot.child("conf/routes");
 
+    modulesRoutes.clear();
+    loadModules(appRoot);
+
+    pluginCollection.loadPlugins();
+
+    Play.invoker = new Invoker();
+  }
+
+  /**
+   * Minimalistic initialization of the framework (no modules, no plugins)
+   *
+   * @param id The framework id to use
+   */
+  public void minimalInit(String id) {
+    Injector.setBeanSource(beanSource);
+    Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
+    Play.id = id;
+    Play.started = false;
+    Play.applicationPath = new File(System.getProperty("user.dir"));
+    new PlayLoggingSetup().init();
+    logger.info("Starting {}", applicationPath.getAbsolutePath());
+    setupTmpDir();
+    setupApplicationMode();
+    setupAppRoot();
+
+    Play.invoker = new Invoker();
+  }
+
+  private static void setupTmpDir() {
     if (configuration.getProperty("play.tmp", "tmp").equals("none")) {
       tmpDir = null;
       logger.debug("No tmp folder will be used (play.tmp is set to none)");
@@ -167,7 +199,9 @@ public class Play {
         }
       }
     }
+  }
 
+  private static void setupApplicationMode() {
     try {
       String configuredMode = configuration.getProperty("application.mode");
       if (configuredMode == null) {
@@ -185,7 +219,9 @@ public class Play {
     if (usePrecompiled) {
       mode = Mode.PROD;
     }
+  }
 
+  private static VirtualFile setupAppRoot() {
     // Build basic java source path
     VirtualFile appRoot = VirtualFile.open(applicationPath);
     roots.clear();
@@ -196,13 +232,7 @@ public class Play {
     if (appRoot.child("app/views").exists() || (usePrecompiled && appRoot.child("precompiled/templates/app/views").exists())) {
       templatesPath.add(appRoot.child("app/views"));
     }
-
-    routes = appRoot.child("conf/routes");
-    modulesRoutes.clear();
-    loadModules(appRoot);
-
-    pluginCollection.loadPlugins();
-    Play.invoker = new Invoker();
+    return appRoot;
   }
 
   public ActionInvoker getActionInvoker() {

@@ -74,7 +74,7 @@ public class PluginCollectionTest {
     @Test
     public void skipsDuplicatePlugins() {
         PluginCollection pc = spy(new PluginCollection());
-        when(pc.loadPlayPluginDescriptors())
+        when(pc.getPlayPluginFileUrls())
                 .thenReturn(asList(getClass().getResource("custom-play.plugins"), getClass().getResource("custom-play.plugins.duplicate")));
         pc.loadPlugins();
         assertThat(pc.getAllPlugins()).containsExactly(pc.getPluginInstance(PlayStatusPlugin.class), pc.getPluginInstance(TestPlugin.class));
@@ -84,17 +84,17 @@ public class PluginCollectionTest {
     public void canLoadPlayPluginsFromASingleDescriptor() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
         PluginCollection pc = new PluginCollection();
-        assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(1);
-        assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.getPlayPluginFileUrls().size()).isEqualTo(1);
+        assertThat(pc.getPlayPluginFileUrls().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
     }
 
     @Test
     public void canLoadPlayPluginsFromMultipleDescriptors() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins,play.plugins.sample");
         PluginCollection pc = new PluginCollection();
-        assertThat(pc.loadPlayPluginDescriptors().size()).isEqualTo(2);
-        assertThat(pc.loadPlayPluginDescriptors().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
-        assertThat(pc.loadPlayPluginDescriptors().get(1).toString()).endsWith("play.plugins.sample");
+        assertThat(pc.getPlayPluginFileUrls().size()).isEqualTo(2);
+        assertThat(pc.getPlayPluginFileUrls().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.getPlayPluginFileUrls().get(1).toString()).endsWith("play.plugins.sample");
     }
 
     @Test
