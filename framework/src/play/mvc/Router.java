@@ -60,7 +60,20 @@ public class Router {
         return instance.routes;
     }
 
-    private void setRoutes(List<Route> routes) {
+    /**
+     * Parse the routes file into the routing definitions. Install those definitions in the Router.
+     *
+     * This is called at normal startup.
+     */
+    private static void loadRoutesFromFile() {
+        instance.setRoutes(new RoutesParser().parse(Play.routes));
+        lastLoading = System.currentTimeMillis();
+    }
+
+    /**
+     * Replace routes with provided route definitions.
+     */
+    public void setRoutes(List<Route> routes) {
         actionRoutesCache.clear();
         this.routes.clear();
         parameterlessRoutes.clear();
@@ -83,21 +96,6 @@ public class Router {
 
     public static void clearForTests() {
         instance.setRoutes(emptyList());
-    }
-
-    /**
-     * Parse the routes file and load the routing definitions. This is called at normal startup.
-     */
-    private static void load() {
-        load(new RoutesParser().parse(Play.routes));
-        lastLoading = System.currentTimeMillis();
-    }
-
-    /**
-     * Load the routing definitions.
-     */
-    public static void load(List<Route> routes) {
-        instance.setRoutes(routes);
     }
 
     /**
@@ -127,11 +125,11 @@ public class Router {
             return;
         }
         if (Play.routes.lastModified() > lastLoading) {
-            load();
+            loadRoutesFromFile();
         } else {
             for (VirtualFile file : Play.modulesRoutes.values()) {
                 if (file.lastModified() > lastLoading) {
-                    load();
+                    loadRoutesFromFile();
                     return;
                 }
             }
