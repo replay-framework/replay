@@ -18,9 +18,9 @@ dependencies {
   implementation project(':fastergt')
 
   testImplementation('org.assertj:assertj-core:3.23.1')
-  testImplementation('com.codeborne:selenide:6.8.0')
+  testImplementation('com.codeborne:selenide:6.9.0')
   testImplementation('junit:junit:4.13.2')
-  testImplementation('org.mockito:mockito-core:4.8.0')
+  testImplementation('org.mockito:mockito-core:4.8.1')
 }
 
 test {
