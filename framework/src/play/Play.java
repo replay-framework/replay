@@ -139,7 +139,7 @@ public class Play {
    * @param id The framework id to use
    */
   public void init(String id) {
-    setupBase();
+    setupBase(id);
     readConfiguration();
     new PlayLoggingSetup().init();
     logger.info("Starting {}", applicationPath.getAbsolutePath());
@@ -163,7 +163,7 @@ public class Play {
    * @param id The framework id to use
    */
   public void minimalInit(String id) {
-    setupBase();
+    setupBase(id);
     new PlayLoggingSetup().init();
     logger.info("Starting {}", applicationPath.getAbsolutePath());
     setupTmpDir();
@@ -173,7 +173,7 @@ public class Play {
     Play.invoker = new Invoker();
   }
 
-  private void setupBase() {
+  private void setupBase(String id) {
     Injector.setBeanSource(beanSource);
     Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
     Play.id = id;
