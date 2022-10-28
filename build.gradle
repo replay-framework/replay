@@ -3,7 +3,7 @@ defaultTasks 'clean', 'check', 'publishToMavenLocal'
 subprojects {
 
   group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '1.10.0'
+  version=project.properties['revision'] ?: '1.11.0'
 
   apply plugin: 'java'
   apply plugin: 'java-library'

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.11.0 (released 28.10.2022)
+
+* #61 Remove H2 dependency (and DBBrowserPlugin)
+* #62 Remove jaxen dependency (and XPath utility class)
+* #56 Do not expose Apache's commons-lang v2
+* #57, #59 Remove unused dependencies (ezmorph, asm, cglib, javax.activation, validation-api, jboss-logging, classmate, xmlpull, snakeyaml, jsr107cache)
+* #60 Remove not-strictly-RePlay dependencies (groovy-dateutil, groovy-datetime)
+* upgrade dependencies (gson:2.10, groovy:3.0.13, hibernate:5.6.12, slf4j:2.0.3)
+* #48 Add test that exercises FileChannelBuffer - thanks to Cies Breijs for PR #52
+* #63 Make RePlay more modular
+
 ## 1.10.0 (released 11.09.2022)
 
 * #53 refactor PDF generation code (removed `PDF.Options`, rewritten `PDFDocument`, `PdfHelper`, `PdfGenerator`)
