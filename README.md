@@ -137,25 +137,25 @@ Some Play1 plugins do not have a RePlay equivalent, such as:
 
 The RePlay project comes with the following plugins:
 
-* `play.data.parsing.TempFilePlugin` 🟊 — Creates temporary folders for file parsing and deletes them after request completion.
-* `play.data.validation.ValidationPlugin` 🟊 — Adds validation on controller methods parameters based on annotations.
-* `play.db.DBPlugin` 🟊 — Sets up the Postgres, MySQL or H2 data source based on the configuration values.
-* `play.db.jpa.JPAPlugin` 🟊 — Initialises required JPA EntityManagerFactories. 
-* `play.i18n.MessagesPlugin` 🟊 — The internationalization system for UI strings.
-* `play.jobs.JobsPlugin` 🟊 — Simple cron-style or out-of-request-cycle jobs runner.
-* `play.libs.WS` 🟊 — Simple HTTP client (to make webservices requests).
+* `play.data.parsing.TempFilePlugin`¹ — Creates temporary folders for file parsing and deletes them after request completion.
+* `play.data.validation.ValidationPlugin`¹ — Adds validation on controller methods parameters based on annotations.
+* `play.db.DBPlugin`¹ — Sets up the Postgres, MySQL or H2 data source based on the configuration values.
+* `play.db.jpa.JPAPlugin`¹ — Initialises required JPA EntityManagerFactories. 
+* `play.i18n.MessagesPlugin`¹ — The internationalization system for UI strings.
+* `play.jobs.JobsPlugin`¹ — Simple cron-style or out-of-request-cycle jobs runner.
+* `play.libs.WS`¹ — Simple HTTP client (to make webservices requests).
 * `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library).
 In Play1 this is available as a community plugin.
-* `play.modules.gtengineplugin.GTEnginePlugin` 🟊🟊 — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
+* `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
 * `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occurred and includes them in the status report.
-* `play.plugins.PlayStatusPlugin` 🟊 — Installs the authenticated `/@status` endpoint.
+* `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
 * `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken`
 to mitigate [CSRF attacks](https://en.wikipedia.org/wiki/Cross-site_request_forgery).
 In Play1 the `checkAuthenticity()` method is built into the `Controller` class and needs to be explicitly called.
 
-🟊) Installed by default in Play1.
+¹) This plugin is installed by default in Play1 (no entry in the `play.plugins` file needed).
 
-🟊🟊) Built into the Play1 framework (not as a plugin), became a plugin in RePlay.
+²) Built into the Play1 framework (not as a plugin), shipped as a plugin in RePlay.
 
 A community [plugin for creating PDFs](https://github.com/pepite/play--pdf) exists for Play1.
 In RePlay this functionality is [part of the main project](https://github.com/codeborne/replay/tree/master/pdf)
