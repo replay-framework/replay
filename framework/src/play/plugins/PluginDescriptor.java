@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import static java.util.Objects.hash;
 
-class PluginDescriptor implements Comparable<PluginDescriptor> {
+public class PluginDescriptor implements Comparable<PluginDescriptor> {
   public final String name;
   public final int index;
   public final URL url;
