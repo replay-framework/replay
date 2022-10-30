@@ -49,6 +49,12 @@ public class PluginCollection {
      */
     private final List<PlayPlugin> allPlugins = new ArrayList<>();
 
+    public PluginCollection() {}
+
+    public PluginCollection(SortedSet<PluginDescriptor> pluginsToLoad) {
+        loadPlugins(pluginsToLoad);
+    }
+
     /**
      * Load plugins from .plugin files, if any
      */
