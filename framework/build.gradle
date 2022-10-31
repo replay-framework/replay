@@ -4,6 +4,7 @@ dependencies {
   api('com.zaxxer:HikariCP:5.0.1')
   api('com.google.code.gson:gson:2.10')
   api('com.jamonapi:jamon:2.82') {transitive = false}
+  // Cannot upgrade to org.asynchttpclient:async-http-client as that requires Netty4 and we use Netty3
   implementation('com.ning:async-http-client:1.9.40') {
     exclude group: 'io.netty'
   }
@@ -20,6 +21,7 @@ dependencies {
   implementation('ch.qos.reload4j:reload4j:1.2.22')
   implementation('org.ehcache:ehcache:3.10.1')
   api('net.sf.oval:oval:3.2.1')
+  // Groovy 4 can be found in org.apache.groovy
   api('org.codehaus.groovy:groovy:3.0.13')
   api('org.codehaus.groovy:groovy-xml:3.0.13')
   api('org.hibernate:hibernate-core:5.6.12.Final')
@@ -27,6 +29,7 @@ dependencies {
   api('org.hibernate:hibernate-validator:7.0.5.Final')
   api('javax.persistence:javax.persistence-api:2.2')
   implementation('org.hibernate:hibernate-ehcache:5.6.12.Final') {transitive = false}
+  // Upgrade to Netty4 is WIP: https://github.com/codeborne/replay/pull/25
   api('io.netty:netty:3.10.6.Final')
   api('org.slf4j:slf4j-api:2.0.3')
   api('org.slf4j:slf4j-reload4j:2.0.3')
