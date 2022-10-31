@@ -2,6 +2,10 @@
 
 ## 1.11.0 (released 28.10.2022)
 
+This release dropped some dependencies, if you need those simply add them as dependencies of your app.
+
+The Hibernate upgrade exposes `jakarte.validation.*` instead of `javax.validation.*`, if you use this you need to update relevant import statements.
+
 * #61 Remove H2 dependency (and DBBrowserPlugin)
 * #62 Remove jaxen dependency (and XPath utility class)
 * #56 Do not expose Apache's commons-lang v2
