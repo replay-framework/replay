@@ -287,19 +287,19 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 error.append(size);
                 error.append("\u0000");
                 Http.Cookie cookieErrors = request.cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
-                if (cookieErrors != null && cookieErrors.value != null) {
-                    String decryptErrors = errorsCookieCrypter.decrypt(URLDecoder.decode(cookieErrors.value, "utf-8"));
-                    if (decryptErrors != null) {
+                if (cookieErrors != null && cookieErrors.value != null && !cookieErrors.value.isEmpty()) {
+                    try {
+                        String decryptErrors = errorsCookieCrypter.decrypt(URLDecoder.decode(cookieErrors.value, UTF_8));
                         error.append(decryptErrors);
-                    } else {
-                        securityLogger.error("Failed decrypt cookie {} : {} ", Scope.COOKIE_PREFIX + "_ERRORS", cookieErrors.value);
+                    } catch (RuntimeException e) {
+                        securityLogger.error("Failed to decrypt cookie {}: {}", Scope.COOKIE_PREFIX + "_ERRORS", cookieErrors.value, e);
                     }
                 }
                 String errorData = URLEncoder.encode(errorsCookieCrypter.encrypt(error.toString()), UTF_8);
                 Http.Cookie cookie = new Http.Cookie(Scope.COOKIE_PREFIX + "_ERRORS", errorData);
                 request.cookies.put(Scope.COOKIE_PREFIX + "_ERRORS", cookie);
                 logger.trace("saveExceededSizeError: end");
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 throw new UnexpectedException("Error serialization problem", e);
             }
         }

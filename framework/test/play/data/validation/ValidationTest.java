@@ -74,7 +74,7 @@ public class ValidationTest {
         String errorMsgWithParam = "My errorMessage: %2$s";
         
         Validation.addError(field, errorMsgWithParam, "param1");  
-        Validation.addError(field, errorMsgWithParam,"param2"); 
+        Validation.addError(field, errorMsgWithParam, "param2"); 
                 
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsgWithParam);
         

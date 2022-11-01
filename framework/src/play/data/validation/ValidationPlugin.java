@@ -1,5 +1,8 @@
 package play.data.validation;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
@@ -19,23 +22,29 @@ import play.mvc.results.Result;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Java;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
 
 public class ValidationPlugin extends PlayPlugin {
 
-    public static final ThreadLocal<Map<Object, String>> keys = new ThreadLocal<>();
+    static final ThreadLocal<Map<Object, String>> keys = new ThreadLocal<>();
     private static final ErrorsCookieCrypter errorsCookieCrypter = new ErrorsCookieCrypter();
     private static final Logger securityLogger = LoggerFactory.getLogger("security");
+    private static final Gson GSON = new Gson();
+    private static final TypeToken<List<Error>> TYPE_ERRORS_LIST = new TypeToken<>() {
+    };
 
     @Override
     public void beforeInvocation() {
@@ -58,15 +67,13 @@ public class ValidationPlugin extends PlayPlugin {
             return;
         }
         List<ConstraintViolation> violations = new Validator().validateAction(request, session, actionMethod);
-        ArrayList<Error> errors = new ArrayList<>();
+        List<Error> errors = new ArrayList<>();
         String[] paramNames = Java.parameterNames(actionMethod);
         for (ConstraintViolation violation : violations) {
             String key = paramNames[((MethodParameterContext) violation.getContext()).getParameterIndex()];
-            String[] variables = violation.getMessageVariables() == null ? new String[0]
-              : violation.getMessageVariables().values().toArray(new String[0]);
-            errors.add(new Error(
-              key, violation.getMessage(), variables, violation.getSeverity())
-            );
+            Collection<?> variables = violation.getMessageVariables() == null ? emptyList()
+              : violation.getMessageVariables().values();
+            errors.add(new Error(key, violation.getMessage(), variables));
         }
         Validation.current.get().errors.addAll(errors);
     }
@@ -95,7 +102,6 @@ public class ValidationPlugin extends PlayPlugin {
         Validation.current.remove();
     }
 
-    // ~~~~~~
     static class Validator extends Guard {
         public List<ConstraintViolation> validateAction(Http.Request request, Session session, Method actionMethod) {
             Object[] rArgs = ActionInvoker.getActionMethodArgs(request, session, actionMethod);
@@ -119,34 +125,39 @@ public class ValidationPlugin extends PlayPlugin {
         }
     }
 
-    private static final Pattern errorsParser = Pattern.compile("\u0000([^:]*):([^\u0000]*)\u0000");
-
-    static Validation restore(Request request) {
+    Validation restore(Request request) {
         try {
             Validation validation = new Validation();
-            Http.Cookie cookie = request.cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
+            String cookieName = Scope.COOKIE_PREFIX + "_ERRORS";
+            Http.Cookie cookie = request.cookies.get(cookieName);
             if (cookie != null) {
-                String errorsData = errorsCookieCrypter.decrypt(URLDecoder.decode(cookie.value, "utf-8"));
-                if (errorsData != null) {
-                    Matcher matcher = errorsParser.matcher(errorsData);
-                    while (matcher.find()) {
-                        String[] g2 = matcher.group(2).split("\u0001", -1);
-                        String message = g2[0];
-                        String[] args = new String[g2.length - 1];
-                        System.arraycopy(g2, 1, args, 0, args.length);
-                        validation.errors.add(new Error(matcher.group(1), message, args));
-                    }
-                } else {
-                    securityLogger.error("Failed decrypt cookie {} : {} ", Scope.COOKIE_PREFIX + "_ERRORS", cookie.value);
+                try {
+                    String errorsData = errorsCookieCrypter.decrypt(URLDecoder.decode(cookie.value, UTF_8));
+                    List<Error> errors = parseErrorsCookie(errorsData);
+                    validation.errors.addAll(errors);
+                } catch (RuntimeException e) {
+                    securityLogger.error("Failed to decrypt cookie {}={}", cookieName, cookie.value, e);
                 }
             }
             return validation;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            securityLogger.error("Failed to restored validation errors from cookie", e);
             return new Validation();
         }
     }
 
-    static void save(Request request, Response response) {
+    @Nonnull
+    @CheckReturnValue
+    List<Error> parseErrorsCookie(String errorsData) {
+        try {
+            return errorsData == null || errorsData.isEmpty() ? emptyList() : GSON.fromJson(errorsData, TYPE_ERRORS_LIST);
+        }
+        catch (JsonSyntaxException ignore) {
+            return emptyList();
+        }
+    }
+
+    void save(Request request, Response response) {
         if (response == null) {
             // Some request like WebSocket don't have any response
             return;
@@ -159,25 +170,21 @@ public class ValidationPlugin extends PlayPlugin {
             return;
         }
         try {
-            StringBuilder errors = new StringBuilder();
+            String errorsCookieValue = "";
             if (Validation.current() != null && Validation.current().keep) {
-                for (Error error : Validation.errors()) {
-                    errors.append("\u0000");
-                    errors.append(error.key);
-                    errors.append(":");
-                    errors.append(error.message);
-                    for (String variable : error.variables) {
-                        errors.append("\u0001");
-                        errors.append(variable);
-                    }
-                    errors.append("\u0000");
-                }
+                errorsCookieValue = composeErrorsCookieValue(new ArrayList<>(Validation.errors()));
             }
-            String errorsData = URLEncoder.encode(errorsCookieCrypter.encrypt(errors.toString()), "utf-8");
+            String errorsData = URLEncoder.encode(errorsCookieCrypter.encrypt(errorsCookieValue), UTF_8);
             response.setCookie(Scope.COOKIE_PREFIX + "_ERRORS", errorsData, null, "/", null, Scope.COOKIE_SECURE, Scope.SESSION_HTTPONLY);
         } catch (Exception e) {
-            throw new UnexpectedException("Errors serializationProblem", e);
+            throw new UnexpectedException("Failed to serialize errors cookie", e);
         }
+    }
+
+    @Nonnull
+    @CheckReturnValue
+    String composeErrorsCookieValue(List<Error> validationErrors) {
+        return GSON.toJson(validationErrors);
     }
 
     private void clear(@Nonnull Response response) {
