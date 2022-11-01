@@ -21,7 +21,5 @@ open class BaseSpec {
     }, "Play! starter thread")
     playStarter.start()
     playStarter.join()
-    Configuration.browser = "chrome"
-    Configuration.headless = true
   }
 }

@@ -13,6 +13,9 @@ Any contributions to RePlay are both welcomed and appreciated.
 
 This puts the `*.jar` files in your local maven repository at: `~/.m2/repository/com/codeborne/replay`
 
+You can also customize parameters of UI tests (browser, headless, timeout etc.):
+
+     ./gradlew uitest -Dselenide.browser=firefox -Dselenide.headless=true
 
 ## How to release
 

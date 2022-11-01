@@ -30,4 +30,11 @@ test {
 task uitest(type: Test) {
   include 'ui/**/*'
   systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
+  System.properties.stringPropertyNames()
+      .findAll { it.startsWith("selenide.") }
+      .forEach {
+        println " set ${it} to ${System.getProperty(it)}"
+        systemProperties[it] = System.getProperty(it)
+      }
+  outputs.upToDateWhen {false}
 }
