@@ -1,17 +1,12 @@
 package play.mvc.results;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSerializer;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 /**
  * 200 OK with application/json

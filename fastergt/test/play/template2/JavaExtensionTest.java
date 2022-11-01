@@ -2,7 +2,6 @@ package play.template2;
 
 import groovy.lang.GroovyObjectSupport;
 import org.junit.Test;
-import play.template2.compile.GTJavaExtensionMethodResolver;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;

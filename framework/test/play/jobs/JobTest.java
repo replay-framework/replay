@@ -10,7 +10,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class JobTest {
   @Test
@@ -58,7 +61,6 @@ public class JobTest {
     verify(executor, never()).schedule(any(Callable.class), anyLong(), any());
   }
 
-  @SuppressWarnings("rawtypes")
   private void mockPlay() {
     Play.mode = Play.Mode.PROD;
     Play.started = true;

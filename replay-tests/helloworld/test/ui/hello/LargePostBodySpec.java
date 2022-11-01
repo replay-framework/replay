@@ -1,14 +1,13 @@
 package ui.hello;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.codeborne.selenide.Configuration;
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import org.junit.Test;
 import play.libs.ws.HttpResponse;
 import play.libs.ws.WSAsync;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LargePostBodySpec extends BaseSpec {
 
