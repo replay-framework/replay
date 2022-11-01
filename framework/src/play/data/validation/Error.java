@@ -3,14 +3,14 @@ package play.data.validation;
 import play.i18n.Messages;
 
 /**
- * A validation error.
+ * A validation error
  */
 public class Error {
 
-    String message;
-    String key;
-    String[] variables;
-    int severity = 0;
+    private final String message;
+    private final String key;
+    private final String[] variables;
+    private final int severity;
 
     public Error(String key, String message, String[] variables) {
         this(key, message, variables, 0);
@@ -33,7 +33,7 @@ public class Error {
     /**
      * @return The field name
      */
-    public String getKey() {
+    String getKey() {
         return key;
     }
     
@@ -54,12 +54,15 @@ public class Error {
         return message();
     }
 
-    public int getSeverity() {
+    int getSeverity() {
         return severity;
     }
 
-    public String getMessageKey() {
+    String getMessageKey() {
         return message;
     }
 
+    String[] getVariables() {
+        return variables;
+    }
 }

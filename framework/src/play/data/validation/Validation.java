@@ -51,7 +51,7 @@ public class Validation {
     public Map<String, List<Error>> errorsMap() {
         Map<String, List<Error>> result = new LinkedHashMap<>();
         for (Error error : errors()) {
-            result.put(error.key, errors(error.key));
+            result.put(error.getKey(), errors(error.getKey()));
         }
         return result;
     }
@@ -75,7 +75,7 @@ public class Validation {
      */
     public static void insertError(int index, String field, String message, String... variables) {
         Error error = error(field);
-        if (error == null || !error.message.equals(message)) {
+        if (error == null || !error.getMessageKey().equals(message)) {
             Validation.current().errors.add(index, new Error(field, message, variables));
         }
     }
@@ -91,7 +91,7 @@ public class Validation {
              Iterator<Error> it = validation.errors.iterator();
              while (it.hasNext()) {
                  Error error = it.next();
-                 if (error.key != null && error.key.equals(field) && error.message.equals(message)) {
+                 if (error.getKey() != null && error.getKey().equals(field) && error.getMessageKey().equals(message)) {
                      it.remove();
                  }
              }
@@ -105,7 +105,7 @@ public class Validation {
     public static void removeErrors(String field) {
         Validation validation = current.get();
         if (validation != null) {
-            validation.errors.removeIf(error -> error.key != null && error.key.equals(field));
+            validation.errors.removeIf(error -> error.getKey() != null && error.getKey().equals(field));
         }
     }
     
@@ -137,7 +137,7 @@ public class Validation {
             return null;
           
         for (Error error : validation.errors) {
-            if (error.key!=null && error.key.equals(field)) {
+            if (error.getKey() != null && error.getKey().equals(field)) {
                 return error;
             }
         }
@@ -155,7 +155,7 @@ public class Validation {
       
         List<Error> errors = new ArrayList<>();
         for (Error error : validation.errors) {
-            if (error.key!=null && error.key.equals(field)) {
+            if (error.getKey() != null && error.getKey().equals(field)) {
                 errors.add(error);
             }
         }
@@ -261,25 +261,9 @@ public class Validation {
         }
     }
 
-    // ~~~~ Validations
     public static class ValidationResult {
-
         public boolean ok;
         public Error error;
-
-        public ValidationResult message(String message) {
-            if (error != null) {
-                error.message = message;
-            }
-            return this;
-        }
-
-        public ValidationResult key(String key) {
-            if (error != null) {
-                error.key = key;
-            }
-            return this;
-        }
     }
 
     public static ValidationResult required(String key, Object o) {
