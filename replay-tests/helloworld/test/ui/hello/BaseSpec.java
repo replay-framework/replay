@@ -25,8 +25,5 @@ public class BaseSpec {
 
     playStarter.start();
     playStarter.join();
-
-    Configuration.browser = "chrome";
-    Configuration.headless = true;
   }
 }
