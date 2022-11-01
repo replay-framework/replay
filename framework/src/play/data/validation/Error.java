@@ -2,6 +2,8 @@ package play.data.validation;
 
 import play.i18n.Messages;
 
+import java.util.Collection;
+
 /**
  * A validation error
  */
@@ -9,18 +11,12 @@ public class Error {
 
     private final String message;
     private final String key;
-    private final String[] variables;
-    private final int severity;
+    private final Collection<?> variables;
 
-    public Error(String key, String message, String[] variables) {
-        this(key, message, variables, 0);
-    }
-
-    public Error(String key, String message, String[] variables, int severity) {
+    public Error(String key, String message, Collection<?> variables) {
         this.message = message;
         this.key = key;
         this.variables = variables;
-        this.severity = severity;
     }
     
     /**
@@ -43,9 +39,12 @@ public class Error {
      */
     public String message(String key) {
         key = Messages.get(key);
-        Object[] args = new Object[variables.length + 1];
-        System.arraycopy(variables, 0, args, 1, variables.length);
+        Object[] args = new Object[variables.size() + 1];
         args[0] = key;
+        int i = 1;
+        for (Object variable : variables) {
+            args[i++] = variable;
+        }
         return Messages.get(message, args);
     }
 
@@ -54,15 +53,7 @@ public class Error {
         return message();
     }
 
-    int getSeverity() {
-        return severity;
-    }
-
     String getMessageKey() {
         return message;
-    }
-
-    String[] getVariables() {
-        return variables;
     }
 }

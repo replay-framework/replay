@@ -8,6 +8,9 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
 public class Validation {
 
     public static final ThreadLocal<Validation> current = new ThreadLocal<>();
@@ -27,11 +30,11 @@ public class Validation {
     /**
      * @return The list of all errors
      */
-    @SuppressWarnings({"serial", "unused"})
+    @SuppressWarnings({"unused"})
     public static List<Error> errors() {
         Validation validation = current.get();
         if (validation == null)
-            return Collections.emptyList();
+            return emptyList();
         
         return new ArrayList<Error>(validation.errors) {
 
@@ -63,7 +66,7 @@ public class Validation {
      * @param variables Message variables
      */
     public static void addError(String field, String message, String... variables) {
-        insertError(Validation.current().errors.size(), field, message,  variables);
+        insertError(Validation.current().errors.size(), field, message, variables);
     }
     
     /**
@@ -76,7 +79,7 @@ public class Validation {
     public static void insertError(int index, String field, String message, String... variables) {
         Error error = error(field);
         if (error == null || !error.getMessageKey().equals(message)) {
-            Validation.current().errors.add(index, new Error(field, message, variables));
+            Validation.current().errors.add(index, new Error(field, message, asList(variables)));
         }
     }
     
@@ -151,7 +154,7 @@ public class Validation {
     public static List<Error> errors(String field) {
         Validation validation = current.get();
         if (validation == null)
-            return Collections.emptyList();
+            return emptyList();
       
         List<Error> errors = new ArrayList<>();
         for (Error error : validation.errors) {
@@ -375,10 +378,7 @@ public class Validation {
                 Error error = new Error(key, check.getClass()
                         .getDeclaredField("mes").get(null)
                         + "",
-                        check.getMessageVariables() == null ? new String[0]
-                                : check.getMessageVariables().values()
-                                        .toArray(new String[0]),
-                        check.getSeverity());
+                        check.getMessageVariables() == null ? emptyList() : check.getMessageVariables().values());
                 Validation.current().errors.add(error);
                 result.error = error;
                 result.ok = false;

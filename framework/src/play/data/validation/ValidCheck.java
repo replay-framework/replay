@@ -12,7 +12,8 @@ import play.utils.Java;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("serial")
+import static java.util.Collections.emptyList;
+
 public class ValidCheck extends AbstractAnnotationCheck<Required> {
 
     static final String mes = "validation.object";
@@ -48,7 +49,7 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
             int index = 0;
             for(Object item : valueCollection) {
                 if(!validateObject(key + "[" + (index) + "]", item)) {
-                    Validation.current().errors.add(new Error(key + "[" + (index) + "]", mes, new String[0]));
+                    Validation.current().errors.add(new Error(key + "[" + (index) + "]", mes, emptyList()));
                     everythingIsValid = false;
                 }
                 index++;
@@ -73,10 +74,7 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
                     Error error = new Error(
                             fkey,
                             violation.getMessage(),
-                            violation.getMessageVariables() == null ? new String[0]
-                                    : violation.getMessageVariables().values()
-                                            .toArray(new String[0]),
-                            violation.getSeverity());
+                            violation.getMessageVariables() == null ? emptyList() : violation.getMessageVariables().values());
                     Validation.current().errors.add(error);
                 }
             }
