@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static play.data.validation.Error.toValidationError;
 
 public class ValidCheck extends AbstractAnnotationCheck<Required> {
 
@@ -63,7 +64,7 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
     boolean validateObject(String key, Object value) {
         ValidationPlugin.keys.get().put(value, key);
         List<ConstraintViolation> violations = new Validator().validate(value);
-        //
+
         if (violations.isEmpty()) {
             return true;
         } else {
@@ -71,15 +72,11 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
                 if (violation.getContext() instanceof FieldContext) {
                     FieldContext ctx = (FieldContext) violation.getContext();
                     String fkey = (key == null ? "" : key + ".") + ctx.getField().getName();
-                    Error error = new Error(
-                            fkey,
-                            violation.getMessage(),
-                            violation.getMessageVariables() == null ? emptyList() : violation.getMessageVariables().values());
+                    Error error = toValidationError(fkey, violation);
                     Validation.current().errors.add(error);
                 }
             }
             return false;
         }
     }
-    
 }

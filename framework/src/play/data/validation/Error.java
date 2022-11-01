@@ -1,8 +1,13 @@
 package play.data.validation;
 
+import net.sf.oval.ConstraintViolation;
 import play.i18n.Messages;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import java.util.Collection;
+
+import static java.util.Collections.emptyList;
 
 /**
  * A validation error
@@ -55,5 +60,12 @@ public class Error {
 
     String getMessageKey() {
         return message;
+    }
+
+    @Nonnull
+    @CheckReturnValue
+    static Error toValidationError(String key, ConstraintViolation violation) {
+        Collection<?> variables = violation.getMessageVariables() == null ? emptyList() : violation.getMessageVariables().values();
+        return new Error(key, violation.getMessage(), variables);
     }
 }
