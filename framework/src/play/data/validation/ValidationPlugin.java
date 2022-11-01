@@ -36,6 +36,7 @@ import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
+import static play.data.validation.Error.toValidationError;
 
 public class ValidationPlugin extends PlayPlugin {
 
@@ -56,14 +57,7 @@ public class ValidationPlugin extends PlayPlugin {
     public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
                                        Scope.Flash flash, Method actionMethod) {
         Validation.current.set(restore(request));
-        boolean verify = false;
-        for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
-            if (annotations.length > 0) {
-                verify = true;
-                break;
-            }
-        }
-        if (!verify) {
+        if (!needsValidation(actionMethod)) {
             return;
         }
         List<ConstraintViolation> violations = new Validator().validateAction(request, session, actionMethod);
@@ -71,11 +65,19 @@ public class ValidationPlugin extends PlayPlugin {
         String[] paramNames = Java.parameterNames(actionMethod);
         for (ConstraintViolation violation : violations) {
             String key = paramNames[((MethodParameterContext) violation.getContext()).getParameterIndex()];
-            Collection<?> variables = violation.getMessageVariables() == null ? emptyList()
-              : violation.getMessageVariables().values();
-            errors.add(new Error(key, violation.getMessage(), variables));
+            Error error = toValidationError(key, violation);
+            errors.add(error);
         }
         Validation.current.get().errors.addAll(errors);
+    }
+
+    private boolean needsValidation(Method actionMethod) {
+        for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
+            if (annotations.length > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
