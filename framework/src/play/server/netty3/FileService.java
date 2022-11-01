@@ -1,4 +1,4 @@
-package play.server;
+package play.server.netty3;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;

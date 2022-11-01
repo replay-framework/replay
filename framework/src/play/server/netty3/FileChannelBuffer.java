@@ -1,4 +1,4 @@
-package play.server;
+package play.server.netty3;
 
 
 import org.jboss.netty.buffer.AbstractChannelBuffer;
@@ -6,6 +6,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.buffer.ChannelBufferIndexFinder;
 import org.jboss.netty.buffer.WrappedChannelBuffer;
+import play.server.ResettableFileInputStream;
 
 import java.io.File;
 import java.io.FileNotFoundException;
