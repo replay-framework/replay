@@ -3,7 +3,6 @@ package play.data.parsing;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.mvc.Http;
-import play.server.FileChannelBuffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,17 +28,6 @@ public class TextParserTest {
     assertThat(toByteArray(request.body))
       .as("Important: request body should not be reset - some controllers might need to read it")
       .isEqualTo("Don't reset me please".getBytes(UTF_8));
-  }
-
-  @Test
-  public void fileChannelBuffer_supports_reset() throws IOException {
-    File tempFile = File.createTempFile("replay", "test");
-    FileUtils.write(tempFile, "Don't reset me please", UTF_8);
-
-    Http.Request request = givenRequest(new FileChannelBuffer(tempFile).getInputStream());
-
-    assertThat(parser.parse(request).get("body")).isEqualTo(new String[] {"Don't reset me please"});
-    assertThat(toByteArray(request.body)).isEqualTo("Don't reset me please".getBytes(UTF_8));
   }
 
   @Test

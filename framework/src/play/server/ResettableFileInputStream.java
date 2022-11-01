@@ -8,11 +8,11 @@ import java.io.InputStream;
 
 import static java.util.Objects.requireNonNull;
 
-class ResettableFileInputStream extends InputStream {
+public class ResettableFileInputStream extends InputStream {
   private final File file;
   private InputStream in;
 
-  ResettableFileInputStream(File file) throws FileNotFoundException {
+  public ResettableFileInputStream(File file) throws FileNotFoundException {
     this.file = requireNonNull(file);
     reset();
   }
