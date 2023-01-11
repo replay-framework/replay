@@ -34,8 +34,15 @@ public class Error {
     /**
      * @return The field name
      */
-    String getKey() {
+    public String getKey() {
         return key;
+    }
+
+    /**
+     * @return The variables
+     */
+    public Collection<?> getVariables() {
+        return variables;
     }
     
     /**
