@@ -124,6 +124,9 @@ public class Router {
         if (Play.mode == Mode.PROD && lastLoading > 0) {
             return;
         }
+        if (Play.routes == null) {
+            return;
+        }
         if (Play.routes.lastModified() > lastLoading) {
             loadRoutesFromFile();
         } else {
