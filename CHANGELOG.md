@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.0 (planned to 2x.01.2023)
+* #25 added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai!
+* #77 Expose plugin descriptor  --  thanks to Cies Breijs for PR #79 and #66
+* #78 Allow null `Play.routes` in `Router.detectChanges()`  --  thanks to Cies Breijs for PR #81
+* #69 Encrypt error cookie  --  thanks to Aleksei Anishchenko and Evgeny Tkachenya
+
 ## 1.11.0 (released 28.10.2022)
 
 This release dropped some dependencies, if you need those simply add them as dependencies of your app.
