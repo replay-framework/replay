@@ -102,7 +102,14 @@ public class FileService  {
         }
 
         if (writeFuture != null) {
-            writeFuture.addListener(future -> logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt)));
+            writeFuture.addListener(future -> {
+                if (future.isSuccess()) {
+                    logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt));
+                }
+                else {
+                    logger.trace("failed to serve {} in {} ms", file, formatNanos(nanoTime() - startedAt), future.getCause());
+                }
+            });
             if (!isKeepAlive) {
                 writeFuture.addListener(ChannelFutureListener.CLOSE);
             }

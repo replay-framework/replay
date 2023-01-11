@@ -101,20 +101,21 @@ public class FileService  {
 
         if (sendFileFuture != null) {
             sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
-                                        @Override
-                                        public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) throws Exception {
-                                            if (total < 0) { // total unknown
-                                                logger.trace(future.channel() + " Transfer progress: " + progress);
-                                            } else {
-                                                logger.trace(future.channel() + " Transfer progress: " + progress + " / " + total);
-                                            }
-                                        }
+                                           @Override
+                                           public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
+                                               logger.trace("{} Transfer progress: {}/{} (success: {})", future.channel(), progress, total < 0 ? "?" : total,  future.isSuccess());
+                                           }
 
-                                        @Override
-                                        public void operationComplete(ChannelProgressiveFuture future) throws Exception {
-                                            logger.trace("served {} in {} ms", filePath, formatNanos(nanoTime() - startedAt));
-                                        }
-                                    }
+                                           @Override
+                                           public void operationComplete(ChannelProgressiveFuture future) {
+                                               if (future.isSuccess()) {
+                                                   logger.trace("served {} in {} ms", filePath, formatNanos(nanoTime() - startedAt));
+                                               }
+                                               else {
+                                                   logger.error("failed to serve {} in {} ms", filePath, formatNanos(nanoTime() - startedAt), future.cause());
+                                               }
+                                           }
+                                       }
             );
             if (!isKeepAlive) {
                 lastContentFuture.addListener(ChannelFutureListener.CLOSE);
