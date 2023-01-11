@@ -119,8 +119,10 @@ public class Play {
 
   public static Invoker invoker;
 
+  public static BeanSource beanSource;
+
   private final ConfLoader confLoader;
-  private final BeanSource beanSource;
+
   private final ActionInvoker actionInvoker;
 
   public Play() {
@@ -128,8 +130,8 @@ public class Play {
   }
 
   public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
+    Play.beanSource = beanSource;
     this.confLoader = confLoader;
-    this.beanSource = beanSource;
     this.actionInvoker = new ActionInvoker(sessionStore);
   }
 
