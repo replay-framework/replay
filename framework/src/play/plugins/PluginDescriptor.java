@@ -10,7 +10,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
   public final int index;
   public final URL url;
 
-  PluginDescriptor(String name, int index, URL url) {
+  public PluginDescriptor(String name, int index, URL url) {
     this.name = name;
     this.index = index;
     this.url = url;
