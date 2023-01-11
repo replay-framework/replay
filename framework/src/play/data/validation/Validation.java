@@ -267,6 +267,20 @@ public class Validation {
     public static class ValidationResult {
         public boolean ok;
         public Error error;
+
+        public ValidationResult message(String message) {
+            if (error != null) {
+                error = new Error(message, error.getKey(), error.getVariables());
+            }
+            return this;
+        }
+
+        public ValidationResult key(String key) {
+            if (error != null) {
+                error = new Error(error.getMessageKey(), key, error.getVariables());
+            }
+            return this;
+        }
     }
 
     public static ValidationResult required(String key, Object o) {
