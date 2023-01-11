@@ -13,25 +13,35 @@ jobs:
       criminals-workdir: criminals
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{env.replay-workdir}}
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          distribution: 'temurin'
+          cache: 'gradle'
+          java-version: '17'
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Run unit-tests
         run: ./gradlew clean test --info --rerun-tasks
         working-directory: ${{env.replay-workdir}}
       - name: Run integration tests
         run: ./gradlew clean uitest -Dselenide.headless=true
         working-directory: ${{env.replay-workdir}}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: test-report
           path: ${{env.replay-workdir}}/build/reports/
       - name: Checkout Criminals
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: asolntsev/criminals
           path: ${{env.criminals-workdir}}
@@ -43,7 +53,7 @@ jobs:
       - name: Run Criminals integration tests
         run: ./gradlew clean uitest -Dselenide.headless=true
         working-directory: ${{env.criminals-workdir}}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: criminals-test-report
