@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  run-tests-job:
+  replay-build:
     runs-on: ubuntu-latest
     env:
       replay-workdir: replay
@@ -38,8 +38,8 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: test-report
-          path: ${{env.replay-workdir}}/build/reports/
+          name: replay-test-report
+          path: ${{env.replay-workdir}}/**/build/reports/
       - name: Checkout Criminals
         uses: actions/checkout@v3
         with:
@@ -57,4 +57,4 @@ jobs:
         if: failure()
         with:
           name: criminals-test-report
-          path: ${{env.criminals-workdir}}/build/reports/
+          path: ${{env.criminals-workdir}}/**/build/reports/
