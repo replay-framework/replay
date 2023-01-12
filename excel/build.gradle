@@ -8,7 +8,7 @@ dependencies {
   api('org.apache.poi:poi:3.17') {transitive = false}
   api('org.apache.poi:poi-ooxml:3.17') {transitive = false}
   api('org.apache.poi:poi-ooxml-schemas:3.17') {transitive = false}
-  api('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
+  api('org.apache.xmlbeans:xmlbeans:5.1.1') {transitive = false}
   implementation('commons-digester:commons-digester:2.1') {transitive = false}
 }
 
