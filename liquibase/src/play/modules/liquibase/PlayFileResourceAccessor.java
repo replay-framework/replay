@@ -1,20 +1,23 @@
 package play.modules.liquibase;
 
 import liquibase.resource.AbstractResourceAccessor;
-import liquibase.resource.InputStreamList;
+import liquibase.resource.PathResource;
+import liquibase.resource.Resource;
+import liquibase.resource.URIResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.vfs.VirtualFile;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 
 public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   private static final Logger logger = LoggerFactory.getLogger(PlayFileResourceAccessor.class);
@@ -26,29 +29,18 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   }
 
   private VirtualFile findVirtualFile(String path) {
-    return Play.getVirtualFile("app/" + path);
+    // TODO remove this hack.
+    // TODO Why LiquiBase adds prefix "app/" for included files?
+    return Play.getVirtualFile(path.startsWith("app/") ? path : "app/" + path);
   }
-
-  @Override public InputStreamList openStreams(String relativeTo, String streamPath) {
-    String path = getPath(relativeTo, streamPath);
-    InputStreamList returnList = new InputStreamList();
-    VirtualFile virtualFile = findVirtualFile(path);
-    if (virtualFile != null) {
-      returnList.add(virtualFile.getURI(), virtualFile.inputstream());
-    }
-    else {
-      findInClasspath(path, returnList);
-    }
-    return returnList;
-  }
-
-  private void findInClasspath(String path, InputStreamList returnList) {
+  
+  private void findInClasspath(String path, List<Resource> returnList) {
     URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
     if (resource != null) {
       try {
-        returnList.add(resource.toURI(), resource.openStream());
+        returnList.add(new URIResource(path, resource.toURI()));
       }
-      catch (URISyntaxException | IOException e) {
+      catch (URISyntaxException e) {
         logger.error("Failed to read resource {}", resource, e);
       }
     }
@@ -62,13 +54,36 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   }
 
   @Override
-  public SortedSet<String> list(String relativeTo, String path, boolean recursive, boolean includeFiles, boolean includeDirectories) {
-    throw new UnsupportedOperationException(getClass().getName() + ".list");
+  public List<Resource> search(String path, boolean recursive) {
+    throw new UnsupportedOperationException(getClass().getName() + ".search");
   }
 
-  @Override public SortedSet<String> describeLocations() {
+  @Override
+  public List<Resource> getAll(String path) {
+    List<Resource> foundResources = new ArrayList<>();
+    VirtualFile virtualFile = findVirtualFile(path);
+    if (virtualFile != null) {
+      foundResources.add(toResource(virtualFile));
+    }
+    else {
+      findInClasspath(path, foundResources);
+    }
+    return foundResources;
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  private PathResource toResource(VirtualFile virtualFile) {
+    return new PathResource(virtualFile.relativePath(), virtualFile.getRealFile().toPath());
+  }
+
+  @Override public List<String> describeLocations() {
     return Play.roots.stream()
       .map(vf -> vf.getRealFile().getAbsolutePath())
-      .collect(toCollection(TreeSet::new));
+      .collect(toList());
+  }
+
+  @Override
+  public void close() {
   }
 }
