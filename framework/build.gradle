@@ -22,7 +22,7 @@ dependencies {
   implementation('org.ehcache:ehcache:3.10.1')
   api('net.sf.oval:oval:3.2.1')
   // Groovy 4 can be found in org.apache.groovy
-  api('org.codehaus.groovy:groovy:3.0.13')
+  api('org.codehaus.groovy:groovy:3.0.14')
   api('org.codehaus.groovy:groovy-xml:3.0.13')
   api('org.hibernate:hibernate-core:5.6.12.Final')
   api('org.hibernate.common:hibernate-commons-annotations:5.1.2.Final')
