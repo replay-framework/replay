@@ -5,7 +5,7 @@ dependencies {
   api('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
   api('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
   implementation('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
-  api('org.apache.poi:poi:3.17') {transitive = false}
+  api('org.apache.poi:poi:5.2.3') {transitive = false}
   api('org.apache.poi:poi-ooxml:3.17') {transitive = false}
   api('org.apache.poi:poi-ooxml-schemas:3.17') {transitive = false}
   api('org.apache.xmlbeans:xmlbeans:2.6.0') {transitive = false}
