@@ -18,7 +18,7 @@ dependencies {
   api('commons-logging:commons-logging:1.2')
   api('javax.mail:mail:1.4.7')
   api('javax.inject:javax.inject:1')
-  implementation('org.ehcache:ehcache:3.10.1')
+  implementation('ch.qos.reload4j:reload4j:1.2.24')
   implementation('org.ehcache:ehcache:3.10.8')
   api('net.sf.oval:oval:3.2.1')
   // Groovy 4 can be found in org.apache.groovy
