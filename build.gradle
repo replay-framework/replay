@@ -67,4 +67,5 @@ ext {
   assertjVersion = '3.24.1'
   mockitoVersion = '4.11.0'
   pdfTestVersion = '1.8.0'
+  groovyVersion = '3.0.14'
 }
