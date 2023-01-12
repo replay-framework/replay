@@ -1,14 +1,11 @@
 package play.mvc;
 
-import org.jboss.netty.handler.codec.http.cookie.Cookie;
-import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.CookieDataCodec.decode;
@@ -171,16 +168,5 @@ public class CookieDataCodecTest {
         Map<String, String> outMap = new HashMap<>(1);
         decode(outMap, data);
         assertThat(outMap.isEmpty());
-
-        Set<Cookie> cookieSet = ServerCookieDecoder.STRICT.decode(data);
-        if (cookieSet != null) {
-            for (Cookie cookie : cookieSet) {
-                Http.Cookie playCookie = new Http.Cookie(cookie.name(), cookie.value());
-                playCookie.path = cookie.path();
-                playCookie.domain = cookie.domain();
-                playCookie.secure = cookie.isSecure();
-                playCookie.httpOnly = cookie.isHttpOnly();
-            }
-        }
     }
 }

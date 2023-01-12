@@ -6,7 +6,6 @@ import play.Play;
 import play.mvc.Http;
 import play.mvc.Scope;
 import play.mvc.TemplateNameResolver;
-import play.server.Server;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
@@ -41,7 +40,7 @@ public class PdfHelper {
   public void renderPDF(PDFDocument document, OutputStream out, @Nullable Http.Request request) {
     try {
       Map<?, ?> properties = new HashMap<>(Play.configuration);
-      String uri = request == null ? "" : ("http://localhost:" + Server.httpPort + request.url);
+      String uri = request == null ? "" : (request.getBase() + request.url);
       renderDoc(document, uri, properties, out);
     }
     catch (Exception e) {

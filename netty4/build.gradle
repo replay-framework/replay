@@ -1,8 +1,9 @@
 dependencies {
+  api('io.netty:netty-all:4.1.87.Final')
+
   implementation project(':framework')
-  implementation('org.eclipse.jdt:org.eclipse.jdt.core:3.32.0') {transitive = false}
-  implementation("commons-lang:commons-lang:$commonsLangVersion")
   testImplementation project(':framework').sourceSets.test.compileClasspath
+  implementation("commons-lang:commons-lang:$commonsLangVersion")
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

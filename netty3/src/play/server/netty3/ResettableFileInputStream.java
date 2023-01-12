@@ -1,4 +1,4 @@
-package play.server;
+package play.server.netty3;
 
 import java.io.File;
 import java.io.FileInputStream;

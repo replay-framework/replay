@@ -119,9 +119,7 @@ You may find some warnings for "illegal reflective access" when running the appl
 
 With this flag `--add-opens java.base/java.lang=ALL-UNNAMED` these warnings from `guice` may be suppressed (this will be fixed in a future version of `guice`).
 
-To suppress the "illegal reflective access" warnings from `netty` RePlay should upgrade it's `netty`
-dependency from `3.10.6.Final` to `io.netty:netty-all:4.1.43.Final` or greater.
-A [pull request for this exists](https://github.com/codeborne/replay/pull/25), but still needs some work.
+To suppress the "illegal reflective access" warnings from `netty` you could use `replay-netty4` instead of `replay-netty3`.
 
 
 ## Plugins
