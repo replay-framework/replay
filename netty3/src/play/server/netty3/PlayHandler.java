@@ -5,9 +5,23 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.jboss.netty.handler.codec.http.*;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.handler.codec.http.HttpMessage;
+import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jboss.netty.handler.codec.http.HttpRequest;
+import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.jboss.netty.handler.codec.http.cookie.Cookie;
 import org.jboss.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jboss.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -17,6 +31,7 @@ import org.jboss.netty.handler.stream.ChunkedStream;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Invocation;
 import play.InvocationContext;
 import play.Invoker;
 import play.Play;
@@ -35,7 +50,6 @@ import play.mvc.Scope;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
-import play.server.NettyInvocation;
 import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 import play.utils.ErrorsCookieCrypter;
@@ -63,7 +77,17 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.DATE;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.ETAG;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.HOST;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_SINCE;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
 
 public class PlayHandler extends SimpleChannelUpstreamHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
@@ -138,7 +162,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     private static final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
 
-    private class Netty3Invocation extends NettyInvocation {
+    private class Netty3Invocation extends Invocation {
         private final ChannelHandlerContext ctx;
         private final Request request;
         private final Response response;

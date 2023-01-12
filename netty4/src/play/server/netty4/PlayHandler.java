@@ -1,10 +1,28 @@
 package play.server.netty4;
 
-import io.netty.buffer.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.TooLongFrameException;
-import org.apache.commons.lang.StringUtils;
-import io.netty.channel.*;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMessage;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -12,8 +30,10 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Invocation;
 import play.InvocationContext;
 import play.Invoker;
 import play.Play;
@@ -32,20 +52,26 @@ import play.mvc.Scope;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
-import play.server.NettyInvocation;
 import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
@@ -62,7 +88,6 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.WARNING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
 
 public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
@@ -128,7 +153,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
 
-    private class Netty4Invocation extends NettyInvocation {
+    private class Netty4Invocation extends Invocation {
         private final ChannelHandlerContext ctx;
         private final Request request;
         private final Response response;

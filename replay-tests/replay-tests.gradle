@@ -16,6 +16,7 @@ sourceSets {
 dependencies {
   implementation project(':framework')
   implementation project(':fastergt')
+  implementation project(':netty4')
 
   testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation('com.codeborne:selenide:6.9.0')
