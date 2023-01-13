@@ -1,0 +1,11 @@
+#{extends 'main.html'/}
+
+Hello ${username}, please enter OTP Code
+
+#{form '/login/second-step'}
+    <label> ${otpLabel}-
+      <input name="otpCode" autofocus/>
+    </label>
+
+    <input type="submit" value="Login"/>
+#{/form}
