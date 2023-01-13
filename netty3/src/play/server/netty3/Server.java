@@ -17,8 +17,10 @@ import static java.lang.Integer.parseInt;
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
+    @Deprecated
     public static int httpPort;
     private final Play play;
+    private final int port;
 
     public Server(Play play) {
         this(play, parseInt(Play.configuration.getProperty("http.port", "9000")));
@@ -26,6 +28,7 @@ public class Server {
 
     public Server(Play play, int port) {
         this.play = play;
+        this.port = port;
         httpPort = port;
     }
 
@@ -37,21 +40,14 @@ public class Server {
         );
         InetAddress address = address();
         bootstrap.setPipelineFactory(new HttpServerPipelineFactory(Play.invoker, play.getActionInvoker()));
-        bootstrap.bind(new InetSocketAddress(address, httpPort));
+        bootstrap.bind(new InetSocketAddress(address, port));
         bootstrap.setOption("child.tcpNoDelay", true);
 
-        if (Play.mode == Mode.DEV) {
-            if (address == null) {
-                logger.info("Listening for HTTP on port {} (Waiting a first request to start) ...", httpPort);
-            } else {
-                logger.info("Listening for HTTP at {}:{} (Waiting a first request to start) ...", address, httpPort);
-            }
+        String modeSuffix = Play.mode == Mode.DEV ? " (Waiting a first request to start)" : "";
+        if (address == null) {
+            logger.info("Listening for HTTP on port {}{} ...", port, modeSuffix);
         } else {
-            if (address == null) {
-                logger.info("Listening for HTTP on port {} ...", httpPort);
-            } else {
-                logger.info("Listening for HTTP at {}:{}  ...", address, httpPort);
-            }
+            logger.info("Listening for HTTP at {}:{}{} ...", address, port, modeSuffix);
         }
     }
 
