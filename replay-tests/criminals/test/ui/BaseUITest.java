@@ -12,9 +12,9 @@ public class BaseUITest {
   @Before
   public final void startAUT() {
     if (!Play.started) {
-      new Application().start("test");
+      int port = new Application().start("test");
 
-      Configuration.baseUrl = "http://0.0.0.0:9000";
+      Configuration.baseUrl = "http://0.0.0.0:" + port;
       Configuration.browserSize = "1024x800";
       Configuration.browser = "chrome";
       Configuration.textCheck = FULL_TEXT;

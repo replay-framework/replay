@@ -24,7 +24,7 @@ public class Server {
     @Deprecated
     public static int httpPort;
     private final Play play;
-    private final int port;
+    private int port;
 
     public Server(Play play) {
         this(play, parseInt(Play.configuration.getProperty("http.port", "9000")));
@@ -36,7 +36,7 @@ public class Server {
         httpPort = port;
     }
 
-    public void start() {
+    public int start() {
         System.setProperty("file.encoding", "utf-8");
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -50,21 +50,29 @@ public class Server {
 
             Channel ch = b.bind(new InetSocketAddress(address, port)).sync().channel();
             b.option(ChannelOption.TCP_NODELAY, true);
+            readActualPort(ch);
 
             String modeSuffix = Play.mode == Mode.DEV ? " (Waiting a first request to start)" : "";
-            if (address == null) {
-                logger.info("Listening for HTTP on port {}{} ...", port, modeSuffix);
-            } else {
-                logger.info("Listening for HTTP at {}:{}{} ...", address, port, modeSuffix);
-            }
+            String hostname = address == null ? "0.0.0.0" : address.getHostName();
+            logger.info("Listening for HTTP at http://{}:{}{} ...", hostname, port, modeSuffix);
             ch.closeFuture().addListener(future -> {
                 bossGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();
             });
+            return port;
         } catch (Exception e) {
             bossGroup.shutdownGracefully().syncUninterruptibly();
             workerGroup.shutdownGracefully().syncUninterruptibly();
             throw new RuntimeException("Failed to start app on port " + port, e);
+        }
+    }
+
+    private void readActualPort(Channel ch) {
+        if (port == 0) {
+            InetSocketAddress socketAddress = (InetSocketAddress) ch.localAddress();
+            this.port = socketAddress.getPort();
+            httpPort = socketAddress.getPort();
+            Play.configuration.setProperty("http.port", String.valueOf(port));
         }
     }
 
@@ -87,5 +95,9 @@ public class Server {
         catch (UnknownHostException e) {
             throw new RuntimeException("Cannot resolve address " + host, e);
         }
+    }
+
+    public int port() {
+        return port;
     }
 }

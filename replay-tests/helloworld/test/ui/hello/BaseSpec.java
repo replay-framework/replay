@@ -5,8 +5,6 @@ import org.junit.Before;
 import play.Play;
 import play.server.Server;
 
-import static org.openqa.selenium.net.PortProber.findFreePort;
-
 public class BaseSpec {
   Play play = new Play();
 
@@ -15,9 +13,7 @@ public class BaseSpec {
     Thread playStarter = new Thread(() -> {
       play.init("test");
       play.start();
-
-      int port = findFreePort();
-      new Server(play, port).start();
+      int port = new Server(play).start();
 
       Configuration.baseUrl = "http://localhost:" + port;
       Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);
