@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 import static java.lang.System.nanoTime;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.Collectors.joining;
 
@@ -19,6 +20,10 @@ public class GuiceBeanSource implements BeanSource {
 
   @Nonnull
   private final Injector injector;
+
+  public GuiceBeanSource(@Nonnull Module module) {
+    this(singletonList(module));
+  }
 
   public GuiceBeanSource(@Nonnull List<Module> modules) {
     long start = nanoTime();
