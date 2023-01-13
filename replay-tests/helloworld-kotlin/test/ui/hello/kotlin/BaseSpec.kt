@@ -14,8 +14,7 @@ open class BaseSpec {
     val playStarter = Thread({
       play.init("test")
       play.start()
-      val port = PortProber.findFreePort()
-      Server(play, port).start()
+      val port = Server(play).start()
       Configuration.baseUrl = "http://localhost:$port"
       Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl)
     }, "Play! starter thread")
