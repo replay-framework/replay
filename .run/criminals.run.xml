@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="criminals" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="criminals.Application" />
+    <module name="replay.replay-tests.criminals.main" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/replay-tests/criminals" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
