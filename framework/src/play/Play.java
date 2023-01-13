@@ -119,6 +119,10 @@ public class Play {
 
   public static Invoker invoker;
 
+  /**
+   * Not recommended to use directly. 
+   * Instead, you should use @Inject annotation to inject your dependencies (either constructor or field injection).
+   */
   public static BeanSource beanSource;
 
   private final ConfLoader confLoader;
