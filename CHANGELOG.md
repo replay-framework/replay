@@ -1,10 +1,24 @@
 # Changelog
 
-## 1.12.0 (planned to 2x.01.2023)
-* #25 added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai!
+## 2.0.0 (planned to 2x.01.2023)
+* added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
+
+## 1.12.0 (released 13.01.2023)
 * #77 Expose plugin descriptor  --  thanks to Cies Breijs for PR #79 and #66
 * #78 Allow null `Play.routes` in `Router.detectChanges()`  --  thanks to Cies Breijs for PR #81
-* #69 Encrypt error cookie  --  thanks to Aleksei Anishchenko and Evgeny Tkachenya
+* Encrypt error cookie  --  thanks to Aleksei Anishchenko and Evgeny Tkachenya (#69)
+* Make Error class immutable
+* #76 expose `Play.beanSource`  --  thanks to Cies Breijs (#80)
+* Restore LiquiBase plugin (#109)
+* Bump liquibase-core from 4.15.0 to 4.18.0 (#92)
+* Bump groovy from 3.0.13 to 3.0.14 (#94) (#105)
+* Bump org.eclipse.jdt.core from 3.30.0 to 3.32.0 (#90)
+* Bump ehcache from 3.10.1 to 3.10.8 (#108)
+* Bump Flying Sourcer from 9.1.9 to 9.1.22 (#87)
+* Bump classgraph from 4.8.149 to 4.8.154 (#85)
+* Bump slf4j from 2.0.3 to 2.0.6 (#86)
+* Bump reload4j from 1.2.22 to 1.2.24 (#100)
+* Bump gson from 2.10 to 2.10.1 (#106)
 
 ## 1.11.0 (released 28.10.2022)
 
