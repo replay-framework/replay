@@ -130,7 +130,11 @@ public class Play {
   private final ActionInvoker actionInvoker;
 
   public Play() {
-    this(new PropertiesConfLoader(), new DefaultBeanSource(), new CookieSessionStore());
+    this(new DefaultBeanSource());
+  }
+
+  public Play(BeanSource beanSource) {
+    this(new PropertiesConfLoader(), beanSource, new CookieSessionStore());
   }
 
   public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {

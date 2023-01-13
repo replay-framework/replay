@@ -6,7 +6,7 @@ import play.Play;
 import play.server.Server;
 
 public class BaseSpec {
-  Play play = new Play();
+  private final Play play = new Play();
 
   @Before
   public void setUp() throws InterruptedException {

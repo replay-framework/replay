@@ -19,6 +19,10 @@ public class PropertiesConfLoader implements ConfLoader {
   private final Pattern overrideKeyPattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
   private final Pattern envVarInterpolationPattern = Pattern.compile("\\$\\{([^}]+)}");
 
+  public static Properties read(String playId) {
+    return new PropertiesConfLoader().readConfiguration(playId);
+  }
+
   @Override
   public Properties readConfiguration(String playId) {
     return readOneConfigurationFile(playId, "application.conf");
