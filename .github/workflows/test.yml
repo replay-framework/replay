@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       replay-workdir: replay
-      criminals-workdir: criminals
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,21 +39,3 @@ jobs:
         with:
           name: replay-test-report
           path: ${{env.replay-workdir}}/**/build/reports/
-      - name: Checkout Criminals
-        uses: actions/checkout@v3
-        with:
-          repository: asolntsev/criminals
-          path: ${{env.criminals-workdir}}
-      - name: Setup RePlay for Criminals
-        run: echo 'includeBuild "'../${{env.replay-workdir}}'"' > ${{env.criminals-workdir}}/settings.gradle
-      - name: Run Criminals unit-tests
-        run: ./gradlew clean test --info
-        working-directory: ${{env.criminals-workdir}}
-      - name: Run Criminals integration tests
-        run: ./gradlew clean uitest -Dselenide.headless=true
-        working-directory: ${{env.criminals-workdir}}
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: criminals-test-report
-          path: ${{env.criminals-workdir}}/**/build/reports/

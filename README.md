@@ -35,9 +35,9 @@ These were not used at Codeborne, but could be reintroduced if needed.
 
 RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
 Hence, the `play new` scaffolding generator is not available in RePlay.
-To start a new RePlay application simply clone the [up-to-date demo application](https://github.com/asolntsev/criminals) and work your way up from there.
+To start a new RePlay application make a copy of [demo application](https://github.com/codeborne/replay/tree/master/replay-tests/criminals) and work your way up from there.
 
-Sub-projects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using of Kotlin and dependency injection with Guice).
+Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase, Kotlin and dependency injection with Guice).
 
 Documentation for RePlay is found in (or referred to from) this README.
 
@@ -65,10 +65,10 @@ providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
 
-These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/asolntsev/criminals) RePlay example application:
+These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/codeborne/replay/tree/master/replay-tests/criminals) RePlay example application:
 
-0. Clone the [criminals](https://github.com/asolntsev/criminals) repository in a directory named `criminals`
-1. Use IntelliJ IDEA to `File > Open...` the criminals project (**not** `Import`) by selecting the root of this project's repository
+0. Clone the [replay](https://github.com/codeborne/replay) repository
+1. Use IntelliJ IDEA to `File > Open...` the replay project (**not** `Import`) by selecting the root of this project's repository
 2. In `File > Settings... > Build, Excecution, Deployment > Compiler > Java Compiler` fill the *Additional command line parameters*
 with the value: `-parameters` (also found in the `build.gradle` file, it put the method argument names in the bytecode by which the framework auto-binds params at run time)
 3. In `File > Settings... > Build, Excecution, Deployment > Buitl Tools > Gradle` set both *Build and run using* and
@@ -78,8 +78,8 @@ with the value: `-parameters` (also found in the `build.gradle` file, it put the
   * *Name*: `Criminals` (how this run/debug configuration shows up in the IntelliJ UI)
   * *JDK/JRE*: select one you prefer (Java 11 is a minimum requirement, Java 17 seems to work fine)
   * *Use classpath of module*: `criminals.main`
-  * *Main class*: `criminals.Application` (the package name, `criminals` should match the package that contains you `Application` class in `app/`)
-  * *VM options* (shown with *Modify options* drop-down item *Add VM options*): `-XX:+ShowCodeDetailsInExceptionMessages` (for more helpful errors)
+  * *Main class*: `replay.replay-tests.criminals.Application` (the package name, `criminals` should match the package that contains you `Application` class in `app/`)
+  * *VM options* (shown with *Modify options* drop-down item *Add VM options*): `-XX:+ShowCodeDetailsInExceptionMessages` (for more helpful errors) (applicable only for Java 14+)
 
 Now a "Run/Debug Configuration" with the name of your app shows up in the top-right of the screen.
 You can press the "Run" button (with the green play icon) to start the application from the IDE.
@@ -188,7 +188,7 @@ The following list breaks down the porting effort into tasks:
 * Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
 * Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
-[RePlay example project](https://github.com/asolntsev/criminals/tree/master/app/criminals) for inspiration). 
+[RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration). 
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
   * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard.
   In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and
