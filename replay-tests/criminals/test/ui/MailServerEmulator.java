@@ -3,6 +3,7 @@ package ui;
 import org.subethamail.smtp.helper.SimpleMessageListener;
 import org.subethamail.smtp.helper.SimpleMessageListenerAdapter;
 import org.subethamail.smtp.server.SMTPServer;
+import play.Play;
 
 import javax.inject.Singleton;
 import javax.mail.MessagingException;
@@ -20,7 +21,6 @@ public class MailServerEmulator {
   private final List<String> messages = new ArrayList<>();
 
   public void start() {
-    int port = 9010;
     smtpServer = new SMTPServer(new SimpleMessageListenerAdapter(new SimpleMessageListener() {
       @Override public boolean accept(String from, String recipient) {
         return true;
@@ -35,8 +35,10 @@ public class MailServerEmulator {
         }
       }
     }));
-    smtpServer.setPort(port);
+    
+    smtpServer.setPort(Integer.parseInt(Play.configuration.getProperty("mail.smtp.port", "0")));
     smtpServer.start();
+    Play.configuration.setProperty("mail.smtp.port", String.valueOf(smtpServer.getPort()));
   }
 
   public void shutdown() {
