@@ -1,0 +1,38 @@
+#{extends 'main.html'/}
+
+<h1>Login</h1>
+
+#{ifErrors}
+  <div class="alert alert-danger" role="alert">
+    We encountered one or more problems when processing the login form.
+    Please correct the problems as marked below.
+  </div>
+#{/ifErrors}
+
+#{if wrongCredentials}
+  <div class="alert alert-danger" role="alert">
+    Incorrect username or password. Check your credentials and try again (the username and password should be the same).
+  </div>
+#{/if}
+
+#{form '/login', class: 'form-signin'}
+
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input id="username" name="username" value="${username}" class="form-control #{if !play.data.validation.Validation.errors('username').isEmpty()}is-invalid#{/if}" autofocus/>
+    #{list items:play.data.validation.Validation.errors('username'), as:'error'}
+      <div class="text-danger">&{error}</div>
+    #{/list}
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" value="${password}" class="form-control #{if !play.data.validation.Validation.errors('password').isEmpty()}is-invalid#{/if}"/>
+    #{list items:play.data.validation.Validation.errors('password'), as:'error'}
+      <div class="text-danger">&{error}</div>
+    #{/list}
+  </div>
+
+  <input type="submit" class="btn btn-primary" value="Login"/>
+
+#{/form}

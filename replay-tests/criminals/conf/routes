@@ -1,0 +1,18 @@
+
+# Home page
+GET     /                                       Login.loginForm
+GET     /login                                  Login.loginForm
+POST    /login                                  Login.firstStep
+POST    /login/second-step                      Login.secondStep
+
+GET     /dashboard                              Dashboard.index
+
+POST    /check-criminal                         Criminals.check
+
+GET     /report/pdf                             Report.pdf
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public

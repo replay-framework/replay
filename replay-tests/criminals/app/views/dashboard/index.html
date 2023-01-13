@@ -1,0 +1,13 @@
+#{extends 'main.html'/}
+
+<h1>Hello, ${username}!</h1>
+
+
+#{form '/check-criminal'}
+
+  <label> SSN
+    <input name="ssn" value="" autofocus/>
+  </label>
+
+  <input type="submit" value="Check him!"/>
+#{/form}

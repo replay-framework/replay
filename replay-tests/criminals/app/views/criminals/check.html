@@ -1,0 +1,6 @@
+#{extends 'main.html'/}
+
+<h2>Check results for ${ssn}</h2>
+<div id="result" #{if verdict.canBeFree}class="alert alert-success"#{/if}#{else}class="alert alert-error"#{/else}>
+  Результат: ${verdict.explanation}
+</div>
