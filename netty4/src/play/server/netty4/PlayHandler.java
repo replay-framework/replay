@@ -142,10 +142,10 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         } catch (IllegalArgumentException ex) {
             logger.warn("Exception on request. serving 400 back", ex);
-            serve400(ex, ctx);
+            serve400(ex, ctx, nettyRequest);
         } catch (Exception ex) {
             logger.warn("Exception on request. serving 500 back", ex);
-            serve500(ex, ctx);
+            serve500(ex, ctx, nettyRequest);
         }
 
         logger.trace("channelRead: end");
@@ -192,7 +192,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 Router.instance.routeOnlyStatic(request);
                 super.init();
             } catch (NotFound nf) {
-                serve404(nf, ctx, request);
+                serve404(nf, ctx, request, nettyRequest);
                 logger.trace("init: end false");
                 return false;
             } catch (RenderStatic rs) {
@@ -240,7 +240,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                     InvocationContext.current.remove();
                 }
             } catch (Exception e) {
-                serve500(e, ctx);
+                serve500(e, ctx, nettyRequest);
             } finally {
                 nettyRequest.release();
             }
@@ -374,18 +374,13 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             setContentLength(nettyResponse, response.out.size());
         }
 
-        ChannelFuture f = null;
         if (ctx.channel().isOpen()) {
-            f = ctx.channel().writeAndFlush(nettyResponse);
+            ChannelFuture f = ctx.channel().writeAndFlush(nettyResponse);
+            addListeners(f, nettyRequest, nettyResponse, keepAlive);
         } else {
             logger.debug("Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection", keepAlive);
         }
 
-        // Decide whether to close the connection or not.
-        if (f != null && !keepAlive) {
-            // Close the connection when the whole content is written out.
-            f.addListener(ChannelFutureListener.CLOSE);
-        }
         logger.trace("writeResponse: end");
     }
 
@@ -429,17 +424,9 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         if (file != null && file.isFile()) {
             nettyResponse = addEtag(nettyRequest, nettyResponse, file);
             if (nettyResponse.status().equals(HttpResponseStatus.NOT_MODIFIED)) {
-
                 Channel ch = ctx.channel();
-
-                // Write the initial line and the header.
                 ChannelFuture writeFuture = ch.writeAndFlush(nettyResponse);
-
-                if (!keepAlive) {
-                    // Close the connection when the whole content is
-                    // written out.
-                    writeFuture.addListener(ChannelFutureListener.CLOSE);
-                }
+                addListeners(writeFuture, nettyRequest, nettyResponse, keepAlive);
             } else {
                 fileService.serve(file, nettyRequest, nettyResponse, ctx, request, response, ctx.channel());
             }
@@ -450,9 +437,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             } else {
                 is.close();
             }
-            if (!keepAlive) {
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
-            }
+            addListeners(writeFuture, nettyRequest, nettyResponse, keepAlive);
         } else if (stream != null) {
             ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
             if (!nettyRequest.method().equals(HttpMethod.HEAD) && !nettyResponse.status().equals(HttpResponseStatus.NOT_MODIFIED)) {
@@ -460,9 +445,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             } else {
                 stream.close();
             }
-            if (!keepAlive) {
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
-            }
+            addListeners(writeFuture, nettyRequest, nettyResponse, keepAlive);
         } else {
             writeResponse(ctx, response, nettyResponse, nettyRequest);
         }
@@ -621,15 +604,15 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private void serve400(Exception e, ChannelHandlerContext ctx) {
+    private void serve400(Exception e, ChannelHandlerContext ctx, HttpRequest nettyRequest) {
         logger.trace("serve400: begin");
         FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.BAD_REQUEST);
         nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
-        printResponse(ctx, nettyResponse, e.getMessage() + '\n');
+        printResponse(ctx, nettyRequest, nettyResponse, e.getMessage() + '\n');
         logger.trace("serve400: end");
     }
 
-    private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
+    private void serve404(NotFound e, ChannelHandlerContext ctx, Request request, HttpRequest nettyRequest) {
         logger.trace("serve404: begin");
         String format = defaultString(request.format, "txt");
         String contentType = MimeTypes.getContentType("404." + format, "text/plain");
@@ -638,7 +621,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         nettyResponse.headers().set(CONTENT_TYPE, contentType);
 
         String errorHtml = TemplateLoader.load("errors/404." + format).render(getBindingForErrors(request, e, false));
-        printResponse(ctx, nettyResponse, errorHtml);
+        printResponse(ctx, nettyRequest, nettyResponse, errorHtml);
         logger.trace("serve404: end");
     }
 
@@ -660,17 +643,17 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         return binding;
     }
 
-    private static void printResponse(ChannelHandlerContext ctx, FullHttpResponse nettyResponse, String errorHtml) {
+    private static void printResponse(ChannelHandlerContext ctx, HttpRequest nettyRequest, FullHttpResponse nettyResponse, String errorHtml) {
         byte[] bytes = errorHtml.getBytes(Response.current().encoding);
         ByteBuf buf = ctx.alloc().buffer(bytes.length).writeBytes(bytes);
         setContentLength(nettyResponse, bytes.length);
         nettyResponse = nettyResponse.replace(buf);
         ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
-        writeFuture.addListener(ChannelFutureListener.CLOSE);
+        addListeners(writeFuture, nettyRequest, nettyResponse, false);
     }
 
     // TO DO: add request and response as parameter
-    public void serve500(Exception e, ChannelHandlerContext ctx) {
+    public void serve500(Exception e, ChannelHandlerContext ctx, HttpRequest nettyRequest) {
         logger.trace("serve500: begin");
 
         FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR);
@@ -723,7 +706,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 setContentLength(nettyResponse, bytes.length);
                 nettyResponse = nettyResponse.replace(buf);
                 ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
+                addListeners(writeFuture, nettyRequest, nettyResponse, false);
                 logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
             } catch (Throwable ex) {
                 logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
@@ -733,7 +716,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 setContentLength(nettyResponse, bytes.length);
                 nettyResponse = nettyResponse.replace(buf);
                 ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
+                addListeners(writeFuture, nettyRequest, nettyResponse, false);
             }
         } catch (Throwable exxx) {
             try {
@@ -742,7 +725,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 setContentLength(nettyResponse, bytes.length);
                 nettyResponse = nettyResponse.replace(buf);
                 ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
-                writeFuture.addListener(ChannelFutureListener.CLOSE);
+                addListeners(writeFuture, nettyRequest, nettyResponse, false);
             } catch (Exception fex) {
                 logger.error("(encoding ?)", fex);
             }
@@ -777,7 +760,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 }
             }
             if ((file == null || !file.exists())) {
-                serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, playRequest);
+                serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, playRequest, nettyRequest);
             } else {
                 File localFile = file.getRealFile();
                 boolean keepAlive = isKeepAlive(nettyRequest);
@@ -785,12 +768,8 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 Channel ch = ctx.channel();
 
                 if (nettyResponse.status().equals(HttpResponseStatus.NOT_MODIFIED)) {
-                    // Write the initial line and the header.
                     ChannelFuture writeFuture = ch.writeAndFlush(nettyResponse);
-                    if (!keepAlive) {
-                        // Write the content.
-                        writeFuture.addListener(ChannelFutureListener.CLOSE);
-                    }
+                    addListeners(writeFuture, nettyRequest, nettyResponse, keepAlive);
                 } else {
                     fileService.serve(localFile, nettyRequest, nettyResponse, ctx, playRequest, playResponse, ch);
                 }
@@ -805,7 +784,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 setContentLength(nettyResponse, bytes.length);
                 errorResponse = errorResponse.replace(buf);
                 ChannelFuture future = ctx.channel().writeAndFlush(errorResponse);
-                future.addListener(ChannelFutureListener.CLOSE);
+                addListeners(future, nettyRequest, nettyResponse, false);
             } catch (Exception ex) {
                 logger.error("serveStatic for request {} {}", playRequest.method, playRequest.url, ex);
             }
@@ -979,6 +958,14 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             }
         } catch (Exception e) {
             throw new UnexpectedException(e);
+        }
+    }
+
+    private static void addListeners(ChannelFuture future, HttpRequest request, HttpResponse response, boolean keepAlive) {
+        future.addListener(new ResponseRenderingListener(request, response));
+        if (!keepAlive) {
+            // Close the connection when the whole content is written out
+            future.addListener(ChannelFutureListener.CLOSE);
         }
     }
 }
