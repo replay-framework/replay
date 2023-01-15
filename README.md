@@ -22,11 +22,11 @@ These were not used at Codeborne, but could be reintroduced if needed.
 * The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
 * Does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
   * shorter application startup times (seriously improves development cycles),
-  * and [support for Kotlin](/codeborne/replay/tree/master/replay-tests/helloworld-kotlin) out of the box.
+  * and [support for Kotlin](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin) out of the box.
 * Less "magic", like the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
 * More actively maintained.
-* Promotes [dependency injection](/codeborne/replay/tree/master/replay-tests/dependency-injection) for decoupling concerns
+* Promotes [dependency injection](/codeborne/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
 
@@ -35,7 +35,7 @@ These were not used at Codeborne, but could be reintroduced if needed.
 
 RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
 Hence, the `play new` scaffolding generator is not available in RePlay.
-To start a new RePlay application make a copy of [demo application](https://github.com/codeborne/replay/tree/master/replay-tests/criminals) and work your way up from there.
+To start a new RePlay application make a copy of [demo application](https://github.com/codeborne/replay/tree/main/replay-tests/criminals) and work your way up from there.
 
 Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase, Kotlin and dependency injection with Guice).
 
@@ -65,7 +65,7 @@ providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
 
-These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/codeborne/replay/tree/master/replay-tests/criminals) RePlay example application:
+These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/codeborne/replay/tree/main/replay-tests/criminals) RePlay example application:
 
 0. Clone the [replay](https://github.com/codeborne/replay) repository
 1. Use IntelliJ IDEA to `File > Open...` the replay project (**not** `Import`) by selecting the root of this project's repository
@@ -124,7 +124,7 @@ To suppress the "illegal reflective access" warnings from `netty` you could use 
 
 ## Plugins
 
-Play1 [installs some plugins out-of-the-box](https://github.com/playframework/play1/blob/master/framework/src/play.plugins) which you can disable in your project.
+Play1 [installs some plugins out-of-the-box](https://github.com/playframework/play1/blob/main/framework/src/play.plugins) which you can disable in your project.
 The plugins that Play1 enables by default will need to be explicitly added to your RePlay project's `play.plugins` file.
 The ability to disable plugins is no longer needed (and has therefor been removed).
 
@@ -156,7 +156,7 @@ In Play1 the `checkAuthenticity()` method is built into the `Controller` class a
 ²) Built into the Play1 framework (not as a plugin), shipped as a plugin in RePlay.
 
 A community [plugin for creating PDFs](https://github.com/pepite/play--pdf) exists for Play1.
-In RePlay this functionality is [part of the main project](https://github.com/codeborne/replay/tree/master/pdf)
+In RePlay this functionality is [part of the main project](https://github.com/codeborne/replay/tree/main/pdf)
 and available as a regular library (no longer a plugin) named `com.codeborne.replay.pdf`.
 
 RePlay projects put `play.plugins` file in `conf/`. The syntax of the `play.plugins` file remains the same.
@@ -347,7 +347,7 @@ This means that running the Play1 version of the app side-by-side with the RePla
   
 ## Licence
 
-The RePlay Framework is distributed under [MIT license](https://github.com/codeborne/replay/blob/master/LICENSE).
+The RePlay Framework is distributed under [MIT license](https://github.com/codeborne/replay/blob/main/LICENSE).
 
 The [Play1 Framework](https://github.com/playframework/play1), that RePlay forked, is distributed under [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0.html).
 

@@ -2,9 +2,9 @@ Any contributions to RePlay are both welcomed and appreciated.
 
 ## Branches
 
-- The latest state is always in `master` branch
-- Every bugfix/feature is developed in a separate branch created from the `master` branch
-- Once a bugfix/feature is accepted, it gets merged to `master` branch
+- The latest state is always in `main` branch
+- Every bugfix/feature is developed in a separate branch created from the `main` branch
+- Once a bugfix/feature is accepted, it gets merged to `main` branch
 
 
 ## How to build

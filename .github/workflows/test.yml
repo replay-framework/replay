@@ -2,7 +2,7 @@ name: Run tests
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew clean test --info --rerun-tasks
         working-directory: ${{env.replay-workdir}}
       - name: Run integration tests
-        run: ./gradlew clean uitest -Dselenide.headless=true
+        run: ./gradlew uitest -Dselenide.headless=true
         working-directory: ${{env.replay-workdir}}
       - uses: actions/upload-artifact@v3
         if: failure()
