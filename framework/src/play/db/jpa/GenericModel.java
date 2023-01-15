@@ -1,6 +1,6 @@
 package play.db.jpa;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
 import play.data.binding.BindingAnnotations;

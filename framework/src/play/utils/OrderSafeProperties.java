@@ -13,7 +13,7 @@ import java.util.Set;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.readLines;
-import static org.apache.commons.lang.StringEscapeUtils.escapeJava;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 
 /**
  * Custom impl of java.util.properties that preserves the key-order from the file
@@ -26,7 +26,9 @@ public class OrderSafeProperties extends java.util.Properties {
 
   /**
    * escapes "special-chars" (to utf-16 on the format \\uxxxx) in lines and store as iso-8859-1.
-   * see info about escaping - http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html - "public void load(InputStream inStream)"
+   * see info about escaping:
+   * - <a href="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html">...</a>
+   * - "public void load(InputStream inStream)"
    */
   @Override
   public void load(InputStream inputStream) throws IOException {

@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.commons.lang.StringUtils.leftPad;
+import static org.apache.commons.lang3.StringUtils.leftPad;
 
 /**
  *  Creates temporary folders for file parsing, and deletes

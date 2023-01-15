@@ -1,12 +1,10 @@
 package play.templates;
 
-import org.apache.commons.lang.UnhandledException;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class JavaScriptEscaper {
   public static String escape(String str) {
@@ -18,7 +16,7 @@ public class JavaScriptEscaper {
           escapeJavaStyleString(writer, str);
           return writer.toString();
       } catch (IOException ioe) {
-          throw new UnhandledException(ioe);
+          throw new RuntimeException(ioe);
       }
   }
 

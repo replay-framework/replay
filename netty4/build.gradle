@@ -3,7 +3,7 @@ dependencies {
 
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  implementation("commons-lang:commons-lang:$commonsLangVersion")
+  implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

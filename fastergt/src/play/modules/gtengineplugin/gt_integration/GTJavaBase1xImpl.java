@@ -1,6 +1,6 @@
 package play.modules.gtengineplugin.gt_integration;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -19,7 +19,8 @@ import play.utils.HTML;
 
 import java.util.Map;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
+import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
 
 public abstract class GTJavaBase1xImpl extends GTJavaBase {
     private static final Logger logger = LoggerFactory.getLogger(GTJavaBase1xImpl.class);
@@ -58,7 +59,7 @@ public abstract class GTJavaBase1xImpl extends GTJavaBase {
 
     private String getDefaultMessage(Object key) {
         logger.warn("Untranslated message: {}", key);
-        return escapeHtml(key.toString());
+        return escapeHtml4(key.toString());
     }
 
     @Override
@@ -78,7 +79,7 @@ public abstract class GTJavaBase1xImpl extends GTJavaBase {
 
     @Override
     public String escapeXML(String s) {
-        return StringEscapeUtils.escapeXml(s);
+        return escapeXml11(s);
     }
 
     @Override

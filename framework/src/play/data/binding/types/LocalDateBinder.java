@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class LocalDateBinder implements TypeBinder<LocalDate> {
   DateTimeFormatter localFormat = DateTimeFormatter.ofPattern(I18N.getDateFormat());

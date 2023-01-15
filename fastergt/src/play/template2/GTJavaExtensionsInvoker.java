@@ -2,7 +2,7 @@ package play.template2;
 
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MetaMethod;
-import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
 import java.lang.reflect.Array;
@@ -68,7 +68,7 @@ public abstract class GTJavaExtensionsInvoker {
         }
 
         @Override
-        public Object invoke(Object o, Object[] args) throws Exception {
+        public Object invoke(Object o, Object[] args) {
             return m.invoke(o, args);
         }
     }

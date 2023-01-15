@@ -1,6 +1,6 @@
 package play.data.binding;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Lang;
 import play.libs.I18N;
 

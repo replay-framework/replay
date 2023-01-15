@@ -1,6 +1,6 @@
 package play.libs;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.Serializable;
 import java.text.ParseException;

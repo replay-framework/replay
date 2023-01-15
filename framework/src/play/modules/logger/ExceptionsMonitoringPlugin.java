@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.Integer.compare;
 import static java.lang.String.format;
 import static java.util.Collections.sort;
-import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.split;
 
 public class ExceptionsMonitoringPlugin extends PlayPlugin {
 

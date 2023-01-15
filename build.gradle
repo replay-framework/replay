@@ -63,7 +63,8 @@ subprojects {
 }
 
 ext {
-  commonsLangVersion = '2.6'
+  commonsLangVersion = '3.12.0'
+  commonsTextVersion = '1.10.0'
   slf4jVersion = '2.0.6'
   assertjVersion = '3.24.1'
   mockitoVersion = '4.11.0'

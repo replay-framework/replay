@@ -6,7 +6,7 @@ import org.slf4j.MDC;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 class MDCAwareTranscoder extends SerializingTranscoder {
   private final MemcachedTranscoder delegate;

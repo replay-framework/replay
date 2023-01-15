@@ -3,7 +3,6 @@ package play.templates;
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -18,8 +17,24 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.*;
-import java.util.*;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.Normalizer;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
 
 /**
  * Java extensions in templates
@@ -144,7 +159,7 @@ public class JavaExtensions {
     }
 
     public static String escapeXml(String str) {
-        return StringEscapeUtils.escapeXml(str);
+        return escapeXml11(str);
     }
 
     public static String format(Number number, String pattern) {

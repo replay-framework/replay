@@ -1,6 +1,6 @@
 package play.libs.ws;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Codec;
 import play.libs.Promise;
 import play.libs.Time;
