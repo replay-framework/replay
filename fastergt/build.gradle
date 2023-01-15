@@ -1,7 +1,8 @@
 dependencies {
   implementation project(':framework')
   implementation('org.eclipse.jdt:org.eclipse.jdt.core:3.32.0') {transitive = false}
-  implementation("commons-lang:commons-lang:$commonsLangVersion")
+  implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
+  implementation "org.apache.commons:commons-text:$commonsTextVersion"
   testImplementation project(':framework').sourceSets.test.compileClasspath
 }
 

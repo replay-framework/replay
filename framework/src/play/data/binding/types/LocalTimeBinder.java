@@ -8,7 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.LocalTime;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class LocalTimeBinder implements TypeBinder<LocalTime> {
   @Override

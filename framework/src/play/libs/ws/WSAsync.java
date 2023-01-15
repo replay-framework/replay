@@ -12,8 +12,8 @@ import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.util.Optional;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Simple HTTP client to make webservices requests.

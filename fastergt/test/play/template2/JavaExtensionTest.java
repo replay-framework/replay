@@ -80,10 +80,9 @@ public class JavaExtensionTest {
     public void testStaticNameClashProblem() {
         TemplateSourceRenderer sr = createSourceRenderer();
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("a", "ab&c");
-        assertThat(sr.renderSrc("${org.apache.commons.lang.StringEscapeUtils.escapeHtml(a)}", args)).isEqualTo("ab&amp;c");
-
+        assertThat(sr.renderSrc("${org.apache.commons.text.StringEscapeUtils.escapeHtml4(a)}", args)).isEqualTo("ab&amp;c");
     }
 
     public static class Foo1 {

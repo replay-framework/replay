@@ -7,7 +7,7 @@ import com.ning.http.client.Response;
 import com.ning.http.client.multipart.ByteArrayPart;
 import com.ning.http.client.multipart.FilePart;
 import com.ning.http.client.multipart.Part;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import play.libs.MimeTypes;
 import play.libs.Promise;
 
