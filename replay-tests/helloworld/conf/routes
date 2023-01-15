@@ -4,5 +4,5 @@ GET    /pdf/text           HelloWorld.helloPdfFromPlainText
 GET    /pdf/text2          HelloWorld.helloPdfUsingRequestFormat
 POST   /post               AcceptPost.respondWithEmptyObject
 
-# Map static resources from the /app/public folder to the /public path
-GET     /public/  staticDir:app/public
+GET     /public/           staticDir:app/public
+GET     /img/              staticDir:app/public/img
