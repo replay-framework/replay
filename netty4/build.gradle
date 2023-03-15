@@ -1,5 +1,5 @@
 dependencies {
-  api('io.netty:netty-all:4.1.89.Final')
+  api('io.netty:netty-all:4.1.90.Final')
 
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
