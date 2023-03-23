@@ -19,7 +19,7 @@ dependencies {
   implementation project(':netty4')
 
   testImplementation("org.assertj:assertj-core:$assertjVersion")
-  testImplementation('com.codeborne:selenide:6.9.0')
+  testImplementation('com.codeborne:selenide:6.12.4')
   testImplementation('junit:junit:4.13.2')
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 }
