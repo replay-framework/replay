@@ -7,7 +7,6 @@ import play.server.Server;
 import javax.annotation.Nullable;
 import java.util.Properties;
 
-import static java.util.Collections.singletonList;
 import static play.PropertiesConfLoader.read;
 
 public class Application {
