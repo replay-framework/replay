@@ -1,7 +1,15 @@
 dependencies {
   implementation('com.google.guava:guava:31.1-jre') {transitive = false}
   implementation project(':pdf')
+  testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
+  testImplementation("io.rest-assured:rest-assured:$restAssuredVersion") {
+    exclude group: 'org.apache.groovy'
+  }
+  testImplementation "io.rest-assured:json-schema-validator:$restAssuredVersion"
+  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.14.2") {
+    because 'used by rest-assured'
+  }
 }
 
 apply from: '../replay-tests.gradle'
