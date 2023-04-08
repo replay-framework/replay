@@ -886,7 +886,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     static class LazyChunkedInput implements ChunkedInput {
 
         private boolean closed;
-        private ConcurrentLinkedQueue<byte[]> nextChunks = new ConcurrentLinkedQueue<>();
+        private final ConcurrentLinkedQueue<byte[]> nextChunks = new ConcurrentLinkedQueue<>();
 
         @Override
         public Object readChunk(ChannelHandlerContext ctx) throws Exception {

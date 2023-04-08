@@ -16,9 +16,9 @@ import static play.mvc.Http.Request.createRequest;
 
 public class CalendarBinderTest {
 
-    private CalendarBinder binder = new CalendarBinder();
-    Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
-    Session session = new Session();
+    private final CalendarBinder binder = new CalendarBinder();
+    private final Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+    private final Session session = new Session();
 
     @Test
     public void parses_date_to_calendar() throws ParseException {

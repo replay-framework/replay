@@ -3,8 +3,8 @@ package play.template2;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GTTemplateLocationWithEmbeddedSource extends GTTemplateLocation {
-    private String source;
-    private static AtomicInteger nextKey = new AtomicInteger(1);
+    private final String source;
+    private static final AtomicInteger nextKey = new AtomicInteger(1);
 
     public GTTemplateLocationWithEmbeddedSource(String relativePath, String source) {
         super(relativePath);

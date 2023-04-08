@@ -9,7 +9,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SessionDataEncoderTest {
-  SessionDataEncoder encoder = new SessionDataEncoder();
+  private final SessionDataEncoder encoder = new SessionDataEncoder();
 
   @Test
   public void testDecode() {

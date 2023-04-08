@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class CardNumberFilteringLayoutTest {
-  CardNumberFilteringLayout cardNumberFilteringLayout = Mockito.spy(new CardNumberFilteringLayout());
+  private final CardNumberFilteringLayout cardNumberFilteringLayout = Mockito.spy(new CardNumberFilteringLayout());
 
   @Test
   public void cardNumbersAreMasked() {

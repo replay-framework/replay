@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class InternalLegacyFastTagsImpls {
 
-    private static FastTags tags = new FastTags();
+    private static final FastTags tags = new FastTags();
 
     // Intentionally not porting fasttags too tied up with the current Play impl
 

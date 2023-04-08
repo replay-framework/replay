@@ -14,8 +14,8 @@ public class MemcachedClientBuilderTest {
     Properties configuration = new Properties();
     configuration.setProperty("memcached.host", "127.3.4.5:22344");
 
-    assertThat(new MemcachedClientBuilder().parseAddresses(configuration)).isEqualTo(
-      asList(new InetSocketAddress("127.3.4.5", 22344))
+    assertThat(new MemcachedClientBuilder().parseAddresses(configuration)).containsExactly(
+      new InetSocketAddress("127.3.4.5", 22344)
     );
   }
 

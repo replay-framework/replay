@@ -16,7 +16,7 @@ import static org.apache.commons.lang3.StringUtils.leftPad;
  */
 public class TempFilePlugin extends PlayPlugin {
 
-    private static AtomicLong count = new AtomicLong();
+    private static final AtomicLong count = new AtomicLong();
 
     public static final ThreadLocal<File> tempFolder = new ThreadLocal<>();
 

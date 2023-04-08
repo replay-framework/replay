@@ -193,8 +193,8 @@ public class Mail {
 
     public static class SMTPAuthenticator extends Authenticator {
 
-        private String user;
-        private String password;
+        private final String user;
+        private final String password;
 
         public SMTPAuthenticator(String user, String password) {
             this.user = user;
