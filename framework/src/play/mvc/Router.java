@@ -139,25 +139,20 @@ public class Router {
         }
     }
 
+    /**
+     * @throws RenderStatic or NotFound
+     */
     public void routeOnlyStatic(Http.Request request) {
         Route parameterlessRoute = findParameterlessRoute(request.method, request.path);
         if (parameterlessRoute != null) {
-            try {
-                if (parameterlessRoute.matches(request.method, request.path) != null) {
-                    return;
-                }
-            } catch (RenderStatic | NotFound e) {
-                throw e;
+            if (parameterlessRoute.matches(request.method, request.path) != null) {
+                return;
             }
         }
 
         for (Route route : routes) {
-            try {
-                if (route.matches(request.method, request.path) != null) {
-                    return;
-                }
-            } catch (RenderStatic | NotFound e) {
-                throw e;
+            if (route.matches(request.method, request.path) != null) {
+                return;
             }
         }
     }
