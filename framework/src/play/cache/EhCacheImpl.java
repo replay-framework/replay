@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+import static org.ehcache.Status.UNINITIALIZED;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
 import static org.ehcache.config.units.EntryUnit.ENTRIES;
@@ -93,7 +94,9 @@ public class EhCacheImpl implements CacheImpl {
 
     @Override
     public void stop() {
-        cacheManager.close();
+        if (cacheManager.getStatus() != UNINITIALIZED) {
+            cacheManager.close();
+        }
     }
 
     private static class ValueWrapper implements Serializable {
