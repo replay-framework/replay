@@ -1,4 +1,4 @@
-name: Run tests
+name: Build
 on:
   push:
     branches:
@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        server: ['netty3', 'netty4']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -15,47 +18,19 @@ jobs:
         with:
           distribution: 'temurin'
           cache: 'gradle'
-          java-version: '17'
+          java-version: '11'
       - name: Run unit-tests
         uses: gradle/gradle-build-action@v2
         with:
           arguments: clean test --info --rerun-tasks
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: replay-test-report
-          path: |
-            **/build/reports
-            **/build/test-results
-
-  uitest-netty3:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run integration tests on Netty3
+      - name: Run integration tests on ${{ matrix.server }}
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: uitest -Dselenide.headless=true -Pserver=netty3
+          arguments: uitest -Dselenide.headless=true -Pserver=${{ matrix.server }}
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: replay-uitest-report-netty3
-          path: |
-            **/build/reports
-            **/build/test-results
-
-  uitest-netty4:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run integration tests on Netty3
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: uitest -Dselenide.headless=true -Pserver=netty4
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: replay-uitest-report-netty4
+          name: replay-test-report-${{ matrix.server }}
           path: |
             **/build/reports
             **/build/test-results
