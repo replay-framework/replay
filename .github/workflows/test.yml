@@ -1,4 +1,4 @@
-name: Run tests
+name: Build
 on:
   push:
     branches:
@@ -6,36 +6,31 @@ on:
   pull_request:
 
 jobs:
-  replay-build:
+  build:
     runs-on: ubuntu-latest
-    env:
-      replay-workdir: replay
+    strategy:
+      matrix:
+        server: ['netty3', 'netty4']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: ${{env.replay-workdir}}
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           cache: 'gradle'
-          java-version: '17'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          java-version: '11'
       - name: Run unit-tests
-        run: ./gradlew clean test --info --rerun-tasks
-        working-directory: ${{env.replay-workdir}}
-      - name: Run integration tests
-        run: ./gradlew uitest -Dselenide.headless=true
-        working-directory: ${{env.replay-workdir}}
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean test --info --rerun-tasks
+      - name: Run integration tests on ${{ matrix.server }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: uitest -Dselenide.headless=true -Pserver=${{ matrix.server }}
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: replay-test-report
-          path: ${{env.replay-workdir}}/**/build/reports/
+          name: replay-test-report-${{ matrix.server }}
+          path: |
+            **/build/reports
+            **/build/test-results

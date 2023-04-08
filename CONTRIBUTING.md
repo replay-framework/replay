@@ -17,6 +17,15 @@ You can also customize parameters of UI tests (browser, headless, timeout etc.):
 
      ./gradlew uitest -Dselenide.browser=firefox -Dselenide.headless=true
 
+## Network implementations
+
+By default, RePlay uses Netty3 for network communication. 
+There is alternative implementation on Netty4, but it's under development now. 
+
+To run tests on Netty4:
+
+     ./gradlew test uitest -Pserver=netty4
+
 ## How to release
 
 This requires write permission to `com.codeborne` group in Maven central repository:
