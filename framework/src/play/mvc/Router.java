@@ -510,7 +510,7 @@ public class Router {
         }
 
         public void absolute(@Nullable Http.Request request) {
-            boolean isSecure = request == null ? false : request.secure;
+            boolean isSecure = request != null && request.secure;
             String base = getBaseUrl();
             String hostPart = host;
             String domain = request == null ? "" : request.domain;
@@ -570,7 +570,7 @@ public class Router {
                 }
             }
             if (action.startsWith("staticDir:")) {
-                if (!path.endsWith("/") && !"/".equals(path)) {
+                if (!path.endsWith("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
                 this.pattern = Pattern.compile("^" + path + ".*$");
