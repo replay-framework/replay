@@ -7,7 +7,7 @@ import play.Play;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CrypterTest {
-  Crypter crypter = new Crypter("my-salt");
+  private final Crypter crypter = new Crypter("my-salt");
 
   @Before
   public void setUp() {

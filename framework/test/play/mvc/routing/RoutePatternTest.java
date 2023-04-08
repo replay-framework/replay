@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RoutePatternTest {
-  private RoutePattern pattern = new RoutePattern();
+  private final RoutePattern pattern = new RoutePattern();
 
   @Test
   public void options() {

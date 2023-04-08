@@ -27,7 +27,7 @@ public class BeanWrapper {
     /**
      * a cache for our properties and setters
      */
-    private Map<String, Property> wrappers = new HashMap<>();
+    private final Map<String, Property> wrappers = new HashMap<>();
 
     public BeanWrapper(Class<?> forClass) {
         logger.trace("Bean wrapper for class {}", forClass.getName());
@@ -97,12 +97,12 @@ public class BeanWrapper {
 
     public static class Property {
 
-        private Annotation[] annotations;
+        private final Annotation[] annotations;
         private Method setter;
         private Field field;
-        private Class<?> type;
-        private Type genericType;
-        private String name;
+        private final Class<?> type;
+        private final Type genericType;
+        private final String name;
 
         Property(String propertyName, Method setterMethod) {
             name = propertyName;

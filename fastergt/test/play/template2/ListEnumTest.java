@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ListEnumTest {
 
-    public enum MyEnum {A,B,C};
+    private enum MyEnum {A,B,C};
 
     @Test
     public void testListingEnums() {

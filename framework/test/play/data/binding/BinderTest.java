@@ -22,13 +22,13 @@ import static play.mvc.Http.Request.createRequest;
 
 public class BinderTest {
 
-    final Annotation[] noAnnotations = new Annotation[]{};
-    Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
-    Session session = new Session();
+    private final Annotation[] noAnnotations = new Annotation[]{};
+    private final Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+    private final Session session = new Session();
 
     // provider of generic typed collection
     private static class GenericListProvider {
-        private List<Data2> listOfData2 = new ArrayList<>();
+        private final List<Data2> listOfData2 = new ArrayList<>();
     }
 
     @Before

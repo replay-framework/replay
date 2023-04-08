@@ -5,7 +5,7 @@ package play.templates;
  */
 public class TemplateParser {
 
-    private String pageSource;
+    private final String pageSource;
     private int nestedBracesCounter; // counts nested braces in current expression/tag
 
     public TemplateParser(String pageSource) {
@@ -27,7 +27,11 @@ public class TemplateParser {
         ABS_ACTION, // @@{...}
         COMMENT, // *{...}*
     }
-    private int end, begin, end2, begin2, len;
+    private int end;
+    private int begin;
+    private int end2;
+    private int begin2;
+    private final int len;
     private Token state = Token.PLAIN;
 
     private Token found(Token newState, int skip) {
@@ -41,7 +45,7 @@ public class TemplateParser {
 
     public Integer getLine() {
         String token = pageSource.substring(0, begin2);
-        if (token.indexOf("\n") == -1) {
+        if (!token.contains("\n")) {
             return 1;
         } else {
             return token.split("\n").length;
@@ -54,7 +58,7 @@ public class TemplateParser {
 
     public String checkNext() {
         if (end2 < pageSource.length()) {
-            return pageSource.charAt(end2) + "";
+            return String.valueOf(pageSource.charAt(end2));
         }
         return "";
     }

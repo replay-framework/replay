@@ -11,8 +11,8 @@ import static org.junit.Assert.assertTrue;
 import static play.mvc.Scope.Session.TS_KEY;
 
 public class CookieSessionStoreTest {
-  Http.Request request = new Http.Request();
-  Http.Response response = new Http.Response();
+  private final Http.Request request = new Http.Request();
+  private final Http.Response response = new Http.Response();
 
   @Before
   public void setUp() {

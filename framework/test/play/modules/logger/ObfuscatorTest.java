@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ObfuscatorTest {
-  private Obfuscator obfuscator = new Obfuscator();
+  private final Obfuscator obfuscator = new Obfuscator();
 
   @Test
   public void nullSafe() {

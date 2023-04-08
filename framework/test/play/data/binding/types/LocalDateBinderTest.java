@@ -16,9 +16,9 @@ public class LocalDateBinderTest {
   static {
     Play.configuration.setProperty("date.format", "dd.MM.yyyy");
   }
-  private LocalDateBinder binder = new LocalDateBinder();
-  Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
-  Session session = new Session();
+  private final LocalDateBinder binder = new LocalDateBinder();
+  private final Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+  private final Session session = new Session();
 
   @Test
   public void nullLocalDate() {

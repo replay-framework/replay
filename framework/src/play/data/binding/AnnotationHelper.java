@@ -18,7 +18,7 @@ public class AnnotationHelper {
      * @param annotations
      *            Annotations associated with on the date
      * @param value
-     *            The formated date
+     *            The formatted date
      * @return null if it cannot be converted because there is no annotation.
      * @throws ParseException
      *             if problem occurred during parsing the date

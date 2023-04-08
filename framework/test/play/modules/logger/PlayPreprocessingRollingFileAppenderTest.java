@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 
 public class PlayPreprocessingRollingFileAppenderTest {
 
-  PlayPreprocessingRollingFileAppender appender = new PlayPreprocessingRollingFileAppender();
+  private final PlayPreprocessingRollingFileAppender appender = new PlayPreprocessingRollingFileAppender();
 
   @Before
   public void setUp() {

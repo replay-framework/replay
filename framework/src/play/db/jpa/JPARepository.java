@@ -12,7 +12,7 @@ import java.util.List;
 @Singleton
 public class JPARepository<T extends JPABase> {
   private final String entityName;
-  private String dbName;
+  private final String dbName;
 
   @Nonnull
   public static <T extends JPABase> JPARepository<T> from(Class<T> modelClass) {

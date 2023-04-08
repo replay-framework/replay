@@ -190,7 +190,7 @@ public class CronExpression implements Serializable, Cloneable {
         dayMap.put("FRI", 6);
         dayMap.put("SAT", 7);
     }
-    private String cronExpression;
+    private final String cronExpression;
     private TimeZone timeZone = null;
     protected transient TreeSet<Integer> seconds;
     protected transient TreeSet<Integer> minutes;
