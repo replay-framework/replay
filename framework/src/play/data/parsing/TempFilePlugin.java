@@ -1,6 +1,8 @@
 package play.data.parsing;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 
@@ -15,7 +17,7 @@ import static org.apache.commons.lang3.StringUtils.leftPad;
  *  it after request completion.
  */
 public class TempFilePlugin extends PlayPlugin {
-
+    private static final Logger log = LoggerFactory.getLogger(TempFilePlugin.class);
     private static final AtomicLong count = new AtomicLong();
 
     public static final ThreadLocal<File> tempFolder = new ThreadLocal<>();
@@ -27,7 +29,9 @@ public class TempFilePlugin extends PlayPlugin {
         if (tempFolder.get() == null) {
             File file = new File(new File(Play.tmpDir, "uploads"),
                     System.currentTimeMillis() + "_" + leftPad(String.valueOf(count.getAndIncrement()), 10, '0'));
-            file.mkdirs();
+            if (!file.exists() && !file.mkdirs()) {
+                log.error("Failed to create directory {}", file);
+            }
             tempFolder.set(file);
         }
         return tempFolder.get();
@@ -41,6 +45,7 @@ public class TempFilePlugin extends PlayPlugin {
             try {
                 FileUtils.deleteDirectory(file);
             } catch (IOException e) {
+                log.error("Failed to delete directory {}", file, e);
             }
         }
     }

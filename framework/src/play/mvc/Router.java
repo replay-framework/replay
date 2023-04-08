@@ -646,6 +646,7 @@ public class Router {
                                 throw new RenderStatic(childResourceName);
                             }
                         } catch (IOException e) {
+                            logger.error("Failed to render static resource for {}", this, e);
                         }
                         throw new NotFound(resource);
                     } else {
