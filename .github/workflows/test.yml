@@ -6,36 +6,56 @@ on:
   pull_request:
 
 jobs:
-  replay-build:
+  build:
     runs-on: ubuntu-latest
-    env:
-      replay-workdir: replay
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: ${{env.replay-workdir}}
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: '17'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
       - name: Run unit-tests
-        run: ./gradlew clean test --info --rerun-tasks
-        working-directory: ${{env.replay-workdir}}
-      - name: Run integration tests
-        run: ./gradlew uitest -Dselenide.headless=true
-        working-directory: ${{env.replay-workdir}}
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean test --info --rerun-tasks
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: replay-test-report
-          path: ${{env.replay-workdir}}/**/build/reports/
+          path: |
+            **/build/reports
+            **/build/test-results
+
+  uitest-netty3:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run integration tests on Netty3
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: uitest -Dselenide.headless=true -Pserver=netty3
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: replay-uitest-report-netty3
+          path: |
+            **/build/reports
+            **/build/test-results
+
+  uitest-netty4:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run integration tests on Netty3
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: uitest -Dselenide.headless=true -Pserver=netty4
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: replay-uitest-report-netty4
+          path: |
+            **/build/reports
+            **/build/test-results
