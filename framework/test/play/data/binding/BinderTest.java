@@ -91,9 +91,9 @@ public class BinderTest {
         data1_2.b = 14;
         
         data2.data1 = data1_1;
-        data2.datas = new ArrayList<>(2);
-        data2.datas.add(data1_1);
-        data2.datas.add(data1_2);
+        data2.data = new ArrayList<>(2);
+        data2.data.add(data1_1);
+        data2.data.add(data1_2);
 
 
 
@@ -199,8 +199,8 @@ public class BinderTest {
         d3.a = "c";
         d3.b = 3;
 
-        Data1[] datasArray = {d1, d2};
-        List<Data1> datas = asList(d2, d1, d3);
+        Data1[] dataArray = {d1, d2};
+        List<Data1> data = asList(d2, d1, d3);
 
         Map<String, Data1> mapData = new HashMap<>();
         mapData.put(d1.a, d1);
@@ -209,9 +209,9 @@ public class BinderTest {
 
         Data4 original = new Data4();
         original.s = "some";
-        original.datas = datas;
-        original.datasArray = datasArray;
-        original.mapDatas = mapData;
+        original.data = data;
+        original.dataArray = dataArray;
+        original.mapData = mapData;
 
         Map<String, Object> result = new HashMap<>();
         Unbinder.unBind(result, original, "data", noAnnotations);

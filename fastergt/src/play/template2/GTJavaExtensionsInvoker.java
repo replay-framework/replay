@@ -279,9 +279,7 @@ public abstract class GTJavaExtensionsInvoker {
 
             if (!Arrays.equals(argTypes, that.argTypes)) return false;
             if (!methodName.equals(that.methodName)) return false;
-            if (!objectType.equals(that.objectType)) return false;
-
-            return true;
+            return objectType.equals(that.objectType);
         }
 
         @Override

@@ -821,10 +821,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         if (nettyRequest.headers().contains(IF_NONE_MATCH)) {
             String browserEtag = nettyRequest.headers().get(IF_NONE_MATCH);
-            if (browserEtag.equals(etag)) {
-                return false;
-            }
-            return true;
+            return !browserEtag.equals(etag);
         }
 
         if (nettyRequest.headers().contains(IF_MODIFIED_SINCE)) {

@@ -3,6 +3,7 @@
     <words>
       <w>databasechangelog</w>
       <w>obfuscator</w>
+      <w>unbinder</w>
     </words>
   </dictionary>
 </component>

@@ -67,11 +67,7 @@ public class GTTemplateRepo {
                 return true;
             }
 
-            if ( fileDate != freshFile.lastModified()) {
-                return true;
-            }
-
-            return false;
+            return fileDate != freshFile.lastModified();
         }
 
         public Class<? extends GTJavaBase> getTemplateClass() {

@@ -1,16 +1,15 @@
 package play.data.binding;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 class Data4 {
 
     public String s;
-    public List<Data1> datas;
-    public Data1[] datasArray;
-
-    public Map<String, Data1> mapDatas;
+    public List<Data1> data;
+    public Data1[] dataArray;
+    public Map<String, Data1> mapData;
 
     @Override
     public boolean equals(Object o) {
@@ -19,14 +18,10 @@ class Data4 {
 
         Data4 data4 = (Data4) o;
 
-        if (datas != null ? !datas.equals(data4.datas) : data4.datas != null) return false;
+        if (!Objects.equals(data, data4.data)) return false;
         //asList to ignore sequence of elements. It's not mandatory in binder
-        if (datas != null ? !Arrays.asList(datas).equals(Arrays.asList(data4.datas)) : data4.datas != null) return false;
-        if (s != null ? !s.equals(data4.s) : data4.s != null) return false;
-
-
-        if (mapDatas != null ? !mapDatas.equals(data4.mapDatas) : data4.mapDatas != null) return false;
-
-        return true;
+        if (data != null && !List.of(data).equals(List.of(data4.data))) return false;
+        if (!Objects.equals(s, data4.s)) return false;
+        return Objects.equals(mapData, data4.mapData);
     }
 }
