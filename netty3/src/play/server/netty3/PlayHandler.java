@@ -36,7 +36,6 @@ import play.InvocationContext;
 import play.Invoker;
 import play.Play;
 import play.data.binding.CachedBoundActionMethodArgs;
-import play.data.validation.Validation;
 import play.db.jpa.JPA;
 import play.exceptions.UnexpectedException;
 import play.i18n.Messages;
@@ -50,8 +49,10 @@ import play.mvc.Scope;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
+import play.server.IpParser;
+import play.server.ServerAddress;
+import play.server.ServerHelper;
 import play.templates.JavaExtensions;
-import play.templates.TemplateLoader;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
@@ -59,6 +60,7 @@ import play.vfs.VirtualFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -71,12 +73,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNullElse;
 import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
@@ -92,18 +93,21 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
 public class PlayHandler extends SimpleChannelUpstreamHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
     private static final Logger securityLogger = LoggerFactory.getLogger("security");
+    private final IpParser ipParser = new IpParser();
+    private final ServerHelper serverHelper = new ServerHelper();
+    private final FileService fileService = new FileService();
+    private final ErrorsCookieCrypter errorsCookieCrypter = new ErrorsCookieCrypter();
+    private final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
 
     /**
      * The Pipeline is given for a PlayHandler
      */
-    public Map<String, ChannelHandler> pipelines = new HashMap<>();
+    final Map<String, ChannelHandler> pipelines = new HashMap<>();
 
     private final Invoker invoker;
     private final ActionInvoker actionInvoker;
-    private final FileService fileService = new FileService();
-    private final ErrorsCookieCrypter errorsCookieCrypter = new ErrorsCookieCrypter();
 
-    public PlayHandler(Invoker invoker, ActionInvoker actionInvoker) {
+    PlayHandler(Invoker invoker, ActionInvoker actionInvoker) {
         this.invoker = invoker;
         this.actionInvoker = actionInvoker;
     }
@@ -111,24 +115,21 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, MessageEvent messageEvent) {
         logger.trace("messageReceived: begin");
-
         Object msg = messageEvent.getMessage();
 
         // Http request
         if (msg instanceof HttpRequest) {
 
-            final HttpRequest nettyRequest = (HttpRequest) msg;
+            HttpRequest nettyRequest = (HttpRequest) msg;
+            Request request = new Request();
+            Response response = new Response();
 
             // Plain old HttpRequest
             try {
-                // Reset request object and response object for the current
-                // thread.
-                Http.Request.setCurrent(new Http.Request());
-
-                final Response response = new Response();
+                Http.Request.setCurrent(request);
                 Http.Response.setCurrent(response);
 
-                final Request request = parseRequest(nettyRequest, messageEvent);
+                request = parseRequest(nettyRequest, messageEvent);
 
                 // Buffered in memory output
                 response.out = new ByteArrayOutputStream();
@@ -137,7 +138,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 response.direct = null;
 
                 // Streamed output (using response.writeChunk)
-                response.onWriteChunk(result -> writeChunk(request, response, ctx, nettyRequest, result));
+                final Request r = request;
+                response.onWriteChunk(result -> writeChunk(r, response, ctx, nettyRequest, result));
 
                 // Raw invocation
                 boolean raw = Play.pluginCollection.rawInvocation(request, response, null, RenderArgs.current(), null);
@@ -153,14 +155,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 serve400(ex, ctx);
             } catch (Exception ex) {
                 logger.warn("Exception on request. serving 500 back", ex);
-                serve500(ex, ctx);
+                serve500(ex, ctx, request, response);
             }
         }
 
         logger.trace("messageReceived: end");
     }
-
-    private static final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
 
     private class Netty3Invocation extends Invocation {
         private final ChannelHandlerContext ctx;
@@ -251,7 +251,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     InvocationContext.current.remove();
                 }
             } catch (Exception e) {
-                serve500(e, ctx);
+                serve500(e, ctx, request, response);
             }
             logger.trace("run: end");
         }
@@ -285,8 +285,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    void saveExceededSizeError(HttpRequest nettyRequest, Request request) {
-
+    private void saveExceededSizeError(HttpRequest nettyRequest, Request request) {
         String warning = nettyRequest.headers().get(HttpHeaders.Names.WARNING);
         String length = nettyRequest.headers().get(HttpHeaders.Names.CONTENT_LENGTH);
         if (warning != null) {
@@ -329,7 +328,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    protected static void addToResponse(Response response, HttpResponse nettyResponse) {
+    private void addToResponse(Response response, HttpResponse nettyResponse) {
         Map<String, Http.Header> headers = response.headers;
         for (Map.Entry<String, Http.Header> entry : headers.entrySet()) {
             Http.Header hd = entry.getValue();
@@ -362,8 +361,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     }
 
-    protected static void writeResponse(ChannelHandlerContext ctx, Response response, HttpResponse nettyResponse,
-            HttpRequest nettyRequest) {
+    private void writeResponse(ChannelHandlerContext ctx, Response response, HttpResponse nettyResponse,
+                               HttpRequest nettyRequest) {
         logger.trace("writeResponse: begin");
 
         byte[] content;
@@ -400,7 +399,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("writeResponse: end");
     }
 
-    public void copyResponse(ChannelHandlerContext ctx, Request request, Response response, HttpRequest nettyRequest) throws Exception {
+    private void copyResponse(ChannelHandlerContext ctx, Request request, Response response, HttpRequest nettyRequest) throws Exception {
         logger.trace("copyResponse: begin");
 
         // Decide whether to close the connection or not.
@@ -432,7 +431,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         boolean keepAlive = isKeepAlive(nettyRequest);
         if (file != null && file.isFile()) {
-            nettyResponse = addEtag(nettyRequest, nettyResponse, file);
+            addEtag(nettyRequest, nettyResponse, file);
             if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
 
                 Channel ch = ctx.getChannel();
@@ -474,20 +473,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("copyResponse: end");
     }
 
-    static String getRemoteIPAddress(MessageEvent e) {
-        String fullAddress = ((InetSocketAddress) e.getRemoteAddress()).getAddress().getHostAddress();
-        if (fullAddress.matches("/[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+[:][0-9]+")) {
-            fullAddress = fullAddress.substring(1);
-            fullAddress = fullAddress.substring(0, fullAddress.indexOf(':'));
-        } else if (fullAddress.matches(".*[%].*")) {
-            fullAddress = fullAddress.substring(0, fullAddress.indexOf('%'));
-        }
-        return fullAddress;
+    private String getRemoteIPAddress(MessageEvent e) {
+        return ipParser.getRemoteIpAddress((InetSocketAddress) e.getRemoteAddress());
     }
 
-    public Request parseRequest(HttpRequest nettyRequest, MessageEvent messageEvent) throws IOException {
-        logger.trace("parseRequest: begin");
-        logger.trace("parseRequest: URI = {}", nettyRequest.getUri());
+    private Request parseRequest(HttpRequest nettyRequest, MessageEvent messageEvent) throws IOException {
+        logger.trace("parseRequest: begin, URI = {}", nettyRequest.getUri());
 
         String uri = nettyRequest.getUri();
         // Remove domain and port from URI if it's present.
@@ -535,56 +526,18 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
 
         String host = nettyRequest.headers().get(HOST);
-        boolean isLoopback = false;
-        try {
-            isLoopback = ((InetSocketAddress) messageEvent.getRemoteAddress()).getAddress().isLoopbackAddress()
-                    && host.matches("^127\\.0\\.0\\.1:?[0-9]*$");
-        } catch (Exception e) {
-            // ignore it
-        }
+        boolean isLoopback = ipParser.isLoopback(host, (InetSocketAddress) messageEvent.getRemoteAddress());
+        ServerAddress serverAddress = ipParser.parseHost(host);
 
-        int port = 0;
-        String domain = null;
-        if (host == null) {
-            host = "";
-            port = 80;
-            domain = "";
-        }
-        // Check for IPv6 address
-        else if (host.startsWith("[")) {
-            // There is no port
-            if (host.endsWith("]")) {
-                domain = host;
-                port = 80;
-            } else {
-                // There is a port so take from the last colon
-                int portStart = host.lastIndexOf(':');
-                if (portStart > 0 && (portStart + 1) < host.length()) {
-                    domain = host.substring(0, portStart);
-                    port = Integer.parseInt(host.substring(portStart + 1));
-                }
-            }
-        }
-        // Non IPv6 but has port
-        else if (host.contains(":")) {
-            String[] hosts = host.split(":");
-            port = Integer.parseInt(hosts[1]);
-            domain = hosts[0];
-        } else {
-            port = 80;
-            domain = host;
-        }
-
-        boolean secure = false;
-
-        Request request = Request.createRequest(remoteAddress, method, path, querystring, contentType, body, uri, host, isLoopback,
-                port, domain, secure, getHeaders(nettyRequest), getCookies(nettyRequest));
+        Request request = Request.createRequest(remoteAddress, method, path, querystring, contentType, body, uri, 
+          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false, 
+          getHeaders(nettyRequest), getCookies(nettyRequest));
 
         logger.trace("parseRequest: end");
         return request;
     }
 
-    protected static Map<String, Http.Header> getHeaders(HttpRequest nettyRequest) {
+    private Map<String, Http.Header> getHeaders(HttpRequest nettyRequest) {
         Map<String, Http.Header> headers = new HashMap<>(16);
 
         for (String key : nettyRequest.headers().names()) {
@@ -596,7 +549,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         return headers;
     }
 
-    protected static Map<String, Http.Cookie> getCookies(HttpRequest nettyRequest) {
+    private Map<String, Http.Cookie> getCookies(HttpRequest nettyRequest) {
         Map<String, Http.Cookie> cookies = new HashMap<>(16);
         String value = nettyRequest.headers().get(COOKIE);
         if (value != null) {
@@ -646,30 +599,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
         nettyResponse.headers().set(CONTENT_TYPE, contentType);
 
-        String errorHtml = TemplateLoader.load("errors/404." + format).render(getBindingForErrors(request, e, false));
+        String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
         printResponse(ctx, nettyResponse, errorHtml);
         logger.trace("serve404: end");
     }
 
-    private static Map<String, Object> getBindingForErrors(Request request, Exception e, boolean isError) {
-        Map<String, Object> binding = new HashMap<>();
-        if (!isError) {
-            binding.put("result", e);
-        } else {
-            binding.put("exception", e);
-        }
-        binding.put("request", request);
-        binding.put("play", new Play());
-        try {
-            binding.put("errors", Validation.errors());
-        } catch (Exception ex) {
-            logger.error("Error when getting Validation errors", ex);
-        }
-
-        return binding;
-    }
-
-    private static void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorHtml) {
+    private void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorHtml) {
         byte[] bytes = errorHtml.getBytes(Response.current().encoding);
         ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
         setContentLength(nettyResponse, bytes.length);
@@ -678,54 +613,18 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         writeFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
-    // TO DO: add request and response as parameter
-    public void serve500(Exception e, ChannelHandlerContext ctx) {
+    private void serve500(Exception e, ChannelHandlerContext ctx, Request request, Response response) {
         logger.trace("serve500: begin");
-
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR);
-
-        Request request = Request.current();
-        Response response = Response.current();
-
         Charset encoding = response.encoding;
 
         try {
-            if (!(e instanceof RuntimeException)) {
-                e = new UnexpectedException(e);
-            }
+            flushCookies(response, nettyResponse);
 
-            // Flush some cookies
+            String format = requireNonNullElse(request.format, "txt");
+            nettyResponse.headers().set("Content-Type", MimeTypes.getContentType("500." + format, "text/plain"));
             try {
-
-                Map<String, Http.Cookie> cookies = response.cookies;
-                for (Http.Cookie cookie : cookies.values()) {
-                    Cookie c = new DefaultCookie(cookie.name, cookie.value);
-                    c.setSecure(cookie.secure);
-                    c.setPath(cookie.path);
-                    if (cookie.domain != null) {
-                        c.setDomain(cookie.domain);
-                    }
-                    if (cookie.maxAge != null) {
-                        c.setMaxAge(cookie.maxAge);
-                    }
-                    c.setHttpOnly(cookie.httpOnly);
-
-                    nettyResponse.headers().add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(c));
-                }
-
-            } catch (Exception exx) {
-                logger.error("Trying to flush cookies", exx);
-                // humm ?
-            }
-
-            String format = request.format;
-            if (format == null) {
-                format = "txt";
-            }
-
-            nettyResponse.headers().set("Content-Type", (MimeTypes.getContentType("500." + format, "text/plain")));
-            try {
-                String errorHtml = TemplateLoader.load("errors/500." + format).render(getBindingForErrors(request, e, true));
+                String errorHtml = serverHelper.generateErrorResponse(request, format, e);
 
                 byte[] bytes = errorHtml.getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
@@ -744,7 +643,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
                 writeFuture.addListener(ChannelFutureListener.CLOSE);
             }
-        } catch (Throwable exxx) {
+        } catch (RuntimeException exxx) {
             try {
                 byte[] bytes = "Internal Error".getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
@@ -755,51 +654,49 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             } catch (Exception fex) {
                 logger.error("(encoding ?)", fex);
             }
-            if (exxx instanceof RuntimeException) {
-                throw (RuntimeException) exxx;
-            }
-            throw new RuntimeException(exxx);
+            throw exxx;
         }
         logger.trace("serve500: end");
+    }
+
+    private void flushCookies(Response response, HttpResponse nettyResponse) {
+        try {
+            Map<String, Http.Cookie> cookies = response.cookies;
+            for (Http.Cookie cookie : cookies.values()) {
+                Cookie c = new DefaultCookie(cookie.name, cookie.value);
+                c.setSecure(cookie.secure);
+                c.setPath(cookie.path);
+                if (cookie.domain != null) {
+                    c.setDomain(cookie.domain);
+                }
+                if (cookie.maxAge != null) {
+                    c.setMaxAge(cookie.maxAge);
+                }
+                c.setHttpOnly(cookie.httpOnly);
+
+                nettyResponse.headers().add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(c));
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to flush cookies", e);
+        }
     }
 
     private HttpResponse createHttpResponse(HttpResponseStatus status) {
         return new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
     }
 
-    public void serveStatic(RenderStatic renderStatic, ChannelHandlerContext ctx, Request request, Response response,
-            HttpRequest nettyRequest, MessageEvent e) {
+    private void serveStatic(RenderStatic renderStatic, ChannelHandlerContext ctx, Request request, Response response,
+                             HttpRequest nettyRequest, MessageEvent e) {
         logger.trace("serveStatic: begin");
 
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
         try {
-            VirtualFile file = Play.getVirtualFile(renderStatic.file);
-            if (file != null && file.exists() && file.isDirectory()) {
-                file = file.child("index.html");
-                if (file != null) {
-                    renderStatic.file = file.relativePath();
-                }
-            }
+            VirtualFile file = serverHelper.findFile(renderStatic.file);
             if ((file == null || !file.exists())) {
                 serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, request);
             } else {
-                File localFile = file.getRealFile();
-                boolean keepAlive = isKeepAlive(nettyRequest);
-                nettyResponse = addEtag(nettyRequest, nettyResponse, localFile);
-
-                if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
-                    Channel ch = e.getChannel();
-
-                    // Write the initial line and the header.
-                    ChannelFuture writeFuture = ch.write(nettyResponse);
-                    if (!keepAlive) {
-                        // Write the content.
-                        writeFuture.addListener(ChannelFutureListener.CLOSE);
-                    }
-                } else {
-                    fileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
-                }
-
+                serveLocalFile(file, request, response, ctx, e, nettyRequest, nettyResponse);
             }
         } catch (Throwable ez) {
             logger.error("serveStatic for request {} {}", request.method, request.url, ez);
@@ -818,7 +715,26 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serveStatic: end");
     }
 
-    public static boolean isModified(String etag, long last, HttpRequest nettyRequest) {
+    private void serveLocalFile(VirtualFile file, Request request, Response response, 
+                                ChannelHandlerContext ctx, MessageEvent e, 
+                                HttpRequest nettyRequest, HttpResponse nettyResponse) throws FileNotFoundException {
+      
+        File localFile = file.getRealFile();
+        boolean keepAlive = isKeepAlive(nettyRequest);
+        addEtag(nettyRequest, nettyResponse, localFile);
+
+        if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
+            Channel ch = e.getChannel();
+            ChannelFuture writeFuture = ch.write(nettyResponse);
+            if (!keepAlive) {
+                writeFuture.addListener(ChannelFutureListener.CLOSE);
+            }
+        } else {
+            fileService.serve(localFile, nettyRequest, nettyResponse, ctx, request, response, e.getChannel());
+        }
+    }
+
+    private boolean isModified(String etag, long last, HttpRequest nettyRequest) {
 
         if (nettyRequest.headers().contains(IF_NONE_MATCH)) {
             String browserEtag = nettyRequest.headers().get(IF_NONE_MATCH);
@@ -843,7 +759,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         return true;
     }
 
-    private static HttpResponse addEtag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {
+    private void addEtag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {
         if (Play.mode == Play.Mode.DEV) {
             httpResponse.headers().set(CACHE_CONTROL, "no-cache");
         } else {
@@ -874,73 +790,17 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 httpResponse.headers().set(ETAG, etag);
             }
         }
-        return httpResponse;
     }
 
-    public static boolean isKeepAlive(HttpMessage message) {
+    private boolean isKeepAlive(HttpMessage message) {
         return HttpHeaders.isKeepAlive(message) && message.getProtocolVersion().equals(HttpVersion.HTTP_1_1);
     }
 
-    public static void setContentLength(HttpMessage message, long contentLength) {
+    private void setContentLength(HttpMessage message, long contentLength) {
         message.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(contentLength));
     }
 
-    static class LazyChunkedInput implements ChunkedInput {
-
-        private boolean closed;
-        private final ConcurrentLinkedQueue<byte[]> nextChunks = new ConcurrentLinkedQueue<>();
-
-        @Override
-        public boolean hasNextChunk() {
-            return !nextChunks.isEmpty();
-        }
-
-        @Override
-        public Object nextChunk() {
-            if (nextChunks.isEmpty()) {
-                return null;
-            }
-            return wrappedBuffer(nextChunks.poll());
-        }
-
-        @Override
-        public boolean isEndOfInput() {
-            return closed && nextChunks.isEmpty();
-        }
-
-        @Override
-        public void close() {
-            if (!closed) {
-                nextChunks.offer("0\r\n\r\n".getBytes(UTF_8));
-            }
-            closed = true;
-        }
-
-        private void writeChunk(Object chunk, Charset encoding) throws Exception {
-            if (closed) {
-                throw new Exception("HTTP output stream closed");
-            }
-
-            byte[] bytes;
-            if (chunk instanceof byte[]) {
-                bytes = (byte[]) chunk;
-            } else {
-                String message = chunk == null ? "" : chunk.toString();
-                bytes = message.getBytes(encoding);
-            }
-
-            try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-                byteStream.write(Integer.toHexString(bytes.length).getBytes(UTF_8));
-                byte[] crlf = new byte[]{(byte) '\r', (byte) '\n'};
-                byteStream.write(crlf);
-                byteStream.write(bytes);
-                byteStream.write(crlf);
-                nextChunks.offer(byteStream.toByteArray());
-            }
-        }
-    }
-
-    public void writeChunk(Request playRequest, Response playResponse, ChannelHandlerContext ctx, HttpRequest nettyRequest, Object chunk) {
+    private void writeChunk(Request playRequest, Response playResponse, ChannelHandlerContext ctx, HttpRequest nettyRequest, Object chunk) {
         try {
             if (playResponse.direct == null) {
                 playResponse.setHeader("Transfer-Encoding", "chunked");
@@ -960,17 +820,13 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    public void closeChunked(Response playResponse) {
-        try {
-            ((LazyChunkedInput) playResponse.direct).close();
-            if (this.pipelines.get("ChunkedWriteHandler") != null) {
-                ((ChunkedWriteHandler) this.pipelines.get("ChunkedWriteHandler")).resumeTransfer();
-            }
-            if (this.pipelines.get("SslChunkedWriteHandler") != null) {
-                ((ChunkedWriteHandler) this.pipelines.get("SslChunkedWriteHandler")).resumeTransfer();
-            }
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
+    private void closeChunked(Response playResponse) {
+        ((LazyChunkedInput) playResponse.direct).close();
+        if (this.pipelines.get("ChunkedWriteHandler") != null) {
+            ((ChunkedWriteHandler) this.pipelines.get("ChunkedWriteHandler")).resumeTransfer();
+        }
+        if (this.pipelines.get("SslChunkedWriteHandler") != null) {
+            ((ChunkedWriteHandler) this.pipelines.get("SslChunkedWriteHandler")).resumeTransfer();
         }
     }
 }

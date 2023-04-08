@@ -19,7 +19,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +32,7 @@ import java.util.regex.Pattern;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 
 public class Http {
     private static final Logger logger = LoggerFactory.getLogger(Http.class);
@@ -73,7 +79,7 @@ public class Http {
 
         public Header(String name, String value) {
             this.name = name;
-            this.values = asList(value);
+            this.values = singletonList(value);
         }
 
         public Header(String name, List<String> values) {

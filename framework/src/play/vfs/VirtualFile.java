@@ -4,6 +4,9 @@ import org.apache.commons.io.IOUtils;
 import play.Play;
 import play.exceptions.UnexpectedException;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -142,6 +145,8 @@ public class VirtualFile {
         return realFile.length();
     }
 
+    @Nonnull
+    @CheckReturnValue
     public VirtualFile child(String name) {
         return new VirtualFile(new File(realFile, name));
     }
@@ -183,6 +188,7 @@ public class VirtualFile {
         return getName();
     }
 
+    @Nullable
     public static VirtualFile search(Collection<VirtualFile> roots, String path) {
         for (VirtualFile file : roots) {
             if (file.child(path).exists()) {
