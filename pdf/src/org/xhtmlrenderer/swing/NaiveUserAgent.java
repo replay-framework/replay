@@ -293,7 +293,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
         setBaseURL(result.toExternalForm());
       }
       catch (MalformedURLException e) {
-        logger.debug("Failed to set base url {} becase of {}", uri, e);
+        logger.debug("Failed to set base url {} becase of {}", uri, e.toString());
         URI newUri = new File(".").toURI();
         try {
           String newBaseUrl = newUri.toURL().toExternalForm();
@@ -301,7 +301,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
           setBaseURL(newBaseUrl);
         }
         catch (Exception e1) {
-          logger.error("Failed to set base url {} becase of {}", newUri, e1);
+          logger.error("Failed to set base url {} becase of {}", newUri, e1.toString());
           XRLog.exception("The default NaiveUserAgent doesn't know how to resolve the base URL for " + uri);
           return null;
         }

@@ -219,7 +219,7 @@ public abstract class Binder {
     }
 
     private static void logBindingNormalFailure(ParamNode paramNode, Exception e) {
-        logger.debug("Failed to bind {}={}: {}", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()), e);
+        logger.debug("Failed to bind {}={}: {}", paramNode.getOriginalKey(), Arrays.toString(paramNode.getValues()), e.toString());
     }
 
     private static Object bindArray(Http.Request request, Session session, Class<?> clazz, ParamNode paramNode, BindingAnnotations bindingAnnotations) {
@@ -250,7 +250,7 @@ public abstract class Binder {
                     Array.set(array, i - invalidItemsCount, directBind(paramNode.getOriginalKey(), request, session, bindingAnnotations.annotations,
                             thisValue, componentType, componentType));
                 } catch (Exception e) {
-                    logger.debug("Bad item #{}: {}", i, e);
+                    logger.debug("Bad item #{}: {}", i, e.toString());
                     invalidItemsCount++;
                 }
             }
@@ -264,7 +264,7 @@ public abstract class Binder {
                     try {
                         Array.set(array, i - invalidItemsCount, childValue);
                     } catch (Exception e) {
-                        logger.debug("Bad item #{}: {}", i, e);
+                        logger.debug("Bad item #{}: {}", i, e.toString());
                         invalidItemsCount++;
                     }
                 }
@@ -297,10 +297,10 @@ public abstract class Binder {
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.warn("Failed to create instance of {}: {}", clazz.getName(), e);
+            logger.warn("Failed to create instance of {}: {}", clazz.getName(), e.toString());
             throw new UnexpectedException(e);
         } catch (NoSuchMethodException | InvocationTargetException e) {
-            logger.error("Failed to create instance of {}: {}", clazz.getName(), e);
+            logger.error("Failed to create instance of {}: {}", clazz.getName(), e.toString());
             throw new UnexpectedException(e);
         }
     }
