@@ -1,5 +1,5 @@
 dependencies {
-  api('io.netty:netty:3.10.6.Final')
+  implementation 'io.netty:netty:3.10.6.Final'
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")

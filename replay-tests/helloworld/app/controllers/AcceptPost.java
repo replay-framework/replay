@@ -3,17 +3,23 @@ package controllers;
 import play.mvc.Controller;
 import play.mvc.results.RenderJson;
 
+import java.util.Map;
+
+import static java.util.Objects.requireNonNullElse;
+
 /**
  * Used by LargePostBodySpec#exerciseFileChannelBufferWithLargePostBody()
  */
 public class AcceptPost extends Controller {
 
-  public RenderJson respondWithEmptyObject() {
+  public RenderJson respondWithSameObject() {
 
     // This triggers the log warning from TextParser.resetBodyInputStreamIfPossible
-    request.params.get("body");
+    String requestBody = requireNonNullElse(request.params.get("body"), "");
 
-    return new RenderJson(
-        String.format("{\"content-length\": %s}", request.headers.get("content-length").value()));
+    return new RenderJson(Map.of(
+      "content-length", request.headers.get("content-length").value(),
+      "origin", requestBody
+    ));
   }
 }

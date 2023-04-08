@@ -71,4 +71,5 @@ ext {
   pdfTestVersion = '1.8.1'
   groovyVersion = '3.0.17'
   httpclientVersion = '4.5.14'
+  restAssuredVersion = '5.3.0'
 }
