@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static java.util.Objects.requireNonNullElse;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /*
@@ -146,10 +147,7 @@ public class HTML {
         public String convertToReference(char character) {
             if (character < 1000 || (character >= 8000 && character < 10000)) {
                 int index = (character < 1000 ? character : character - 7000);
-                String entityReference = this.characterToEntityReferenceMap[index];
-                if (entityReference != null) {
-                    return entityReference;
-                }
+                return this.characterToEntityReferenceMap[index];
             }
             return null;
         }
@@ -163,10 +161,7 @@ public class HTML {
          */
         public char convertToCharacter(String entityReference) {
             Character referredCharacter = this.entityReferenceToCharacterMap.get(entityReference);
-            if (referredCharacter != null) {
-                return referredCharacter.charValue();
-            }
-            return CHAR_NULL;
+            return requireNonNullElse(referredCharacter, CHAR_NULL);
         }
     }
 }
