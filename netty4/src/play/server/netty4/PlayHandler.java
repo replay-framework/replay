@@ -251,10 +251,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         public void execute() {
             logger.trace("execute: begin");
             if (!ctx.channel().isActive()) {
-                try {
-                } catch (Throwable e) {
-                    // Ignore
-                }
                 logger.trace("execute: end, ignored");
                 return;
             }
