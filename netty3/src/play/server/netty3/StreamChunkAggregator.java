@@ -18,11 +18,13 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+import static java.lang.Integer.parseInt;
+
 public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
 
     private volatile HttpMessage currentMessage;
     private volatile OutputStream out;
-    private static final int maxContentLength = Integer.valueOf(Play.configuration.getProperty("play.netty.maxContentLength", "-1"));
+    private static final int maxContentLength = parseInt(Play.configuration.getProperty("play.netty.maxContentLength", "-1"));
     private volatile File file;
 
     /**
