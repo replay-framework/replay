@@ -69,7 +69,7 @@ public class BinderTest {
         Data1.myStatic = 2;
         RootParamNode root = ParamNode.convert(r2);
         Object bindResult = Binder.bind(request, session, root, "data1", Data1.class, null, null);
-        assertThat(bindResult).isEqualTo(data1);
+        assertThat(bindResult).usingRecursiveComparison().isEqualTo(data1);
         assertThat(Data1.myStatic).isEqualTo(2);
     }
 
@@ -101,7 +101,8 @@ public class BinderTest {
         Unbinder.unBind(r, data2, "data2", noAnnotations);
         Map<String, String[]> r2 = fromUnbindMap2BindMap(r);
         RootParamNode root = ParamNode.convert(r2);
-        assertThat(Binder.bind(request, session, root, "data2", Data2.class, null, null)).isEqualTo(data2);
+        assertThat(Binder.bind(request, session, root, "data2", Data2.class, null, null))
+          .usingRecursiveComparison().isEqualTo(data2);
 
     }
 
@@ -220,7 +221,7 @@ public class BinderTest {
         RootParamNode root = ParamNode.convert(r2);
 
         Object binded = Binder.bind(request, session, root, "data", Data4.class, Data4.class, noAnnotations);
-        assertThat(binded).isEqualTo(original);
+        assertThat(binded).usingRecursiveComparison().isEqualTo(original);
     }
 
     @Test
