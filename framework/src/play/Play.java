@@ -20,6 +20,7 @@ import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -425,6 +426,7 @@ public class Play {
    * @param path Relative path from the applications root
    * @return The virtualFile or null
    */
+  @Nullable
   public static VirtualFile getVirtualFile(String path) {
     return VirtualFile.search(roots, path);
   }
