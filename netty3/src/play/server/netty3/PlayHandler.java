@@ -626,6 +626,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             }
             e.getChannel().close();
         } catch (Exception ex) {
+            logger.error("Failed to handle exception for {}", ctx.getName(), ex);
         }
     }
 
