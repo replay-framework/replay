@@ -426,7 +426,7 @@ public class CronExpression implements Serializable, Cloneable {
         char c = s.charAt(i);
         if ((c >= 'A') && (c <= 'Z') && (!s.equals("L")) && (!s.equals("LW"))) {
             String sub = s.substring(i, i + 3);
-            int sval = -1;
+            int sval;
             int eval = -1;
             if (type == MONTH) {
                 sval = getMonthNumber(sub) + 1;
@@ -1225,10 +1225,7 @@ public class CronExpression implements Serializable, Cloneable {
                         daysToAdd = dow + (7 - cDow);
                     }
 
-                    boolean dayShifted = false;
-                    if (daysToAdd > 0) {
-                        dayShifted = true;
-                    }
+                    boolean dayShifted = daysToAdd > 0;
 
                     day += daysToAdd;
                     int weekOfMonth = day / 7;
@@ -1261,7 +1258,7 @@ public class CronExpression implements Serializable, Cloneable {
                     int dow = daysOfWeek.first(); // desired
                     // d-o-w
                     st = daysOfWeek.tailSet(cDow);
-                    if (st != null && st.size() > 0) {
+                    if (st.size() > 0) {
                         dow = st.first();
                     }
 
@@ -1315,7 +1312,7 @@ public class CronExpression implements Serializable, Cloneable {
 
             // get month...................................................
             st = months.tailSet(mon);
-            if (st != null && st.size() != 0) {
+            if (st.size() != 0) {
                 t = mon;
                 mon = st.first();
             } else {
@@ -1343,7 +1340,7 @@ public class CronExpression implements Serializable, Cloneable {
 
             // get year...................................................
             st = years.tailSet(year);
-            if (st != null && st.size() != 0) {
+            if (st.size() != 0) {
                 t = year;
                 year = st.first();
             } else {

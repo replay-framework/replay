@@ -332,11 +332,7 @@ public class FastTags {
                 return ((Number) test).intValue() != 0;
             } else if (test instanceof Collection) {
                 return !((Collection) test).isEmpty();
-            } else if (test instanceof NullObject) {
-                return false;
-            } else {
-                return true;
-            }
+            } else return !(test instanceof NullObject);
         }
         return false;
     }

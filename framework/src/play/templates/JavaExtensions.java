@@ -152,10 +152,7 @@ public class JavaExtensions {
         if (condition instanceof Collection && ((Collection) condition).size() == 0) {
             return false;
         }
-        if (condition instanceof String && condition.toString().equals("")) {
-            return false;
-        }
-        return true;
+        return !(condition instanceof String) || !condition.toString().equals("");
     }
 
     public static String escapeXml(String str) {
