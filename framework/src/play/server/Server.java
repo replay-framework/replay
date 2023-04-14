@@ -14,6 +14,6 @@ public class Server {
   }
 
   public int start() {
-    throw new IllegalStateException("Please add dependency replay-netty3 or replay-netty4 to your project");
+    throw new IllegalStateException("Please add dependency replay-netty3, replay-netty4 or replay-javanet to your project");
   }
 }

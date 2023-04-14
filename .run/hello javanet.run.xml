@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="hello javanet" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="play.server.javanet.HelloApp" />
+    <module name="replay.javanet.test" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/javanet" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="play.server.javanet.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
