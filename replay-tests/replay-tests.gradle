@@ -15,6 +15,7 @@ sourceSets {
 configurations {
   netty3TestClasspath.extendsFrom testRuntimeOnly
   netty4TestClasspath.extendsFrom testRuntimeOnly
+  javanetTestClasspath.extendsFrom testRuntimeOnly
 }
 
 dependencies {
@@ -25,6 +26,7 @@ dependencies {
 
   netty3TestClasspath project(':netty3')
   netty4TestClasspath project(':netty4')
+  javanetTestClasspath project(':javanet')
 
   testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation('com.codeborne:selenide:6.12.4')
@@ -50,6 +52,12 @@ tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen {false}
   classpath = configurations.netty4TestClasspath + classpath
+}
+
+tasks.register('uitest-javanet', Test) {
+  include 'ui/**/*'
+  outputs.upToDateWhen {false}
+  classpath = configurations.javanetTestClasspath + classpath
 }
 
 tasks.withType(Test).configureEach {
