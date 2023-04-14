@@ -72,6 +72,23 @@ public class Http {
             return code / 100 == 4 || code / 100 == 5;
         }
     }
+    
+    public static class Methods {
+        public static final String GET = "GET";
+        public static final String PATCH = "PATCH";
+        public static final String POST = "POST";
+        public static final String PUT = "PUT";
+        public static final String DELETE = "DELETE";
+        public static final String OPTIONS = "OPTIONS";
+        public static final String HEAD = "HEAD";
+        public static final String TRACE = "TRACE";
+    }
+
+    public static class Headers {
+        public static final class Values {
+            public static final String CLOSE = "close";
+        }
+    }
 
     public static class Header implements Serializable {
         public final String name;
@@ -136,8 +153,8 @@ public class Http {
          * URL path (excluding scheme, host and port), starting with '/'<br>
          * 
          * <b>Example:</b><br>
-         * With this full URL {@code http://localhost:9000/path0/path1} <br>
-         * =&gt; <b>url</b> will be {@code /path0/path1}
+         * With this full URL {@code http://localhost:9000/path0/path1?foo=bar} <br>
+         * =&gt; <b>url</b> will be {@code /path0/path1?foo=bar}
          */
         public String url;
         public String method;
@@ -493,7 +510,7 @@ public class Http {
     private static final ThreadLocal<Response> currentResponse = new ThreadLocal<>();
 
     public static class Response {
-        public Integer status = StatusCode.OK;
+        public int status = StatusCode.OK;
         public String contentType;
         public final Map<String, Http.Header> headers = new HashMap<>(16);
         public Map<String, Http.Cookie> cookies = new HashMap<>(16);
