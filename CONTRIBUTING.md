@@ -22,9 +22,13 @@ You can also customize parameters of UI tests (browser, headless, timeout etc.):
 By default, RePlay uses Netty3 for network communication. 
 There is alternative implementation on Netty4, but it's under development now. 
 
-To run tests on Netty4:
+To run tests only on Netty3:
 
-     ./gradlew test uitest -Pserver=netty4
+     ./gradlew test uitest-netty3
+
+To run tests only on Netty4:
+
+     ./gradlew test uitest-netty4
 
 ## How to release
 

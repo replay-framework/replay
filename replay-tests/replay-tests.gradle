@@ -12,15 +12,19 @@ sourceSets {
   }
 }
 
+configurations {
+  netty3TestClasspath.extendsFrom testRuntimeOnly
+  netty4TestClasspath.extendsFrom testRuntimeOnly
+}
+
 dependencies {
   implementation project(':framework')
   implementation project(':fastergt')
-  if (project.hasProperty("server")) {
-    implementation project(":${server}")
-  }
-  else {
-    implementation project(':netty3')
-  }
+  compileOnly project(':netty3')
+  testCompileOnly project(':netty3')
+
+  netty3TestClasspath project(':netty3')
+  netty4TestClasspath project(':netty4')
 
   testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation('com.codeborne:selenide:6.12.4')
@@ -32,14 +36,30 @@ test {
   exclude 'ui/**'
 }
 
-task uitest(type: Test) {
+tasks.register('uitest') {
+  dependsOn tasks.withType(Test)
+}
+
+tasks.register('uitest-netty3', Test) {
   include 'ui/**/*'
-  systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
-  System.properties.stringPropertyNames()
-      .findAll { it.startsWith("selenide.") }
-      .forEach {
-        println " set ${it} to ${System.getProperty(it)}"
-        systemProperties[it] = System.getProperty(it)
-      }
   outputs.upToDateWhen {false}
+  classpath += configurations.netty3TestClasspath
+}
+
+tasks.register('uitest-netty4', Test) {
+  include 'ui/**/*'
+  outputs.upToDateWhen {false}
+  classpath += configurations.netty4TestClasspath
+}
+
+tasks.withType(Test).configureEach {
+  System.properties.stringPropertyNames()
+    .findAll { it.startsWith("selenide.") }
+    .forEach {
+      println " set ${it} to ${System.getProperty(it)}"
+      systemProperties[it] = System.getProperty(it)
+    }
+  systemProperties['file.encoding'] = 'UTF-8'
+  systemProperties['user.country'] = 'TR'
+  systemProperties['user.language'] = 'tr'
 }
