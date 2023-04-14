@@ -18,10 +18,10 @@ configurations {
 }
 
 dependencies {
+  // To run the app locally:
+  // implementation project(':netty3')
   implementation project(':framework')
   implementation project(':fastergt')
-  compileOnly project(':netty3')
-  testCompileOnly project(':netty3')
 
   netty3TestClasspath project(':netty3')
   netty4TestClasspath project(':netty4')
@@ -43,13 +43,13 @@ tasks.register('uitest') {
 tasks.register('uitest-netty3', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen {false}
-  classpath += configurations.netty3TestClasspath
+  classpath = configurations.netty3TestClasspath + classpath
 }
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen {false}
-  classpath += configurations.netty4TestClasspath
+  classpath = configurations.netty4TestClasspath + classpath
 }
 
 tasks.withType(Test).configureEach {
