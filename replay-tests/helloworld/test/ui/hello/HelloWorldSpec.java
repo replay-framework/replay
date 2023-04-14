@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import static com.codeborne.selenide.Condition.image;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.download;
@@ -21,6 +22,13 @@ public class HelloWorldSpec extends BaseSpec {
   public void openHelloWorldPage() {
     open("/");
     $("h1").shouldHave(text("Hello, world!"));
+    $("#img1").shouldBe(image);
+    $("#img2").shouldBe(image);
+    $("#img3").shouldBe(image);
+    $("#img4").shouldNotBe(image);
+    $("#img5").shouldBe(image);
+    $("#img6").shouldBe(image);
+    $("#img7").shouldBe(image);
   }
 
   @Test
