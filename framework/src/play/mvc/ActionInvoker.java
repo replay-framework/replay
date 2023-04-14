@@ -131,7 +131,7 @@ public class ActionInvoker {
                 if ((request.method.equals("GET") || request.method.equals("HEAD")) && actionMethod.isAnnotationPresent(CacheFor.class)) {
                     cacheKey = actionMethod.getAnnotation(CacheFor.class).id();
                     if ("".equals(cacheKey)) {
-                        cacheKey = "urlcache:" + request.url + request.querystring;
+                        cacheKey = "urlcache:" + request.path + '?' + request.querystring;
                     }
                     actionResult = Cache.get(cacheKey);
                 }

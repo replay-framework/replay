@@ -74,7 +74,7 @@ public class FileService {
       }
     }
     catch (Throwable ex) {
-      logger.warn("Failed to closed channel, request.path:{}", path, ex);
+      logger.warn("Failed to close channel, request.path:{}", path, ex);
     }
   }
 

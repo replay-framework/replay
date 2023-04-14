@@ -1,7 +1,6 @@
 package play.server.netty3;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -57,6 +56,9 @@ import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -64,10 +66,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +92,9 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_S
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
+import static play.server.ServerHelper.maxContentLength;
 
+@ParametersAreNonnullByDefault
 public class PlayHandler extends SimpleChannelUpstreamHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
     private static final Logger securityLogger = LoggerFactory.getLogger("security");
@@ -98,6 +103,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     private final FileService fileService = new FileService();
     private final ErrorsCookieCrypter errorsCookieCrypter = new ErrorsCookieCrypter();
     private final Map<String, RenderStatic> staticPathsCache = new HashMap<>();
+    private final int maxContentLength = maxContentLength(-1);
 
     /**
      * The Pipeline is given for a PlayHandler
@@ -130,6 +136,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 Http.Response.setCurrent(response);
 
                 request = parseRequest(nettyRequest, messageEvent);
+                Http.Request.setCurrent(request);
 
                 // Buffered in memory output
                 response.out = new ByteArrayOutputStream();
@@ -178,7 +185,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
 
         @Override
-        public boolean init() {
+        public boolean init() throws IOException {
             logger.trace("init: begin");
 
             Request.setCurrent(request);
@@ -329,18 +336,32 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void addToResponse(Response response, HttpResponse nettyResponse) {
-        Map<String, Http.Header> headers = response.headers;
+        addContentTypeToResponse(nettyResponse, response);
+        addHeadersToResponse(nettyResponse, response.headers);
+        addDateToResponse(nettyResponse);
+        addCookiesToResponse(nettyResponse, response.cookies);
+        addCacheControlToResponse(nettyResponse, response);
+    }
+
+    private void addContentTypeToResponse(HttpResponse nettyResponse, Response response) {
+        String contentType = serverHelper.getContentTypeValue(response);
+        nettyResponse.headers().set(CONTENT_TYPE, contentType);
+    }
+
+    private void addHeadersToResponse(HttpResponse nettyResponse, Map<String, Http.Header> headers) {
         for (Map.Entry<String, Http.Header> entry : headers.entrySet()) {
             Http.Header hd = entry.getValue();
             for (String value : hd.values) {
                 nettyResponse.headers().add(entry.getKey(), value);
             }
         }
+    }
 
+    private void addDateToResponse(HttpResponse nettyResponse) {
         nettyResponse.headers().set(DATE, Utils.getHttpDateFormatter().format(new Date()));
+    }
 
-        Map<String, Http.Cookie> cookies = response.cookies;
-
+    private void addCookiesToResponse(HttpResponse nettyResponse, Map<String, Http.Cookie> cookies) {
         for (Http.Cookie cookie : cookies.values()) {
             Cookie c = new DefaultCookie(cookie.name, cookie.value);
             c.setSecure(cookie.secure);
@@ -354,25 +375,20 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             c.setHttpOnly(cookie.httpOnly);
             nettyResponse.headers().add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(c));
         }
+    }
 
+    private void addCacheControlToResponse(HttpResponse nettyResponse, Response response) {
         if (!response.headers.containsKey(CACHE_CONTROL) && !response.headers.containsKey(EXPIRES) && !(response.direct instanceof File)) {
             nettyResponse.headers().set(CACHE_CONTROL, "no-cache");
         }
-
     }
 
     private void writeResponse(ChannelHandlerContext ctx, Response response, HttpResponse nettyResponse,
                                HttpRequest nettyRequest) {
         logger.trace("writeResponse: begin");
-
-        byte[] content;
-
+        
         boolean keepAlive = isKeepAlive(nettyRequest);
-        if (nettyRequest.getMethod().equals(HttpMethod.HEAD)) {
-            content = new byte[0];
-        } else {
-            content = response.out.toByteArray();
-        }
+        byte[] content = nettyRequest.getMethod().equals(HttpMethod.HEAD) ? new byte[0] : response.out.toByteArray();
 
         ChannelBuffer buf = ChannelBuffers.copiedBuffer(content);
         nettyResponse.setContent(buf);
@@ -406,28 +422,11 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
 
-        if (response.contentType != null) {
-            nettyResponse.headers().set(CONTENT_TYPE,
-                    response.contentType + (response.contentType.startsWith("text/") && !response.contentType.contains("charset")
-                            ? "; charset=" + response.encoding : ""));
-        } else {
-            nettyResponse.headers().set(CONTENT_TYPE, "text/plain; charset=" + response.encoding);
-        }
-
         addToResponse(response, nettyResponse);
 
-        Object obj = response.direct;
-        File file = null;
-        ChunkedInput stream = null;
-        InputStream is = null;
-        if (obj instanceof File) {
-            file = (File) obj;
-        } else if (obj instanceof InputStream) {
-            is = (InputStream) obj;
-        } else if (obj instanceof ChunkedInput) {
-            // Streaming we don't know the content length
-            stream = (ChunkedInput) obj;
-        }
+        File file = response.direct instanceof File ? (File) response.direct : null;
+        InputStream is = response.direct instanceof InputStream ? (InputStream) response.direct : null;
+        ChunkedInput stream = response.direct instanceof ChunkedInput ? (ChunkedInput) response.direct : null;
 
         boolean keepAlive = isKeepAlive(nettyRequest);
         if (file != null && file.isFile()) {
@@ -477,64 +476,42 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         return ipParser.getRemoteIpAddress((InetSocketAddress) e.getRemoteAddress());
     }
 
-    private Request parseRequest(HttpRequest nettyRequest, MessageEvent messageEvent) throws IOException {
+    Request parseRequest(HttpRequest nettyRequest, MessageEvent messageEvent) throws IOException, URISyntaxException {
         logger.trace("parseRequest: begin, URI = {}", nettyRequest.getUri());
 
-        String uri = nettyRequest.getUri();
-        // Remove domain and port from URI if it's present.
-        if (uri.startsWith("http://") || uri.startsWith("https://")) {
-            // Begins searching / after 9th character (last / of https://)
-            int index = uri.indexOf('/', 9);
-            // prevent the IndexOutOfBoundsException that was occurring
-            if (index >= 0) {
-                uri = uri.substring(index);
-            } else {
-                uri = "/";
-            }
-        }
-
         String contentType = nettyRequest.headers().get(CONTENT_TYPE);
-
-        int i = uri.indexOf('?');
-        String querystring = "";
-        String path = uri;
-        if (i != -1) {
-            path = uri.substring(0, i);
-            querystring = uri.substring(i + 1);
-        }
-
-        String remoteAddress = getRemoteIPAddress(messageEvent);
-        String method = nettyRequest.getMethod().getName();
-
-        InputStream body;
-        ChannelBuffer b = nettyRequest.getContent();
-        if (b instanceof FileChannelBuffer) {
-            FileChannelBuffer buffer = (FileChannelBuffer) b;
-            // An error occurred
-            int max = Integer.parseInt(Play.configuration.getProperty("play.netty.maxContentLength", "-1"));
-
-            body = buffer.getInputStream();
-            if (!(max == -1 || body.available() < max)) {
-                body = new ByteArrayInputStream(new byte[0]);
-            }
-
-        } else {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            IOUtils.copy(new ChannelBufferInputStream(b), out);
-            byte[] n = out.toByteArray();
-            body = new ByteArrayInputStream(n);
-        }
-
+        URI uri = new URI(nettyRequest.getUri());
+        String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getQuery());
         String host = nettyRequest.headers().get(HOST);
         boolean isLoopback = ipParser.isLoopback(host, (InetSocketAddress) messageEvent.getRemoteAddress());
         ServerAddress serverAddress = ipParser.parseHost(host);
+        InputStream body = readBody(nettyRequest);
 
-        Request request = Request.createRequest(remoteAddress, method, path, querystring, contentType, body, uri, 
+        Request request = Request.createRequest(
+          getRemoteIPAddress(messageEvent), 
+          nettyRequest.getMethod().getName(), 
+          uri.getPath(), uri.getQuery(), contentType, body, relativeUrl, 
           serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false, 
           getHeaders(nettyRequest), getCookies(nettyRequest));
 
         logger.trace("parseRequest: end");
         return request;
+    }
+
+    @Nonnull
+    @CheckReturnValue
+    private InputStream readBody(HttpRequest nettyRequest) throws IOException {
+        ChannelBuffer b = nettyRequest.getContent();
+        if (b instanceof FileChannelBuffer) {
+            FileChannelBuffer buffer = (FileChannelBuffer) b;
+            InputStream body = buffer.getInputStream();
+            return maxContentLength == -1 || body.available() < maxContentLength ? body : new ByteArrayInputStream(new byte[0]);
+        } else {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            IOUtils.copy(new ChannelBufferInputStream(b), out);
+            byte[] n = out.toByteArray();
+            return new ByteArrayInputStream(n);
+        }
     }
 
     private Map<String, Http.Header> getHeaders(HttpRequest nettyRequest) {
@@ -662,20 +639,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     private void flushCookies(Response response, HttpResponse nettyResponse) {
         try {
             Map<String, Http.Cookie> cookies = response.cookies;
-            for (Http.Cookie cookie : cookies.values()) {
-                Cookie c = new DefaultCookie(cookie.name, cookie.value);
-                c.setSecure(cookie.secure);
-                c.setPath(cookie.path);
-                if (cookie.domain != null) {
-                    c.setDomain(cookie.domain);
-                }
-                if (cookie.maxAge != null) {
-                    c.setMaxAge(cookie.maxAge);
-                }
-                c.setHttpOnly(cookie.httpOnly);
-
-                nettyResponse.headers().add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(c));
-            }
+            addCookiesToResponse(nettyResponse, cookies);
 
         } catch (Exception e) {
             logger.error("Failed to flush cookies", e);
@@ -735,28 +699,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
 
     private boolean isModified(String etag, long last, HttpRequest nettyRequest) {
-
-        if (nettyRequest.headers().contains(IF_NONE_MATCH)) {
-            String browserEtag = nettyRequest.headers().get(IF_NONE_MATCH);
-            return !browserEtag.equals(etag);
-        }
-
-        if (nettyRequest.headers().contains(IF_MODIFIED_SINCE)) {
-            String ifModifiedSince = nettyRequest.headers().get(IF_MODIFIED_SINCE);
-
-            if (!StringUtils.isEmpty(ifModifiedSince)) {
-                try {
-                    Date browserDate = Utils.getHttpDateFormatter().parse(ifModifiedSince);
-                    if (browserDate.getTime() >= last) {
-                        return false;
-                    }
-                } catch (ParseException ex) {
-                    logger.warn("Can't parse HTTP date", ex);
-                }
-                return true;
-            }
-        }
-        return true;
+        String ifNoneMatch = nettyRequest.headers().get(IF_NONE_MATCH);
+        String ifModifiedSince = nettyRequest.headers().get(IF_MODIFIED_SINCE);
+        return serverHelper.isModified(etag, last, ifNoneMatch, ifModifiedSince);
     }
 
     private void addEtag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {

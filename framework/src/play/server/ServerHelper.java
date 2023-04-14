@@ -7,18 +7,66 @@ import play.data.validation.Validation;
 import play.mvc.Http;
 import play.mvc.results.NotFound;
 import play.templates.TemplateLoader;
+import play.utils.Utils;
 import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import static com.google.common.net.HttpHeaders.KEEP_ALIVE;
+import static java.lang.Integer.parseInt;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static play.mvc.Http.Headers.Values.CLOSE;
 
 @ParametersAreNonnullByDefault
 public class ServerHelper {
   private static final Logger logger = LoggerFactory.getLogger(ServerHelper.class);
+
+  @CheckReturnValue
+  public static int maxContentLength(int defaultValue) {
+    String setting = Play.configuration.getProperty("play.netty.maxContentLength");
+    return setting == null ? defaultValue : parseInt(setting);
+  }
+
+  @CheckReturnValue
+  public boolean isKeepAlive(String protocol, String connectionHeader) {
+    switch (protocol) {
+      case "HTTP/1.0": return KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
+      default: return !CLOSE.equalsIgnoreCase(connectionHeader);
+    }
+  }
+
+  @CheckReturnValue
+  public boolean isModified(String etag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
+    if (ifNoneMatch != null) {
+      return !ifNoneMatch.equals(etag);
+    }
+
+    if (ifModifiedSince != null) {
+      if (!isEmpty(ifModifiedSince)) {
+        try {
+          Date browserDate = Utils.getHttpDateFormatter().parse(ifModifiedSince);
+          if (browserDate.getTime() >= last) {
+            return false;
+          }
+        }
+        catch (ParseException ex) {
+          logger.warn("Can't parse HTTP date", ex);
+        }
+        return true;
+      }
+    }
+    return true;
+  }
 
   @Nonnull
   @CheckReturnValue
@@ -53,6 +101,14 @@ public class ServerHelper {
     return binding;
   }
 
+  public String getContentTypeValue(Http.Response response) {
+    String contentType = defaultIfBlank(response.contentType, "text/plain");
+    if (contentType.startsWith("text/") && !contentType.contains("charset")) {
+      return contentType + "; charset=" + response.encoding;
+    }
+    return contentType;
+  }
+
   @Nullable
   @CheckReturnValue
   public VirtualFile findFile(String resource) {
@@ -64,5 +120,13 @@ public class ServerHelper {
       }
     }
     return file;
+  }
+
+  @Nonnull
+  @CheckReturnValue
+  public String relativeUrl(String path, @Nullable String query) {
+    return Stream.of(path, query)
+      .filter(s -> s != null && s.length() > 0)
+      .collect(joining("?"));
   }
 }
