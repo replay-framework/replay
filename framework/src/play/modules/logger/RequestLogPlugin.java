@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import play.PlayPlugin;
-import play.mvc.Http;
 import play.mvc.Http.Header;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -15,7 +14,6 @@ import play.mvc.results.NotFound;
 import play.mvc.results.Result;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -87,7 +85,7 @@ public class RequestLogPlugin extends PlayPlugin {
     request.args.put(Result.class.getName(), new Error(e.toString()));
   }
 
-  @Override public void onActionInvocationFinally(@Nonnull Request request) {
+  @Override public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
     if (request.action == null) return;
 
     try {

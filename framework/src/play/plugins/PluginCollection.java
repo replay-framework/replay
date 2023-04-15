@@ -18,6 +18,7 @@ import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,6 +42,7 @@ import static java.util.stream.Collectors.toList;
  *
  * Since all the enabled-plugins-iteration is done here, the code elsewhere is cleaner.
  */
+@ParametersAreNonnullByDefault
 public class PluginCollection {
     private static final Logger logger = LoggerFactory.getLogger(PluginCollection.class);
 
@@ -266,8 +268,8 @@ public class PluginCollection {
           plugin.afterActionInvocation(request, response, session, flash));
     }
 
-    public void onActionInvocationFinally(@Nonnull Request request) {
-        getEnabledPlugins().forEach(plugin -> plugin.onActionInvocationFinally(request));
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
+        getEnabledPlugins().forEach(plugin -> plugin.onActionInvocationFinally(request, response));
     }
 
     public void routeRequest(Request request) {

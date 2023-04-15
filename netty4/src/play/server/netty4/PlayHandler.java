@@ -245,7 +245,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 } catch (Throwable e) {
                     onActionInvocationException(request, response, e);
                 } finally {
-                    Play.pluginCollection.onActionInvocationFinally(request);
+                    Play.pluginCollection.onActionInvocationFinally(request, response);
                     InvocationContext.current.remove();
                 }
             } catch (Exception e) {

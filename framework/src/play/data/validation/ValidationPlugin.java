@@ -24,6 +24,7 @@ import play.utils.Java;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -37,6 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static play.data.validation.Error.toValidationError;
 
+@ParametersAreNonnullByDefault
 public class ValidationPlugin extends PlayPlugin {
 
     static final ThreadLocal<Map<Object, String>> keys = new ThreadLocal<>();
@@ -90,7 +92,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void onActionInvocationFinally(@Nonnull Request request) {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
         onJobInvocationFinally();
     }
 
@@ -151,7 +153,7 @@ public class ValidationPlugin extends PlayPlugin {
     @CheckReturnValue
     List<Error> parseErrorsCookie(String errorsData) {
         try {
-            return errorsData == null || errorsData.isEmpty() ? emptyList() : GSON.fromJson(errorsData, TYPE_ERRORS_LIST);
+            return errorsData.isEmpty() ? emptyList() : GSON.fromJson(errorsData, TYPE_ERRORS_LIST);
         }
         catch (JsonSyntaxException ignore) {
             return emptyList();

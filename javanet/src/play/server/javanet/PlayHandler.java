@@ -413,7 +413,7 @@ public class PlayHandler implements HttpHandler {
           onActionInvocationException(request, response, e);
         }
         finally {
-          Play.pluginCollection.onActionInvocationFinally(request);
+          Play.pluginCollection.onActionInvocationFinally(request, response);
           InvocationContext.current.remove();
         }
       }

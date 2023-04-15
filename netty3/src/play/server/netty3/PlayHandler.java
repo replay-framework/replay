@@ -254,7 +254,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 } catch (Throwable e) {
                     onActionInvocationException(request, response, e);
                 } finally {
-                    Play.pluginCollection.onActionInvocationFinally(request);
+                    Play.pluginCollection.onActionInvocationFinally(request, response);
                     InvocationContext.current.remove();
                 }
             } catch (Exception e) {
