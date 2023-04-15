@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +54,7 @@ public class ExceptionsMonitoringPlugin extends PlayPlugin {
       out.println("Exception statistics:");
       out.println("~~~~~~~~~~~~~~~~~~~~~~");
 
-      ArrayList<Map.Entry<String, AtomicInteger>> sorted = new ArrayList<>(exceptions.entrySet());
+      List<Map.Entry<String, AtomicInteger>> sorted = new ArrayList<>(exceptions.entrySet());
       sort(sorted, (o1, o2) -> compare(o2.getValue().get(), o1.getValue().get()));
 
       for (Map.Entry<String, AtomicInteger> entry : sorted) {
