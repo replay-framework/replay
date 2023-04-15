@@ -1,5 +1,6 @@
 package play.libs;
 
+import com.github.f4b6a3.ulid.UlidCreator;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -12,6 +13,11 @@ import java.util.UUID;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Codec {
+    @Nonnull
+    public static String ulid() {
+        return UlidCreator.getUlid().toLowerCase();
+    }
+
     @Nonnull
     public static String UUID() {
         return UUID.randomUUID().toString();
