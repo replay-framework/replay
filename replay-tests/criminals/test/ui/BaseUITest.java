@@ -21,10 +21,10 @@ public class BaseUITest {
       log.info("Starting AUT with classpath {}", System.getProperty("java.class.path"));
 
       wireMock.start();
-      String criminalRecordsServiceUrl = String.format("http://0.0.0.0:%s/criminal-records", wireMock.port());
+      String criminalRecordsServiceUrl = String.format("http://127.0.0.1:%s/criminal-records", wireMock.port());
       int port = new Application().start("test", criminalRecordsServiceUrl);
 
-      Configuration.baseUrl = "http://0.0.0.0:" + port;
+      Configuration.baseUrl = "http://127.0.0.1:" + port;
       Configuration.browserSize = "1024x800";
       Configuration.browser = "chrome";
       Configuration.textCheck = FULL_TEXT;
