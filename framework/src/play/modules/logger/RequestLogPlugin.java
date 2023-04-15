@@ -21,20 +21,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.split;
-import static play.mvc.Scope.COOKIE_PREFIX;
 
 @ParametersAreNonnullByDefault
 public class RequestLogPlugin extends PlayPlugin {
   private static final String REQUEST_ID_PREFIX = Integer.toHexString((int) (Math.random() * 0x1000));
   private static final AtomicLong counter = new AtomicLong(1);
   private static final Logger logger = LoggerFactory.getLogger("request");
+  private static final Pattern REGEX_CLEAN_PARAM_VALUE = Pattern.compile("\r?\n");
 
   @Override public void routeRequest(Request request) {
     String requestId = REQUEST_ID_PREFIX + "-" + nextId();
@@ -55,6 +55,7 @@ public class RequestLogPlugin extends PlayPlugin {
                                                RenderArgs renderArgs, Flash flash, Method actionMethod) {
     Object requestId = request.args.get("requestId");
     String sessionId = session == null ? "no-session" : session.getId();
+    request.args.put("sessionId", sessionId);
 
     logger.debug("{}\t{} ...", request.method, request.path);
 
@@ -109,7 +110,7 @@ public class RequestLogPlugin extends PlayPlugin {
         .append(request.method).append('\t')
         .append(request.path).append('\t')
         .append(request.remoteAddress).append(':')
-        .append(getSessionId(request)).append('\t');
+        .append(request.args.get("sessionId")).append('\t');
 
       appendIfNotEmpty(sb, extractParams(request));
 
@@ -132,18 +133,6 @@ public class RequestLogPlugin extends PlayPlugin {
     }
   }
 
-  private static String getSessionId(Request request) {
-    // TODO Remove duplication with CookieSessionStore
-    String cookieName = COOKIE_PREFIX + "_SESSION";
-    Http.Cookie cookie = request.cookies.get(cookieName);
-
-    if (cookie != null && isNotEmpty(cookie.value)) {
-      String[] parts = split(cookie.value, ':');
-      return parts[0];
-    }
-    return null;
-  }
-
   private static void appendIfNotEmpty(StringBuilder sb, String s) {
     if (isNotEmpty(s)) sb.append(s).append('\t');
   }
@@ -153,8 +142,7 @@ public class RequestLogPlugin extends PlayPlugin {
   }
 
   private static final Set<String> SKIPPED_PARAMS = new HashSet<>(asList("action", "controller", "body", "action", "controller"));
-
-  private static Integer EXCERPT_LENGTH = 100;
+  private static final Integer EXCERPT_LENGTH = 100;
 
   public static String extractParams(Request request) {
     try {
@@ -171,13 +159,16 @@ public class RequestLogPlugin extends PlayPlugin {
     for (Map.Entry<String, String[]> param : request.params.all().entrySet()) {
       String name = param.getKey();
       if (SKIPPED_PARAMS.contains(name)) continue;
-      sb.append('\t').append(name).append('=');
-      @Nullable String value = getParamValue(param.getValue());
-      value = excerpt(value);
-
-      sb.append(value != null ? value.replaceAll("\r?\n", "\\\\n") : null);
+      String value = cleanup(name, getParamValue(param.getValue()));
+      sb.append('\t').append(name).append('=').append(value);
     }
     return sb.toString().trim();
+  }
+
+  private static final Set<String> INTERNAL_PARAMS = Set.of("authenticityToken", "___form_id");
+  private static String cleanup(String name, String paramValue) {
+    String excerpt = excerpt(paramValue, INTERNAL_PARAMS.contains(name) ? 10 : EXCERPT_LENGTH);
+    return REGEX_CLEAN_PARAM_VALUE.matcher(excerpt).replaceAll("\\\\n");
   }
 
   private static String getParamValue(String[] param) {
@@ -187,7 +178,9 @@ public class RequestLogPlugin extends PlayPlugin {
       return Arrays.toString(param);
   }
 
-  private static String excerpt(String value) {
-    return value.length() > EXCERPT_LENGTH ? value.substring(0, EXCERPT_LENGTH) + "..." : value;
+  private static String excerpt(String value, int excerptLength) {
+    return value.length() > excerptLength ? 
+      String.format("%s...%s", value.substring(0, excerptLength - 5), value.substring(value.length() - 5)) : 
+      value;
   }
 }
