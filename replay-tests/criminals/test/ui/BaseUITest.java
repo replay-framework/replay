@@ -26,7 +26,6 @@ public class BaseUITest {
 
       Configuration.baseUrl = "http://127.0.0.1:" + port;
       Configuration.browserSize = "1024x800";
-      Configuration.browser = "chrome";
       Configuration.textCheck = FULL_TEXT;
 
       log.info("Started AUT at {}", Configuration.baseUrl);
