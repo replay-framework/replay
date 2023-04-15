@@ -7,6 +7,8 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
+import static org.apache.commons.lang3.StringUtils.substring;
+
 /**
  * 200 OK with a text/plain
  */
@@ -30,5 +32,10 @@ public class RenderText extends Result {
 
     public String getText() {
         return text;
+    }
+
+    @Override
+    public String toString() {
+        return "RenderText " + substring(text, 0, 64);
     }
 }

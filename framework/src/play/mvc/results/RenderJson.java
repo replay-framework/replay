@@ -8,6 +8,8 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
+import static org.apache.commons.lang3.StringUtils.substring;
+
 /**
  * 200 OK with application/json
  */
@@ -53,5 +55,10 @@ public class RenderJson extends Result {
 
     public Object getResponse() {
         return response;
+    }
+
+    @Override
+    public String toString() {
+        return "RenderJson " + substring(json, 0, 64);
     }
 }

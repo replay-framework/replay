@@ -18,4 +18,8 @@ public class RenderStatic extends Result {
     public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " " + file;
+    }
 }

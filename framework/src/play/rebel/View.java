@@ -109,5 +109,10 @@ public class View extends Result {
   public boolean isRenderingTemplate() {
       return true;
   }
+
+  @Override
+  public String toString() {
+    return String.format("RenderTemplate %s %s ms", templateName, renderTime);
+  }
 }
 

@@ -32,4 +32,9 @@ public class RedirectToStatic extends Result {
     public String getFile() {
         return file;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " " + file;
+    }
 }
