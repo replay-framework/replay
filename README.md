@@ -145,6 +145,7 @@ The RePlay project comes with the following plugins:
 * `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library).
 In Play1 this is available as a community plugin.
 * `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
+* `play.modules.logger.RequestLogPlugin` — logs every request with response type+status
 * `play.modules.logger.ExceptionsMonitoringPlugin` — Keeps some statistics on which exceptions occurred and includes them in the status report.
 * `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
 * `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken`

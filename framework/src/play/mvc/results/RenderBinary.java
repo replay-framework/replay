@@ -2,6 +2,7 @@ package play.mvc.results;
 
 import org.apache.commons.codec.net.URLCodec;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
@@ -10,10 +11,16 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
@@ -231,5 +238,12 @@ public class RenderBinary extends Result {
 
     public String getContentType() {
         return contentType;
+    }
+
+    @Override
+    public String toString() {
+        return Stream.of(getClass().getSimpleName(), name, contentType)
+          .filter(StringUtils::isNotEmpty)
+          .collect(joining(" "));
     }
 }

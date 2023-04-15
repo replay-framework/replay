@@ -81,4 +81,9 @@ public class PdfResult extends Result {
   public boolean isRenderingTemplate() {
       return true;
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " " + getTemplate().getTemplateName();
+  }
 }

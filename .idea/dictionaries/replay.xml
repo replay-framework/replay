@@ -2,7 +2,10 @@
   <dictionary name="replay">
     <words>
       <w>databasechangelog</w>
+      <w>javanet</w>
       <w>obfuscator</w>
+      <w>pdftest</w>
+      <w>subethamail</w>
       <w>unbinder</w>
     </words>
   </dictionary>
