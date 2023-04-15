@@ -165,7 +165,7 @@ public class Scope {
             if (id == null) {
                 id = data.get(ID_KEY);
                 if (id == null) {
-                    id = Codec.UUID();
+                    id = Codec.ulid();
                     data.put(ID_KEY, id);
                 }
             }
