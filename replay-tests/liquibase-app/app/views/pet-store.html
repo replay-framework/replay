@@ -1,8 +1,56 @@
-<html>
+<html lang="en">
 <head>
   <title>Pet store</title>
+  <style>
+    table {
+      width: 80%;
+      border: solid gray 1px;
+    }
+    table thead {
+      border: solid gray 1px;
+    }
+    table tr {
+    }
+    table td {
+      text-align: right;
+      border: solid gray 1px;
+    }
+    #totalCount {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 <h1>Hello, ${who}!</h1>
+<h3>Our pets:</h3>
+<table id="pets">
+  <thead>
+    <tr>
+      <th>&{'pets.kind'}</th>
+      <th>&{'pets.name'}</th>
+      <th>&{'pets.createdAt'}</th>
+      <th>&{'pets.updatedAt'}</th>
+    </tr>
+  </thead>
+  #{list pets, as: 'pet'}
+    <tr class="pet" data-id="${pet.id}">
+      <td>${pet.kind}</td>
+      <td>${pet.name}</td>
+      <td>${pet.createdAt}</td>
+      <td>${pet.updatedAt}</td>
+    </tr>
+  #{/list}
+  <tfoot>
+    <tr>
+      <td colspan="4" id="totalCount">
+        &{'pets.totalCount'}: ${pets.size()}
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<div style="margin-top: 50px;">
+  <a href="/pet/registration" id="buttonRegisterPet">Register new pet</a>
+</div>
 </body>
 </html>
