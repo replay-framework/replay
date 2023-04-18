@@ -6,6 +6,8 @@ import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
 import play.mvc.Http;
 
+import java.io.IOException;
+
 import static java.lang.System.currentTimeMillis;
 
 /**
@@ -47,7 +49,7 @@ public abstract class Invocation implements Runnable {
      *
      * @return true if successful
      */
-    public boolean init() {
+    public boolean init() throws IOException {
         if (Play.mode.isDev()) {
             for (long start = currentTimeMillis(); !Play.started && currentTimeMillis() - start < 60000; ) {
                 try {Thread.sleep(100);} catch (InterruptedException e) {break;}

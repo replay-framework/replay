@@ -2,51 +2,36 @@ package play.utils;
 
 import play.Play;
 
-import java.lang.annotation.Annotation;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
+
+@ParametersAreNonnullByDefault
 public class Utils {
 
-    public static <T> String join(Iterable<T> values, String separator) {
-        if (values == null) {
+    public static <T> String join(T[] values, String separator) {
+        if (values.length == 0) {
             return "";
         }
-        Iterator<T> iter = values.iterator();
-        if (!iter.hasNext()) {
-            return "";
-        }
-        StringBuilder toReturn = new StringBuilder(String.valueOf(iter.next()));
-        while (iter.hasNext()) {
-            toReturn.append(separator).append(iter.next());
-        }
-        return toReturn.toString();
+
+        return Stream.of(values).map(Object::toString).collect(joining(separator));
     }
 
-    public static String join(String[] values, String separator) {
-        return (values == null) ? "" : join(Arrays.asList(values), separator);
-    }
-
-    public static String join(Annotation[] values, String separator) {
-        return (values == null) ? "" : join(Arrays.asList(values), separator);
-    }
-
-    /**
-     * for java.util.Map
-     */
     public static class Maps {
 
-        public static void mergeValueInMap(Map<String, String[]> map, String name, String value) {
+        public static void mergeValueInMap(Map<String, String[]> map, String name, @Nullable String value) {
             String[] newValues;
             String[] oldValues = map.get(name);
             if (oldValues == null) {
@@ -94,20 +79,12 @@ public class Utils {
     }
 
     public static class AlternativeDateFormat {
+        private final List<SimpleDateFormat> formats;
 
-        Locale locale;
-        List<SimpleDateFormat> formats = new ArrayList<>();
-
-        public AlternativeDateFormat(Locale locale, String... alternativeFormats) {
-            super();
-            this.locale = locale;
-            setFormats(alternativeFormats);
-        }
-
-        public void setFormats(String... alternativeFormats) {
-            for (String format : alternativeFormats) {
-                formats.add(new SimpleDateFormat(format, locale));
-            }
+        private AlternativeDateFormat(Locale locale, String... alternativeFormats) {
+            formats = Stream.of(alternativeFormats)
+              .map(format -> new SimpleDateFormat(format, locale))
+              .collect(Collectors.toList());
         }
 
         public Date parse(String source) throws ParseException {
@@ -120,10 +97,10 @@ public class Utils {
                     }
                 }
             }
-            throw new ParseException("Date format not understood", 0);
+            throw new ParseException("Date format not understood: " + source, 0);
         }
 
-        static final ThreadLocal<AlternativeDateFormat> dateformat = new ThreadLocal<>();
+        private static final ThreadLocal<AlternativeDateFormat> dateformat = new ThreadLocal<>();
 
         public static AlternativeDateFormat getDefaultFormatter() {
             if (dateformat.get() == null) {
@@ -136,19 +113,11 @@ public class Utils {
         }
     }
 
-    public static String urlDecodePath(String enc) {
-        try {
-            return URLDecoder.decode(enc.replaceAll("\\+", "%2B"), Play.defaultWebEncoding);
-        } catch (Exception e) {
-            return enc;
-        }
+    public static String urlDecodePath(@Nullable String enc) {
+        return enc == null ? null : URLDecoder.decode(enc.replaceAll("\\+", "%2B"), Play.defaultWebEncoding);
     }
 
     public static String urlEncodePath(String plain) {
-        try {
-            return URLEncoder.encode(plain, Play.defaultWebEncoding);
-        } catch (Exception e) {
-            return plain;
-        }
+        return URLEncoder.encode(plain, Play.defaultWebEncoding);
     }
 }

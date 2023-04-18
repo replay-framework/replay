@@ -1,6 +1,6 @@
 dependencies {
   api('com.google.code.findbugs:jsr305:3.0.2')
-  implementation('io.github.classgraph:classgraph:4.8.154')
+  implementation('io.github.classgraph:classgraph:4.8.157')
   api('com.zaxxer:HikariCP:5.0.1')
   api('com.google.code.gson:gson:2.10.1')
   api('com.jamonapi:jamon:2.82') {transitive = false}
@@ -12,14 +12,15 @@ dependencies {
   api('commons-beanutils:commons-beanutils:1.9.4') {transitive = false}
   api('commons-codec:commons-codec:1.15') {transitive = false}
   api('org.apache.commons:commons-email:1.5') {transitive = false}
-  api('commons-fileupload:commons-fileupload:1.4')
+  api('commons-fileupload:commons-fileupload:1.5')
   api('commons-io:commons-io:2.11.0')
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
+  implementation 'com.github.f4b6a3:ulid-creator:5.1.0'
   api('commons-logging:commons-logging:1.2')
   api('javax.mail:mail:1.4.7')
   api('javax.inject:javax.inject:1')
-  implementation('ch.qos.reload4j:reload4j:1.2.24')
+  implementation('ch.qos.reload4j:reload4j:1.2.25')
   implementation('org.ehcache:ehcache:3.10.8')
   api('net.sf.oval:oval:3.2.1')
   // Groovy 4 can be found in org.apache.groovy
@@ -27,7 +28,6 @@ dependencies {
   api("org.codehaus.groovy:groovy-xml:$groovyVersion")
   api('org.hibernate:hibernate-core:5.6.12.Final')
   api('org.hibernate.common:hibernate-commons-annotations:6.0.6.Final')
-  api('org.hibernate:hibernate-validator:7.0.5.Final')
   api('javax.persistence:javax.persistence-api:2.2')
   implementation('org.hibernate:hibernate-ehcache:5.6.12.Final') {transitive = false}
   api("org.slf4j:slf4j-api:$slf4jVersion")

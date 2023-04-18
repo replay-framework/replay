@@ -2,7 +2,6 @@ package services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import models.CriminalRecord;
 import org.apache.http.client.fluent.Request;
 
 import javax.inject.Singleton;

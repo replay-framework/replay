@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class GTJavaExtensionMethodResolver1x implements GTJavaExtensionMethodResolver {
 
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
     private static Map<String, Class> methodName2ClassMapping;
 
     @Override 

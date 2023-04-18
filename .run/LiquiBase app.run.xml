@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="LiquiBase app" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="LiquiBaseApp" />
+    <option name="MAIN_CLASS_NAME" value="app.LiquiBaseApp" />
     <module name="replay.replay-tests.liquibase-app.main" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/replay-tests/liquibase-app" />
     <method v="2">

@@ -66,4 +66,9 @@ public class RenderTemplate extends Result {
     public boolean isRenderingTemplate() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return String.format("RenderTemplate %s %s ms", name, renderTime);
+    }
 }

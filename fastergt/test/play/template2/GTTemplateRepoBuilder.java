@@ -8,10 +8,10 @@ import java.net.URL;
 
 public class GTTemplateRepoBuilder {
     
-    public File templateRootFolder = null;
-    public boolean fakeWindowsNewLines = false;
-    public GTJavaExtensionMethodResolver gtJavaExtensionMethodResolver = null;
-    public GTPreCompilerFactory preCompilerFactory = new GTPreCompilerFactoryImpl();
+    private File templateRootFolder = null;
+    private boolean fakeWindowsNewLines = false;
+    private GTJavaExtensionMethodResolver gtJavaExtensionMethodResolver = null;
+    private GTPreCompilerFactory preCompilerFactory = new GTPreCompilerFactoryImpl();
     
     public GTTemplateRepoBuilder withTemplateRootFolder( File folder) {
         this.templateRootFolder = folder;

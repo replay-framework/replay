@@ -9,17 +9,31 @@ sourceSets {
   }
   test {
     java {srcDir "test"}
-    resources {srcDir "test"}
   }
 }
 
+configurations {
+  netty3TestClasspath.extendsFrom testRuntimeOnly
+  netty4TestClasspath.extendsFrom testRuntimeOnly
+  javanetTestClasspath.extendsFrom testRuntimeOnly
+}
+
 dependencies {
+  // To run the app locally:
+  // implementation project(':netty3')
+
+  // RePlay dependencies:
   implementation project(':framework')
   implementation project(':fastergt')
-  implementation project(':netty4')
 
+  // To run tests against different backends:
+  netty3TestClasspath project(':netty3')
+  netty4TestClasspath project(':netty4')
+  javanetTestClasspath project(':javanet')
+
+  // Test dependencies:
   testImplementation("org.assertj:assertj-core:$assertjVersion")
-  testImplementation('com.codeborne:selenide:6.9.0')
+  testImplementation('com.codeborne:selenide:6.13.0')
   testImplementation('junit:junit:4.13.2')
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 }
@@ -28,14 +42,36 @@ test {
   exclude 'ui/**'
 }
 
-task uitest(type: Test) {
+tasks.register('uitest') {
+  dependsOn tasks.withType(Test)
+}
+
+tasks.register('uitest-netty3', Test) {
   include 'ui/**/*'
-  systemProperties['BUILD_URL'] = System.getenv()['BUILD_URL']
-  System.properties.stringPropertyNames()
-      .findAll { it.startsWith("selenide.") }
-      .forEach {
-        println " set ${it} to ${System.getProperty(it)}"
-        systemProperties[it] = System.getProperty(it)
-      }
   outputs.upToDateWhen {false}
+  classpath = configurations.netty3TestClasspath + classpath
+}
+
+tasks.register('uitest-netty4', Test) {
+  include 'ui/**/*'
+  outputs.upToDateWhen {false}
+  classpath = configurations.netty4TestClasspath + classpath
+}
+
+tasks.register('uitest-javanet', Test) {
+  include 'ui/**/*'
+  outputs.upToDateWhen {false}
+  classpath = configurations.javanetTestClasspath + classpath
+}
+
+tasks.withType(Test).configureEach {
+  System.properties.stringPropertyNames()
+    .findAll { it.startsWith("selenide.") }
+    .forEach {
+      println " set ${it} to ${System.getProperty(it)}"
+      systemProperties[it] = System.getProperty(it)
+    }
+  systemProperties['file.encoding'] = 'UTF-8'
+  systemProperties['user.country'] = 'TR'
+  systemProperties['user.language'] = 'tr'
 }

@@ -1,25 +1,35 @@
 package ui.hello;
 
 import com.codeborne.selenide.Configuration;
+import io.restassured.RestAssured;
 import org.junit.Before;
 import play.Play;
 import play.server.Server;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class BaseSpec {
-  private final Play play = new Play();
+  private static final AtomicBoolean appStarted = new AtomicBoolean(false);
+  private static final Play play = new Play();
 
   @Before
-  public void setUp() throws InterruptedException {
-    Thread playStarter = new Thread(() -> {
-      play.init("test");
-      play.start();
-      int port = new Server(play).start();
+  public void setUp() {
+    if (appStarted.get()) return;
+    startApp();
+  }
 
-      Configuration.baseUrl = "http://localhost:" + port;
-      Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);
-    }, "Play! starter thread");
+  private static synchronized void startApp() {
+    if (appStarted.get()) return;
 
-    playStarter.start();
-    playStarter.join();
+    play.init("test");
+    play.start();
+    int port = new Server(play).start();
+
+    Configuration.baseUrl = "http://localhost:" + port;
+    Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);
+
+    RestAssured.baseURI = Configuration.baseUrl;
+    RestAssured.port = port;
+    appStarted.set(true);
   }
 }

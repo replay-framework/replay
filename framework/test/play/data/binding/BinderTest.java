@@ -22,13 +22,13 @@ import static play.mvc.Http.Request.createRequest;
 
 public class BinderTest {
 
-    final Annotation[] noAnnotations = new Annotation[]{};
-    Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
-    Session session = new Session();
+    private final Annotation[] noAnnotations = new Annotation[]{};
+    private final Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+    private final Session session = new Session();
 
     // provider of generic typed collection
     private static class GenericListProvider {
-        private List<Data2> listOfData2 = new ArrayList<>();
+        private final List<Data2> listOfData2 = new ArrayList<>();
     }
 
     @Before
@@ -69,7 +69,7 @@ public class BinderTest {
         Data1.myStatic = 2;
         RootParamNode root = ParamNode.convert(r2);
         Object bindResult = Binder.bind(request, session, root, "data1", Data1.class, null, null);
-        assertThat(bindResult).isEqualTo(data1);
+        assertThat(bindResult).usingRecursiveComparison().isEqualTo(data1);
         assertThat(Data1.myStatic).isEqualTo(2);
     }
 
@@ -91,9 +91,9 @@ public class BinderTest {
         data1_2.b = 14;
         
         data2.data1 = data1_1;
-        data2.datas = new ArrayList<>(2);
-        data2.datas.add(data1_1);
-        data2.datas.add(data1_2);
+        data2.data = new ArrayList<>(2);
+        data2.data.add(data1_1);
+        data2.data.add(data1_2);
 
 
 
@@ -101,7 +101,8 @@ public class BinderTest {
         Unbinder.unBind(r, data2, "data2", noAnnotations);
         Map<String, String[]> r2 = fromUnbindMap2BindMap(r);
         RootParamNode root = ParamNode.convert(r2);
-        assertThat(Binder.bind(request, session, root, "data2", Data2.class, null, null)).isEqualTo(data2);
+        assertThat(Binder.bind(request, session, root, "data2", Data2.class, null, null))
+          .usingRecursiveComparison().isEqualTo(data2);
 
     }
 
@@ -199,8 +200,8 @@ public class BinderTest {
         d3.a = "c";
         d3.b = 3;
 
-        Data1[] datasArray = {d1, d2};
-        List<Data1> datas = asList(d2, d1, d3);
+        Data1[] dataArray = {d1, d2};
+        List<Data1> data = asList(d2, d1, d3);
 
         Map<String, Data1> mapData = new HashMap<>();
         mapData.put(d1.a, d1);
@@ -209,9 +210,9 @@ public class BinderTest {
 
         Data4 original = new Data4();
         original.s = "some";
-        original.datas = datas;
-        original.datasArray = datasArray;
-        original.mapDatas = mapData;
+        original.data = data;
+        original.dataArray = dataArray;
+        original.mapData = mapData;
 
         Map<String, Object> result = new HashMap<>();
         Unbinder.unBind(result, original, "data", noAnnotations);
@@ -220,7 +221,7 @@ public class BinderTest {
         RootParamNode root = ParamNode.convert(r2);
 
         Object binded = Binder.bind(request, session, root, "data", Data4.class, Data4.class, noAnnotations);
-        assertThat(binded).isEqualTo(original);
+        assertThat(binded).usingRecursiveComparison().isEqualTo(original);
     }
 
     @Test

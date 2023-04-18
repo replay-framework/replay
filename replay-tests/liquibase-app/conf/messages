@@ -1,0 +1,7 @@
+pets.name=Name
+pets.kind=Kind
+pets.createdAt=Created
+pets.updatedAt=Last update
+pets.totalCount=Total count
+validation.required=%s is required
+validation.min=Cannot be lower than %2$d

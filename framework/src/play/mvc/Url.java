@@ -116,10 +116,7 @@ public class Url {
     if (o == null || getClass() != o.getClass()) return false;
 
     Url url1 = (Url) o;
-
-    if (!url.equals(url1.url)) return false;
-
-    return true;
+    return url.equals(url1.url);
   }
 
   @Override public int hashCode() {

@@ -325,18 +325,14 @@ public class FastTags {
     static boolean _evaluateCondition(Object test) {
         if (test != null) {
             if (test instanceof Boolean) {
-                return ((Boolean) test).booleanValue();
+                return (Boolean) test;
             } else if (test instanceof String) {
                 return ((String) test).length() > 0;
             } else if (test instanceof Number) {
                 return ((Number) test).intValue() != 0;
             } else if (test instanceof Collection) {
                 return !((Collection) test).isEmpty();
-            } else if (test instanceof NullObject) {
-                return false;
-            } else {
-                return true;
-            }
+            } else return !(test instanceof NullObject);
         }
         return false;
     }

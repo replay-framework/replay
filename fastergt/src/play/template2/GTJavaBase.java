@@ -227,7 +227,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
     public boolean evaluateCondition(Object test) {
         if (test != null) {
             if (test instanceof Boolean) {
-                return ((Boolean) test).booleanValue();
+                return (Boolean) test;
             } else if (test instanceof String) {
                 return !((String) test).isEmpty();
             } else if (test instanceof BigInteger) {

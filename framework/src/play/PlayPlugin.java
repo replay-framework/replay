@@ -13,6 +13,7 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -21,6 +22,7 @@ import java.util.Optional;
 /**
  * A framework plugin
  */
+@ParametersAreNonnullByDefault
 public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
     /**
@@ -204,7 +206,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      * Called at the end of the action invocation (either in case of success or any failure).
      * Time to close request-specific things.
      */
-    public void onActionInvocationFinally(@Nonnull Request request) {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
     }
 
     /**

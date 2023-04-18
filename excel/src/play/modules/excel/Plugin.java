@@ -57,7 +57,7 @@ public class Plugin extends PlayPlugin {
     }
     
     
-    private static Pattern pIE678_ = Pattern.compile(".*MSIE\\s+[6|7|8]\\.0.*");
+    private static final Pattern pIE678_ = Pattern.compile(".*MSIE\\s+[6|7|8]\\.0.*");
     /**
      * Extend play format processing
      */

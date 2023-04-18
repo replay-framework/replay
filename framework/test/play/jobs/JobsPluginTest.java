@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class JobsPluginTest {
-  JobsPlugin plugin = new JobsPlugin();
+  private final JobsPlugin plugin = new JobsPlugin();
 
   @Test
   public void runScheduledJobOnceNow() {

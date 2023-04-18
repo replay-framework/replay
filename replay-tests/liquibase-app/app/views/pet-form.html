@@ -1,0 +1,49 @@
+<html lang="en">
+<head>
+  <title>Pet store</title>
+  <style>
+    .error {
+      color: red;
+    }
+    .form-item {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+<h1>Pet registration</h1>
+
+
+<form action="/pet/registration" method="post">
+  <div class="form-item">
+    <label for="kind">Name</label>
+    #{select 'pet.kind', id: 'kind', items: model.Kind.values(), labelProperty: 'name', valueProperty: 'name', value: pet.kind}
+      <option value=""></option>
+    #{/select}
+    #{list items:play.data.validation.Validation.errors('pet.kind'), as:'error'}
+    <div class="error">${error}</div>
+    #{/list}
+  </div>
+
+  <div class="form-item">
+    <label for="name">Name</label>
+    <input id="name" name="pet.name" value="${pet.name}"/>
+    #{list items:play.data.validation.Validation.errors('pet.name'), as:'error'}
+    <div class="error">${error}</div>
+    #{/list}
+  </div>
+
+  <div class="form-item">
+    <label for="age">Age</label>
+    <input id="age" name="pet.age" value="${pet.age}"/>
+    #{list items:play.data.validation.Validation.errors('pet.age'), as:'error'}
+    <div class="error">${error}</div>
+    #{/list}
+  </div>
+
+  <div class="form-item">
+    <input id="register" type="submit" value="Register a pet"/>
+  </div>
+</form>
+</body>
+</html>

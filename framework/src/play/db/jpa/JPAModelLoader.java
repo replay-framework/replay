@@ -14,8 +14,8 @@ import java.util.*;
 
 public class JPAModelLoader implements Model.Factory {
 
-    private String dbName;
-    private Class<? extends Model> clazz;
+    private final String dbName;
+    private final Class<? extends Model> clazz;
     private Map<String, Model.Property> properties;
 
     public JPAModelLoader(Class<? extends Model> clazz) {
@@ -76,7 +76,7 @@ public class JPAModelLoader implements Model.Factory {
         if (orderBy == null && order == null) {
             orderBy = "id";
             order = "ASC";
-        } else if (orderBy == null && order != null) {
+        } else if (orderBy == null) {
             orderBy = "id";
         }
         if (order == null || (!order.equals("ASC") && !order.equals("DESC"))) {
@@ -85,7 +85,7 @@ public class JPAModelLoader implements Model.Factory {
         q.append( " order by ").append(orderBy).append(" ").append(order);
         String jpql = q.toString();
         Query query = JPA.em(this.dbName).createQuery(jpql);
-        if (keywords != null && !keywords.equals("") && jpql.indexOf("?1") != -1) {
+        if (keywords != null && !keywords.equals("") && jpql.contains("?1")) {
             query.setParameter(1, "%" + keywords.toLowerCase() + "%");
         }
         query.setFirstResult(offset);
@@ -106,7 +106,7 @@ public class JPAModelLoader implements Model.Factory {
             q += (where != null ? " where " + where : "");
         }
         Query query = JPA.em(this.dbName).createQuery(q);
-        if (keywords != null && !keywords.equals("") && q.indexOf("?1") != -1) {
+        if (keywords != null && !keywords.equals("") && q.contains("?1")) {
             query.setParameter(1, "%" + keywords.toLowerCase() + "%");
         }
         return Long.decode(query.getSingleResult().toString());
@@ -257,9 +257,6 @@ public class JPAModelLoader implements Model.Factory {
                 // we already checked that cast above
                 @SuppressWarnings("unchecked")
                 Model.Factory factory = Model.Manager.factoryFor((Class<? extends Model>) modelProperty.type);
-                if (factory == null)
-                    throw new UnexpectedException("Failed to find factory for Composite id property entity: "
-                            + clazz.getName() + "." + idPropertyName);
                 // we already checked that cast above
                 if (value != null)
                     value = factory.keyValue((Model) value);
@@ -358,10 +355,10 @@ public class JPAModelLoader implements Model.Factory {
     }
 
     String getSearchQuery(List<String> searchFields) {
-        StringBuilder q = new StringBuilder("");
+        StringBuilder q = new StringBuilder();
         for (Model.Property property : this.listProperties()) {
             if (property.isSearchable
-                    && (searchFields == null || searchFields.isEmpty() ? true : searchFields.contains(property.name))) {
+                    && (searchFields == null || searchFields.isEmpty() || searchFields.contains(property.name))) {
                 if (q.length() > 0) {
                     q.append(" or ");
                 }
@@ -382,26 +379,14 @@ public class JPAModelLoader implements Model.Factory {
                     modelProperty.isRelation = true;
                     modelProperty.relationType = field.getType();
                     final String modelDbName = JPA.getDBName(modelProperty.relationType);
-                    modelProperty.choices = new Model.Choices() {
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public List<Object> list() {
-                            return JPA.em(modelDbName).createQuery("from " + field.getType().getName()).getResultList();
-                        }
-                    };
+                    modelProperty.choices = () -> JPA.em(modelDbName).createQuery("from " + field.getType().getName()).getResultList();
                 }
             }
             if (field.isAnnotationPresent(ManyToOne.class)) {
                 modelProperty.isRelation = true;
                 modelProperty.relationType = field.getType();
                 final String modelDbName = JPA.getDBName(modelProperty.relationType);
-                modelProperty.choices = new Model.Choices() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public List<Object> list() {
-                        return JPA.em(modelDbName).createQuery("from " + field.getType().getName()).getResultList();
-                    }
-                };
+                modelProperty.choices = () -> JPA.em(modelDbName).createQuery("from " + field.getType().getName()).getResultList();
             }
         }
         if (Collection.class.isAssignableFrom(field.getType())) {
@@ -412,13 +397,7 @@ public class JPAModelLoader implements Model.Factory {
                     modelProperty.isMultiple = true;
                     modelProperty.relationType = fieldType;
                     final String modelDbName = JPA.getDBName(modelProperty.relationType);
-                    modelProperty.choices = new Model.Choices() {
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public List<Object> list() {
-                            return JPA.em(modelDbName).createQuery("from " + fieldType.getName()).getResultList();
-                        }
-                    };
+                    modelProperty.choices = () -> JPA.em(modelDbName).createQuery("from " + fieldType.getName()).getResultList();
                 }
             }
             if (field.isAnnotationPresent(ManyToMany.class)) {
@@ -427,26 +406,12 @@ public class JPAModelLoader implements Model.Factory {
                     modelProperty.isMultiple = true;
                     modelProperty.relationType = fieldType;
                     final String modelDbName = JPA.getDBName(field.getType());
-                    modelProperty.choices = new Model.Choices() {
-
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public List<Object> list() {
-                            return JPA.em(modelDbName).createQuery("from " + fieldType.getName()).getResultList();
-                        }
-                    };
+                    modelProperty.choices = () -> JPA.em(modelDbName).createQuery("from " + fieldType.getName()).getResultList();
                 }
             }
         }
         if (field.getType().isEnum()) {
-            modelProperty.choices = new Model.Choices() {
-
-                @SuppressWarnings("unchecked")
-                @Override
-                public List<Object> list() {
-                    return (List<Object>) Arrays.asList(field.getType().getEnumConstants());
-                }
-            };
+            modelProperty.choices = () -> (List<Object>) Arrays.asList(field.getType().getEnumConstants());
         }
         modelProperty.name = field.getName();
         if (field.getType().equals(String.class)) {

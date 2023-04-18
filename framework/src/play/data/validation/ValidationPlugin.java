@@ -24,12 +24,12 @@ import play.utils.Java;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static play.data.validation.Error.toValidationError;
 
+@ParametersAreNonnullByDefault
 public class ValidationPlugin extends PlayPlugin {
 
     static final ThreadLocal<Map<Object, String>> keys = new ThreadLocal<>();
@@ -91,7 +92,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
 
     @Override
-    public void onActionInvocationFinally(@Nonnull Request request) {
+    public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
         onJobInvocationFinally();
     }
 
@@ -132,7 +133,7 @@ public class ValidationPlugin extends PlayPlugin {
             Validation validation = new Validation();
             String cookieName = Scope.COOKIE_PREFIX + "_ERRORS";
             Http.Cookie cookie = request.cookies.get(cookieName);
-            if (cookie != null) {
+            if (cookie != null && cookie.value != null && !cookie.value.isBlank()) {
                 try {
                     String errorsData = errorsCookieCrypter.decrypt(URLDecoder.decode(cookie.value, UTF_8));
                     List<Error> errors = parseErrorsCookie(errorsData);
@@ -152,7 +153,7 @@ public class ValidationPlugin extends PlayPlugin {
     @CheckReturnValue
     List<Error> parseErrorsCookie(String errorsData) {
         try {
-            return errorsData == null || errorsData.isEmpty() ? emptyList() : GSON.fromJson(errorsData, TYPE_ERRORS_LIST);
+            return errorsData.isEmpty() ? emptyList() : GSON.fromJson(errorsData, TYPE_ERRORS_LIST);
         }
         catch (JsonSyntaxException ignore) {
             return emptyList();

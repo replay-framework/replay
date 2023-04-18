@@ -139,25 +139,20 @@ public class Router {
         }
     }
 
+    /**
+     * @throws RenderStatic or NotFound
+     */
     public void routeOnlyStatic(Http.Request request) {
         Route parameterlessRoute = findParameterlessRoute(request.method, request.path);
         if (parameterlessRoute != null) {
-            try {
-                if (parameterlessRoute.matches(request.method, request.path) != null) {
-                    return;
-                }
-            } catch (RenderStatic | NotFound e) {
-                throw e;
+            if (parameterlessRoute.matches(request.method, request.path) != null) {
+                return;
             }
         }
 
         for (Route route : routes) {
-            try {
-                if (route.matches(request.method, request.path) != null) {
-                    return;
-                }
-            } catch (RenderStatic | NotFound e) {
-                throw e;
+            if (route.matches(request.method, request.path) != null) {
+                return;
             }
         }
     }
@@ -331,7 +326,7 @@ public class Router {
 
             List<String> inPathArgs = new ArrayList<>(16);
             boolean allRequiredArgsAreHere = true;
-            // les noms de parametres matchent ils ?
+            // do the parameter names match?
             for (Route.Arg arg : route.args) {
                 inPathArgs.add(arg.name);
                 Object value = args.get(arg.name);
@@ -510,7 +505,7 @@ public class Router {
         }
 
         public void absolute(@Nullable Http.Request request) {
-            boolean isSecure = request == null ? false : request.secure;
+            boolean isSecure = request != null && request.secure;
             String base = getBaseUrl();
             String hostPart = host;
             String domain = request == null ? "" : request.domain;
@@ -570,7 +565,7 @@ public class Router {
                 }
             }
             if (action.startsWith("staticDir:")) {
-                if (!path.endsWith("/") && !"/".equals(path)) {
+                if (!path.endsWith("/")) {
                     throw new IllegalArgumentException("The path for a staticDir route must end with / : " + this);
                 }
                 this.pattern = Pattern.compile("^" + path + ".*$");
@@ -651,6 +646,7 @@ public class Router {
                                 throw new RenderStatic(childResourceName);
                             }
                         } catch (IOException e) {
+                            logger.error("Failed to render static resource for {}", this, e);
                         }
                         throw new NotFound(resource);
                     } else {

@@ -8,15 +8,16 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import play.Invoker;
-import play.Play;
 import play.mvc.ActionInvoker;
 
 import javax.inject.Inject;
 
+import static play.server.ServerHelper.maxContentLength;
+
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     private final Invoker invoker;
     private final ActionInvoker actionInvoker;
-    private static final int maxContentLength = Integer.parseInt(Play.configuration.getProperty("play.netty.maxContentLength", "1048576"));
+    private static final int maxContentLength = maxContentLength(1048576);
 
     @Inject
     HttpServerInitializer(Invoker invoker, ActionInvoker actionInvoker) {

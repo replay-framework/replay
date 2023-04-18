@@ -100,10 +100,7 @@ class JavaWithCaching {
 
             if (annotation != null ? !annotation.equals(that.annotation) : that.annotation != null)
                 return false;
-            if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null)
-                return false;
-
-            return true;
+            return clazz != null ? clazz.equals(that.clazz) : that.clazz == null;
         }
 
         @Override

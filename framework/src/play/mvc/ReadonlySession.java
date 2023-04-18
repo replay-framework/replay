@@ -8,6 +8,6 @@ class ReadonlySession extends Scope.Session {
   }
 
   ReadonlySession() {
-    super(Codec.UUID());
+    super(Codec.ulid());
   }
 }

@@ -1,6 +1,9 @@
 100:play.data.parsing.TempFilePlugin
 150:play.modules.liquibase.LiquibasePlugin
+160:play.db.DBPlugin
+170:play.db.jpa.JPAPlugin
 200:play.data.validation.ValidationPlugin
+500:play.i18n.MessagesPlugin
 700:play.jobs.JobsPlugin
 800:play.modules.gtengineplugin.GTEnginePlugin
 100100:play.plugins.PlayStatusPlugin

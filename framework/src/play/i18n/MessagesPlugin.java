@@ -85,7 +85,7 @@ public class MessagesPlugin extends PlayPlugin {
                             logger.warn("Missing include: {} from file {}", filenameToInclude, file.getPath());
                         }
                     } catch (Exception ex) {
-                        logger.warn("Missing include: {}, caused by: {}", key, ex);
+                        logger.warn("Missing include: {}, caused by: {}", key, ex.toString());
                     }
                 }
             }

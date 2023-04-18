@@ -18,11 +18,12 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
-public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
+import static play.server.ServerHelper.maxContentLength;
 
+public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
+    private static final int maxContentLength = maxContentLength(-1);
     private volatile HttpMessage currentMessage;
     private volatile OutputStream out;
-    private static final int maxContentLength = Integer.valueOf(Play.configuration.getProperty("play.netty.maxContentLength", "-1"));
     private volatile File file;
 
     /**

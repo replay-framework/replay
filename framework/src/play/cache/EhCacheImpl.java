@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+import static java.lang.Long.parseLong;
+import static org.ehcache.Status.UNINITIALIZED;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
 import static org.ehcache.config.units.EntryUnit.ENTRIES;
@@ -42,9 +44,9 @@ public class EhCacheImpl implements CacheImpl {
     private static final String cacheName = "play";
 
     private EhCacheImpl() {
-        long heapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInMb", "0"));
-        long heapSizeInEntries = Long.valueOf(Play.configuration.getProperty("ehcache.heapSizeInEntries", "0"));
-        long offHeapSizeInMb = Long.valueOf(Play.configuration.getProperty("ehcache.offHeapSizeInMb", "0"));
+        long heapSizeInMb = parseLong(Play.configuration.getProperty("ehcache.heapSizeInMb", "0"));
+        long heapSizeInEntries = parseLong(Play.configuration.getProperty("ehcache.heapSizeInEntries", "0"));
+        long offHeapSizeInMb = parseLong(Play.configuration.getProperty("ehcache.offHeapSizeInMb", "0"));
         if (heapSizeInMb == 0 && heapSizeInEntries == 0 && offHeapSizeInMb == 0)
             throw new InvalidConfigurationException("Must specify nonzero ehcache.heapSizeInMb/ehcache.heapSizeInEntries or ehcache.offHeapSizeInMb");
 
@@ -93,7 +95,9 @@ public class EhCacheImpl implements CacheImpl {
 
     @Override
     public void stop() {
-        cacheManager.close();
+        if (cacheManager.getStatus() != UNINITIALIZED) {
+            cacheManager.close();
+        }
     }
 
     private static class ValueWrapper implements Serializable {

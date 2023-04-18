@@ -85,11 +85,7 @@ public class ApacheMultipartParser extends DataParser {
      */
     public static class AutoFileItem implements FileItem {
 
-        private static FileCleaningTracker fileTracker;
-
-        static {
-            fileTracker = new FileCleaningTracker();
-        }
+        private static final FileCleaningTracker fileTracker = new FileCleaningTracker();
 
         // ----------------------------------------------------- Manifest constants
         /**
@@ -103,7 +99,7 @@ public class ApacheMultipartParser extends DataParser {
         /**
          * Counter used in unique identifier generation.
          */
-        private static AtomicInteger counter = new AtomicInteger();
+        private static final AtomicInteger counter = new AtomicInteger();
         /**
          * The name of the form field as provided by the browser.
          */
@@ -111,7 +107,7 @@ public class ApacheMultipartParser extends DataParser {
         /**
          * The content type passed by the browser, or {@code null} if not defined.
          */
-        private String contentType;
+        private final String contentType;
         /**
          * Whether or not this item is a simple form field.
          */
@@ -119,15 +115,15 @@ public class ApacheMultipartParser extends DataParser {
         /**
          * The original filename in the user's filesystem.
          */
-        private String fileName;
+        private final String fileName;
         /**
          * The threshold above which uploads will be stored on disk.
          */
-        private int sizeThreshold;
+        private final int sizeThreshold;
         /**
          * The directory in which uploaded files will be stored, if stored on disk.
          */
-        private File repository;
+        private final File repository;
         /**
          * Cached contents of the file.
          */
@@ -432,9 +428,7 @@ public class ApacheMultipartParser extends DataParser {
                 tempDir = Play.tmpDir;
             }
 
-            String fileName = "upload_" + getUniqueId() + ".tmp";
-
-            File f = new File(tempDir, fileName);
+            File f = new File(tempDir, "upload_" + getUniqueId() + ".tmp");
             fileTracker.track(f, this);
             return f;
         }
@@ -460,8 +454,8 @@ public class ApacheMultipartParser extends DataParser {
 
         @Override
         public String toString() {
-            return "name=" + this.getName() + ", StoreLocation=" + String.valueOf(this.getStoreLocation()) + ", size=" + this.getSize()
-                    + "bytes, " + "isFormField=" + isFormField() + ", FieldName=" + this.getFieldName();
+            return "name=" + this.getName() + ", StoreLocation=" + this.getStoreLocation() + ", size=" + this.getSize()
+                   + "bytes, " + "isFormField=" + isFormField() + ", FieldName=" + this.getFieldName();
         }
 
         /**
@@ -578,12 +572,12 @@ public class ApacheMultipartParser extends DataParser {
      * The maximum size permitted for the complete request, as opposed to
      * {@link #maxFileSize}. A value of -1 indicates no maximum.
      */
-    private long maxRequestSize = Integer.parseInt(Play.configuration.getProperty("upload.maxRequestSize", "-1"));
+    private final long maxRequestSize = Integer.parseInt(Play.configuration.getProperty("upload.maxRequestSize", "-1"));
     /**
      * The maximum size permitted for a single uploaded file, as opposed to
      * {@link #maxRequestSize}. A value of -1 indicates no maximum.
      */
-    private long maxFileSize = Integer.parseInt(Play.configuration.getProperty("upload.maxFileSize", "-1"));
+    private final long maxFileSize = Integer.parseInt(Play.configuration.getProperty("upload.maxFileSize", "-1"));
 
     // ------------------------------------------------------ Protected methods
 

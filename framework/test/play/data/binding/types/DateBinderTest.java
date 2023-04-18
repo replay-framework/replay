@@ -14,9 +14,9 @@ import static org.junit.Assert.assertNull;
 import static play.mvc.Http.Request.createRequest;
 
 public class DateBinderTest {
-    private DateBinder binder = new DateBinder();
-    Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
-    Session session = new Session();
+    private final DateBinder binder = new DateBinder();
+    private final Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+    private final Session session = new Session();
 
     @Test
     public void parses_date_in_play_format() throws ParseException {

@@ -10,6 +10,7 @@ import play.exceptions.DatabaseException;
 import play.mvc.Http;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -22,6 +23,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
+@ParametersAreNonnullByDefault
 public class DBPlugin extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(DBPlugin.class);
 
@@ -135,7 +137,7 @@ public class DBPlugin extends PlayPlugin {
     }
     
     @Override
-    public void onActionInvocationFinally(@Nonnull Http.Request request) {
+    public void onActionInvocationFinally(@Nonnull Http.Request request, @Nonnull Http.Response response) {
         DB.closeAll();
     }
 
@@ -203,7 +205,7 @@ public class DBPlugin extends PlayPlugin {
      */
     public static class ProxyDriver implements Driver {
 
-        private Driver driver;
+        private final Driver driver;
 
         ProxyDriver(Driver d) {
             this.driver = d;
