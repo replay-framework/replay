@@ -55,7 +55,7 @@ subprojects {
     systemProperties['file.encoding'] = 'UTF-8'
   }
 
-  tasks.withType(Test).all { testTask ->
+  tasks.withType(Test).configureEach { testTask ->
     testTask.systemProperties['file.encoding'] = 'UTF-8'
     testTask.testLogging {exceptionFormat = 'full'}
     testTask.outputs.upToDateWhen { false }

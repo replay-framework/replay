@@ -21,15 +21,19 @@ configurations {
 dependencies {
   // To run the app locally:
   // implementation project(':netty3')
+
+  // RePlay dependencies:
   implementation project(':framework')
   implementation project(':fastergt')
 
+  // To run tests against different backends:
   netty3TestClasspath project(':netty3')
   netty4TestClasspath project(':netty4')
   javanetTestClasspath project(':javanet')
 
+  // Test dependencies:
   testImplementation("org.assertj:assertj-core:$assertjVersion")
-  testImplementation('com.codeborne:selenide:6.12.4')
+  testImplementation('com.codeborne:selenide:6.13.0')
   testImplementation('junit:junit:4.13.2')
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 }
