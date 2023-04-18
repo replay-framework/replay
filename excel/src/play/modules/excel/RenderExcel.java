@@ -16,6 +16,7 @@ import play.vfs.VirtualFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.System.nanoTime;
@@ -65,7 +66,8 @@ public class RenderExcel extends Result {
           logger.debug("use sync excel rendering");
           try (InputStream is = file.inputstream()) {
               long start = nanoTime();
-              Workbook workbook = new XLSTransformer().transformXLS(is, beans);
+              Map<String, Object> args = new HashMap<>(beans);
+              Workbook workbook = new XLSTransformer().transformXLS(is, args);
               workbook.write(response.out);
               logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
           } catch (IOException | InvalidFormatException e) {
