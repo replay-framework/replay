@@ -5,6 +5,11 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 20
+  ignore:
+    - dependency-name: org.apache.poi:poi
+    - dependency-name: org.apache.poi:poi-ooxml
+    - dependency-name: org.apache.poi:poi-ooxml-schemas
+
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule: 
