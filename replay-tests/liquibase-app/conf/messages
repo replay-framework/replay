@@ -5,3 +5,10 @@ pets.updatedAt=Last update
 pets.totalCount=Total count
 validation.required=%s is required
 validation.min=Cannot be lower than %2$d
+
+DOG=Dog
+CAT=Cat
+PARROT=Parrot
+COW=Cow
+
+report.title=Pets store report
