@@ -1,7 +1,14 @@
 # Changelog
 
-## 2.0.0 (planned to 2x.01.2023)
+## 2.0.0 (released 18.04.2023) - see https://github.com/codeborne/replay/milestone/10?closed=1
 * added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
+* added backend `javanet` as an alternative for Netty3/Netty4 (#152)
+* Bump org.liquibase:liquibase-core from 4.20.0 to 4.21.1 (#155) (#109)
+* Bump groovyVersion from 3.0.16 to 3.0.17 (#142)
+* Bump ch.qos.reload4j:reload4j from 1.2.24 to 1.2.25 (#140)
+* Bump slf4jVersion from 2.0.6 to 2.0.7 (#139)
+* Bump org.eclipse.jdt:org.eclipse.jdt.core from 3.32.0 to 3.33.0 (#137)
+* Bump ehcache from 3.10.1 to 3.10.8 (#108)
 
 ## 1.12.0 (released 13.01.2023)
 * #77 Expose plugin descriptor  --  thanks to Cies Breijs for PR #79 and #66
