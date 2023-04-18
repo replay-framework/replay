@@ -12,6 +12,6 @@ public class LiquibasePlugin extends PlayPlugin {
     String password = Play.configuration.getProperty("db.pass");
     String changeLogPath = Play.configuration.getProperty("liquibase.changelog", "mainchangelog.xml");
 
-    new LiquibaseMigration("default", changeLogPath, driver, url, username, password).migrate();
+    new LiquibaseMigration(Play.id, "default", changeLogPath, driver, url, username, password).migrate();
   }
 }

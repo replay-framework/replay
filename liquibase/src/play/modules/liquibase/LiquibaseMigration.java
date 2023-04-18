@@ -41,11 +41,11 @@ public final class LiquibaseMigration {
   private final String username;
   private final String password;
 
-  public LiquibaseMigration(String dbName, String changeLogPath, String driver, String url, String username, String password) {
+  public LiquibaseMigration(String playId, String dbName, String changeLogPath, String driver, String url, String username, String password) {
     this.dbName = dbName;
     this.changeLogPath = changeLogPath;
     this.changelogFile = accessor.findFile(changeLogPath);
-    this.dumpFile = new File(changelogFile.getAbsolutePath() + ".dump.sql");
+    this.dumpFile = new File(String.format("%s.%s.dump.sql", changelogFile.getAbsolutePath(), playId));
     this.driver = driver;
     this.url = url;
     this.username = username;
