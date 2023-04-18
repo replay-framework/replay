@@ -2,6 +2,8 @@ dependencies {
   implementation project(':liquibase')
   implementation('com.h2database:h2:2.1.214')
   implementation project(':guice')
+  implementation project(':excel')
+  testImplementation("org.assertj:assertj-core:$assertjVersion")
 }
 
 apply from: '../replay-tests.gradle'

@@ -1,6 +1,7 @@
 GET    /                            PetStore.index
 GET    /pet/registration            PetRegistration.form
 POST   /pet/registration            PetRegistration.register
+GET    /pet/report                  PetReport.report
 
 # For testing:
 DELETE /pet/all                     PetApi.resetAllPets

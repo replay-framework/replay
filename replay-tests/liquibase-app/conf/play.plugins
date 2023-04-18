@@ -3,6 +3,7 @@
 160:play.db.DBPlugin
 170:play.db.jpa.JPAPlugin
 200:play.data.validation.ValidationPlugin
+210:play.modules.excel.Plugin
 500:play.i18n.MessagesPlugin
 700:play.jobs.JobsPlugin
 800:play.modules.gtengineplugin.GTEnginePlugin
