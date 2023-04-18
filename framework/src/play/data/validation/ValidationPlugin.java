@@ -133,7 +133,7 @@ public class ValidationPlugin extends PlayPlugin {
             Validation validation = new Validation();
             String cookieName = Scope.COOKIE_PREFIX + "_ERRORS";
             Http.Cookie cookie = request.cookies.get(cookieName);
-            if (cookie != null) {
+            if (cookie != null && cookie.value != null && !cookie.value.isBlank()) {
                 try {
                     String errorsData = errorsCookieCrypter.decrypt(URLDecoder.decode(cookie.value, UTF_8));
                     List<Error> errors = parseErrorsCookie(errorsData);

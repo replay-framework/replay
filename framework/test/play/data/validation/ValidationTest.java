@@ -1,11 +1,13 @@
 package play.data.validation;
 
+import org.junit.Before;
 import org.junit.Test;
 import play.Play;
 import play.i18n.Messages;
 import play.i18n.MessagesBuilder;
 import play.mvc.Http;
 
+import java.util.Map;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,13 +15,19 @@ import static org.junit.Assert.assertEquals;
 
 public class ValidationTest {
     private final ValidationPlugin validationPlugin = new ValidationPlugin();
+    private final Http.Request request = new Http.Request();
+    private final Http.Response response = new Http.Response();
+
+    @Before
+    public void setUp() {
+        new MessagesBuilder().build();
+        Validation.current.set(new Validation());
+        Play.configuration = new Properties();
+        Play.secretKey = "secret-secret-secret-secret";
+    }
 
     @Test
     public void verifyError() {
-        new MessagesBuilder().build();
-
-        Validation.current.set(new Validation());
-
         String field = "f1";
 
         assertThat(Validation.error(field)).isNull();
@@ -42,10 +50,6 @@ public class ValidationTest {
     
     @Test
     public void addErrorTest(){
-        new MessagesBuilder().build();
-
-        Validation.current.set(new Validation());
-
         String field = "f1";
         String field2 = "f1.element";
 
@@ -88,10 +92,6 @@ public class ValidationTest {
     
     @Test
     public void removeErrorTest(){
-        new MessagesBuilder().build();
-
-        Validation.current.set(new Validation());
-
         String field = "f1";
         String field2 = "f1.element";
 
@@ -130,10 +130,6 @@ public class ValidationTest {
     
     @Test
     public void removeErrorMessageTest(){
-        new MessagesBuilder().build();
-
-        Validation.current.set(new Validation());
-
         String field = "f1";
         String field2 = "f1.element";
 
@@ -176,10 +172,6 @@ public class ValidationTest {
     
     @Test
     public void insertErrorTest(){
-        new MessagesBuilder().build();
-
-        Validation.current.set(new Validation());
-
         String field = "f1";
 
         String errorMsg = "My errorMessage";
@@ -195,21 +187,31 @@ public class ValidationTest {
 
     @Test
     public void restoreEmptyVariable() {
-        Messages.defaults = new Properties();
         Messages.defaults.setProperty("validation.error.missingName", "%s is invalid, given: '%s'");
-        Validation.current.set(new Validation());
-
-        Play.configuration = new Properties();
         Play.secretKey = "secret-secret-secret-secret";
         Validation.addError("user.name", "validation.error.missingName", "");
         Validation.keep();
-        Http.Request request = new Http.Request();
-        Http.Response response = new Http.Response();
         validationPlugin.save(request, response);
 
         request.cookies = response.cookies;
 
         Validation restored = validationPlugin.restore(request);
         assertEquals("user.name is invalid, given: ''", restored.errors.get(0).message());
+    }
+
+    @Test
+    public void restoreCookieWithNullValue() {
+        request.cookies = Map.of("PLAY_ERRORS", new Http.Cookie("PLAY_ERRORS", null));
+
+        Validation restored = validationPlugin.restore(request);
+        assertThat(restored.errors).hasSize(0);
+    }
+
+    @Test
+    public void restoreCookieWithBlankValue() {
+        request.cookies = Map.of("PLAY_ERRORS", new Http.Cookie("PLAY_ERRORS", " "));
+
+        Validation restored = validationPlugin.restore(request);
+        assertThat(restored.errors).hasSize(0);
     }
 }
