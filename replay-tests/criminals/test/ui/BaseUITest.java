@@ -4,6 +4,7 @@ import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import criminals.Application;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -14,6 +15,11 @@ import static com.codeborne.selenide.TextCheck.FULL_TEXT;
 public class BaseUITest {
   protected static final WireMockServer wireMock = new WireMockServer(0);
   private final Logger log = LoggerFactory.getLogger(getClass());
+
+  @BeforeClass
+  public static void setupSeleniumHttpClient() {
+    System.setProperty("webdriver.http.factory", "jdk-http-client");
+  }
 
   @Before
   public final void startAUT() {

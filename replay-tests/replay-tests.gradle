@@ -33,7 +33,12 @@ dependencies {
 
   // Test dependencies:
   testImplementation("org.assertj:assertj-core:$assertjVersion")
-  testImplementation('com.codeborne:selenide:6.13.0')
+  testImplementation('com.codeborne:selenide:6.13.0') {
+    exclude group: 'io.netty'
+    exclude group: 'io.opentelemetry'
+    exclude group: 'org.asynchttpclient'
+  }
+  testImplementation('org.seleniumhq.selenium:selenium-http-jdk-client:4.8.3')
   testImplementation('junit:junit:4.13.2')
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 }
