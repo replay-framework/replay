@@ -34,19 +34,26 @@ public class Time {
         Matcher matcher = p.matcher(duration);
         int seconds = 0;
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("Invalid duration pattern : " + duration);
+            throw new IllegalArgumentException(String.format("Invalid duration pattern: \"%s\"", duration));
         }
 
         matcher.reset();
         while (matcher.find()) {
-            if (matcher.group(3).equals("d")) {
-                seconds += Integer.parseInt(matcher.group(2)) * DAY;
-            } else if (matcher.group(3).equals("h")) {
-                seconds += Integer.parseInt(matcher.group(2)) * HOUR;
-            } else if (matcher.group(3).equals("mi") || matcher.group(3).equals("min") || matcher.group(3).equals("mn")) {
-                seconds += Integer.parseInt(matcher.group(2)) * MINUTE;
-            } else {
-                seconds += Integer.parseInt(matcher.group(2));
+            switch (matcher.group(3)) {
+                case "d":
+                    seconds += Integer.parseInt(matcher.group(2)) * DAY;
+                    break;
+                case "h":
+                    seconds += Integer.parseInt(matcher.group(2)) * HOUR;
+                    break;
+                case "mi":
+                case "min":
+                case "mn":
+                    seconds += Integer.parseInt(matcher.group(2)) * MINUTE;
+                    break;
+                default:
+                    seconds += Integer.parseInt(matcher.group(2));
+                    break;
             }
         }
 

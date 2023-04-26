@@ -1,7 +1,7 @@
 package play.libs;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.PlayBuilder;
 import play.mvc.Http.Response;
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link MimeTypes} class.
  */
 public class MimeTypesTest {
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         PlayBuilder playBuilder = new PlayBuilder();
         playBuilder.build();

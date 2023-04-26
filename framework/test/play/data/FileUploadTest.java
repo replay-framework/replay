@@ -1,8 +1,8 @@
 package play.data;
 
 import org.apache.commons.fileupload.FileItem;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import java.io.File;
@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FileUploadTest {
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.tmpDir = new File("tmp");
   }

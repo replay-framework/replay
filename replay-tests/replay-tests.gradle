@@ -32,18 +32,16 @@ dependencies {
   javanetTestClasspath project(':javanet')
 
   // Test dependencies:
-  testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation('com.codeborne:selenide:6.13.0') {
     exclude group: 'io.netty'
     exclude group: 'io.opentelemetry'
     exclude group: 'org.asynchttpclient'
   }
   testImplementation('org.seleniumhq.selenium:selenium-http-jdk-client:4.8.3')
-  testImplementation('junit:junit:4.13.2')
-  testImplementation("org.mockito:mockito-core:$mockitoVersion")
 }
 
 test {
+  include '**/*'
   exclude 'ui/**'
 }
 
@@ -77,7 +75,4 @@ tasks.withType(Test).configureEach {
       println " set ${it} to ${System.getProperty(it)}"
       systemProperties[it] = System.getProperty(it)
     }
-  systemProperties['file.encoding'] = 'UTF-8'
-  systemProperties['user.country'] = 'TR'
-  systemProperties['user.language'] = 'tr'
 }

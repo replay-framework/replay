@@ -4,7 +4,7 @@ import com.codeborne.selenide.Configuration;
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.libs.ws.HttpResponse;
 import play.libs.ws.WSAsync;
 

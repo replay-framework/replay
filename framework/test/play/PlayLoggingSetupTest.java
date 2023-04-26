@@ -2,10 +2,10 @@ package play;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Properties;
@@ -18,14 +18,14 @@ public class PlayLoggingSetupTest {
   private static String id;
   private static final PlayLoggingSetup loggingSetup = new PlayLoggingSetup();
 
-  @BeforeClass
+  @BeforeAll
   public static void rememberOriginalConfigurationAndLog() {
     playConfig = Play.configuration;
     applicationPath = Play.applicationPath;
     id = Play.id;
   }
 
-  @AfterClass
+  @AfterAll
   public static void restoreOriginalConfigurationAndLog() {
     Play.configuration = playConfig;
     Play.applicationPath = applicationPath;
@@ -35,7 +35,7 @@ public class PlayLoggingSetupTest {
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.configuration = new Properties();
     Play.applicationPath = new File(".");

@@ -2,7 +2,7 @@ package play.libs.ws;
 
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.Response;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import static java.util.Arrays.asList;

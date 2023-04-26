@@ -1,7 +1,7 @@
 package play.mvc;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import java.time.LocalDate;

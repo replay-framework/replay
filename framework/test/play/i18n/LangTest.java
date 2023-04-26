@@ -1,6 +1,6 @@
 package play.i18n;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.PlayBuilder;
 import play.mvc.Http;

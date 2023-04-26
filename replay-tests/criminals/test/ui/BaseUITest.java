@@ -3,8 +3,8 @@ package ui;
 import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import criminals.Application;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -16,12 +16,12 @@ public class BaseUITest {
   protected static final WireMockServer wireMock = new WireMockServer(0);
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  @BeforeClass
+  @BeforeAll
   public static void setupSeleniumHttpClient() {
     System.setProperty("webdriver.http.factory", "jdk-http-client");
   }
 
-  @Before
+  @BeforeEach
   public final void startAUT() {
     if (!Play.started) {
       log.info("Starting AUT with classpath {}", System.getProperty("java.class.path"));

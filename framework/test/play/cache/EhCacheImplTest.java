@@ -2,9 +2,9 @@ package play.cache;
 
 import net.sf.oval.exception.InvalidConfigurationException;
 import org.ehcache.config.ResourcePools;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,13 +16,13 @@ import static org.ehcache.config.ResourceType.Core.OFFHEAP;
 public class EhCacheImplTest {
     private EhCacheImpl cache;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Play.configuration.setProperty("ehcache.heapSizeInEntries", "100");
         cache = EhCacheImpl.newInstance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         Play.configuration.remove("ehcache.heapSizeInMb");
         Play.configuration.remove("ehcache.offHeapSizeInMb");
@@ -138,12 +138,14 @@ public class EhCacheImplTest {
         cache.set("test", 1, 1);
     }
 
-    @Test(expected = InvalidConfigurationException.class)
+    @Test
     public void mustSpecifyAtLeastOneStorage() {
         Play.configuration.setProperty("ehcache.heapSizeInEntries", "0");
         Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
         Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
-        EhCacheImpl.newInstance();
+        assertThatThrownBy(() -> EhCacheImpl.newInstance())
+          .isInstanceOf(InvalidConfigurationException.class)
+          .hasMessageStartingWith("Must specify nonzero");
     }
 }

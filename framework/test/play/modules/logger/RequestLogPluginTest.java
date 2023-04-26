@@ -1,6 +1,6 @@
 package play.modules.logger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import play.mvc.Http;
 import play.mvc.Http.Cookie;

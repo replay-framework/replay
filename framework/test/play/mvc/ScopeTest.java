@@ -1,6 +1,6 @@
 package play.mvc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.PlayBuilder;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -18,7 +18,7 @@ public class ScopeTest {
 
     private final Request request = new Request();
 
-    @org.junit.Before
+    @org.junit.jupiter.api.BeforeEach
     public void playBuilderBefore() {
         new PlayBuilder().build();
     }

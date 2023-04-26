@@ -1,7 +1,7 @@
 package play.data.validation;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.i18n.Messages;
 import play.i18n.MessagesBuilder;
@@ -17,7 +17,7 @@ public class ValidationTest {
     private final Http.Request request = new Http.Request();
     private final Http.Response response = new Http.Response();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new MessagesBuilder().build();
         Validation.current.set(new Validation());

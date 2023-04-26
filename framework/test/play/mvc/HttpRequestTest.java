@@ -1,6 +1,6 @@
 package play.mvc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.libs.Codec;
 
 import java.util.HashMap;

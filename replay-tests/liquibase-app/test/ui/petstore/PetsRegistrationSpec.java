@@ -1,7 +1,7 @@
 package ui.petstore;
 
 import model.Kind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;

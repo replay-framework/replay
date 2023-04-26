@@ -1,6 +1,6 @@
 package play.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

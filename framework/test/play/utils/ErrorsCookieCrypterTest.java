@@ -1,8 +1,8 @@
 package play.utils;
 
 import org.apache.commons.codec.DecoderException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +12,7 @@ public class ErrorsCookieCrypterTest {
 
   private final ErrorsCookieCrypter crypter = new ErrorsCookieCrypter();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.secretKey = "secret-secret-secret-secret";
   }
@@ -27,6 +27,6 @@ public class ErrorsCookieCrypterTest {
     assertThatThrownBy(() -> crypter.decrypt("e08d471c01b42cf0c5b67e13c65ec67"))
       .rootCause()
       .isInstanceOf(DecoderException.class)
-      .hasMessageStartingWith("Odd number of characters");
+      .hasMessage("Odd number of characters.");
   }
 }

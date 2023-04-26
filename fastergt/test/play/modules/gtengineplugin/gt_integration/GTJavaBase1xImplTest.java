@@ -1,6 +1,6 @@
 package play.modules.gtengineplugin.gt_integration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.template2.GTJavaBase;
 import play.template2.TestTemplate;
 import play.templates.BaseTemplate.RawData;

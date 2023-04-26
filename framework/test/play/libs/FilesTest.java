@@ -1,6 +1,6 @@
 package play.libs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.utils.OS;
 
 import java.io.File;

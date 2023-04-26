@@ -1,6 +1,6 @@
 package ui;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Selenide.open;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;

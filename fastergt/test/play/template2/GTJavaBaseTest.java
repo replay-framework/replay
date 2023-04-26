@@ -1,6 +1,6 @@
 package play.template2;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.i18n.Messages;
 import play.template2.exceptions.GTTemplateRuntimeException;
 

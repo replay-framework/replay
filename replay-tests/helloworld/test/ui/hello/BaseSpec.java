@@ -2,7 +2,7 @@ package ui.hello;
 
 import com.codeborne.selenide.Configuration;
 import io.restassured.RestAssured;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import play.Play;
 import play.server.Server;
 
@@ -12,7 +12,7 @@ public class BaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);
   private static final Play play = new Play();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     System.setProperty("webdriver.http.factory", "jdk-http-client");
     if (appStarted.get()) return;

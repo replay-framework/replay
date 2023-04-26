@@ -1,7 +1,7 @@
 package play.data.binding;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.PlayBuilder;
 import play.mvc.Http;
 import play.mvc.Scope.Session;
@@ -29,7 +29,7 @@ public class BinderTest {
         private final List<Data2> listOfData2 = new ArrayList<>();
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         new PlayBuilder().build();
     }

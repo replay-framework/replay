@@ -1,7 +1,7 @@
 package play.template2;
 
 import groovy.lang.GroovyObjectSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;

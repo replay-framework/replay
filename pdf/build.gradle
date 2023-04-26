@@ -11,7 +11,6 @@ ext {
 test {
   include 'play/**/*'
   include 'org/**/*'
-  systemProperties['file.encoding'] = 'UTF-8'
 }
 
 dependencies {

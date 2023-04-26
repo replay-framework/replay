@@ -1,6 +1,6 @@
 package play.template2;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.template2.exceptions.GTRuntimeExceptionWithSourceInfo;
 
 import java.util.HashMap;
