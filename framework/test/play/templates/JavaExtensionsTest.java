@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-
 
 public class JavaExtensionsTest {
 
@@ -31,8 +29,8 @@ public class JavaExtensionsTest {
     @Test
     public void testContains()  {
         String[] testArray = {"a", "b", "c"};
-        assertTrue(JavaExtensions.contains(testArray, "a"));
-        assertFalse(JavaExtensions.contains(testArray, "1"));
+        assertThat(JavaExtensions.contains(testArray, "a")).isTrue();
+        assertThat(JavaExtensions.contains(testArray, "1")).isFalse();
     }
 
     @Test
@@ -69,46 +67,46 @@ public class JavaExtensionsTest {
 
     @Test
     public void testPluralizeNumber() {
-        assertEquals("s", JavaExtensions.pluralize(0));
-        assertEquals("", JavaExtensions.pluralize(1));
-        assertEquals("s", JavaExtensions.pluralize(2));
+      assertThat(JavaExtensions.pluralize(0)).isEqualTo("s");
+      assertThat(JavaExtensions.pluralize(1)).isEqualTo("");
+      assertThat(JavaExtensions.pluralize(2)).isEqualTo("s");
     }
 
     @Test
     public void testPluralizeCollection() {
         List <String> testCollection = new ArrayList<>();
-        assertEquals("s", JavaExtensions.pluralize(testCollection));
+      assertThat(JavaExtensions.pluralize(testCollection)).isEqualTo("s");
         testCollection.add("1");
-        assertEquals("", JavaExtensions.pluralize(testCollection));
+      assertThat(JavaExtensions.pluralize(testCollection)).isEqualTo("");
         testCollection.add("2");
-        assertEquals("s", JavaExtensions.pluralize(testCollection));
+      assertThat(JavaExtensions.pluralize(testCollection)).isEqualTo("s");
     }
 
     @Test
     public void testPluralizeNumberString() {
         String plural = "n";
-        assertEquals(plural, JavaExtensions.pluralize(0, plural));
-        assertEquals("", JavaExtensions.pluralize(1, plural));
-        assertEquals(plural, JavaExtensions.pluralize(2, plural));
+      assertThat(JavaExtensions.pluralize(0, plural)).isEqualTo(plural);
+      assertThat(JavaExtensions.pluralize(1, plural)).isEqualTo("");
+      assertThat(JavaExtensions.pluralize(2, plural)).isEqualTo(plural);
     }
 
     @Test
     public void testPluralizeCollectionString() {
         String plural = "n";
         List <String> testCollection = new ArrayList<>();
-        assertEquals(plural, JavaExtensions.pluralize(testCollection, plural));
+      assertThat(JavaExtensions.pluralize(testCollection, plural)).isEqualTo(plural);
         testCollection.add("1");
-        assertEquals("", JavaExtensions.pluralize(testCollection, plural));
+      assertThat(JavaExtensions.pluralize(testCollection, plural)).isEqualTo("");
         testCollection.add("2");
-        assertEquals(plural, JavaExtensions.pluralize(testCollection, plural));
+      assertThat(JavaExtensions.pluralize(testCollection, plural)).isEqualTo(plural);
     }
 
     @Test
     public void testPluralizeNumberStringArray() {
         String[] forms = {"Test", "Tests"};
-        assertEquals(forms[1], JavaExtensions.pluralize(0, forms));
-        assertEquals(forms[0], JavaExtensions.pluralize(1, forms));
-        assertEquals(forms[1], JavaExtensions.pluralize(2, forms));
+      assertThat(JavaExtensions.pluralize(0, forms)).isEqualTo(forms[1]);
+      assertThat(JavaExtensions.pluralize(1, forms)).isEqualTo(forms[0]);
+      assertThat(JavaExtensions.pluralize(2, forms)).isEqualTo(forms[1]);
 
     }
 
@@ -116,11 +114,11 @@ public class JavaExtensionsTest {
     public void testPluralizeCollectionStringArray() {
         String[] forms = {"Test", "Tests"};
         List <String> testCollection = new ArrayList<>();
-        assertEquals(forms[1], JavaExtensions.pluralize(testCollection, forms));
+      assertThat(JavaExtensions.pluralize(testCollection, forms)).isEqualTo(forms[1]);
         testCollection.add("1");
-        assertEquals(forms[0], JavaExtensions.pluralize(testCollection, forms));
+      assertThat(JavaExtensions.pluralize(testCollection, forms)).isEqualTo(forms[0]);
         testCollection.add("2");
-        assertEquals(forms[1], JavaExtensions.pluralize(testCollection, forms));
+      assertThat(JavaExtensions.pluralize(testCollection, forms)).isEqualTo(forms[1]);
     }
 
     @Test
@@ -128,24 +126,24 @@ public class JavaExtensionsTest {
         String yes = "Y";
         String no = "N";
         String[] yesNo = {yes, no};
-        assertEquals(no, JavaExtensions.yesno(null, yesNo));
-        assertEquals(no, JavaExtensions.yesno(Boolean.FALSE, yesNo));
-        assertEquals(yes, JavaExtensions.yesno(Boolean.TRUE, yesNo));
+      assertThat(JavaExtensions.yesno(null, yesNo)).isEqualTo(no);
+      assertThat(JavaExtensions.yesno(Boolean.FALSE, yesNo)).isEqualTo(no);
+      assertThat(JavaExtensions.yesno(Boolean.TRUE, yesNo)).isEqualTo(yes);
         //String
-        assertEquals(no, JavaExtensions.yesno("", yesNo));
-        assertEquals(yes, JavaExtensions.yesno("Test", yesNo));
+      assertThat(JavaExtensions.yesno("", yesNo)).isEqualTo(no);
+      assertThat(JavaExtensions.yesno("Test", yesNo)).isEqualTo(yes);
         //Number
-        assertEquals(no, JavaExtensions.yesno(0L, yesNo));
-        assertEquals(yes, JavaExtensions.yesno(1L, yesNo));
-        assertEquals(yes, JavaExtensions.yesno(-1L, yesNo));
+      assertThat(JavaExtensions.yesno(0L, yesNo)).isEqualTo(no);
+      assertThat(JavaExtensions.yesno(1L, yesNo)).isEqualTo(yes);
+      assertThat(JavaExtensions.yesno(-1L, yesNo)).isEqualTo(yes);
         //Collection
         List <String> testCollection = new ArrayList<>();
-        assertEquals(no, JavaExtensions.yesno(testCollection, yesNo));
+      assertThat(JavaExtensions.yesno(testCollection, yesNo)).isEqualTo(no);
         testCollection.add("1");
-        assertEquals(yes, JavaExtensions.yesno(testCollection, yesNo));
+      assertThat(JavaExtensions.yesno(testCollection, yesNo)).isEqualTo(yes);
         // NullObject
         NullObject nullObject = NullObject.getNullObject();
-        assertEquals(no, JavaExtensions.yesno(nullObject, yesNo));
+      assertThat(JavaExtensions.yesno(nullObject, yesNo)).isEqualTo(no);
     }
 
     @Test 
@@ -153,7 +151,7 @@ public class JavaExtensionsTest {
         List <String> testCollection = new ArrayList<>();
         testCollection.add("1");
         testCollection.add("2");
-        assertEquals("2", JavaExtensions.last(testCollection));
+      assertThat(JavaExtensions.last(testCollection)).isEqualTo("2");
     }
 
     @Test 
@@ -161,8 +159,8 @@ public class JavaExtensionsTest {
         List <String> testCollection = new ArrayList<>();
         testCollection.add("1");
         testCollection.add("2");
-        
-        assertEquals("1, 2", JavaExtensions.join(testCollection, ", "));
+
+      assertThat(JavaExtensions.join(testCollection, ", ")).isEqualTo("1, 2");
     }
 
 }

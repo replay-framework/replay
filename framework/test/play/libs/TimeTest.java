@@ -2,37 +2,37 @@ package play.libs;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimeTest {
     @Test
     public void parseGood1() {
-        assertEquals(40, Time.parseDuration("40s"));
+      assertThat(Time.parseDuration("40s")).isEqualTo(40);
     }
 
     @Test
     public void parseGood2() {
-        assertEquals(187210, Time.parseDuration("2d4h10s"));
+      assertThat(Time.parseDuration("2d4h10s")).isEqualTo(187210);
     }
 
     @Test
     public void parseGood3() {
-        assertEquals(14410, Time.parseDuration("0d4h10s"));
+      assertThat(Time.parseDuration("0d4h10s")).isEqualTo(14410);
     }
 
     @Test
     public void parseGood4() {
-        assertEquals(7200, Time.parseDuration("2h"));
+      assertThat(Time.parseDuration("2h")).isEqualTo(7200);
     }
 
     @Test
     public void parseGood5() {
-        assertEquals(7200, Time.parseDuration("120min"));
+      assertThat(Time.parseDuration("120min")).isEqualTo(7200);
     }
 
     @Test
     public void parseGood6() {
-        assertEquals(2592000, Time.parseDuration("30d"));
+      assertThat(Time.parseDuration("30d")).isEqualTo(2592000);
     }
 
     @Test(expected = IllegalArgumentException.class)

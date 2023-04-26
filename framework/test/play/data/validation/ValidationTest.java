@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 public class ValidationTest {
     private final ValidationPlugin validationPlugin = new ValidationPlugin();
@@ -63,17 +62,17 @@ public class ValidationTest {
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsg);
         
         // Test avoid insert duplicate message key
-        assertEquals(2, Validation.errors().size());
-        
-        assertEquals(1, Validation.errors(field).size());
-        assertEquals(1, Validation.errors(field2).size());
+      assertThat(Validation.errors().size()).isEqualTo(2);
+
+      assertThat(Validation.errors(field).size()).isEqualTo(1);
+      assertThat(Validation.errors(field2).size()).isEqualTo(1);
         
         Validation.clear();
         
         // Test clear empty the list
-        assertEquals(0, Validation.errors().size());
-        assertEquals(0, Validation.errors(field).size());
-        assertEquals(0, Validation.errors(field2).size());
+      assertThat(Validation.errors().size()).isEqualTo(0);
+      assertThat(Validation.errors(field).size()).isEqualTo(0);
+      assertThat(Validation.errors(field2).size()).isEqualTo(0);
         
         String errorMsgWithParam = "My errorMessage: %2$s";
         
@@ -83,11 +82,11 @@ public class ValidationTest {
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsgWithParam);
         
         // Test avoid insert duplicate message key
-        assertEquals(1, Validation.errors().size());
-        
-        assertEquals(1, Validation.errors(field).size());
-        
-        assertEquals("My errorMessage: param1", Validation.error(field).message());
+      assertThat(Validation.errors().size()).isEqualTo(1);
+
+      assertThat(Validation.errors(field).size()).isEqualTo(1);
+
+      assertThat(Validation.error(field).message()).isEqualTo("My errorMessage: param1");
     }
     
     @Test
@@ -105,27 +104,27 @@ public class ValidationTest {
 
         // Check the first error
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsg);
-        assertEquals(4, Validation.current().errors.size());   
+      assertThat(Validation.current().errors.size()).isEqualTo(4);   
         
         // Remove Errors on field2
         Validation.removeErrors(field2);
-        
-        assertEquals(2, Validation.errors().size());  
-        assertEquals(2, Validation.errors(field).size()); 
-        assertEquals(0, Validation.errors(field2).size()); 
+
+      assertThat(Validation.errors().size()).isEqualTo(2);
+      assertThat(Validation.errors(field).size()).isEqualTo(2);
+      assertThat(Validation.errors(field2).size()).isEqualTo(0); 
         
         // Restore error on field2
         Validation.addError(field2, errorMsg);
         Validation.addError(field2, errorMsg2);
-        
-        assertEquals(4, Validation.current().errors.size()); 
+
+      assertThat(Validation.current().errors.size()).isEqualTo(4); 
         
         // Remove Errors on field
         Validation.removeErrors(field);
-        
-        assertEquals(2, Validation.errors().size());  
-        assertEquals(0, Validation.errors(field).size()); 
-        assertEquals(2, Validation.errors(field2).size());         
+
+      assertThat(Validation.errors().size()).isEqualTo(2);
+      assertThat(Validation.errors(field).size()).isEqualTo(0);
+      assertThat(Validation.errors(field2).size()).isEqualTo(2);         
     }
     
     @Test
@@ -143,29 +142,29 @@ public class ValidationTest {
 
         // Check the first error
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsg);
-        assertEquals(4, Validation.current().errors.size());   
+      assertThat(Validation.current().errors.size()).isEqualTo(4);   
         
         // Remove Errors on field2
         Validation.removeErrors(field2, errorMsg);
-        
-        assertEquals(3, Validation.errors().size());  
-        assertEquals(2, Validation.errors(field).size()); 
-        assertEquals(1, Validation.errors(field2).size()); 
+
+      assertThat(Validation.errors().size()).isEqualTo(3);
+      assertThat(Validation.errors(field).size()).isEqualTo(2);
+      assertThat(Validation.errors(field2).size()).isEqualTo(1); 
         
         assertThat( Validation.error(field2).getMessageKey()).isEqualTo(errorMsg2);
         
         // Restore error on field2
         Validation.addError(field2, errorMsg);
         Validation.addError(field2, errorMsg2);
-        
-        assertEquals(4, Validation.current().errors.size()); 
+
+      assertThat(Validation.current().errors.size()).isEqualTo(4); 
         
         // Remove Errors on field
         Validation.removeErrors(field, errorMsg);
-        
-        assertEquals(3, Validation.errors().size());  
-        assertEquals(1, Validation.errors(field).size()); 
-        assertEquals(2, Validation.errors(field2).size()); 
+
+      assertThat(Validation.errors().size()).isEqualTo(3);
+      assertThat(Validation.errors(field).size()).isEqualTo(1);
+      assertThat(Validation.errors(field2).size()).isEqualTo(2); 
         
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsg2);
     }
@@ -182,7 +181,7 @@ public class ValidationTest {
 
         // Check the first error
         assertThat( Validation.error(field).getMessageKey()).isEqualTo(errorMsg2);
-        assertEquals(2, Validation.current().errors.size());    
+      assertThat(Validation.current().errors.size()).isEqualTo(2);    
     }
 
     @Test
@@ -196,7 +195,7 @@ public class ValidationTest {
         request.cookies = response.cookies;
 
         Validation restored = validationPlugin.restore(request);
-        assertEquals("user.name is invalid, given: ''", restored.errors.get(0).message());
+      assertThat(restored.errors.get(0).message()).isEqualTo("user.name is invalid, given: ''");
     }
 
     @Test

@@ -7,8 +7,7 @@ import play.mvc.Scope.Session;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Request.createRequest;
 
 public class LocalDateTimeBinderTest {
@@ -19,31 +18,31 @@ public class LocalDateTimeBinderTest {
 
   @Test
   public void nullLocalDateTime() {
-    assertNull(binder.bind(request, session, "event.start", null, null, LocalDateTime.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, null, LocalDateTime.class, null)).isNull();
   }
 
   @Test
   public void emptyLocalDateTime() {
-    assertNull(binder.bind(request, session, "event.start", null, "", LocalDateTime.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, "", LocalDateTime.class, null)).isNull();
   }
 
   @Test
   public void blankLocalDateTime() {
-    assertNull(binder.bind(request, session, "event.start", null, " ", LocalDateTime.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, " ", LocalDateTime.class, null)).isNull();
   }
 
   @Test
   public void validLocalDateTime() {
     LocalDateTime expected = LocalDateTime.of(2014, 3, 8, 12, 49, 21);
     LocalDateTime actual = binder.bind(request, session, "event.start", null, "2014-03-08T12:49:21", LocalDateTime.class, null);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void validLocalDateTimeWithMilliseconds() {
     LocalDateTime expected = LocalDateTime.of(2014, 3, 8, 12, 49, 21, 130000000);
     LocalDateTime actual = binder.bind(request, session, "event.start", null, "2014-03-08T12:49:21.130", LocalDateTime.class, null);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test(expected = DateTimeParseException.class)

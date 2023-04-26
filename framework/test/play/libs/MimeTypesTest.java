@@ -9,7 +9,7 @@ import play.mvc.Http.Response;
 import java.nio.charset.Charset;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -28,7 +28,7 @@ public class MimeTypesTest {
         Charset oldEncoding = Response.current().encoding;
         try {
             Response.current().encoding = ISO_8859_1;
-            assertEquals("text/xml; charset=ISO-8859-1", MimeTypes.getContentType("test.xml"));
+            assertThat(MimeTypes.getContentType("test.xml")).isEqualTo("text/xml; charset=ISO-8859-1");
         }
         finally {
             Response.current().encoding = oldEncoding;
@@ -40,7 +40,7 @@ public class MimeTypesTest {
         Response originalResponse = Response.current();
         try {
             Response.removeCurrent();
-            assertEquals("text/xml; charset=" + Play.defaultWebEncoding, MimeTypes.getContentType("test.xml"));
+          assertThat(MimeTypes.getContentType("test.xml")).isEqualTo("text/xml; charset=" + Play.defaultWebEncoding);
         }
         finally {
             Response.setCurrent(originalResponse);

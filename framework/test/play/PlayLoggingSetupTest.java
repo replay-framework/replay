@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlayLoggingSetupTest {
   private static Properties playConfig;
@@ -47,7 +47,7 @@ public class PlayLoggingSetupTest {
     Play.configuration.setProperty("application.log.path", "/play/testlog4j.properties");
     loggingSetup.init();
     Logger log4jLogger = Logger.getLogger("logtest.properties");
-    assertEquals(Level.ERROR, log4jLogger.getLevel());
+    assertThat(log4jLogger.getLevel()).isEqualTo(Level.ERROR);
   }
 
   @Test
@@ -55,6 +55,6 @@ public class PlayLoggingSetupTest {
     Play.configuration.setProperty("application.log.path", "/play/testlog4j.xml");
     loggingSetup.init();
     Logger log4jLogger = Logger.getLogger("logtest.xml");
-    assertEquals(Level.ERROR, log4jLogger.getLevel());
+    assertThat(log4jLogger.getLevel()).isEqualTo(Level.ERROR);
   }
 }

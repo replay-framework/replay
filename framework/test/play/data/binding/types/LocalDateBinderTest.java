@@ -8,8 +8,7 @@ import play.mvc.Scope.Session;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Request.createRequest;
 
 public class LocalDateBinderTest {
@@ -22,38 +21,38 @@ public class LocalDateBinderTest {
 
   @Test
   public void nullLocalDate() {
-    assertNull(binder.bind(request, session, "event.start", null, null, LocalDate.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, null, LocalDate.class, null)).isNull();
   }
 
   @Test
   public void emptyLocalDate() {
-    assertNull(binder.bind(request, session, "event.start", null, "", LocalDate.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, "", LocalDate.class, null)).isNull();
   }
 
   @Test
   public void blankLocalDate() {
-    assertNull(binder.bind(request, session, "event.start", null, " ", LocalDate.class, null));
+    assertThat(binder.bind(request, session, "event.start", null, " ", LocalDate.class, null)).isNull();
   }
 
   @Test
   public void validLocalDate() {
     LocalDate expected = LocalDate.of(2014, 3, 8);
     LocalDate actual = binder.bind(request, session, "event.start", null, "2014-03-08", LocalDate.class, null);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void validLocalDateInLocalFormat() {
     LocalDate expected = LocalDate.of(2018, 3, 8);
     LocalDate actual = binder.bind(request, session, "event.start", null, "08.03.2018", LocalDate.class, null);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void validLocalDateWithMilliseconds() {
     LocalDate expected = LocalDate.of(2014, 3, 8);
     LocalDate actual = binder.bind(request, session, "event.start", null, "2014-03-08", LocalDate.class, null);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test(expected = DateTimeParseException.class)

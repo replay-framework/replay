@@ -4,27 +4,25 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GTFastTagTest {
     @Test
     public void testResolveFastTag() {
         GTFastTag ft = new TestTags();
-        assertEquals( "play.template2.TestTags.tag_tag1", ft.resolveFastTag("tag1"));
-        assertNull( ft.resolveFastTag("tag2"));
+        assertThat(ft.resolveFastTag("tag1")).isEqualTo("play.template2.TestTags.tag_tag1");
+        assertThat(ft.resolveFastTag("tag2")).isNull();
 
         ft = new TestTags2();
-        assertEquals( "play.template2.TestTags2.tag_tag1", ft.resolveFastTag("a.tag1"));
-        assertNull( ft.resolveFastTag("tag1"));
-        assertNull( ft.resolveFastTag("a.b.tag1"));
+        assertThat(ft.resolveFastTag("a.tag1")).isEqualTo("play.template2.TestTags2.tag_tag1");
+        assertThat(ft.resolveFastTag("tag1")).isNull();
+        assertThat(ft.resolveFastTag("a.b.tag1")).isNull();
 
         ft = new TestTags3();
-        assertEquals( "play.template2.TestTags3.tag_tag1", ft.resolveFastTag("a.b.tag1"));
-        assertNull( ft.resolveFastTag("tag1"));
-        assertNull( ft.resolveFastTag("a.tag1"));
+        assertThat(ft.resolveFastTag("a.b.tag1")).isEqualTo("play.template2.TestTags3.tag_tag1");
+        assertThat(ft.resolveFastTag("tag1")).isNull();
+        assertThat(ft.resolveFastTag("a.tag1")).isNull();
     }
-
 
 }
 

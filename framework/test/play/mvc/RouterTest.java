@@ -15,7 +15,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertTrue;
 
 public class RouterTest {
 
@@ -108,33 +107,39 @@ public class RouterTest {
         );
 
         // Test on localhost
-        assertTrue(canRenderFile(imageRequest));
-        assertTrue(canRenderFile(musicRequest));
+        assertThat(canRenderFile(imageRequest)).isTrue();
+        assertThat(canRenderFile(musicRequest)).isTrue();
 
         // Test on localhost:9000
         imageRequest.port = 9000;
         musicRequest.port = 9000;
-        assertTrue(canRenderFile(imageRequest));
-        assertTrue(canRenderFile(musicRequest));
+        assertThat(canRenderFile(imageRequest)).isTrue();
+        assertThat(canRenderFile(musicRequest)).isTrue();
 
         // we request the image file from a "wrong"/different domain, it will not be found
         imageRequest.port = 80;
         musicRequest.port = 80;
         imageRequest.domain = "google.com";
-        assertTrue(canRenderFile(imageRequest));
+        assertThat(canRenderFile(imageRequest)).isTrue();
 
         // same for musicfile, but it will be rendered because the domain doesn't matter
         musicRequest.domain = "google.com";
 
-        assertTrue("Musicfile [" + musicRequest.domain + "] file  must be found", canRenderFile(musicRequest));
+        assertThat(canRenderFile(musicRequest))
+          .as(() -> "Musicfile [" + musicRequest.domain + "] file  must be found")
+          .isTrue();
 
         // we request the image file from the "right" domain
         imageRequest.domain = "example.com";
-        assertTrue("Image file [" + musicRequest.domain + "] from the right domain must be found", canRenderFile(imageRequest));
+        assertThat(canRenderFile(imageRequest))
+          .as(() -> "Image file [" + musicRequest.domain + "] from the right domain must be found")
+          .isTrue();
 
         // same for musicfile, it will be rendered again also on this domain
         musicRequest.domain = "example.com";
-        assertTrue("Musicfile [" + musicRequest.domain + "] from the right domain must be found", canRenderFile(musicRequest));
+        assertThat(canRenderFile(musicRequest))
+          .as(() -> "Musicfile [" + musicRequest.domain + "] from the right domain must be found")
+          .isTrue();
     }
 
     private boolean canRenderFile(Request request){

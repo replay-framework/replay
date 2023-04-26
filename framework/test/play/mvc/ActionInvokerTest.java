@@ -14,11 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static play.mvc.ActionInvokerTest.TestInterceptor.aftersCounter;
 import static play.mvc.ActionInvokerTest.TestInterceptor.beforesCounter;
@@ -46,7 +42,7 @@ public class ActionInvokerTest {
     @Test
     public void invokeStaticJavaMethod() throws Exception {
         request.controllerClass = TestController.class;
-        assertEquals("static", ActionInvoker.invokeControllerMethod(request, session, TestController.class.getMethod("staticJavaMethod"), noArgs));
+      assertThat(ActionInvoker.invokeControllerMethod(request, session, TestController.class.getMethod("staticJavaMethod"), noArgs)).isEqualTo("static");
     }
 
     @Test
@@ -54,7 +50,7 @@ public class ActionInvokerTest {
         request.controllerClass = TestController.class;
         request.controllerInstance = new TestController();
 
-        assertEquals("non-static-parent", ActionInvoker.invokeControllerMethod(request, session, TestController.class.getMethod("nonStaticJavaMethod"), noArgs));
+      assertThat(ActionInvoker.invokeControllerMethod(request, session, TestController.class.getMethod("nonStaticJavaMethod"), noArgs)).isEqualTo("non-static-parent");
     }
 
     @Test
@@ -62,7 +58,7 @@ public class ActionInvokerTest {
         request.controllerClass = TestChildController.class;
         request.controllerInstance = new TestChildController();
 
-        assertEquals("non-static-child", ActionInvoker.invokeControllerMethod(request, session, TestChildController.class.getMethod("nonStaticJavaMethod"), noArgs));
+      assertThat(ActionInvoker.invokeControllerMethod(request, session, TestChildController.class.getMethod("nonStaticJavaMethod"), noArgs)).isEqualTo("non-static-child");
     }
 
     @Test
@@ -70,10 +66,10 @@ public class ActionInvokerTest {
         request.controllerClass = TestControllerWithWith.class;
         request.controllerInstance = new TestControllerWithWith();
         executeMethod("handleBefores", request, session);
-        assertEquals("non-static", ActionInvoker.invokeControllerMethod(request, session, TestControllerWithWith.class.getMethod("nonStaticJavaMethod")));
+      assertThat(ActionInvoker.invokeControllerMethod(request, session, TestControllerWithWith.class.getMethod("nonStaticJavaMethod"))).isEqualTo("non-static");
         executeMethod("handleAfters", request, session);
-        assertEquals(1, beforesCounter);
-        assertEquals(1, aftersCounter);
+      assertThat(beforesCounter).isEqualTo(1);
+      assertThat(aftersCounter).isEqualTo(1);
     }
 
     private void executeMethod(String methodName, Http.Request request, Session session) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
@@ -88,13 +84,13 @@ public class ActionInvokerTest {
         request.controllerInstance = new FullCycleTestController();
 
         Controller controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, session, FullCycleTestController.class.getMethod("before"), noArgs);
-        assertSame(controllerInstance, request.controllerInstance);
+        assertThat(request.controllerInstance).isSameAs(controllerInstance);
 
         controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, session, FullCycleTestController.class.getMethod("action"), noArgs);
-        assertSame(controllerInstance, request.controllerInstance);
+        assertThat(request.controllerInstance).isSameAs(controllerInstance);
 
         controllerInstance = (Controller) ActionInvoker.invokeControllerMethod(request, session, FullCycleTestController.class.getMethod("after"), noArgs);
-        assertSame(controllerInstance, request.controllerInstance);
+        assertThat(request.controllerInstance).isSameAs(controllerInstance);
     }
 
     @Test
@@ -107,13 +103,9 @@ public class ActionInvokerTest {
             }
         }
 
-        try {
-            ActionInvoker.invoke(AController.class.getMethod("action"), new AController());
-            fail();
-        }
-        catch (PlayException e) {
-            assertEquals(exception, e);
-        }
+        assertThatThrownBy(() -> ActionInvoker.invoke(AController.class.getMethod("action"), new AController()))
+          .isInstanceOf(PlayException.class)
+          .hasMessage("unexpected");
     }
 
     @Test
@@ -126,18 +118,14 @@ public class ActionInvokerTest {
             }
         }
 
-        try {
-            ActionInvoker.invoke(AController.class.getMethod("action"), new AController());
-            fail();
-        }
-        catch (Result e) {
-            assertEquals(result, e);
-        }
+        assertThatThrownBy(() -> ActionInvoker.invoke(AController.class.getMethod("action"), new AController()))
+          .isInstanceOf(Result.class)
+          .isEqualTo(result);
     }
 
     @Test
     public void testFindActionMethod() throws Exception {
-        assertNull(ActionInvoker.findActionMethod("notExistingMethod", ActionClass.class));
+      assertThat(ActionInvoker.findActionMethod("notExistingMethod", ActionClass.class)).isNull();
 
         ensureNotActionMethod("privateMethod");
         ensureNotActionMethod("beforeMethod");
@@ -147,13 +135,13 @@ public class ActionInvokerTest {
         ensureNotActionMethod("finallyMethod");
 
         Method m = ActionInvoker.findActionMethod("actionMethod", ActionClass.class);
-        assertNotNull(m);
-        assertEquals("actionMethod", m.invoke( new ActionClass()));
+        assertThat(m).isNotNull();
+      assertThat(m.invoke(new ActionClass())).isEqualTo("actionMethod");
 
         //test that it works with subclassing
         m = ActionInvoker.findActionMethod("actionMethod", ActionClassChild.class);
-        assertNotNull(m);
-        assertEquals("actionMethod", m.invoke( new ActionClassChild()));
+        assertThat(m).isNotNull();
+      assertThat(m.invoke(new ActionClassChild())).isEqualTo("actionMethod");
     }
 
     @Test
@@ -171,7 +159,7 @@ public class ActionInvokerTest {
     }
 
     private void ensureNotActionMethod(String name) throws NoSuchMethodException {
-        assertNull(ActionInvoker.findActionMethod(ActionClass.class.getDeclaredMethod(name).getName(), ActionClass.class));
+      assertThat(ActionInvoker.findActionMethod(ActionClass.class.getDeclaredMethod(name).getName(), ActionClass.class)).isNull();
     }
 
     public static class TestController extends Controller {

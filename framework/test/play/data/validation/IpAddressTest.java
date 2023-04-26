@@ -4,7 +4,7 @@ import org.junit.Test;
 import play.data.validation.Validation.ValidationResult;
 import play.i18n.MessagesBuilder;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IpAddressTest {
 
@@ -113,7 +113,9 @@ public class IpAddressTest {
     public void assertValidIpV4Address(Boolean valid, String ipAddress) {
         Validation.clear();
         ValidationResult result = Validation.ipv4Address("phone", ipAddress);
-        assertEquals("Validation ipv4Address [" + ipAddress + "] should be " + valid, valid, result.ok);
+        assertThat(result.ok)
+          .as(() -> "Validation ipv4Address [" + ipAddress + "] should be " + valid)
+          .isEqualTo(valid);
     }
 
 }
