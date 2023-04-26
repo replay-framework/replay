@@ -1,9 +1,12 @@
 package play.libs;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import play.utils.OS;
 
 import java.io.File;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
@@ -13,21 +16,33 @@ import static org.assertj.core.api.Assumptions.assumeThat;
  */
 public class FilesTest {
 
-    @Test
-    public void sanitizeFileName() {
-        // File names to test are on odd indexes and expected results are on even indexes, ex:
-        // test_file_name, expected_file_name
-        String[] FILE_NAMES = { null, null, "", "", "a", "a", "test.file", "test.file", "validfilename-,^&'@{}[],$=!-#()%.+~_.&&&",
-                "validfilename-,^&'@{}[],$=!-#()%.+~_.&&&", "invalid/file", "invalid_file", "invalid\\file", "invalid_file",
-                "invalid:*?\\<>|/file", "invalid________file", };
+    @ParameterizedTest
+    @MethodSource("fileNames")
+    public void sanitizeFileName(FileName fileName) {
+        assertThat(Files.sanitizeFileName(fileName.raw))
+          .isEqualTo(fileName.sanitized);
+    }
 
-        for (int i = 0; i < FILE_NAMES.length; i += 2) {
-            String actual = Files.sanitizeFileName(FILE_NAMES[i]);
-            String expected = FILE_NAMES[i + 1];
+    private static Stream<FileName> fileNames() {
+        return Stream.of(
+          new FileName(null, null),
+          new FileName("", ""),
+          new FileName("a", "a"),
+          new FileName("test.file", "test.file"),
+          new FileName("validfilename-,^&'@{}[],$=!-#()%.+~_.&&&", "validfilename-,^&'@{}[],$=!-#()%.+~_.&&&"),
+          new FileName("invalid/file", "invalid_file"),
+          new FileName("invalid\\file", "invalid_file"),
+          new FileName("invalid:*?\\<>|/file", "invalid________file")
+        );
+    }
 
-            assertThat(actual)
-              .as(() -> "String was not sanitized properly: " + actual)
-              .isEqualTo(expected);
+    private static class FileName {
+        private final String raw;
+        private final String sanitized;
+
+        private FileName(String raw, String sanitized) {
+            this.raw = raw;
+            this.sanitized = sanitized;
         }
     }
 

@@ -76,8 +76,8 @@ public class Files {
 
         try {
             FileUtils.copyFile(from, to);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to copy " + from + " to " + to, e);
         }
     }
 
