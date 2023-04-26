@@ -14,6 +14,7 @@ public class BaseSpec {
 
   @Before
   public void setUp() {
+    System.setProperty("webdriver.http.factory", "jdk-http-client");
     if (appStarted.get()) return;
     startApp();
   }

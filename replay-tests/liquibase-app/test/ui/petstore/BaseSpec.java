@@ -26,6 +26,8 @@ public class BaseSpec {
 
   @Before
   public synchronized void setUp() throws Exception {
+    System.setProperty("webdriver.http.factory", "jdk-http-client");
+
     if (!started.get()) {
       int port = LiquiBaseApp.run("test");
       Configuration.baseUrl = "http://localhost:" + port;
