@@ -1,7 +1,7 @@
 package play.mvc;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +11,7 @@ public class CookieSessionStoreTest {
   private final Http.Request request = new Http.Request();
   private final Http.Response response = new Http.Response();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.configuration.setProperty(Scope.COOKIE_EXPIRATION_SETTING, "15mn");
   }

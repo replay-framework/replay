@@ -1,7 +1,7 @@
 package play.server.netty3;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.data.parsing.TextParser;
 import play.mvc.Http;
 

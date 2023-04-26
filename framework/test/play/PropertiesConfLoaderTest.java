@@ -1,8 +1,8 @@
 package play;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
 
@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 public class PropertiesConfLoaderTest {
   private final PropertiesConfLoader loader = spy(new PropertiesConfLoader());
 
-  @Before
-  @After
+  @BeforeEach
+  @AfterEach
   public void tearDown() {
     Play.id = "";
   }

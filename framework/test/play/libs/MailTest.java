@@ -3,13 +3,14 @@ package play.libs;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.PlayBuilder;
 import play.exceptions.MailException;
 import play.libs.mail.MailSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MailTest {
 
@@ -26,7 +27,7 @@ public class MailTest {
     private Email simpleEmail;
     private SpyingMailSystem spyingMailSystem;
 
-    @Before
+    @BeforeEach
     public void initializeFixture() throws Exception {
         new PlayBuilder().build();
 
@@ -39,29 +40,35 @@ public class MailTest {
         spyingMailSystem = new SpyingMailSystem();
     }
 
-    @Test(expected = MailException.class)
+    @Test
     public void buildMessageWithoutFrom() throws EmailException {
         Email emailWithoutFrom = new SimpleEmail();
         emailWithoutFrom.addTo("from@playframework.com");
         emailWithoutFrom.setSubject("subject");
-        Mail.buildMessage(new SimpleEmail());
+        assertThatThrownBy(() -> Mail.buildMessage(new SimpleEmail()))
+          .isInstanceOf(MailException.class)
+          .hasMessage("Please define a 'from' email address");
     }
 
-    @Test(expected = MailException.class)
+    @Test
     public void buildMessageWithoutRecipient() throws EmailException {
         Email emailWithoutRecipients =
                 new SimpleEmail()
                         .setFrom("from@playframework.com")
                         .setSubject("subject");
-        Mail.buildMessage(emailWithoutRecipients);
+        assertThatThrownBy(() -> Mail.buildMessage(emailWithoutRecipients))
+          .isInstanceOf(MailException.class)
+          .hasMessage("Please define a recipient email address");
     }
 
-    @Test(expected = MailException.class)
+    @Test
     public void buildMessageWithoutSubject() throws EmailException {
         Email emailWithoutSubject = new SimpleEmail();
         emailWithoutSubject.setFrom("from@playframework.com");
         emailWithoutSubject.addTo("to@playframework.com");
-        Mail.buildMessage(emailWithoutSubject);
+        assertThatThrownBy(() -> Mail.buildMessage(emailWithoutSubject))
+          .isInstanceOf(MailException.class)
+          .hasMessage("Please define a subject");
     }
 
     @Test

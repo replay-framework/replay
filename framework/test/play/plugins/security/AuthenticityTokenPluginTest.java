@@ -1,7 +1,7 @@
 package play.plugins.security;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.mvc.Http;
 import play.mvc.NoAuthenticityToken;
@@ -19,7 +19,7 @@ public class AuthenticityTokenPluginTest {
   private final Scope.RenderArgs renderArgs = new Scope.RenderArgs();
   private final Scope.Flash flash = new Scope.Flash();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.secretKey = "saladus";
   }

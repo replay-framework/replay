@@ -1,6 +1,6 @@
 package play.data.binding.types;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http.Request;
 import play.mvc.Scope.Session;
 
@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Request.createRequest;
 
 public class LocalDateTimeBinderTest {
@@ -45,8 +46,10 @@ public class LocalDateTimeBinderTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = DateTimeParseException.class)
+  @Test
   public void invalidLocalDateTime() {
-    binder.bind(request, session, "event.start", null, "2007-13-03T10:15:30", LocalDateTime.class, null);
+    assertThatThrownBy(() -> binder.bind(request, session, "event.start", null, "2007-13-03T10:15:30", LocalDateTime.class, null))
+      .isInstanceOf(DateTimeParseException.class)
+      .hasMessage("Text '2007-13-03T10:15:30' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13");
   }
 }

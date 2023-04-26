@@ -1,7 +1,7 @@
 package play.db;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Play.configuration = new Properties();
     }

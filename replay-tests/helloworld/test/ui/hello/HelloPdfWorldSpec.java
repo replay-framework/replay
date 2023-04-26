@@ -2,7 +2,7 @@ package ui.hello;
 
 import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;

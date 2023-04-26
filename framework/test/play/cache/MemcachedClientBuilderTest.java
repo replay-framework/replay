@@ -1,6 +1,6 @@
 package play.cache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 import java.util.Properties;

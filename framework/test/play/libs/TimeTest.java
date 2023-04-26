@@ -1,8 +1,9 @@
 package play.libs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TimeTest {
     @Test
@@ -35,28 +36,38 @@ public class TimeTest {
       assertThat(Time.parseDuration("30d")).isEqualTo(2592000);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullArgumentIsNotAllowed() {
-        Time.parseDuration(null);
+        assertThatThrownBy(() -> Time.parseDuration(null))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("duration cannot be null");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyArgumentIsNotAllowed() {
-        Time.parseDuration("");
+        assertThatThrownBy(() -> Time.parseDuration(""))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Invalid duration pattern: \"\"");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseBad1() {
-        Time.parseDuration("1w2d3h10s");
+        assertThatThrownBy(() -> Time.parseDuration("1w2d3h10s"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Invalid duration pattern: \"1w2d3h10s\"");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseBad2() {
-        Time.parseDuration("foobar");
+        assertThatThrownBy(() -> Time.parseDuration("foobar"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Invalid duration pattern: \"foobar\"");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseBad3() {
-        Time.parseDuration("20xyz");
+        assertThatThrownBy(() -> Time.parseDuration("20xyz"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Invalid duration pattern: \"20xyz\"");
     }
 }

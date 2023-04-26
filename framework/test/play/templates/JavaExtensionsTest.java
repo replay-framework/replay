@@ -1,7 +1,11 @@
 package play.templates;
 
 import org.codehaus.groovy.runtime.NullObject;
-import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,19 +14,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaExtensionsTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() {
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 

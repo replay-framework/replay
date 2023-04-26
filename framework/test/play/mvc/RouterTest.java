@@ -1,7 +1,8 @@
 package play.mvc;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.exceptions.NoRouteFoundException;
 import play.mvc.Http.Request;
@@ -18,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RouterTest {
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void setUp() {
         Router.clearForTests();
     }

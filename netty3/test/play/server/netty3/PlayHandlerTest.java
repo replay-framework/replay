@@ -4,7 +4,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import java.io.IOException;

@@ -1,14 +1,14 @@
 package ui.hello.kotlin
 
 import com.codeborne.selenide.Configuration
-import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
 import play.Play
 import play.server.Server
 
 open class BaseSpec {
   private val play = Play()
 
-  @Before
+  @BeforeEach
   fun setUp() {
     play.init("test")
     play.start()

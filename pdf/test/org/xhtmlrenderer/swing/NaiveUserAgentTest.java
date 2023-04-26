@@ -1,7 +1,7 @@
 package org.xhtmlrenderer.swing;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.vfs.VirtualFile;
 
 import java.io.File;
@@ -16,7 +16,7 @@ public class NaiveUserAgentTest {
   private final FileSearcher fileSearcher = mock(FileSearcher.class);
   private final NaiveUserAgent naiveUserAgent = new NaiveUserAgent(16, fileSearcher);
 
-  @Before
+  @BeforeEach
   public void setUp() {
     naiveUserAgent.setBaseURL("http://myserver.com");
   }

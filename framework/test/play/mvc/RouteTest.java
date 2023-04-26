@@ -1,6 +1,6 @@
 package play.mvc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Router.Route;
 import play.mvc.results.RenderStatic;
 

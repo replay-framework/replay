@@ -1,6 +1,6 @@
 package play.data.validation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.i18n.Messages;
 
 import java.util.List;

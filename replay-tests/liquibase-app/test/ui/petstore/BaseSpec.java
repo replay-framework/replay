@@ -2,7 +2,7 @@ package ui.petstore;
 
 import app.LiquiBaseApp;
 import com.codeborne.selenide.Configuration;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -24,7 +24,7 @@ public class BaseSpec {
   private static final AtomicBoolean started = new AtomicBoolean();
   private static final HttpClient http = HttpClient.newBuilder().build();
 
-  @Before
+  @BeforeEach
   public synchronized void setUp() throws Exception {
     System.setProperty("webdriver.http.factory", "jdk-http-client");
 

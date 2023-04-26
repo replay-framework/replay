@@ -1,7 +1,7 @@
 package play.libs;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CrypterTest {
   private final Crypter crypter = new Crypter("my-salt");
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Play.secretKey = "secret-secret-secret-secret";
   }

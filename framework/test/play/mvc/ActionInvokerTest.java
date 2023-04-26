@@ -1,7 +1,7 @@
 package play.mvc;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.PlayBuilder;
 import play.data.binding.CachedBoundActionMethodArgs;
 import play.exceptions.PlayException;
@@ -25,7 +25,7 @@ public class ActionInvokerTest {
     private final Session session = new Session();
     private final ActionInvoker invoker = new ActionInvoker(mock(SessionStore.class));
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new PlayBuilder().build();
         Http.Request.removeCurrent();
@@ -34,7 +34,7 @@ public class ActionInvokerTest {
         aftersCounter = 0;
     }
 
-    @org.junit.After
+    @org.junit.jupiter.api.AfterEach
     public void tearDown() {
         CachedBoundActionMethodArgs.clear();
     }
@@ -94,7 +94,7 @@ public class ActionInvokerTest {
     }
 
     @Test
-    public void invocationUnwrapsPlayException() throws Exception {
+    public void invocationUnwrapsPlayException() {
         final UnexpectedException exception = new UnexpectedException("unexpected");
 
         class AController extends Controller {
@@ -109,7 +109,7 @@ public class ActionInvokerTest {
     }
 
     @Test
-    public void invocationUnwrapsResult() throws Exception {
+    public void invocationUnwrapsResult() {
         final Result result = new Forbidden("unexpected");
 
         class AController extends Controller {
@@ -124,7 +124,7 @@ public class ActionInvokerTest {
     }
 
     @Test
-    public void testFindActionMethod() throws Exception {
+    public void findActionMethod() throws Exception {
       assertThat(ActionInvoker.findActionMethod("notExistingMethod", ActionClass.class)).isNull();
 
         ensureNotActionMethod("privateMethod");
@@ -184,7 +184,7 @@ public class ActionInvokerTest {
     }
 
     public static class FullCycleTestController extends Controller {
-        @play.mvc.Before  public Controller before() {
+        @Before  public Controller before() {
             return this;
         }
 
@@ -192,7 +192,7 @@ public class ActionInvokerTest {
             return this;
         }
 
-        @play.mvc.After public Controller after() {
+        @After public Controller after() {
             return this;
         }
     }
@@ -213,7 +213,7 @@ public class ActionInvokerTest {
             return "this is a background request which should not affect session";
         }
 
-        @play.mvc.Before
+        @Before
         public static String beforeMethod() {
             return "before";
         }
@@ -251,7 +251,7 @@ public class ActionInvokerTest {
     public static class TestInterceptor extends Controller {
         static int beforesCounter, aftersCounter;
         
-        @play.mvc.Before
+        @Before
         public void beforeMethod() {beforesCounter++;}
 
         @After

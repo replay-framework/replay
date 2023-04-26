@@ -1,7 +1,7 @@
 package play.data.parsing;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import java.io.ByteArrayInputStream;

@@ -3,7 +3,7 @@ package ui.hello.kotlin
 import com.codeborne.pdftest.PDF
 import com.codeborne.pdftest.assertj.Assertions
 import com.codeborne.selenide.Configuration
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.net.URL
 
 class HelloPdfWorldSpec : BaseSpec() {

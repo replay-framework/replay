@@ -3,9 +3,8 @@ package ui.hello;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -19,15 +18,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-@RunWith(Parameterized.class)
 public class HttpResponsesSpec extends BaseSpec {
-
-  @Parameterized.Parameters
-  public static Object[][] data() {
-    return new Object[100][0];
-  }
-
-  @Test
+  
+  @RepeatedTest(100)
   public void openStaticFile() {
     when().
       get("/public/hello_world.txt").

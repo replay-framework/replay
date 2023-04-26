@@ -2,7 +2,7 @@ package services;
 
 import models.CriminalRecord;
 import models.Verdict;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

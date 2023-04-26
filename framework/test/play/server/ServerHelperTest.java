@@ -1,6 +1,6 @@
 package play.server;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import java.nio.charset.Charset;

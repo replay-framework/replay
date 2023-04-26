@@ -1,6 +1,6 @@
 package play.mvc.routing;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.routing.RoutePattern.RouteLine;
 
 import static org.assertj.core.api.Assertions.assertThat;

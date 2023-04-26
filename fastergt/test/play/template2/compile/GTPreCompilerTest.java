@@ -1,6 +1,6 @@
 package play.template2.compile;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.template2.GTTemplateRepoBuilder;
 import play.template2.TemplateSourceRenderer;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;

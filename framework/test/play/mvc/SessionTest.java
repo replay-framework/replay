@@ -1,6 +1,6 @@
 package play.mvc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.PlayBuilder;
 import play.mvc.Scope.Session;
 
@@ -9,7 +9,7 @@ import static play.mvc.Scope.Session.TS_KEY;
 
 public class SessionTest {
 
-    @org.junit.Before
+    @org.junit.jupiter.api.BeforeEach
     public void playBuilderBefore() {
         new PlayBuilder().build();
     }

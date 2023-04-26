@@ -1,6 +1,6 @@
 package play.data.binding;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.data.parsing.ApacheMultipartParser;
 import play.data.parsing.DataParsers;
 import play.data.parsing.TextParser;

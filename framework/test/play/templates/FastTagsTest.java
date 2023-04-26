@@ -1,9 +1,9 @@
 package play.templates;
 
 import groovy.lang.Closure;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.Scope.Session;
@@ -33,7 +33,7 @@ public class FastTagsTest {
   private final FastTags tags = new FastTags(new DummyUuidGenerator("some-uuid"));
   private final Closure body = mock(Closure.class);
 
-  @Before
+  @BeforeEach
   public void setUp() {
     //if you render html into out
     // and expect results with line breaks
@@ -52,7 +52,7 @@ public class FastTagsTest {
     return session;
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     // restore line.separator
     System.setProperty("line.separator", backupSystemLineBreak);

@@ -1,6 +1,6 @@
 package play.libs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.libs.ws.DummyHttpResponse;
 
 import java.util.Map;

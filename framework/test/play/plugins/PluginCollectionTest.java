@@ -1,7 +1,7 @@
 package play.plugins;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import play.Play;
 import play.PlayBuilder;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 public class PluginCollectionTest {
 
-    @Before
+    @BeforeEach
     public void init() {
         new PlayBuilder().build();
     }

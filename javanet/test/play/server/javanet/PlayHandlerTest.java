@@ -2,7 +2,7 @@ package play.server.javanet;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
 import java.io.ByteArrayInputStream;

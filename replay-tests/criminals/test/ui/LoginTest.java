@@ -1,8 +1,8 @@
 package ui;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Condition.text;
@@ -40,12 +40,12 @@ public class LoginTest extends BaseUITest {
     dashboardPage.header.shouldHave(text("Hello, admin@mail.ee!"));
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     mailServer.start();
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     mailServer.shutdown();
   }

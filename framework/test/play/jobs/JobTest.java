@@ -1,6 +1,6 @@
 package play.jobs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.Play;
 
 import java.util.concurrent.Callable;

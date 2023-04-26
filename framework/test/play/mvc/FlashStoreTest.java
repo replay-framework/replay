@@ -1,7 +1,7 @@
 package play.mvc;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.libs.Signer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

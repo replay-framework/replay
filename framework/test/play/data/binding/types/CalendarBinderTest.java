@@ -1,6 +1,6 @@
 package play.data.binding.types;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.Play;
 import play.mvc.Http.Request;
 import play.mvc.Scope.Session;
@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Request.createRequest;
 
 public class CalendarBinderTest {
@@ -37,8 +38,10 @@ public class CalendarBinderTest {
         assertThat(binder.bind(request, session, "client.birthday", null, "", Calendar.class, null)).isNull();
     }
 
-    @Test(expected = ParseException.class)
-    public void throws_ParseException_for_invalid_value() throws ParseException {
-        binder.bind(request, session, "client.birthday", null, "12/31/1986", Calendar.class, null);
+    @Test
+    public void throws_ParseException_for_invalid_value() {
+        assertThatThrownBy(() -> binder.bind(request, session, "client.birthday", null, "12/31/1986", Calendar.class, null))
+          .isInstanceOf(ParseException.class)
+          .hasMessage("Unparseable date: \"12/31/1986\"");
     }
 }

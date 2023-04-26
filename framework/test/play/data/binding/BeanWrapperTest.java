@@ -1,6 +1,6 @@
 package play.data.binding;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import play.data.validation.ValidationBuilder;
 import play.mvc.Http.Request;
 import play.mvc.Scope.Session;

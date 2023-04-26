@@ -1,7 +1,7 @@
 package play.libs;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +19,7 @@ public class XMLTest {
             "</feed>";
     private Document document;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         document = XML.getDocument(ORIGINAL_DOCUMENT); 
     }
