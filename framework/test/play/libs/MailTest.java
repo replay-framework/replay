@@ -9,7 +9,7 @@ import play.PlayBuilder;
 import play.exceptions.MailException;
 import play.libs.mail.MailSystem;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MailTest {
 
@@ -87,7 +87,7 @@ public class MailTest {
 
         Mail.send(simpleEmail);
 
-        assertEquals(simpleEmail, spyingMailSystem.receivedEmail);
+      assertThat(spyingMailSystem.receivedEmail).isEqualTo(simpleEmail);
     }
 
 }

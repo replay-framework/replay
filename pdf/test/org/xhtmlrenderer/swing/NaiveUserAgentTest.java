@@ -8,14 +8,13 @@ import java.io.File;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NaiveUserAgentTest {
 
-  FileSearcher fileSearcher = mock(FileSearcher.class);
-  NaiveUserAgent naiveUserAgent = new NaiveUserAgent(16, fileSearcher);
+  private final FileSearcher fileSearcher = mock(FileSearcher.class);
+  private final NaiveUserAgent naiveUserAgent = new NaiveUserAgent(16, fileSearcher);
 
   @Before
   public void setUp() {
@@ -27,7 +26,7 @@ public class NaiveUserAgentTest {
     URI uri = getClass().getResource("NaiveUserAgentTest.class").toURI();
     when(fileSearcher.searchFor("org/blah/NaiveUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
 
-    assertEquals(uri.toURL().toString(), naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class"));
+    assertThat(naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class")).isEqualTo(uri.toURL().toString());
   }
 
   @Test
@@ -35,12 +34,12 @@ public class NaiveUserAgentTest {
     URI uri = getClass().getResource("NaiveUserAgentTest.class").toURI();
     when(fileSearcher.searchFor("org/blah/NaiveUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
 
-    assertEquals(uri.toURL().toString(), naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class?123213231"));
+    assertThat(naiveUserAgent.resolveURI("org/blah/NaiveUserAgentTest.class?123213231")).isEqualTo(uri.toURL().toString());
   }
 
   @Test
   public void resolvesToExternalUrlIfLocalFileNotFound() {
-    assertEquals("http://myserver.com/favicon.ico", naiveUserAgent.resolveURI("/favicon.ico"));
+    assertThat(naiveUserAgent.resolveURI("/favicon.ico")).isEqualTo("http://myserver.com/favicon.ico");
   }
 
   @Test

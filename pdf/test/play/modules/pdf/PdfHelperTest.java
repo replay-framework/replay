@@ -2,19 +2,19 @@ package play.modules.pdf;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 public class PdfHelperTest {
   private final PdfHelper helper = new PdfHelper();
 
   @Test
   public void removesScriptTagFromHtml() {
-    assertEquals("", helper.removeScripts("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>"));
-    assertEquals("", helper.removeScripts("<script></script>"));
-    assertEquals("", helper.removeScripts("<script></script><script></script>"));
-    assertEquals("", helper.removeScripts("<script>foo</script><script>bar</script>"));
-    assertEquals("foobar", helper.removeScripts("foo<script></script>bar"));
-    assertEquals("foo", helper.removeScripts("foo<script></script>"));
-    assertEquals("bar", helper.removeScripts("<script></script>bar"));
+    assertThat(helper.removeScripts("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>")).isEqualTo("");
+    assertThat(helper.removeScripts("<script></script>")).isEqualTo("");
+    assertThat(helper.removeScripts("<script></script><script></script>")).isEqualTo("");
+    assertThat(helper.removeScripts("<script>foo</script><script>bar</script>")).isEqualTo("");
+    assertThat(helper.removeScripts("foo<script></script>bar")).isEqualTo("foobar");
+    assertThat(helper.removeScripts("foo<script></script>")).isEqualTo("foo");
+    assertThat(helper.removeScripts("<script></script>bar")).isEqualTo("bar");
   }
 
   @Test
@@ -38,15 +38,15 @@ public class PdfHelperTest {
       "</html>\n" +
       "<script>$.migrateMute = false;</script>\n" +
       "<script src=\"/public/gen/main.js?16b1e5a0df\"></script>";
-    assertEquals("<!DOCTYPE html>\n" +
-      "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
-      "  <head>\n" +
-      "<style type=\"text/css\">\n" +
-      "/*<![CDATA[*/" +
-      "</style>\n" +
-      "\n" +
-      "\n" +
-      "</head>\n" +
-      "</html>\n\n", helper.removeScripts(html));
+    assertThat(helper.removeScripts(html)).isEqualTo("<!DOCTYPE html>\n" +
+                                                     "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+                                                     "  <head>\n" +
+                                                     "<style type=\"text/css\">\n" +
+                                                     "/*<![CDATA[*/" +
+                                                     "</style>\n" +
+                                                     "\n" +
+                                                     "\n" +
+                                                     "</head>\n" +
+                                                     "</html>\n\n");
   }
 }

@@ -10,8 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Request.createRequest;
 
 public class CalendarBinderTest {
@@ -25,17 +24,17 @@ public class CalendarBinderTest {
         Play.configuration.setProperty("date.format", "dd.MM.yyyy");
         Date expected = new SimpleDateFormat("dd.MM.yyyy").parse("31.12.1986");
         Calendar actual = binder.bind(request, session, "client.birthday", null, "31.12.1986", Calendar.class, null);
-        assertEquals(expected, actual.getTime());
+      assertThat(actual.getTime()).isEqualTo(expected);
     }
     
     @Test
     public void parses_null_to_null() throws ParseException {
-        assertNull(binder.bind(request, session, "client.birthday", null, null, Calendar.class, null));
+        assertThat(binder.bind(request, session, "client.birthday", null, null, Calendar.class, null)).isNull();
     }
     
     @Test
     public void parses_empty_string_to_null() throws ParseException {
-        assertNull(binder.bind(request, session, "client.birthday", null, "", Calendar.class, null));
+        assertThat(binder.bind(request, session, "client.birthday", null, "", Calendar.class, null)).isNull();
     }
 
     @Test(expected = ParseException.class)

@@ -2,7 +2,7 @@ package play.template2;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GTTemplateLocationRealTest {
   @Test
@@ -15,8 +15,7 @@ public class GTTemplateLocationRealTest {
       "<script>#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
       "<script>#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
 
-    assertEquals(expectedHtml,
-      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
+    assertThat(new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml)).isEqualTo(expectedHtml);
   }
 
   @Test
@@ -29,8 +28,7 @@ public class GTTemplateLocationRealTest {
       "<script>#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
       "<script>#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
 
-    assertEquals(expectedHtml,
-      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
+    assertThat(new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml)).isEqualTo(expectedHtml);
   }
 
   @Test
@@ -43,8 +41,7 @@ public class GTTemplateLocationRealTest {
       "<script id=\"some-id\">#{secureInlineJavaScript}42#{/secureInlineJavaScript}</script>\n" +
       "<script type=\"application/javascript\">#{secureInlineJavaScript}38#{/secureInlineJavaScript}</script>\n";
 
-    assertEquals(expectedHtml,
-      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
+    assertThat(new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml)).isEqualTo(expectedHtml);
   }
 
   @Test
@@ -69,7 +66,6 @@ public class GTTemplateLocationRealTest {
       "<script src=\"/public/javascripts/actual-documents.js\" >#{secureInlineJavaScript}#{/secureInlineJavaScript}</script>\n" +
       "</html>\n";
 
-    assertEquals(expectedHtml,
-      new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml));
+    assertThat(new GTTemplateLocationReal(null, null).addInlineScriptTag(originalHtml)).isEqualTo(expectedHtml);
   }
 }

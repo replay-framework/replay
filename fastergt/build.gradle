@@ -4,6 +4,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
   testImplementation project(':framework').sourceSets.test.compileClasspath
+  testImplementation("org.assertj:assertj-core:$assertjVersion")
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

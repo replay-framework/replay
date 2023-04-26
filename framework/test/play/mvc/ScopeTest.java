@@ -13,10 +13,6 @@ import java.math.BigDecimal;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ScopeTest {
 
@@ -44,14 +40,14 @@ public class ScopeTest {
         params.put("param1.object.param2", "param2");
         params.put("param1.object.param2.3", "param3");
 
-        assertEquals(6, params.all().size());
+      assertThat(params.all().size()).isEqualTo(6);
 
-        assertTrue(params.contains("param1"));
-        assertTrue(params.contains("param1.object"));
-        assertTrue(params.contains("param1.test"));
-        assertTrue(params.contains("param1.object.param1"));
-        assertTrue(params.contains("param1.object.param2"));
-        assertTrue(params.contains("param1.object.param2.3"));
+      assertThat(params.contains("param1")).isTrue();
+      assertThat(params.contains("param1.object")).isTrue();
+      assertThat(params.contains("param1.test")).isTrue();
+      assertThat(params.contains("param1.object.param1")).isTrue();
+      assertThat(params.contains("param1.object.param2")).isTrue();
+      assertThat(params.contains("param1.object.param2.3")).isTrue();
     }
 
     @Test
@@ -66,18 +62,18 @@ public class ScopeTest {
         params.put("param1.object.param2", "param2");
         params.put("param1.object.param2.3", "param3");
 
-        assertEquals(6, params.all().size());
+      assertThat(params.all().size()).isEqualTo(6);
 
         params.remove("param1.object.param2");
 
-        assertTrue(params.contains("param1"));
-        assertTrue(params.contains("param1.test"));
-        assertTrue(params.contains("param1.object"));
-        assertTrue(params.contains("param1.object.param1"));
-        assertFalse(params.contains("param1.object.param2"));
-        assertTrue(params.contains("param1.object.param2.3"));
+      assertThat(params.contains("param1")).isTrue();
+      assertThat(params.contains("param1.test")).isTrue();
+      assertThat(params.contains("param1.object")).isTrue();
+      assertThat(params.contains("param1.object.param1")).isTrue();
+      assertThat(params.contains("param1.object.param2")).isFalse();
+      assertThat(params.contains("param1.object.param2.3")).isTrue();
 
-        assertEquals(5, params.all().size());
+      assertThat(params.all().size()).isEqualTo(5);
     }
 
     @Test
@@ -92,46 +88,46 @@ public class ScopeTest {
         params.put("param1.object.param2", "param2");
         params.put("param1.object.param2.3", "param3");
 
-        assertEquals(6, params.all().size());
+      assertThat(params.all().size()).isEqualTo(6);
 
         params.remove("param1.object");
 
-        assertTrue(params.contains("param1"));
-        assertTrue(params.contains("param1.test"));
-        assertFalse(params.contains("param1.object"));
-        assertTrue(params.contains("param1.object.param1"));
-        assertTrue(params.contains("param1.object.param2"));
-        assertTrue(params.contains("param1.object.param2.3"));
+      assertThat(params.contains("param1")).isTrue();
+      assertThat(params.contains("param1.test")).isTrue();
+      assertThat(params.contains("param1.object")).isFalse();
+      assertThat(params.contains("param1.object.param1")).isTrue();
+      assertThat(params.contains("param1.object.param2")).isTrue();
+      assertThat(params.contains("param1.object.param2.3")).isTrue();
 
-        assertEquals(5, params.all().size());
+      assertThat(params.all().size()).isEqualTo(5);
     }
 
     @Test
     public void sessionPutWithNullObject() {
         Session session = new Session();
         session.put("hello", (Object) null);
-        assertNull(session.get("hello"));
+      assertThat(session.get("hello")).isNull();
     }
 
     @Test
     public void sessionPutWithObject() {
         Session session = new Session();
         session.put("hello", 123);
-        assertEquals("123", session.get("hello"));
+      assertThat(session.get("hello")).isEqualTo("123");
     }
 
     @Test
     public void sessionPutWithNullString() {
         Session session = new Session();
         session.put("hello", null);
-        assertNull(session.get("hello"));
+      assertThat(session.get("hello")).isNull();
     }
 
     @Test
     public void sessionPutWithString() {
         Session session = new Session();
         session.put("hello", "world");
-        assertEquals("world", session.get("hello"));
+      assertThat(session.get("hello")).isEqualTo("world");
     }
 
     @Test
@@ -146,19 +142,19 @@ public class ScopeTest {
         Flash flash = new Flash();
         flash.error("Your name is %s", "Hello");
 
-        assertEquals("Your name is Hello", flash.out.get("error"));
+      assertThat(flash.out.get("error")).isEqualTo("Your name is Hello");
 
         flash.error("Your name is %s", "Hello %");
-        assertEquals("Your name is Hello %", flash.out.get("error"));
+      assertThat(flash.out.get("error")).isEqualTo("Your name is Hello %");
 
         Messages.defaults = new Properties();
         Messages.defaults.setProperty("your.name.label", "Your name is %s");
         flash.error("your.name.label", "Hello");
 
-        assertEquals("Your name is Hello", flash.out.get("error"));
+      assertThat(flash.out.get("error")).isEqualTo("Your name is Hello");
 
         flash.error("your.name.label", "Hello %");
-        assertEquals("Your name is Hello %", flash.out.get("error"));
+      assertThat(flash.out.get("error")).isEqualTo("Your name is Hello %");
     }
 
     @Test
@@ -166,19 +162,19 @@ public class ScopeTest {
         Flash flash = new Flash();
         flash.success("Your name is %s", "Hello");
 
-        assertEquals("Your name is Hello", flash.out.get("success"));
+      assertThat(flash.out.get("success")).isEqualTo("Your name is Hello");
 
         flash.success("Your name is %s", "Hello %");
-        assertEquals("Your name is Hello %", flash.out.get("success"));
+      assertThat(flash.out.get("success")).isEqualTo("Your name is Hello %");
 
         Messages.defaults = new Properties();
         Messages.defaults.setProperty("your.name.label", "Your name is %s");
         flash.success("your.name.label", "Hello");
 
-        assertEquals("Your name is Hello", flash.out.get("success"));
+      assertThat(flash.out.get("success")).isEqualTo("Your name is Hello");
 
         flash.success("your.name.label", "Hello %");
-        assertEquals("Your name is Hello %", flash.out.get("success"));
+      assertThat(flash.out.get("success")).isEqualTo("Your name is Hello %");
     }
 
     @Test
@@ -186,25 +182,25 @@ public class ScopeTest {
         Flash flash = new Flash();
 
         flash.put("string", "value");
-        assertEquals("value", flash.get("string"));
+      assertThat(flash.get("string")).isEqualTo("value");
 
         flash.put("integer", Integer.MAX_VALUE);
-        assertEquals("2147483647", flash.get("integer"));
+      assertThat(flash.get("integer")).isEqualTo("2147483647");
 
         flash.put("long", Long.MAX_VALUE);
-        assertEquals("9223372036854775807", flash.get("long"));
+      assertThat(flash.get("long")).isEqualTo("9223372036854775807");
 
         flash.put("bigDecimal", new BigDecimal("12.34"));
-        assertEquals("12.34", flash.get("bigDecimal"));
+      assertThat(flash.get("bigDecimal")).isEqualTo("12.34");
 
         flash.put("booleanTrue", true);
-        assertEquals("true", flash.get("booleanTrue"));
+      assertThat(flash.get("booleanTrue")).isEqualTo("true");
 
         flash.put("booleanFalse", false);
-        assertEquals("false", flash.get("booleanFalse"));
+      assertThat(flash.get("booleanFalse")).isEqualTo("false");
 
         flash.put("enum", TestEnum.B);
-        assertEquals("B", flash.get("enum"));
+      assertThat(flash.get("enum")).isEqualTo("B");
     }
 
     @Test
@@ -212,19 +208,19 @@ public class ScopeTest {
         Flash flash = new Flash();
 
         flash.put("string", (String) null);
-        assertNull(flash.get("string"));
+      assertThat(flash.get("string")).isNull();
 
         flash.put("integer", (Integer) null);
-        assertNull(flash.get("integer"));
+      assertThat(flash.get("integer")).isNull();
 
         flash.put("long", (Long) null);
-        assertNull(flash.get("long"));
+      assertThat(flash.get("long")).isNull();
 
         flash.put("bigDecimal", (BigDecimal) null);
-        assertNull(flash.get("bigDecimal"));
+      assertThat(flash.get("bigDecimal")).isNull();
 
         flash.put("boolean", (Boolean) null);
-        assertNull(flash.get("boolean"));
+      assertThat(flash.get("boolean")).isNull();
     }
 
     private enum TestEnum {
@@ -239,9 +235,9 @@ public class ScopeTest {
     public void containsReturnsTrueWhenOnlyParameterNameIsQueryString() {
         request.querystring = "&name&name2";
         Params params = new Params(request);
-        assertTrue(params.contains("name"));
-        assertTrue(params.contains("name2"));
-        assertFalse(params.contains("name3"));
+      assertThat(params.contains("name")).isTrue();
+      assertThat(params.contains("name2")).isTrue();
+      assertThat(params.contains("name3")).isFalse();
     }
 
     @Test

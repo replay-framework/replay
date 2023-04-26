@@ -15,8 +15,6 @@ import java.util.*;
 import static java.math.BigDecimal.TEN;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static play.mvc.Http.Request.createRequest;
 
 
@@ -278,10 +276,10 @@ public class BinderTest {
     @Test
     public void applicationCanRegisterAndUnregisterCustomBinders() {
         Binder.register(BigDecimal.class, new MyBigDecimalBinder());
-        assertNotNull(Binder.supportedTypes.get(BigDecimal.class));
+        assertThat(Binder.supportedTypes.get(BigDecimal.class)).isNotNull();
 
         Binder.unregister(BigDecimal.class);
-        assertNull(Binder.supportedTypes.get(BigDecimal.class));
+      assertThat(Binder.supportedTypes.get(BigDecimal.class)).isNull();
     }
 
     private static class MyBigDecimalBinder implements TypeBinder<BigDecimal> {

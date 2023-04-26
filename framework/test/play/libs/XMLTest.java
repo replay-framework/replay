@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link XML} class.
@@ -31,8 +31,6 @@ public class XMLTest {
     @Test
     public void serializeShouldReturnWellFormedXml() {
         String outputDocument = XML.serialize(document);
-        assertEquals(
-                stripPreamble(ORIGINAL_DOCUMENT),
-                stripPreamble(outputDocument));
+      assertThat(stripPreamble(outputDocument)).isEqualTo(stripPreamble(ORIGINAL_DOCUMENT));
     }
 }

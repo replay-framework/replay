@@ -9,8 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Request.createRequest;
 
 public class DateBinderTest {
@@ -24,24 +23,24 @@ public class DateBinderTest {
 
         Date actual = binder.bind(request, session, "client.birthday", null, "31.12.1986", Date.class, null);
         Date expected = new SimpleDateFormat("MM/dd/yyyy").parse("12/31/1986");
-        assertEquals(expected, actual);
+      assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void parses_date_in_iso_format() throws ParseException {
         Date actual = binder.bind(request, session, "client.birthday", null, "ISO8601:1986-04-12T00:00:00+0500", Date.class, null);
         Date expected = new SimpleDateFormat("MM/dd/yyyyZ").parse("04/12/1986+0500");
-        assertEquals(expected, actual);
+      assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void parses_null_to_null() throws ParseException {
-        assertNull(binder.bind(request, session, "client.birthday", null, null, Date.class, null));
+        assertThat(binder.bind(request, session, "client.birthday", null, null, Date.class, null)).isNull();
     }
 
     @Test
     public void parses_empty_string_to_null() throws ParseException {
-        assertNull(binder.bind(request, session, "client.birthday", null, "", Date.class, null));
+        assertThat(binder.bind(request, session, "client.birthday", null, "", Date.class, null)).isNull();
     }
 
     @Test(expected = ParseException.class)

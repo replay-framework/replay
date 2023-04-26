@@ -4,7 +4,8 @@ import org.junit.Test;
 import play.data.validation.Validation.ValidationResult;
 import play.i18n.MessagesBuilder;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class PhoneTest {
 
@@ -54,7 +55,9 @@ public class PhoneTest {
     public void assertValidPhone(Boolean valid, String phone) {
         Validation.clear();
         ValidationResult result = Validation.phone("phone", phone);
-        assertEquals("Validation phone [" + phone + "] should be " + valid, valid, result.ok);
+        assertThat(result.ok)
+          .as(() -> "Validation phone [" + phone + "] should be " + valid)
+          .isEqualTo(valid);
     }
 
 }

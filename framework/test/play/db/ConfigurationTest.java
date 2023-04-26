@@ -4,10 +4,14 @@ import org.junit.Before;
 import org.junit.Test;
 import play.Play;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationTest {
 
@@ -20,8 +24,8 @@ public class ConfigurationTest {
     public void dbNameResolver_singleDatabase() {
         Play.configuration.put("db", "mysql:user:pwd@database_name");
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(1, dbNames.size());
-        assertEquals("default", dbNames.iterator().next());
+      assertThat(dbNames.size()).isEqualTo(1);
+      assertThat(dbNames.iterator().next()).isEqualTo("default");
     }
     
     @Test
@@ -29,11 +33,11 @@ public class ConfigurationTest {
         Play.configuration.put("db", "mysql:user:pwd@database_name");
         Play.configuration.put("db.test", "mysql:user:pwd@database_name2");
         List<String> dbNames = new ArrayList<>(Configuration.getDbNames());
-        assertEquals(2, dbNames.size());
-        assertEquals("default", dbNames.get(0));
-        assertEquals("test", dbNames.get(1));
-        assertEquals("mysql:user:pwd@database_name", new Configuration("default").getProperty("db"));
-        assertEquals("mysql:user:pwd@database_name2", new Configuration("test").getProperty("db"));
+      assertThat(dbNames.size()).isEqualTo(2);
+      assertThat(dbNames.get(0)).isEqualTo("default");
+      assertThat(dbNames.get(1)).isEqualTo("test");
+      assertThat(new Configuration("default").getProperty("db")).isEqualTo("mysql:user:pwd@database_name");
+      assertThat(new Configuration("test").getProperty("db")).isEqualTo("mysql:user:pwd@database_name2");
     }
 
     @Test
@@ -44,8 +48,8 @@ public class ConfigurationTest {
         Play.configuration.put("db.pass", "pass");
 
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(1, dbNames.size());
-        assertEquals("default", dbNames.iterator().next());
+      assertThat(dbNames.size()).isEqualTo(1);
+      assertThat(dbNames.iterator().next()).isEqualTo("default");
     }
 
     @Test
@@ -60,21 +64,21 @@ public class ConfigurationTest {
         Play.configuration.put("db.test.pass", "pass2");
         
         List<String> dbNames = new ArrayList<>(Configuration.getDbNames());
-        assertEquals(2, dbNames.size());
-        assertEquals("default", dbNames.get(0));
-        assertEquals("test", dbNames.get(1));
+      assertThat(dbNames.size()).isEqualTo(2);
+      assertThat(dbNames.get(0)).isEqualTo("default");
+      assertThat(dbNames.get(1)).isEqualTo("test");
         
         Configuration configuration1 = new Configuration("default");
-        assertEquals("jdbc:postgresql://localhost/database_name", configuration1.getProperty("db.url"));
-        assertEquals("org.postgresql.Driver", configuration1.getProperty("db.driver"));
-        assertEquals("user", configuration1.getProperty("db.user"));
-        assertEquals("pass", configuration1.getProperty("db.pass"));
+      assertThat(configuration1.getProperty("db.url")).isEqualTo("jdbc:postgresql://localhost/database_name");
+      assertThat(configuration1.getProperty("db.driver")).isEqualTo("org.postgresql.Driver");
+      assertThat(configuration1.getProperty("db.user")).isEqualTo("user");
+      assertThat(configuration1.getProperty("db.pass")).isEqualTo("pass");
 
         Configuration configuration2 = new Configuration("test");
-        assertEquals("jdbc:postgresql://localhost/database_name2", configuration2.getProperty("db.url"));
-        assertEquals("org.postgresql.Driver", configuration2.getProperty("db.driver"));
-        assertEquals("user2", configuration2.getProperty("db.user"));
-        assertEquals("pass2", configuration2.getProperty("db.pass"));
+      assertThat(configuration2.getProperty("db.url")).isEqualTo("jdbc:postgresql://localhost/database_name2");
+      assertThat(configuration2.getProperty("db.driver")).isEqualTo("org.postgresql.Driver");
+      assertThat(configuration2.getProperty("db.user")).isEqualTo("user2");
+      assertThat(configuration2.getProperty("db.pass")).isEqualTo("pass2");
     }
 
     @Test
@@ -90,18 +94,18 @@ public class ConfigurationTest {
         Play.configuration.put("db.pool.maxIdleTimeExcessConnections", "60");
 
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(1, dbNames.size());
-        assertEquals("default", dbNames.iterator().next());
+      assertThat(dbNames.size()).isEqualTo(1);
+      assertThat(dbNames.iterator().next()).isEqualTo("default");
         
         Configuration configuration = new Configuration("default");
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", configuration.getProperty("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", configuration.getProperty("db.driver"));
-        assertEquals("root", configuration.getProperty("db.user"));
-        assertEquals("", configuration.getProperty("db.pass"));
-        assertEquals("1000", configuration.getProperty("db.pool.timeout"));
-        assertEquals("20", configuration.getProperty("db.pool.maxSize"));
-        assertEquals("1", configuration.getProperty("db.pool.minSize"));
-        assertEquals("60", configuration.getProperty("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(configuration.getProperty("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(configuration.getProperty("db.user")).isEqualTo("root");
+      assertThat(configuration.getProperty("db.pass")).isEqualTo("");
+      assertThat(configuration.getProperty("db.pool.timeout")).isEqualTo("1000");
+      assertThat(configuration.getProperty("db.pool.maxSize")).isEqualTo("20");
+      assertThat(configuration.getProperty("db.pool.minSize")).isEqualTo("1");
+      assertThat(configuration.getProperty("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
     }
 
     @Test
@@ -119,8 +123,8 @@ public class ConfigurationTest {
 
         Play.configuration.put("db", "mysql:user:pwd@database_name");
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(1, dbNames.size());
-        assertEquals("default", dbNames.iterator().next());
+      assertThat(dbNames.size()).isEqualTo(1);
+      assertThat(dbNames.iterator().next()).isEqualTo("default");
     }
 
     @Test
@@ -139,31 +143,31 @@ public class ConfigurationTest {
         Play.configuration.put("db.test", "mysql:user:pwd@database_name");
 
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(2, dbNames.size());
+      assertThat(dbNames.size()).isEqualTo(2);
         Iterator<String> it = dbNames.iterator();
-        assertEquals("default", it.next());
-        assertEquals("test", it.next());
+      assertThat(it.next()).isEqualTo("default");
+      assertThat(it.next()).isEqualTo("test");
         
         Configuration configuration = new Configuration("default");
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", configuration.getProperty("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", configuration.getProperty("db.driver"));
-        assertEquals("root", configuration.getProperty("db.user"));
-        assertEquals("", configuration.getProperty("db.pass"));
-        assertEquals("1000", configuration.getProperty("db.pool.timeout"));
-        assertEquals("20", configuration.getProperty("db.pool.maxSize"));
-        assertEquals("1", configuration.getProperty("db.pool.minSize"));
-        assertEquals("60", configuration.getProperty("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(configuration.getProperty("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(configuration.getProperty("db.user")).isEqualTo("root");
+      assertThat(configuration.getProperty("db.pass")).isEqualTo("");
+      assertThat(configuration.getProperty("db.pool.timeout")).isEqualTo("1000");
+      assertThat(configuration.getProperty("db.pool.maxSize")).isEqualTo("20");
+      assertThat(configuration.getProperty("db.pool.minSize")).isEqualTo("1");
+      assertThat(configuration.getProperty("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
         
         configuration = new Configuration("test");
-        assertEquals("mysql:user:pwd@database_name", configuration.getProperty("db"));
-        assertNull(configuration.getProperty("db.url"));
-        assertNull(configuration.getProperty("db.driver"));
-        assertNull(configuration.getProperty("db.user"));
-        assertNull(configuration.getProperty("db.pass"));
-        assertNull(configuration.getProperty("db.pool.timeout"));
-        assertNull(configuration.getProperty("db.pool.maxSize"));
-        assertNull(configuration.getProperty("db.pool.minSize"));
-        assertNull(configuration.getProperty("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(configuration.getProperty("db")).isEqualTo("mysql:user:pwd@database_name");
+      assertThat(configuration.getProperty("db.url")).isNull();
+      assertThat(configuration.getProperty("db.driver")).isNull();
+      assertThat(configuration.getProperty("db.user")).isNull();
+      assertThat(configuration.getProperty("db.pass")).isNull();
+      assertThat(configuration.getProperty("db.pool.timeout")).isNull();
+      assertThat(configuration.getProperty("db.pool.maxSize")).isNull();
+      assertThat(configuration.getProperty("db.pool.minSize")).isNull();
+      assertThat(configuration.getProperty("db.pool.maxIdleTimeExcessConnections")).isNull();
     }
 
     @Test
@@ -182,32 +186,32 @@ public class ConfigurationTest {
         Play.configuration.put("db", "mysql:user:pwd@database_name");
 
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(2, dbNames.size());
+      assertThat(dbNames.size()).isEqualTo(2);
         Iterator<String> it = dbNames.iterator();
-        assertEquals("default", it.next());
-        assertEquals("test", it.next());
+      assertThat(it.next()).isEqualTo("default");
+      assertThat(it.next()).isEqualTo("test");
         
         Configuration configuration = new Configuration("test");
-        assertNull(configuration.getProperty("db"));
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", configuration.getProperty("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", configuration.getProperty("db.driver"));
-        assertEquals("root", configuration.getProperty("db.user"));
-        assertEquals("", configuration.getProperty("db.pass"));
-        assertEquals("1000", configuration.getProperty("db.pool.timeout"));
-        assertEquals("20", configuration.getProperty("db.pool.maxSize"));
-        assertEquals("1", configuration.getProperty("db.pool.minSize"));
-        assertEquals("60", configuration.getProperty("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(configuration.getProperty("db")).isNull();
+      assertThat(configuration.getProperty("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(configuration.getProperty("db.user")).isEqualTo("root");
+      assertThat(configuration.getProperty("db.pass")).isEqualTo("");
+      assertThat(configuration.getProperty("db.pool.timeout")).isEqualTo("1000");
+      assertThat(configuration.getProperty("db.pool.maxSize")).isEqualTo("20");
+      assertThat(configuration.getProperty("db.pool.minSize")).isEqualTo("1");
+      assertThat(configuration.getProperty("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
         
         configuration = new Configuration("default");
-        assertEquals("mysql:user:pwd@database_name", configuration.getProperty("db"));
-        assertNull(configuration.getProperty("db.url"));
-        assertNull(configuration.getProperty("db.driver"));
-        assertNull(configuration.getProperty("db.user"));
-        assertNull(configuration.getProperty("db.pass"));
-        assertNull(configuration.getProperty("db.pool.timeout"));
-        assertNull(configuration.getProperty("db.pool.maxSize"));
-        assertNull(configuration.getProperty("db.pool.minSize"));
-        assertNull(configuration.getProperty("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(configuration.getProperty("db")).isEqualTo("mysql:user:pwd@database_name");
+      assertThat(configuration.getProperty("db.url")).isNull();
+      assertThat(configuration.getProperty("db.driver")).isNull();
+      assertThat(configuration.getProperty("db.user")).isNull();
+      assertThat(configuration.getProperty("db.pass")).isNull();
+      assertThat(configuration.getProperty("db.pool.timeout")).isNull();
+      assertThat(configuration.getProperty("db.pool.maxSize")).isNull();
+      assertThat(configuration.getProperty("db.pool.minSize")).isNull();
+      assertThat(configuration.getProperty("db.pool.maxIdleTimeExcessConnections")).isNull();
     }
 
     @Test
@@ -224,20 +228,20 @@ public class ConfigurationTest {
         Play.configuration.put("db.pool.maxIdleTimeExcessConnections", "60");
 
         Configuration dbConfig = new Configuration("default");
-        
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", dbConfig.getProperty("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", dbConfig.getProperty("db.driver"));
-        assertEquals("root",dbConfig.getProperty("db.user"));
-        assertEquals("", dbConfig.getProperty("db.pass"));
-        assertEquals("1000", dbConfig.getProperty("db.pool.timeout"));
-        assertEquals("20", dbConfig.getProperty("db.pool.maxSize"));
-        assertEquals("1", dbConfig.getProperty("db.pool.minSize"));
-        assertEquals("60", dbConfig.getProperty("db.pool.maxIdleTimeExcessConnections"));
+
+      assertThat(dbConfig.getProperty("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(dbConfig.getProperty("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(dbConfig.getProperty("db.user")).isEqualTo("root");
+      assertThat(dbConfig.getProperty("db.pass")).isEqualTo("");
+      assertThat(dbConfig.getProperty("db.pool.timeout")).isEqualTo("1000");
+      assertThat(dbConfig.getProperty("db.pool.maxSize")).isEqualTo("20");
+      assertThat(dbConfig.getProperty("db.pool.minSize")).isEqualTo("1");
+      assertThat(dbConfig.getProperty("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
 
         Set<String> dbNames = Configuration.getDbNames();
-        assertEquals(1, dbNames.size());
+      assertThat(dbNames.size()).isEqualTo(1);
         Iterator<String> it = dbNames.iterator();
-        assertEquals("default", it.next());
+      assertThat(it.next()).isEqualTo("default");
     }
     
     @Test
@@ -268,28 +272,28 @@ public class ConfigurationTest {
         Map<String, String> properties = dbConfig.getProperties();
 
         //db
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", properties.get("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", properties.get("db.driver"));
-        assertEquals("root",properties.get("db.user"));
-        assertEquals("", properties.get("db.pass"));
-        assertEquals("1000", properties.get("db.pool.timeout"));
-        assertEquals("20", properties.get("db.pool.maxSize"));
-        assertEquals("1", properties.get("db.pool.minSize"));
-        assertEquals("60", properties.get("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(properties.get("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(properties.get("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(properties.get("db.user")).isEqualTo("root");
+      assertThat(properties.get("db.pass")).isEqualTo("");
+      assertThat(properties.get("db.pool.timeout")).isEqualTo("1000");
+      assertThat(properties.get("db.pool.maxSize")).isEqualTo("20");
+      assertThat(properties.get("db.pool.minSize")).isEqualTo("1");
+      assertThat(properties.get("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
         //javax.persistence
-        assertEquals("EXTENDED", properties.get("javax.persistence.lock.scope"));
-        assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
+      assertThat(properties.get("javax.persistence.lock.scope")).isEqualTo("EXTENDED");
+      assertThat(properties.get("javax.persistence.lock.timeout")).isEqualTo("1000");
         //jpa
-        assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("true", properties.get("jpa.debugSQL"));
+      assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
+      assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");
         //hibernate
-        assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));
-        assertEquals("postUpdate", properties.get("hibernate.ejb.event.post-update"));
+      assertThat(properties.get("hibernate.ejb.event.post-insert")).isEqualTo("postInsert");
+      assertThat(properties.get("hibernate.ejb.event.post-update")).isEqualTo("postUpdate");
         //org.hibernate
-        assertEquals("AUTO", properties.get("org.hibernate.flushMode"));
-        assertEquals("66", properties.get("hibernate.default_batch_fetch_size"));
+      assertThat(properties.get("org.hibernate.flushMode")).isEqualTo("AUTO");
+      assertThat(properties.get("hibernate.default_batch_fetch_size")).isEqualTo("66");
 
-        assertEquals(Play.configuration.size(), properties.size());
+      assertThat(properties.size()).isEqualTo(Play.configuration.size());
     }
     
     @Test
@@ -320,53 +324,53 @@ public class ConfigurationTest {
         Map<String, String> properties = dbConfig.getProperties();
 
         //db
-        assertEquals("jdbc:mysql://127.0.0.1/testPlay", properties.get("db.url"));
-        assertEquals("com.mysql.jdbc.Driver", properties.get("db.driver"));
-        assertEquals("root",properties.get("db.user"));
-        assertEquals("", properties.get("db.pass"));
-        assertEquals("1000", properties.get("db.pool.timeout"));
-        assertEquals("20", properties.get("db.pool.maxSize"));
-        assertEquals("1", properties.get("db.pool.minSize"));
-        assertEquals("60", properties.get("db.pool.maxIdleTimeExcessConnections"));
+      assertThat(properties.get("db.url")).isEqualTo("jdbc:mysql://127.0.0.1/testPlay");
+      assertThat(properties.get("db.driver")).isEqualTo("com.mysql.jdbc.Driver");
+      assertThat(properties.get("db.user")).isEqualTo("root");
+      assertThat(properties.get("db.pass")).isEqualTo("");
+      assertThat(properties.get("db.pool.timeout")).isEqualTo("1000");
+      assertThat(properties.get("db.pool.maxSize")).isEqualTo("20");
+      assertThat(properties.get("db.pool.minSize")).isEqualTo("1");
+      assertThat(properties.get("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
         //javax.persistence
-        assertEquals("EXTENDED", properties.get("javax.persistence.lock.scope"));
-        assertEquals("1000", properties.get("javax.persistence.lock.timeout"));
+      assertThat(properties.get("javax.persistence.lock.scope")).isEqualTo("EXTENDED");
+      assertThat(properties.get("javax.persistence.lock.timeout")).isEqualTo("1000");
         //jpa
-        assertEquals("org.hibernate.dialect.PostgreSQLDialect", properties.get("jpa.dialect"));
-        assertEquals("true", properties.get("jpa.debugSQL"));
+      assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
+      assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");
         //hibernate
-        assertEquals("postInsert", properties.get("hibernate.ejb.event.post-insert"));
-        assertEquals("postUpdate", properties.get("hibernate.ejb.event.post-update"));
+      assertThat(properties.get("hibernate.ejb.event.post-insert")).isEqualTo("postInsert");
+      assertThat(properties.get("hibernate.ejb.event.post-update")).isEqualTo("postUpdate");
         //org.hibernate
-        assertEquals("AUTO", properties.get("org.hibernate.flushMode"));
+      assertThat(properties.get("org.hibernate.flushMode")).isEqualTo("AUTO");
 
-        assertEquals(Play.configuration.size(), properties.size());
+      assertThat(properties.size()).isEqualTo(Play.configuration.size());
     }
 
     @Test
     public void generatesConfigurationPropertyNameBasedOnDatabaseName() {
         Configuration configuration = new Configuration("another");
-        assertEquals("db.another", configuration.generateKey("db"));
-        assertEquals("db.another.driver", configuration.generateKey("db.driver"));
-        assertEquals("db.another.url", configuration.generateKey("db.url"));
-        assertEquals("another-property", configuration.generateKey("another-property"));
+      assertThat(configuration.generateKey("db")).isEqualTo("db.another");
+      assertThat(configuration.generateKey("db.driver")).isEqualTo("db.another.driver");
+      assertThat(configuration.generateKey("db.url")).isEqualTo("db.another.url");
+      assertThat(configuration.generateKey("another-property")).isEqualTo("another-property");
     }
 
     @Test
     public void usesDefaultConfigurationPropertyNameForDefaultDatabase() {
         Configuration configuration = new Configuration("default");
-        assertEquals("db.default", configuration.generateKey("db"));
-        assertEquals("db.default.driver", configuration.generateKey("db.driver"));
-        assertEquals("db.default.url", configuration.generateKey("db.url"));
-        assertEquals("another-property", configuration.generateKey("another-property"));
+      assertThat(configuration.generateKey("db")).isEqualTo("db.default");
+      assertThat(configuration.generateKey("db.driver")).isEqualTo("db.default.driver");
+      assertThat(configuration.generateKey("db.url")).isEqualTo("db.default.url");
+      assertThat(configuration.generateKey("another-property")).isEqualTo("another-property");
     }
 
     @Test
     public void putPropertyToDefaultConfiguration() {
         Configuration configuration = new Configuration("default");
         configuration.put("db.driver", "org.h2.Driver");
-        assertEquals("org.h2.Driver", configuration.getProperty("db.driver"));
-        assertEquals("org.h2.Driver", Play.configuration.getProperty("db.default.driver"));
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("org.h2.Driver");
+      assertThat(Play.configuration.getProperty("db.default.driver")).isEqualTo("org.h2.Driver");
     }
     
     @Test
@@ -374,7 +378,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration("custom");
         
         configuration.put("db.driver", "com.oracle.OracleDriver");
-        assertEquals("com.oracle.OracleDriver", configuration.getProperty("db.driver"));
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("com.oracle.OracleDriver");
     }
 
     @Test
@@ -386,20 +390,20 @@ public class ConfigurationTest {
         configuration.put("db.driver", "com.oracle.OracleDriver");
         configuration1.put("db.driver", "org.h2.Driver");
         configuration2.put("db.driver", "com.mysql.Driver");
-        
-        assertEquals("com.oracle.OracleDriver", configuration.getProperty("db.driver"));
-        assertEquals("org.h2.Driver", configuration1.getProperty("db.driver"));
-        assertEquals("com.mysql.Driver", configuration2.getProperty("db.driver"));
-        
-        assertEquals("com.oracle.OracleDriver", Play.configuration.getProperty("db.default.driver"));
-        assertEquals("org.h2.Driver", Play.configuration.getProperty("db.db1.driver"));
-        assertEquals("com.mysql.Driver", Play.configuration.getProperty("db.db2.driver"));
+
+      assertThat(configuration.getProperty("db.driver")).isEqualTo("com.oracle.OracleDriver");
+      assertThat(configuration1.getProperty("db.driver")).isEqualTo("org.h2.Driver");
+      assertThat(configuration2.getProperty("db.driver")).isEqualTo("com.mysql.Driver");
+
+      assertThat(Play.configuration.getProperty("db.default.driver")).isEqualTo("com.oracle.OracleDriver");
+      assertThat(Play.configuration.getProperty("db.db1.driver")).isEqualTo("org.h2.Driver");
+      assertThat(Play.configuration.getProperty("db.db2.driver")).isEqualTo("com.mysql.Driver");
     }
 
     @Test
     public void getPropertyFromDefaultConfiguration() {
         Play.configuration.setProperty("db.default.url", "jdbc:h2:mem:play;MODE=MSSQLServer;LOCK_MODE=0");
         Configuration configuration = new Configuration("default");
-        assertEquals("jdbc:h2:mem:play;MODE=MSSQLServer;LOCK_MODE=0", configuration.getProperty("db.url"));
+      assertThat(configuration.getProperty("db.url")).isEqualTo("jdbc:h2:mem:play;MODE=MSSQLServer;LOCK_MODE=0");
     }
 }

@@ -4,10 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.Play;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Scope.Session.TS_KEY;
 
 public class CookieSessionStoreTest {
@@ -28,7 +25,7 @@ public class CookieSessionStoreTest {
     // Change nothing in the session
     Scope.Session session = cookieSessionStore.restore(request);
     cookieSessionStore.save(session, request, response);
-    assertNull(response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION"));
+    assertThat(response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION")).isNull();
 
     // Change the session
     session = cookieSessionStore.restore(request);
@@ -36,9 +33,9 @@ public class CookieSessionStoreTest {
     cookieSessionStore.save(session, request, response);
 
     Http.Cookie sessionCookie = response.cookies.get(Scope.COOKIE_PREFIX + "_SESSION");
-    assertNotNull(sessionCookie);
-    assertTrue(sessionCookie.value.contains("username"));
-    assertTrue(sessionCookie.value.contains("Bob"));
+    assertThat(sessionCookie).isNotNull();
+    assertThat(sessionCookie.value.contains("username")).isTrue();
+    assertThat(sessionCookie.value.contains("Bob")).isTrue();
   }
 
   @Test
@@ -56,8 +53,8 @@ public class CookieSessionStoreTest {
 
     Scope.Session sessionFromSecondRequest = cookieSessionStore.restore(request);
 
-    assertEquals(2, sessionFromSecondRequest.data.size());
-    assertEquals("value", sessionFromSecondRequest.data.get("param"));
-    assertTrue(sessionFromSecondRequest.data.containsKey(TS_KEY));
+    assertThat(sessionFromSecondRequest.data.size()).isEqualTo(2);
+    assertThat(sessionFromSecondRequest.data.get("param")).isEqualTo("value");
+    assertThat(sessionFromSecondRequest.data.containsKey(TS_KEY)).isTrue();
   }
 }

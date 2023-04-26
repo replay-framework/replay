@@ -6,30 +6,29 @@ import play.data.parsing.DataParsers;
 import play.data.parsing.TextParser;
 import play.data.parsing.UrlEncodedParser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataParsersTest {
     @Test
     public void getDataParserDependingOnContentType() {
-        assertEquals(UrlEncodedParser.class, DataParsers.forContentType("application/x-www-form-urlencoded").getClass());
-        assertEquals(ApacheMultipartParser.class, DataParsers.forContentType("multipart/form-data").getClass());
-        assertEquals(ApacheMultipartParser.class, DataParsers.forContentType("multipart/mixed").getClass());
-        assertEquals(TextParser.class, DataParsers.forContentType("application/xml").getClass());
-        assertEquals(TextParser.class, DataParsers.forContentType("application/json").getClass());
+      assertThat(DataParsers.forContentType("application/x-www-form-urlencoded").getClass()).isEqualTo(UrlEncodedParser.class);
+      assertThat(DataParsers.forContentType("multipart/form-data").getClass()).isEqualTo(ApacheMultipartParser.class);
+      assertThat(DataParsers.forContentType("multipart/mixed").getClass()).isEqualTo(ApacheMultipartParser.class);
+      assertThat(DataParsers.forContentType("application/xml").getClass()).isEqualTo(TextParser.class);
+      assertThat(DataParsers.forContentType("application/json").getClass()).isEqualTo(TextParser.class);
     }
 
     @Test
     public void usesTextDataProviderForAnyContentTypeStartingWithText() {
-        assertEquals(TextParser.class, DataParsers.forContentType("text/").getClass());
-        assertEquals(TextParser.class, DataParsers.forContentType("text/plain").getClass());
-        assertEquals(TextParser.class, DataParsers.forContentType("text/anything else").getClass());
+      assertThat(DataParsers.forContentType("text/").getClass()).isEqualTo(TextParser.class);
+      assertThat(DataParsers.forContentType("text/plain").getClass()).isEqualTo(TextParser.class);
+      assertThat(DataParsers.forContentType("text/anything else").getClass()).isEqualTo(TextParser.class);
     }
 
     @Test
     public void returnsNullForUnsupportedContentTypes() {
-        assertNull(DataParsers.forContentType("unknown"));
-        assertNull(DataParsers.forContentType(""));
-        assertNull(DataParsers.forContentType("text"));
+      assertThat(DataParsers.forContentType("unknown")).isNull();
+      assertThat(DataParsers.forContentType("")).isNull();
+      assertThat(DataParsers.forContentType("text")).isNull();
     }
 }
