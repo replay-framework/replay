@@ -14,6 +14,9 @@ public class Server {
   }
 
   public int start() {
-    throw new IllegalStateException("Please add dependency replay-netty3, replay-netty4 or replay-javanet to your project");
+    throw new IllegalStateException(
+      "Please add the dependency com.codeborne.replay:javanet:netty3, com.codeborne.replay:netty4 or "
+      + "com.codeborne.replay:javanet to your project, and make sure it is declared before "
+      + "com.codeborne.replay:framework");
   }
 }
