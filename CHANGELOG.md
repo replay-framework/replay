@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1 (in progress)
+* bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600 
+
 ## 2.0.0 (released 18.04.2023) - see https://github.com/codeborne/replay/milestone/10?closed=1
 * added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
 * added backend `javanet` as an alternative for Netty3/Netty4 (#152)
