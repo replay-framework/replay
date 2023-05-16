@@ -2,8 +2,7 @@ dependencies {
   api project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  api('com.google.inject:guice:5.1.0')
-  implementation('aopalliance:aopalliance:1.0') {transitive = false}
+  api('com.google.inject:guice:6.0.0')
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
