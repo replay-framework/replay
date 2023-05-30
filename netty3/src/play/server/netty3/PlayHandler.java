@@ -157,6 +157,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                     invoker.invoke(new Netty3Invocation(request, response, ctx, nettyRequest, messageEvent));
                 }
 
+            } catch (URISyntaxException ex) {
+                // Do not log the stack trace for URI parsing errors. An info line suffices.
+                logger.info("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+                serve400(ex, ctx);
             } catch (IllegalArgumentException ex) {
                 logger.warn("Exception on request. serving 400 back", ex);
                 serve400(ex, ctx);
@@ -480,7 +484,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("parseRequest: begin, URI = {}", nettyRequest.getUri());
 
         String contentType = nettyRequest.headers().get(CONTENT_TYPE);
+
+        // May throw URISyntaxException when URI parsing errors, resulting in a 400 response.
         URI uri = new URI(nettyRequest.getUri());
+
         String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getQuery());
         String host = nettyRequest.headers().get(HOST);
         boolean isLoopback = ipParser.isLoopback(host, (InetSocketAddress) messageEvent.getRemoteAddress());
