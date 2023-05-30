@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.2.0 (under development) - see https://github.com/codeborne/replay/milestone/12?closed=1
+* 
+
 ## 2.1.0 (released 30.05.2023) - see https://github.com/codeborne/replay/milestone/11?closed=1
 * Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
 * bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600
