@@ -1,7 +1,14 @@
 # Changelog
 
-## 2.0.1 (in progress)
-* bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600 
+## 2.1.0 (released 30.05.2023) - see https://github.com/codeborne/replay/milestone/11?closed=1
+* Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
+* bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600
+* Bump Liquibase from 4.21.1 to 4.22.0
+* Bump Guava from 31.1-jre to 32.0.0-jre
+* Bump commons-io from 2.11.0 to 2.12.0
+* Bump netty4 from 4.1.91.Final to 4.1.93.Final
+* Bump ClassGraph from 4.8.157 to 4.8.160
+* remove unused class ExceptionsMonitoringPlugin
 
 ## 2.0.0 (released 18.04.2023) - see https://github.com/codeborne/replay/milestone/10?closed=1
 * added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
