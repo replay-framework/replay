@@ -150,7 +150,10 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 // Delegate to Play framework
                 invoker.invoke(new Netty4Invocation(request, response, ctx, nettyRequest.retain()));
             }
-
+        } catch (URISyntaxException ex) {
+            // Do not log the stack trace for URI parsing errors. An info line suffices.
+            logger.info("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+            serve400(ex, ctx);
         } catch (IllegalArgumentException ex) {
             logger.warn("Exception on request. serving 400 back", ex);
             serve400(ex, ctx);
