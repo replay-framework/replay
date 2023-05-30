@@ -1,4 +1,4 @@
-# The RePlay Framework
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codeborne.replay/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/com.codeborne.replay/framework)
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
@@ -7,6 +7,7 @@ The main differences between Play1 and RePlay are outlined below.
 
 RePlay originally forked Play v1.5.0. Improvements made in the Play1 project since, are regularly ported to RePlay when applicable.
 [Version 2 of the Play Framework](https://github.com/playframework/playframework) (Play2) is significantly different from Play1.
+It caters for Scala web application projects, and uses Scala internally. 
 Porting a Play1 application to Play2 is really hard and has [questionable benefits](https://groups.google.com/g/play-framework/c/AcZs8GXNWUc).
 RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
@@ -20,10 +21,10 @@ RePlay aims to provide a more sensible upgrade path for Play1 applications.
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
 These were not used at Codeborne, but could be reintroduced if needed.
 * The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
-* Does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
+* It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
   * shorter application startup times (seriously improves development cycles),
-  * and [support for Kotlin](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin) out of the box.
-* Less "magic", like the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
+  * and for other JVM languages out of the box, like Kotlin ([example project](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin)).
+* Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
 * More actively maintained.
 * Promotes [dependency injection](/codeborne/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
@@ -52,10 +53,7 @@ For a large part the [documentation of Play1](https://www.playframework.com/docu
 Keep the differences between Play1 and RePlay (outlined above) in mind, in order to know what parts of the Play1 documentation to ignore.
 
 API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder.
-The [javadoc.io](https://javadoc.io) project provides online access to the *Javadoc* documentation of RePlay's
-[framework](https://javadoc.io/doc/com.codeborne.replay/framework), [fastergt](https://javadoc.io/doc/com.codeborne.replay/fastergt),
-[guice](https://javadoc.io/doc/com.codeborne.replay/guice), [excel](https://javadoc.io/doc/com.codeborne.replay/excel),
-[pdf](https://javadoc.io/doc/com.codeborne.replay/pdf) and [liquibase](https://javadoc.io/doc/com.codeborne.replay/liquibase) packages.
+The [javadoc.io](https://javadoc.io) project provides online access to the [*Javadoc* documentation of RePlay](https://javadoc.io/doc/com.codeborne.replay).
 
 
 ## Development flow (hot-swapping)
@@ -119,7 +117,7 @@ You may find some warnings for "illegal reflective access" when running the appl
 
 With this flag `--add-opens java.base/java.lang=ALL-UNNAMED` these warnings from `guice` may be suppressed (this will be fixed in a future version of `guice`).
 
-To suppress the "illegal reflective access" warnings from `netty` you could use `replay-netty4` instead of `replay-netty3`.
+To suppress the "illegal reflective access" warnings from `netty` you could use `com.codeborne.replay:netty4` instead of `com.codeborne.replay:netty3`.
 
 
 ## Plugins
