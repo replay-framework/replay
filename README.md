@@ -28,7 +28,7 @@ These were not used at Codeborne, but could be reintroduced if needed.
 * No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
 * More actively maintained.
 * Promotes [dependency injection](/codeborne/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
-(using Google's [Guice](https://github.com/google/guice) as a DI provider).
+(using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
 
 
@@ -43,7 +43,7 @@ Subprojects in RePlay's `replay-tests/` folder show how to do certain things in 
 Documentation for RePlay is found in (or referred to from) this README.
 
 **NOTE**: Due to its small community, RePlay is not likely the best choice for a new project.
-Same holds true for Play1 and even Play2. RePlay primarily caters to maintainers of Play1-based applications.
+Same holds true for Play1 and even Play2 (when not using Scala). RePlay primarily caters to maintainers of Play1-based applications.
 This README contains an extensive guide for porting Play1 applications to RePlay.
 
 
