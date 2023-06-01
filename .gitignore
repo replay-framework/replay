@@ -3,3 +3,4 @@ out
 build
 tmp
 *.dump.sql
+.idea/*.xml
