@@ -1,5 +1,6 @@
 package play.server.netty3;
 
+import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import play.data.parsing.TextParser;
@@ -18,7 +19,7 @@ public class FileChannelBufferTest {
 
     @Test
     public void fileChannelBuffer_supports_reset() throws IOException {
-        File tempFile = File.createTempFile("replay", "test");
+        File tempFile = Files.createTempFile("replay", "test").toFile();
         FileUtils.write(tempFile, "Don't reset me please", UTF_8);
 
         Http.Request request = givenRequest(new FileChannelBuffer(tempFile).getInputStream());

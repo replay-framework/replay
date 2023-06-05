@@ -1,6 +1,7 @@
 package org.allcolor.yahp.cl.converter;
 
 import com.lowagie.text.pdf.BaseFont;
+import java.nio.file.Files;
 import org.allcolor.xml.parser.CShaniDomParser;
 import org.allcolor.xml.parser.dom.ADocument;
 import org.allcolor.yahp.cl.converter.CDocumentCut.DocumentAndSize;
@@ -504,7 +505,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         renderer.setDocument(mydoc, urlForBase);
         renderer.layout();
 
-        final File f = File.createTempFile("pdf", "yahp");
+        final File f = Files.createTempFile("pdf", "yahp").toFile();
         files.add(f);
         try (OutputStream fout = new BufferedOutputStream(new FileOutputStream(f))) {
           renderer.createPDF(fout, true);

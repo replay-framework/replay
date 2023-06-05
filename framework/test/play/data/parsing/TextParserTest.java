@@ -1,5 +1,6 @@
 package play.data.parsing;
 
+import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import play.mvc.Http;
@@ -32,7 +33,7 @@ public class TextParserTest {
 
   @Test
   public void shouldNotFail_ifInputStreamDoesNotSupportReset() throws IOException {
-    File tempFile = File.createTempFile("replay", "test");
+    File tempFile = Files.createTempFile("replay", "test").toFile();
     FileUtils.write(tempFile, "Don't reset me please", UTF_8);
 
     Http.Request request = givenRequest(new FileInputStream(tempFile));
