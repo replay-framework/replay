@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':framework')
-  implementation('org.eclipse.jdt:ecj:3.33.0') {transitive = false}
+  implementation('org.eclipse.jdt:ecj:3.34.0') {transitive = false}
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
   testImplementation project(':framework').sourceSets.test.compileClasspath
