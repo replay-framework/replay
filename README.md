@@ -96,19 +96,40 @@ This should make restarting and hot-swapping much (5-30x) faster!
 
 ## Deploying
 
-The `./gradlew jar` command produces the `build/libs/appname.jar` file.
+The `./gradlew jar` command produces the `build/libs/appname.jar` file and ensures all required libraries are in `build/lib/`.
 
-The following should start your application from the command line (possibly adding additional flags):
+On the JVM the classpath determines how libraries overshadow other libraries. When running RePlay locally (from IntelliJ)
+the `depedencies` block in the Gradle file is used to determine the classpath order. In production we no longer use Gradle,
+so we need to save the classpath as produced by Gradle. The following Gradle code creates an *argfile* (in `build/argfile`)
+which contains the arguments needed to run the application in production.
 
-    java -cp "build/classes/java/main:build/libs/*:build/lib/*" appname.Application
+```kotlin
+task("generateArgFile") {
+  group = "build"
+  doFirst {
+    file("build/argfile").writeText(
+      "-classpath build/classes/java/main:build/classes/kotlin/main:build/libs/*:" +
+        configurations.runtimeClasspath.get().files.joinToString(separator = ":", postfix = "\n") {
+          "build/lib/${it.name}"
+        }
+    )
+  }
+}
+tasks.jar.get().dependsOn("generateArgFile")
+```
 
-Replace `appname` with the name of the package your `Application` class resides in. The classpath string (after `-cp`) contains three parts:
+The classpath string (after `-classpath`) contains three parts:
 
-1. The first bit points to the folder with the application's `.class` files (`build/classes/java/main`) built by the Gradle build script,
-as that's what RePlay (and Play1 as well) use instead of the copies of these files as found in the application's JAR file.
-2. The second bit (`build/libs/*`) points the application JAR file as build by Gradle (e.g.: `./gradlew jar`).
-3. The last bit (`build/lib/*`) points to the dependencies of the project as installed by Gradle
-(should be last, or they may overshadow project definitions).
+1. The first two bits point to the folders with the application's `.class` files (`build/classes/java/main` and `build/classes/kotlin/main`)
+built by Gradle's `build` task. This is what RePlay (and Play1 as well) use instead of the copies of these files as found in the application's JAR file.
+3. The second bit (`build/libs/*`) points the application JAR file as build by Gradle's `jar` task.
+4. The rest is a list of all JAR libraries in the correct order.
+
+The following command should start your application from the command line (possibly adding additional flags):
+
+    java @build/argfile appname.Application
+
+Replace `appname` with the name of the package your `Application` class resides in.
 
 
 ## Troubleshooting
