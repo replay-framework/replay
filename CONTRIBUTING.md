@@ -30,6 +30,10 @@ To run tests only on Netty4:
 
      ./gradlew test uitest-netty4
 
+To run tests only on Javanet:
+
+     ./gradlew test uitest-javanet
+
 ## How to release
 
 This requires write permission to `com.codeborne` group in Maven central repository:
