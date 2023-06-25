@@ -1,8 +1,7 @@
 package app;
 
-import play.Play;
 import play.modules.guice.GuiceBeanSource;
-import play.server.Server;
+import play.server.Starter;
 
 public class LiquiBaseApp {
   public static void main(String[] args) {
@@ -13,9 +12,6 @@ public class LiquiBaseApp {
   
   public static int run(String playId) {
     GuiceBeanSource guice = new GuiceBeanSource(new PetModule());
-    Play play = new Play(guice);
-    play.init(playId);
-    play.start();
-    return new Server(play).start();
+    return Starter.start(playId, guice);
   }
 }
