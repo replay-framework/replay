@@ -3,16 +3,12 @@ package ui.hello.kotlin
 import com.codeborne.selenide.Configuration
 import org.junit.jupiter.api.BeforeEach
 import play.Play
-import play.server.Server
+import play.server.Starter
 
 open class BaseSpec {
-  private val play = Play()
-
   @BeforeEach
   fun setUp() {
-    play.init("test")
-    play.start()
-    val port = Server(play).start()
+    val port = Starter.start("test")
     Configuration.baseUrl = "http://localhost:$port"
     Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl)
     System.setProperty("webdriver.http.factory", "jdk-http-client")

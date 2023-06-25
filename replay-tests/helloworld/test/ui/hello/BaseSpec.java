@@ -4,13 +4,12 @@ import com.codeborne.selenide.Configuration;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import play.Play;
-import play.server.Server;
+import play.server.Starter;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);
-  private static final Play play = new Play();
 
   @BeforeEach
   public void setUp() {
@@ -22,9 +21,7 @@ public class BaseSpec {
   private static synchronized void startApp() {
     if (appStarted.get()) return;
 
-    play.init("test");
-    play.start();
-    int port = new Server(play).start();
+    int port = Starter.start("test");
 
     Configuration.baseUrl = "http://localhost:" + port;
     Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);

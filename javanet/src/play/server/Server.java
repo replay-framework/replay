@@ -2,7 +2,7 @@ package play.server;
 
 import play.Play;
 
-public class Server extends play.server.javanet.Server {
+public class Server extends play.server.javanet.Server implements PlayServer {
 
   public Server(Play play) {
     super(play);

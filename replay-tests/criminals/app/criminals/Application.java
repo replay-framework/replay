@@ -1,8 +1,7 @@
 package criminals;
 
-import play.Play;
 import play.modules.guice.GuiceBeanSource;
-import play.server.Server;
+import play.server.Starter;
 
 import javax.annotation.Nullable;
 import java.util.Properties;
@@ -20,10 +19,7 @@ public class Application {
       configuration.setProperty("criminal-records.service.url", criminalRecordsServiceUrl);
     }
     GuiceBeanSource guice = new GuiceBeanSource(new Module(configuration));
-    Play play = new Play(guice);
-    play.init(playId);
-    play.start();
-    return new Server(play).start();
+    return Starter.start(playId, guice);
   }
 
   public static void main(String[] args) {

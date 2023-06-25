@@ -1,15 +1,11 @@
-import play.Play
-import play.server.Server
+import play.server.Starter
 
 object HelloWorldKotlinApp {
   @JvmStatic
   fun main(args: Array<String>) {
-    val play = Play()
-    play.init("prod")
-    play.start()
-    Server(play).start()
-    println("Try: http://localhost:" + Server.httpPort)
-    println("Try: http://localhost:" + Server.httpPort + "/public/hello_world.txt")
+    val port = Starter.start("prod")
+    println("Try: http://localhost:$port")
+    println("Try: http://localhost:$port/public/hello_world.txt")
     println()
   }
 }
