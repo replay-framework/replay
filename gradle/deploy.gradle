@@ -1,3 +1,5 @@
+apply plugin: 'maven-publish'
+
 jar {
   manifest {
     attributes(
@@ -8,7 +10,8 @@ jar {
   }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
   classifier = 'sources'
   from sourceSets.main.allSource
 }
@@ -19,71 +22,73 @@ javadoc {
   source = sourceSets.main.allJava
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+  dependsOn javadoc
   classifier = 'javadoc'
   from javadoc.destinationDir
 }
 
 if (project.hasProperty("signing.keyId")) {
   apply plugin: 'signing'
-  apply plugin: 'maven-publish'
 
   signing {
     afterEvaluate {
       sign publishing.publications.mavenJava
     }
   }
+}
 
-  artifacts {
-    archives jar
-    archives sourcesJar
-    archives javadocJar
-  }
+artifacts {
+  archives jar
+  archives sourcesJar
+  archives javadocJar
+}
 
-  publishing {
+publishing {
+  if (project.hasProperty("sonatypeUsername")) {
     repositories {
       maven {
         name 'Maven'
         url project.version.endsWith("-SNAPSHOT") ?
-            'https://oss.sonatype.org/content/repositories/snapshots/' :
-            'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+          'https://oss.sonatype.org/content/repositories/snapshots/' :
+          'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
         credentials {
           username "$sonatypeUsername"
           password "$sonatypePassword"
         }
       }
     }
+  }
 
-    publications {
-      mavenJava(MavenPublication) {
-        groupId "${project.group}"
-        artifactId "${project.name}"
+  publications {
+    mavenJava(MavenPublication) {
+      groupId "${project.group}"
+      artifactId "${project.name}"
 
-        from components.java
-        artifact(sourcesJar)
-        artifact(javadocJar)
+      from components.java
+      artifact(sourcesJar)
+      artifact(javadocJar)
 
-        pom {
-          name = archivesBaseName
-          description = 'RePlay is a fork of the Play1 framework, made and maintained by Codeborne.'
+      pom {
+        name = archivesBaseName
+        description = 'RePlay is a fork of the Play1 framework, made and maintained by Codeborne.'
+        url = 'https://github.com/codeborne/replay'
+        licenses {
+          license {
+            name = 'MIT'
+            url = 'https://opensource.org/licenses/MIT'
+          }
+        }
+        developers {
+          developer {
+            id = 'asolntsev'
+            name = 'Andrei Solntsev'
+          }
+        }
+        scm {
+          connection = 'scm:git@github.com:codeborne/replay.git'
+          developerConnection = 'scm:git@github.com:codeborne/replay.git'
           url = 'https://github.com/codeborne/replay'
-          licenses {
-            license {
-              name = 'MIT'
-              url = 'https://opensource.org/licenses/MIT'
-            }
-          }
-          developers {
-            developer {
-              id = 'asolntsev'
-              name = 'Andrei Solntsev'
-            }
-          }
-          scm {
-            connection = 'scm:git@github.com:codeborne/replay.git'
-            developerConnection = 'scm:git@github.com:codeborne/replay.git'
-            url = 'https://github.com/codeborne/replay'
-          }
         }
       }
     }
