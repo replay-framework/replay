@@ -65,9 +65,9 @@ public class Mail {
      * Through this method you can substitute the current MailSystem. This is especially helpful for testing purposes
      * like using mock libraries.
      *
-     * @author Andreas Simon &lt;a.simon@quagilis.de&gt;
-     * @param mailSystem
-     *            The mailSystem to use
+     * Author: Andreas Simon &lt;a.simon@quagilis.de&gt;
+     * 
+     * @param mailSystem The mailSystem to use
      * @see MailSystem
      */
     public static void useMailSystem(MailSystem mailSystem) {
