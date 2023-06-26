@@ -16,9 +16,10 @@ tasks.register('sourcesJar', Jar) {
   from sourceSets.main.allSource
 }
 
-javadoc {
+tasks.withType(Javadoc).configureEach {
   failOnError = false
   options.encoding = 'UTF-8'
+  options.addStringOption('Xdoclint:none', '-quiet')
   source = sourceSets.main.allJava
 }
 
