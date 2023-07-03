@@ -322,6 +322,9 @@ public abstract class Binder {
     private static void internalBindBean(Http.Request request, Session session, ParamNode paramNode, Object bean, BindingAnnotations bindingAnnotations) {
 
         BeanWrapper bw = getBeanWrapper(bean.getClass());
+        if (bw == null) {
+            throw new RuntimeException(String.format("No BeanWrapper for '%s'", bean.getClass().getSimpleName()));
+        }
         for (BeanWrapper.Property prop : bw.getWrappers()) {
             ParamNode propParamNode = paramNode.getChild(prop.getName());
             if (propParamNode != null) {
