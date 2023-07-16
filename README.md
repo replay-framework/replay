@@ -1,4 +1,12 @@
 # The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codeborne.replay/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/com.codeborne.replay/framework)
+```
+    ______  ______                 _            _
+   /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
+  /     / /     /  | '_ / -_) '_ \| |/ _' | || |_|
+ /     / /     /   |_/  \___|  __/|_|\____|\__ (_)
+/_____/ /_____/             |_|            |__/
+                   RePlay Framework, https://github.com/codeborne/replay
+```
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
@@ -144,6 +152,7 @@ The RePlay project comes with the following plugins:
 In Play1 this is available as a community plugin.
 * `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
 * `play.modules.logger.RequestLogPlugin` — logs every request with response type+status
+* `play.modules.logger.RePlayLogoPlugin` — Shows the RePlay logo at application startup
 * `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
 * `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken`
 to mitigate [CSRF attacks](https://en.wikipedia.org/wiki/Cross-site_request_forgery).
