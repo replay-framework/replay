@@ -3,8 +3,8 @@ package play.mvc;
 /**
  * Marker interface for play controllers
  * 
- * This is the class that your controllers should implement.
- * In most cases, you can extend play.mvc.Controller that contains all needed methods for controllers.
+ * This is the class that your controllers should implement when they need very few capabilities..
+ * In most cases, you can extend {@link play.mvc.Controller} which provides a basic set of features for controllers.
  */
 public interface PlayController {
 }
