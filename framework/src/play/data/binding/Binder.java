@@ -323,7 +323,7 @@ public abstract class Binder {
 
         BeanWrapper bw = getBeanWrapper(bean.getClass());
         if (bw == null) {
-            throw new RuntimeException(String.format("No BeanWrapper for '%s'", bean.getClass().getSimpleName()));
+            throw new RuntimeException(String.format("No BeanWrapper for '%s'", bean.getClass().getName()));
         }
         for (BeanWrapper.Property prop : bw.getWrappers()) {
             ParamNode propParamNode = paramNode.getChild(prop.getName());
