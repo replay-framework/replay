@@ -130,7 +130,7 @@ public class ActionInvoker {
                 // Check the cache (only for GET or HEAD)
                 if ((request.method.equals("GET") || request.method.equals("HEAD")) && actionMethod.isAnnotationPresent(CacheFor.class)) {
                     cacheKey = actionMethod.getAnnotation(CacheFor.class).id();
-                    if ("".equals(cacheKey)) {
+                    if (cacheKey != null && cacheKey.isEmpty()) {
                         cacheKey = "urlcache:" + request.path + '?' + request.querystring;
                     }
                     actionResult = Cache.get(cacheKey);
@@ -183,9 +183,9 @@ public class ActionInvoker {
     }
 
     private PlayController createController(ActionContext context) {
-        PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
-        if (controller instanceof Controller) {
-          ((Controller) controller).setContext(context);
+        PlayController controller = Play.beanSource.getBeanOfType(context.request.controllerClass);
+        if (controller instanceof PlayContextController) {
+          ((PlayContextController) controller).setContext(context);
         }
         return controller;
     }
@@ -403,7 +403,6 @@ public class ActionInvoker {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static void inferResult(Object o) {
         // Return type inference
         if (o != null) {
@@ -439,7 +438,7 @@ public class ActionInvoker {
 
         Object methodClassInstance = isStatic ? null :
            (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
-                Injector.getBeanOfType(method.getDeclaringClass());
+                Play.beanSource.getBeanOfType(method.getDeclaringClass());
 
         return invoke(method, methodClassInstance, args);
     }
@@ -468,8 +467,8 @@ public class ActionInvoker {
             if (!fullAction.startsWith("controllers.")) {
                 fullAction = "controllers." + fullAction;
             }
-            String controller = fullAction.substring(0, fullAction.lastIndexOf("."));
-            String action = fullAction.substring(fullAction.lastIndexOf(".") + 1);
+            String controller = fullAction.substring(0, fullAction.lastIndexOf('.'));
+            String action = fullAction.substring(fullAction.lastIndexOf('.') + 1);
             controllerClass = Play.classes.getClassIgnoreCase(controller);
             if (controllerClass == null) {
                 throw new ActionNotFoundException(fullAction, new Exception("Controller " + controller + " not found"));
