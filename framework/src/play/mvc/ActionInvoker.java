@@ -183,7 +183,7 @@ public class ActionInvoker {
     }
 
     private PlayController createController(ActionContext context) {
-        PlayController controller = Play.beanSource.getBeanOfType(context.request.controllerClass);
+        PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
         if (controller instanceof PlayContextController) {
           ((PlayContextController) controller).setContext(context);
         }
@@ -438,7 +438,7 @@ public class ActionInvoker {
 
         Object methodClassInstance = isStatic ? null :
            (method.getDeclaringClass().isAssignableFrom(request.controllerClass)) ? request.controllerInstance :
-                Play.beanSource.getBeanOfType(method.getDeclaringClass());
+                Injector.getBeanOfType(method.getDeclaringClass());
 
         return invoke(method, methodClassInstance, args);
     }
