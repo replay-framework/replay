@@ -1,6 +1,9 @@
 package play.rebel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.validation.Validation;
+import play.exceptions.TemplateNotFoundException;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
@@ -9,6 +12,7 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.TemplateNameResolver;
+import play.mvc.results.BadRequest;
 import play.mvc.results.Result;
 import play.templates.Template;
 import play.templates.TemplateLoader;
@@ -26,6 +30,8 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * 200 OK with a template rendering
  */
 public class View extends Result {
+  private static final Logger logger = LoggerFactory.getLogger(View.class);
+
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
   private final String templateName;
@@ -50,8 +56,14 @@ public class View extends Result {
   public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     try {
       renderView(request, response, session, renderArgs, flash);
-    }
-    catch (IOException e) {
+    } catch (TemplateNotFoundException e) {
+      final String message = String.format(
+          "Incorrect combination of path '%s' and mimetype '%s'",
+          request.path,
+          request.headers.get("accept"));
+      logger.warn(message);
+      throw new BadRequest(message);
+    } catch (IOException e) {
       throw new UnexpectedException(e);
     }
   }
@@ -79,7 +91,7 @@ public class View extends Result {
   private Template resolveTemplate() {
     return TemplateLoader.load(templateNameResolver.resolveTemplateName(templateName));
   }
-  
+
   public String getName() {
     return templateName;
   }
@@ -107,7 +119,7 @@ public class View extends Result {
 
   @Override
   public boolean isRenderingTemplate() {
-      return true;
+    return true;
   }
 
   @Override

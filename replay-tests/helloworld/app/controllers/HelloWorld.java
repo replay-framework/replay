@@ -39,4 +39,8 @@ public class HelloWorld extends Controller {
     return new PdfResult("@hello")
       .with("who", "Request format");
   }
+
+  public View noTxt() {
+    return viewResult();
+  }
 }

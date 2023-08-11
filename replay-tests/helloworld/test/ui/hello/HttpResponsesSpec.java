@@ -1,5 +1,6 @@
 package ui.hello;
 
+import io.restassured.RestAssured;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 public class HttpResponsesSpec extends BaseSpec {
-  
+
   @RepeatedTest(100)
   public void openStaticFile() {
     when().
@@ -116,4 +117,12 @@ public class HttpResponsesSpec extends BaseSpec {
     );
   }
 
+  @Test
+  public void badRequestForIncorrectContentType() {
+    RestAssured.given()
+      .contentType("text/plain\r\n")
+      .get("/no-txt")
+      .then()
+      .statusCode(400);
+  }
 }
