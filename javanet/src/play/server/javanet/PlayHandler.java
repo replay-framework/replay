@@ -28,7 +28,6 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
@@ -179,7 +178,7 @@ public class PlayHandler implements HttpHandler {
         error.append(":");
         String size;
         try {
-          size = JavaExtensions.formatSize(Long.parseLong(length));
+          size = Utils.formatSize(Long.parseLong(length));
         } catch (Exception e) {
           size = length + " bytes";
         }
@@ -518,13 +517,13 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serve404: begin");
     String format = defaultString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
-    String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
-    printResponse(exchange, NOT_FOUND, contentType, errorHtml);
+    String errorBody = serverHelper.generateErrorResponse(request, format, e, Play.defaultWebEncoding);
+    printResponse(exchange, NOT_FOUND, contentType, errorBody);
     logger.trace("serve404: end");
   }
 
-  private void printResponse(HttpExchange exchange, int httpStatus, String contentType, String errorHtml) throws IOException {
-    byte[] bytes = errorHtml.getBytes(Play.defaultWebEncoding);
+  private void printResponse(HttpExchange exchange, int httpStatus, String contentType, String errorBody) throws IOException {
+    byte[] bytes = errorBody.getBytes(Play.defaultWebEncoding);
     exchange.getResponseHeaders().set(CONTENT_TYPE, contentType);
     exchange.sendResponseHeaders(httpStatus, bytes.length);
     try (OutputStream out = exchange.getResponseBody()) {
@@ -543,7 +542,7 @@ public class PlayHandler implements HttpHandler {
       String contentType = MimeTypes.getContentType("500." + format, "text/plain");
 
       try {
-        String errorHtml = serverHelper.generateErrorResponse(request, format, e);
+        String errorHtml = serverHelper.generateErrorResponse(request, format, e, Play.defaultWebEncoding);
         printResponse(exchange, INTERNAL_ERROR, contentType, errorHtml);
         logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
       }

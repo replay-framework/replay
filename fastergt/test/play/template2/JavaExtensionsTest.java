@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import org.codehaus.groovy.runtime.NullObject;
 import org.junit.jupiter.api.AfterAll;

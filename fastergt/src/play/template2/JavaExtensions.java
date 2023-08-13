@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
@@ -11,6 +11,7 @@ import play.i18n.Messages;
 import play.libs.I18N;
 import play.mvc.Http;
 import play.templates.BaseTemplate.RawData;
+import play.templates.JavaScriptEscaper;
 import play.utils.HTML;
 
 import java.io.PrintWriter;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import play.utils.Utils;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
 
@@ -256,16 +258,7 @@ public class JavaExtensions {
     }
 
     public static String formatSize(Long bytes) {
-        if (bytes < 1024L) {
-            return bytes + " B";
-        }
-        if (bytes < 1048576L) {
-            return bytes / 1024L + "KB";
-        }
-        if (bytes < 1073741824L) {
-            return bytes / 1048576L + "MB";
-        }
-        return bytes / 1073741824L + "GB";
+        return Utils.formatSize(bytes);
     }
 
     public static String formatCurrency(Number number, String currencyCode) {
@@ -396,7 +389,7 @@ public class JavaExtensions {
     }
 
     public static String yesno(Object o, String[] values) {
-        boolean value = play.templates.FastTags._evaluateCondition(o);
+        boolean value = FastTags._evaluateCondition(o);
         if (value) {
             return values[0];
         }

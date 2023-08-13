@@ -36,7 +36,7 @@ public abstract class Template {
      *            List of arguments use in render
      * @return The template result as string
      */
-    protected abstract String internalRender(Map<String, Object> args);
+    public abstract String internalRender(Map<String, Object> args);
 
     public String render() {
         return internalRender(new HashMap<String, Object>());

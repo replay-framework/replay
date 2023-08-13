@@ -6,7 +6,7 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
-public class HelloWorldSpec extends BaseSpec {
+public class HelloWorldSpec extends TemplateErrorHandlerBaseSpec {
   @Test
   public void openHelloWorldPage() {
     open("/");

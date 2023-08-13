@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import java.util.HashMap;
 import java.util.Map;

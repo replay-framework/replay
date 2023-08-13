@@ -9,7 +9,7 @@ import java.net.URL;
 
 import static com.codeborne.pdftest.assertj.Assertions.assertThat;
 
-public class HelloPdfWorldSpec extends BaseSpec {
+public class HelloPdfWorldSpec extends TemplateErrorHandlerBaseSpec {
   @Test
   public void downloadHelloWorldPdf() throws IOException {
     PDF pdf = new PDF(new URL(Configuration.baseUrl + "/pdf"));

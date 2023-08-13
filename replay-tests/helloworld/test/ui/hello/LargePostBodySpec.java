@@ -10,7 +10,7 @@ import play.libs.ws.WSAsync;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LargePostBodySpec extends BaseSpec {
+public class LargePostBodySpec extends TemplateErrorHandlerBaseSpec {
 
   @Test
   public void exerciseFileChannelBufferWithLargePostBody() {

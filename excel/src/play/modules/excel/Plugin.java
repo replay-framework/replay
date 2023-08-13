@@ -137,7 +137,7 @@ public class Plugin extends PlayPlugin {
         }
 
         @Override
-        protected String internalRender(Map<String, Object> args) {
+        public String internalRender(Map<String, Object> args) {
             throw null == r_ ? new RenderExcel(file, args) : r_;
         }
     }

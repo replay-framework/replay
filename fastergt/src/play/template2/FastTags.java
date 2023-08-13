@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
@@ -14,7 +14,10 @@ import play.mvc.Http;
 import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
+import play.templates.BaseTemplate;
 import play.templates.BaseTemplate.RawData;
+import play.templates.Template;
+import play.templates.TemplateLoader;
 import play.utils.UuidGenerator;
 
 import javax.annotation.Nullable;

@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class HttpResponsesSpec extends BaseSpec {
+public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
   
   @RepeatedTest(100)
   public void openStaticFile() {
@@ -81,9 +81,9 @@ public class HttpResponsesSpec extends BaseSpec {
       statusCode(404).
       contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
-      IOUtils.toString(requireNonNull(getClass().getResourceAsStream("not-found.html")), UTF_8)
+      IOUtils.toString(requireNonNull(getClass().getResourceAsStream("not-found-template.html")), UTF_8)
     );
-    response.then().header("Content-Length", Integer::parseInt, equalTo(467));
+    response.then().header("Content-Length", Integer::parseInt, equalTo(283));
   }
 
   @Test
@@ -116,4 +116,15 @@ public class HttpResponsesSpec extends BaseSpec {
     );
   }
 
+  @Test
+  public void notFound() {
+    Response response = when().
+        get("/non-existing-path");
+    response.
+        then().
+        log().ifValidationFails(LogDetail.ALL).
+        statusCode(404).
+        header("Content-Length", Integer::parseInt, equalTo(480)).
+        contentType("text/html");
+  }
 }

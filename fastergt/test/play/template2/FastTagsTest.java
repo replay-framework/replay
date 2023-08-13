@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import groovy.lang.Closure;
 import org.junit.jupiter.api.AfterEach;
