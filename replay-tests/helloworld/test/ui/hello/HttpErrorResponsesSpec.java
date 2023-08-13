@@ -105,7 +105,7 @@ public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
         .header("Content-Length", Integer::parseInt, equalTo(242))
         .contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
-        IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error.html")),
+        IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error-simple.html")),
             UTF_8));
   }
 

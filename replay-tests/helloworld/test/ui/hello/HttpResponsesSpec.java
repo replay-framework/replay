@@ -43,7 +43,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(404).
-      header("Content-Length", Integer::parseInt, equalTo(511)).
+      header("Content-Length", Integer::parseInt, equalTo(327)).
       header("Cache-Control", nullValue()).
       header("accept-ranges", nullValue()).
       header("Last-Modified", nullValue()).
@@ -94,7 +94,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(400).
-      header("Content-Length", Integer::parseInt, equalTo(45)).
+      header("Content-Length", Integer::parseInt, equalTo(212)).
       contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
       "<h1>[validation.invalid, validation.min]</h1>"
@@ -109,10 +109,10 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(500).
-      header("Content-Length", Integer::parseInt, equalTo(267)).
+      header("Content-Length", Integer::parseInt, equalTo(242)).
       contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
-      IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error.html")), UTF_8)
+      IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error-template.html")), UTF_8)
     );
   }
 
@@ -124,7 +124,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
         then().
         log().ifValidationFails(LogDetail.ALL).
         statusCode(404).
-        header("Content-Length", Integer::parseInt, equalTo(480)).
+        header("Content-Length", Integer::parseInt, equalTo(296)).
         contentType("text/html");
   }
 }
