@@ -13,7 +13,7 @@ import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
 import play.exceptions.UnexpectedException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

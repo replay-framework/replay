@@ -3,7 +3,7 @@ package model;
 import play.db.jpa.JPA;
 
 import javax.inject.Singleton;
-import javax.persistence.Query;
+import jakarta.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 

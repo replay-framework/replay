@@ -3,7 +3,7 @@ package play.db;
 import play.db.jpa.JPAModelLoader;
 import play.exceptions.UnexpectedException;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;

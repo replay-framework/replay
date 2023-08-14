@@ -7,7 +7,7 @@ import play.db.DB;
 import play.exceptions.JPAException;
 import play.libs.SupplierWithException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
