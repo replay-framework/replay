@@ -8,7 +8,7 @@ ext {
   assertjVersion = '3.24.2'
   mockitoVersion = '5.4.0'
   pdfTestVersion = '1.8.1'
-  groovyVersion = '3.0.18'
+  groovyVersion = '3.0.19'
   httpclientVersion = '4.5.14'
   restAssuredVersion = '5.3.1'
   junitVersion = '5.10.0'
