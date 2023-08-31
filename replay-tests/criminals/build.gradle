@@ -7,7 +7,7 @@ dependencies {
 
   testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
   testImplementation('org.subethamail:subethasmtp:3.1.7') {transitive = false}
-  testImplementation('com.github.tomakehurst:wiremock:2.27.2') {
+  testImplementation('com.github.tomakehurst:wiremock:3.0.0') {
     exclude group: 'net.minidev'
     exclude group: 'org.eclipse.jetty', module: 'jetty-client'
   }
