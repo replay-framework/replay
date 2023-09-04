@@ -32,12 +32,12 @@ dependencies {
   javanetTestClasspath project(':javanet')
 
   // Test dependencies:
-  testImplementation('com.codeborne:selenide:6.15.0') {
+  testImplementation('com.codeborne:selenide:6.17.2') {
     exclude group: 'io.netty'
     exclude group: 'io.opentelemetry'
     exclude group: 'org.asynchttpclient'
   }
-  testImplementation('org.seleniumhq.selenium:selenium-http-jdk-client:4.9.1')
+  testImplementation('org.seleniumhq.selenium:selenium-http-jdk-client:4.12.1')
 }
 
 test {
