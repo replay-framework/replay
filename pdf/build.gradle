@@ -4,7 +4,7 @@ configurations {
 }
 
 ext {
-  FLYING_SOURCER_VERSION = '9.2.1'
+  FLYING_SOURCER_VERSION = '9.2.2'
   YAHP_VERSION = 1.3
 }
 
