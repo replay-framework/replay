@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="hello world" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="HelloWorldApp" />
+    <option name="MAIN_CLASS_NAME" value="main.HelloWorldApp" />
     <module name="replay.replay-tests.helloworld.main" />
     <option name="VM_PARAMETERS" value="-ea" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/replay-tests/helloworld" />

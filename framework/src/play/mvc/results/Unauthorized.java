@@ -10,12 +10,12 @@ import play.mvc.Scope.Session;
 /**
  * 401 Unauthorized
  */
-public class Unauthorized extends Result {
+public class Unauthorized extends Error {
     
     private final String realm;
     
     public Unauthorized(String realm) {
-        super(realm);
+        super(Http.StatusCode.UNAUTHORIZED, realm);
         this.realm = realm;
     }
 

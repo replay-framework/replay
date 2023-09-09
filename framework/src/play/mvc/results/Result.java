@@ -12,8 +12,7 @@ import play.utils.FastRuntimeException;
  */
 public abstract class Result extends FastRuntimeException {
 
-    protected Result() {
-    }
+    protected Result() {}
 
     protected Result(String description) {
         super(description);

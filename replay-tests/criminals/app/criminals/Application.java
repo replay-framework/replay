@@ -1,6 +1,9 @@
 package criminals;
 
+import play.PropertiesConfLoader;
+import play.TemplateErrorHandler;
 import play.modules.guice.GuiceBeanSource;
+import play.mvc.CookieSessionStore;
 import play.server.Starter;
 
 import javax.annotation.Nullable;
@@ -19,7 +22,7 @@ public class Application {
       configuration.setProperty("criminal-records.service.url", criminalRecordsServiceUrl);
     }
     GuiceBeanSource guice = new GuiceBeanSource(new Module(configuration));
-    return Starter.start(playId, guice);
+    return Starter.start(playId, new PropertiesConfLoader(), guice, new CookieSessionStore(), new TemplateErrorHandler());
   }
 
   public static void main(String[] args) {

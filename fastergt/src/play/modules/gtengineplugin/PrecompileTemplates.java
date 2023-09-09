@@ -67,7 +67,7 @@ public class PrecompileTemplates {
     @Override public void compile() {
     }
 
-    @Override protected String internalRender(Map<String, Object> args) {
+    @Override public String internalRender(Map<String, Object> args) {
       throw new UnsupportedOperationException();
     }
   }

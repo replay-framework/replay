@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-
-<html>
+<!doctype html>
+<html lang="en">
     <head>
         <title>Application error</title>
         <meta http-equiv="Content-Type" content="text/html; charset=${_response_encoding}"/>
     </head>
     <body>
-        #{if play.mode.name() == 'DEV'}
+        #{if play.Play.mode.isDev()}
             #{500 exception /}
         #{/if}
         #{else}

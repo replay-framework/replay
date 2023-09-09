@@ -1,31 +1,9 @@
 package play;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.cache.Cache;
-import play.classloading.ApplicationClasses;
-import play.inject.BeanSource;
-import play.inject.DefaultBeanSource;
-import play.inject.Injector;
-import play.jobs.Job;
-import play.libs.IO;
-import play.mvc.ActionInvoker;
-import play.mvc.CookieSessionStore;
-import play.mvc.PlayController;
-import play.mvc.Router;
-import play.mvc.SessionStore;
-import play.plugins.PluginCollection;
-import play.templates.FastTags;
-import play.templates.JavaExtensions;
-import play.templates.TemplateLoader;
-import play.vfs.VirtualFile;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import javax.annotation.Nullable;
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.cache.Cache;
+import play.classloading.ApplicationClasses;
+import play.inject.BeanSource;
+import play.inject.DefaultBeanSource;
+import play.inject.Injector;
+import play.libs.IO;
+import play.mvc.ActionInvoker;
+import play.mvc.CookieSessionStore;
+import play.mvc.Router;
+import play.mvc.SessionStore;
+import play.plugins.PluginCollection;
+import play.templates.TemplateLoader;
+import play.vfs.VirtualFile;
 
 /**
  * Main framework class
@@ -130,6 +122,8 @@ public class Play {
 
   private final ActionInvoker actionInvoker;
 
+  public static ErrorHandler errorHandler;
+
   public Play() {
     this(new DefaultBeanSource());
   }
@@ -140,6 +134,13 @@ public class Play {
 
   public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
     Play.beanSource = beanSource;
+    this.confLoader = confLoader;
+    this.actionInvoker = new ActionInvoker(sessionStore);
+  }
+
+  public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore, ErrorHandler errorHandler) {
+    Play.beanSource = beanSource;
+    Play.errorHandler = errorHandler;
     this.confLoader = confLoader;
     this.actionInvoker = new ActionInvoker(sessionStore);
   }
@@ -278,7 +279,6 @@ public class Play {
       Router.detectChanges();
       Cache.init();
       pluginCollection.onApplicationStart();
-      injectStaticFields();
 
       started = true;
       startedAt = System.currentTimeMillis();
@@ -290,41 +290,6 @@ public class Play {
       stop();
       started = false;
       throw e;
-    }
-  }
-
-  private void injectStaticFields() {
-    injectStaticFields(Play.classes.getAssignableClasses(PlayController.class));
-    injectStaticFields(Play.classes.getAssignableClasses(Job.class));
-    injectStaticFields(Play.classes.getAssignableClasses(FastTags.class));
-    injectStaticFields(Play.classes.getAssignableClasses(JavaExtensions.class));
-  }
-
-  private <T> void injectStaticFields(List<Class<? extends T>> classes) {
-    for (Class<?> clazz : classes) {
-      injectStaticFields(clazz);
-    }
-  }
-
-  private void injectStaticFields(Class<?> clazz) {
-    for (Field field : clazz.getDeclaredFields()) {
-      if (isStaticInjectable(field)) {
-        inject(field);
-      }
-    }
-  }
-
-  private boolean isStaticInjectable(Field field) {
-    return Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(Inject.class);
-  }
-
-  private void inject(Field field) {
-    field.setAccessible(true);
-    try {
-      field.set(null, beanSource.getBeanOfType(field.getType()));
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
     }
   }
 

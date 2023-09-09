@@ -1,12 +1,10 @@
 package play.server;
 
+import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.data.validation.Validation;
 import play.mvc.Http;
-import play.mvc.results.NotFound;
-import play.templates.TemplateLoader;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
@@ -16,8 +14,6 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.google.common.net.HttpHeaders.KEEP_ALIVE;
@@ -70,35 +66,8 @@ public class ServerHelper {
 
   @Nonnull
   @CheckReturnValue
-  public String generateNotFoundResponse(Http.Request request, String format, NotFound e) {
-    return TemplateLoader.load("errors/404." + format).render(getBindingForErrors(request, e, false));
-  }
-
-  @Nonnull
-  @CheckReturnValue
-  public String generateErrorResponse(Http.Request request, String format, Exception e) {
-    return TemplateLoader.load("errors/500." + format).render(getBindingForErrors(request, e, true));
-  }
-
-  @Nonnull
-  @CheckReturnValue
-  private Map<String, Object> getBindingForErrors(Http.Request request, Exception e, boolean isError) {
-    Map<String, Object> binding = new HashMap<>(4);
-    if (isError) {
-      binding.put("exception", e);
-    }
-    else {
-      binding.put("result", e);
-    }
-    binding.put("request", request);
-    binding.put("play", new Play());
-    try {
-      binding.put("errors", Validation.errors());
-    } catch (Exception ex) {
-      logger.error("Error when getting Validation errors", ex);
-    }
-
-    return binding;
+  public String generateErrorResponse(Http.Request request, String format, Exception e, Charset encoding) {
+    return Play.errorHandler.frameworkErrorResponse(request, format, e, encoding);
   }
 
   public String getContentTypeValue(Http.Response response) {

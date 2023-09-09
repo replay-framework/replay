@@ -4,11 +4,11 @@ import com.codeborne.selenide.Configuration;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import play.Play;
-import play.server.Starter;
+import main.HelloWorldApp;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class BaseSpec {
+public class TemplateErrorHandlerBaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);
 
   @BeforeEach
@@ -21,7 +21,7 @@ public class BaseSpec {
   private static synchronized void startApp() {
     if (appStarted.get()) return;
 
-    int port = Starter.start("test");
+    int port = HelloWorldApp.startWithTemplateErrorHandler("test");
 
     Configuration.baseUrl = "http://localhost:" + port;
     Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);

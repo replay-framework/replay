@@ -1,4 +1,4 @@
-package play.templates;
+package play.template2;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
@@ -11,6 +11,8 @@ import play.i18n.Messages;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
 import play.mvc.Router;
+import play.templates.BaseTemplate;
+import play.templates.TemplateLoader;
 import play.utils.HTML;
 import play.utils.Java;
 

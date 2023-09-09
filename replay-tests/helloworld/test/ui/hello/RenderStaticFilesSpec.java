@@ -16,7 +16,7 @@ import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RenderStaticFilesSpec extends BaseSpec {
+public class RenderStaticFilesSpec extends TemplateErrorHandlerBaseSpec {
   @Test
   public void loadsBigImages() {
     open("/");
