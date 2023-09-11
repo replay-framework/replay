@@ -12,7 +12,7 @@ jar {
 
 tasks.register('sourcesJar', Jar) {
   dependsOn classes
-  classifier = 'sources'
+  archiveClassifier = 'sources'
   from sourceSets.main.allSource
 }
 
@@ -25,7 +25,7 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.register('javadocJar', Jar) {
   dependsOn javadoc
-  classifier = 'javadoc'
+  archiveClassifier = 'javadoc'
   from javadoc.destinationDir
 }
 
