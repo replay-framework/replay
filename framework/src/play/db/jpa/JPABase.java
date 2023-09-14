@@ -96,7 +96,7 @@ public class JPABase implements Serializable, play.db.Model {
 
     // ~~~ SAVING
     public transient boolean willBeSaved;
-    static final transient ThreadLocal<Set<JPABase>> avoidCascadeSaveLoops = new ThreadLocal<>();
+    private static final ThreadLocal<Set<JPABase>> avoidCascadeSaveLoops = new ThreadLocal<>();
 
     private void saveAndCascade(boolean willBeSaved) {
         this.willBeSaved = willBeSaved;
@@ -137,7 +137,7 @@ public class JPABase implements Serializable, play.db.Model {
                         if (value instanceof PersistentMap) {
                             if (((PersistentMap) value).wasInitialized()) {
 
-                                cascadeOrphans(this, (PersistentCollection) value, willBeSaved);
+                                cascadeOrphans((PersistentCollection) value, willBeSaved);
 
                                 for (Object o : ((Map) value).values()) {
                                     saveAndCascadeIfJPABase(o, willBeSaved);
@@ -147,13 +147,13 @@ public class JPABase implements Serializable, play.db.Model {
                             PersistentCollection col = (PersistentCollection) value;
                             if (((PersistentCollection) value).wasInitialized()) {
 
-                                cascadeOrphans(this, (PersistentCollection) value, willBeSaved);
+                                cascadeOrphans((PersistentCollection) value, willBeSaved);
 
                                 for (Object o : (Collection) value) {
                                     saveAndCascadeIfJPABase(o, willBeSaved);
                                 }
                             } else {
-                                cascadeOrphans(this, col, willBeSaved);
+                                cascadeOrphans(col, willBeSaved);
 
                                 for (Object o : (Collection) value) {
                                     saveAndCascadeIfJPABase(o, willBeSaved);
@@ -179,10 +179,10 @@ public class JPABase implements Serializable, play.db.Model {
         }
     }
 
-    private void cascadeOrphans(JPABase base, PersistentCollection persistentCollection, boolean willBeSaved) {
+    private void cascadeOrphans(PersistentCollection persistentCollection, boolean willBeSaved) {
         String dbName = JPA.getDBName(this.getClass());
 
-        SessionImpl session = ((SessionImpl) JPA.em(dbName).getDelegate());
+        SessionImpl session = JPA.em(dbName).unwrap(SessionImpl.class);
         PersistenceContext pc = session.getPersistenceContext();
         CollectionEntry ce = pc.getCollectionEntry(persistentCollection);
 
@@ -191,10 +191,9 @@ public class JPABase implements Serializable, play.db.Model {
             if (cp != null) {
                 Type ct = cp.getElementType();
                 if (ct instanceof EntityType) {
-                    EntityEntry entry = pc.getEntry(base);
                     String entityName = ((EntityType) ct).getAssociatedEntityName(session.getFactory());
                     if (ce.getSnapshot() != null) {
-                        Collection orphans = ce.getOrphans(entityName, persistentCollection);
+                        Collection<?> orphans = ce.getOrphans(entityName, persistentCollection);
                         for (Object o : orphans) {
                             saveAndCascadeIfJPABase(o, willBeSaved);
                         }
@@ -294,16 +293,19 @@ public class JPABase implements Serializable, play.db.Model {
     @Override
     public String toString() {
         Object key = this._key();
-        String keyStr = "";
+        StringBuilder keyStr = new StringBuilder(64)
+          .append(getClass().getSimpleName())
+          .append("[");
         if (key != null && key.getClass().isArray()) {
             for (Object object : (Object[]) key) {
-                keyStr += object.toString() + ", ";
+                keyStr.append(object).append(", ");
             }
-            keyStr = keyStr.substring(0, keyStr.length() - 2);
+            keyStr.setLength(keyStr.length() - 2);
         } else if (key != null) {
-            keyStr = key.toString();
+            keyStr.append(key);
         }
-        return getClass().getSimpleName() + "[" + keyStr + "]";
+        keyStr.append("]");
+        return keyStr.toString();
     }
 
     public static class JPAQueryException extends RuntimeException {
