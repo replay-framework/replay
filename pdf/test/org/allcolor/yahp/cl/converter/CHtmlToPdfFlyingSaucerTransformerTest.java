@@ -53,20 +53,28 @@ public class CHtmlToPdfFlyingSaucerTransformerTest {
 
   @Test
   void extractsWidthAndHeight() {
-    assertThat(transformer.transformStyle(""))
+    assertThat(transformer.transformSelectStyle(""))
       .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;");
 
-    assertThat(transformer.transformStyle("width: 200px;"))
-      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;");
+    assertThat(transformer.transformSelectStyle("width: 200px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;");
 
-    assertThat(transformer.transformStyle("height: 100px;"))
-      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;height: : 100px;");
+    assertThat(transformer.transformSelectStyle("height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;height: 100px;");
 
-    assertThat(transformer.transformStyle("width: 200px; height: 100px;"))
-      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;height: : 100px;");
+    assertThat(transformer.transformSelectStyle("width: 200px; height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;height: 100px;");
 
-    assertThat(transformer.transformStyle("border: 1px; width: 200px; height: 100px; position: absolute;"))
-      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;height: : 100px;");
+    assertThat(transformer.transformSelectStyle("border: 1px; width: 200px; height: 100px; position: absolute;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;height: 100px;");
   }
 
+  @Test
+  void parseCssProperty() {
+    assertThat(transformer.parseCssProperty("", "width")).isNull();
+    assertThat(transformer.parseCssProperty("disabled", "disabled")).isEqualTo("");
+    assertThat(transformer.parseCssProperty("width: 12px", "width")).isEqualTo("12px");
+    assertThat(transformer.parseCssProperty("width: 12px; height 3px;", "width")).isEqualTo("12px");
+    assertThat(transformer.parseCssProperty("top: 0px; width: 12px; height 3px;", "width")).isEqualTo("12px");
+  }
 }
