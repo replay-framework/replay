@@ -2,6 +2,7 @@ package org.allcolor.yahp.cl.converter;
 
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
+import java.nio.file.Files;
 import org.allcolor.xml.parser.CShaniDomParser;
 import org.allcolor.xml.parser.dom.ADocument;
 import org.allcolor.yahp.cl.converter.CDocumentCut.DocumentAndSize;
@@ -9,25 +10,12 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.nio.file.Files;
+import java.io.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNullElse;
 
 /**
  * This class transform a html document in a PDF.
@@ -102,7 +91,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
       final Node node = select.getParentNode();
       final NodeList options = select.getElementsByTagName("option");
       final String style = select.getAttribute("style");
-      String styleAttribute = transformStyle(style);
+      String styleAttribute = transformSelectStyle(style);
       if (size > 1) {
         final Element span = doc.createElement("span");
         span.setAttribute("style", styleAttribute);
@@ -131,32 +120,29 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     }
   }
 
+  @Nullable
+  String parseCssProperty(String style, String property) {
+    if (style.contains(property)) {
+      String s = style.substring(style.indexOf(property) + property.length());
+      if (s.indexOf(':') != -1) {
+        s = s.substring(s.indexOf(':') + 1);
+      }
+      if (s.indexOf(';') != -1) {
+        s = s.substring(0, s.indexOf(';'));
+      }
+      return s.trim();
+    }
+    return null;
+  }
+
   @Nonnull
-  String transformStyle(String style) {
-    String width = null;
-    String height = null;
-    if (style.contains("width")) {
-      width = style.substring(style.indexOf("width") + 5);
-      if (width.indexOf(':') != -1) {
-        width = width.substring(width.indexOf(':'));
-      }
-      if (width.indexOf(';') != -1) {
-        width = width.substring(0, width.indexOf(';'));
-      }
-    }
-    if (width == null) {
-      width = "50px";
-    }
-    if (style.contains("height")) {
-      height = style.substring(style.indexOf("height") + 6);
-      if (height.indexOf(':') != -1) {
-        height = height.substring(height.indexOf(':'));
-      }
-      if (height.indexOf(';') != -1) {
-        height = height.substring(0, height.indexOf(';'));
-      }
-    }
-    return "display: inline-block;border: 1px solid black;" + ("width: " + width + ";") + (height != null ? "height: " + height + ";" : "");
+  String transformSelectStyle(String style) {
+    String width = parseCssProperty(style, "width");
+    String height = parseCssProperty(style, "height");
+
+    return "display: inline-block;border: 1px solid black;" + 
+           ("width: " + requireNonNullElse(width, "50px") + ";") + 
+           (height != null ? "height: " + height + ";" : "");
   }
 
   private int getSize(Element select) {
