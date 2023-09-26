@@ -5,6 +5,8 @@ import static org.allcolor.yahp.cl.converter.CHtmlToPdfFlyingSaucerTransformer.r
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CHtmlToPdfFlyingSaucerTransformerTest {
+  CHtmlToPdfFlyingSaucerTransformer transformer = new CHtmlToPdfFlyingSaucerTransformer();
+
   @Test
   public void removesScriptTagFromHtml() {
     assertThat(removeScript("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>")).isEqualTo("");
@@ -48,4 +50,23 @@ public class CHtmlToPdfFlyingSaucerTransformerTest {
                                              "</head>\n" +
                                              "</html>\n\n");
   }
+
+  @Test
+  void extractsWidthAndHeight() {
+    assertThat(transformer.transformStyle(""))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;");
+
+    assertThat(transformer.transformStyle("width: 200px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;");
+
+    assertThat(transformer.transformStyle("height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;height: : 100px;");
+
+    assertThat(transformer.transformStyle("width: 200px; height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;height: : 100px;");
+
+    assertThat(transformer.transformStyle("border: 1px; width: 200px; height: 100px; position: absolute;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: : 200px;height: : 100px;");
+  }
+
 }

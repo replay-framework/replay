@@ -136,11 +136,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
         // Create all-trusting host name verifier
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
-          @Override public boolean verify(String hostname, SSLSession session) {
-            return true;
-          }
-        };
+        HostnameVerifier allHostsValid = (hostname, session) -> true;
 
         // Install the all-trusting host verifier
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
@@ -226,7 +222,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
   }
 
   /**
-   * Retrieves the XML located at the given URI. It's assumed the URI does point to a XML--the URI will
+   * Retrieves the XML located at the given URI. It's assumed the URI does point to an XML--the URI will
    * be accessed (using java.io or java.net), opened, read and then passed into the XML parser (XMLReader)
    * configured for Flying Saucer. The result is packed up into an XMLResource for later consumption.
    *
@@ -294,7 +290,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
         setBaseURL(result.toExternalForm());
       }
       catch (MalformedURLException e) {
-        logger.debug("Failed to set base url {} becase of {}", uri, e.toString());
+        logger.debug("Failed to set base url {} because of {}", uri, e.toString());
         URI newUri = new File(".").toURI();
         try {
           String newBaseUrl = newUri.toURL().toExternalForm();
@@ -302,7 +298,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
           setBaseURL(newBaseUrl);
         }
         catch (Exception e1) {
-          logger.error("Failed to set base url {} becase of {}", newUri, e1.toString());
+          logger.error("Failed to set base url {} because of {}", newUri, e1.toString());
           XRLog.exception("The default NaiveUserAgent doesn't know how to resolve the base URL for " + uri);
           return null;
         }
