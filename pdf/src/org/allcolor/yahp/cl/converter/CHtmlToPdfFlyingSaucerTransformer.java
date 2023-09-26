@@ -1,7 +1,7 @@
 package org.allcolor.yahp.cl.converter;
 
+import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
-import java.nio.file.Files;
 import org.allcolor.xml.parser.CShaniDomParser;
 import org.allcolor.xml.parser.dom.ADocument;
 import org.allcolor.yahp.cl.converter.CDocumentCut.DocumentAndSize;
@@ -9,17 +9,27 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
-import org.xhtmlrenderer.extend.ReplacedElementFactory;
-import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ExtendedITextReplacedElementFactory;
-import org.xhtmlrenderer.pdf.ITextOutputDevice;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
-import java.io.*;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,37 +37,13 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * This class transform an html document in a PDF.
+ * This class transform a html document in a PDF.
  *
  * @author Quentin Anciaux
  * @version 0.02
  */
+@ParametersAreNonnullByDefault
 public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransformer {
-  private static class _ITextRenderer extends ITextRenderer {
-    private final Map<String, String> knownFont = new HashMap<>();
-
-
-    /**
-     * Initializes a new renderer with extended capabilities.
-     */
-    private _ITextRenderer() {
-      ITextOutputDevice outputDevice = getOutputDevice();
-
-      ReplacedElementFactory replacedElementFactory = new ExtendedITextReplacedElementFactory(outputDevice);
-
-      SharedContext sharedContext = getSharedContext();
-
-      sharedContext.setReplacedElementFactory(replacedElementFactory);
-    }
-
-    private void addKnown(final String path) {
-      this.knownFont.put(path, path);
-    }
-
-    private boolean isKnown(final String path) {
-      return this.knownFont.get(path) != null;
-    }
-  }
 
   private static final Logger log = LoggerFactory.getLogger(CHtmlToPdfFlyingSaucerTransformer.class);
 
@@ -65,7 +51,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     return name.toLowerCase().endsWith(".ttf");
   }
 
-  private static void registerTTF(final File f, final _ITextRenderer renderer) {
+  private static void registerTTF(final File f, final ReplayITextRenderer renderer) {
     if (f.isDirectory()) {
       final File[] list = f.listFiles();
       if (list != null) {
@@ -81,7 +67,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
               BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
           renderer.addKnown(f.getAbsolutePath());
         }
-        catch (final Throwable ignore) {
+        catch (DocumentException | IOException ignore) {
         }
       }
     }
@@ -112,67 +98,30 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     final NodeList nl = doc.getElementsByTagName("select");
     while (nl.getLength() > 0) {
       final Element select = (Element) nl.item(0);
-      final String ssize = select.getAttribute("size");
-      int size = 1;
-      if (!"".equals(ssize.trim())) {
-        try {
-          size = Integer.parseInt(ssize);
-        }
-        catch (final Exception ignore) {
-        }
-      }
+      int size = getSize(select);
       final Node node = select.getParentNode();
       final NodeList options = select.getElementsByTagName("option");
       final String style = select.getAttribute("style");
-      String width = null;
-      String height = null;
-      if (style.contains("width")) {
-        width = style.substring(style.indexOf("width") + 5);
-        if (width.indexOf(':') != -1) {
-          width = width.substring(width.indexOf(':'));
-        }
-        if (width.indexOf(';') != -1) {
-          width = width.substring(0, width.indexOf(';'));
-        }
-      }
-      if (width == null) {
-        width = "50px";
-      }
-      if (style.contains("height")) {
-        height = style.substring(style.indexOf("height") + 6);
-        if (height.indexOf(':') != -1) {
-          height = height.substring(height.indexOf(':'));
-        }
-        if (height.indexOf(';') != -1) {
-          height = height.substring(0, height.indexOf(';'));
-        }
-      }
+      String styleAttribute = transformStyle(style);
       if (size > 1) {
         final Element span = doc.createElement("span");
-        span
-            .setAttribute("style",
-                "display: inline-block;border: 1px solid black;" + ("width: " + width + ";") + (height != null ? "height: " + height + ";" : ""));
-        for (int i = 0; (i < options.getLength()) && (i < size); i++) {
+        span.setAttribute("style", styleAttribute);
+        
+        for (int i = 0; i < options.getLength() && i < size; i++) {
           final Element option = (Element) options.item(i);
-          final Element content = doc.createElement("span");
-          content.setTextContent(option.getTextContent());
-          span.appendChild(content);
+          span.appendChild(createSpan(doc, option.getTextContent()));
           if (i < options.getLength() - 1) {
-            final Element br = doc.createElement("br");
-            span.appendChild(br);
+            span.appendChild(doc.createElement("br"));
           }
         }
         node.insertBefore(span, select);
       }
       else {
         for (int i = 0; i < options.getLength(); i++) {
-          final Element option = (Element) options.item(i);
-          if ("selected".equalsIgnoreCase(option
-              .getAttribute("selected"))) {
-            final Element span = doc.createElement("span");
-            span.setTextContent(option.getTextContent().trim());
-            span.setAttribute("style",
-                "display: inline-block;border: 1px solid black;" + ("width: " + width + ";") + (height != null ? "height: " + height + ";" : ""));
+          Element option = (Element) options.item(i);
+          if ("selected".equalsIgnoreCase(option.getAttribute("selected"))) {
+            Element span = createSpan(doc, option.getTextContent().trim());
+            span.setAttribute("style", styleAttribute);
             node.insertBefore(span, select);
             break;
           }
@@ -180,6 +129,46 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
       }
       node.removeChild(select);
     }
+  }
+
+  @Nonnull
+  String transformStyle(String style) {
+    String width = null;
+    String height = null;
+    if (style.contains("width")) {
+      width = style.substring(style.indexOf("width") + 5);
+      if (width.indexOf(':') != -1) {
+        width = width.substring(width.indexOf(':'));
+      }
+      if (width.indexOf(';') != -1) {
+        width = width.substring(0, width.indexOf(';'));
+      }
+    }
+    if (width == null) {
+      width = "50px";
+    }
+    if (style.contains("height")) {
+      height = style.substring(style.indexOf("height") + 6);
+      if (height.indexOf(':') != -1) {
+        height = height.substring(height.indexOf(':'));
+      }
+      if (height.indexOf(';') != -1) {
+        height = height.substring(0, height.indexOf(';'));
+      }
+    }
+    return "display: inline-block;border: 1px solid black;" + ("width: " + width + ";") + (height != null ? "height: " + height + ";" : "");
+  }
+
+  private int getSize(Element select) {
+    String sizeAttribute = select.getAttribute("size").trim();
+    if (!sizeAttribute.isEmpty()) {
+      try {
+        return Integer.parseInt(sizeAttribute);
+      }
+      catch (NumberFormatException ignore) {
+      }
+    }
+    return 1;
   }
 
   private void convertInputToVisibleHTML(final Document doc) {
@@ -224,8 +213,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         if (height == null) {
           height = "16px";
         }
-        final Element span = doc.createElement("span");
-        span.setTextContent(input.getAttribute("value"));
+        final Element span = createSpan(doc, input.getAttribute("value"));
         span
             .setAttribute(
                 "style",
@@ -236,8 +224,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         node.insertBefore(span, input);
       }
       else if ("radio".equalsIgnoreCase(type)) {
-        final Element span = doc.createElement("span");
-        span.setTextContent("\u00A0");
+        final Element span = createSpan(doc, "\u00A0");
         if ("checked".equalsIgnoreCase(input.getAttribute("checked"))) {
           span
               .setAttribute(
@@ -252,8 +239,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         node.insertBefore(span, input);
       }
       else if ("checkbox".equalsIgnoreCase(type)) {
-        final Element span = doc.createElement("span");
-        span.setTextContent("\u00A0");
+        final Element span = createSpan(doc, "\u00A0");
         if ("checked".equalsIgnoreCase(input.getAttribute("checked"))) {
           span
               .setAttribute(
@@ -320,17 +306,26 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
       try (final BufferedReader reader = new BufferedReader(new StringReader(content))) {
         String line;
         while ((line = reader.readLine()) != null) {
-          final Element econtent = doc.createElement("span");
-          econtent.setTextContent(line);
-          final Element br = doc.createElement("br");
-          span.appendChild(econtent);
-          span.appendChild(br);
+          span.appendChild(createSpan(doc, line));
+          span.appendChild(doc.createElement("br"));
         }
       }
-      catch (IOException ignore) {
+      catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
+  }
 
+  @Nonnull
+  private Element createSpan(Document doc, String text) {
+    return createTextElement(doc, "span", text);
+  }
+
+  @Nonnull
+  private Element createTextElement(Document doc, String tag, String text) {
+    Element content = doc.createElement(tag);
+    content.setTextContent(text);
+    return content;
   }
 
   private CShaniDomParser createCShaniDomParser() {
@@ -341,8 +336,8 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
   }
 
   /**
-   * Transform the html document in the inputstream to a pdf in the
-   * outputstream
+   * Transform the html document in the InputStream to a pdf in the
+   * OutputStream
    *
    * @param in         html document stream
    * @param urlForBase base url of the document
@@ -354,10 +349,17 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
   @Override public void transform(final InputStream in, String urlForBase,
                                   final PageSize size, final List hf, final Map properties,
                                   final OutputStream out) throws CConvertException {
+    //noinspection unchecked
+    doTransform(in, urlForBase, size, hf, properties, out);
+  }
+
+  void doTransform(final InputStream in, String urlForBase,
+                   final PageSize size, final List<CHeaderFooter> hf, final Map<String, String> properties,
+                   final OutputStream out) throws CConvertException {
     List<File> files = new ArrayList<>();
     try {
       final CShaniDomParser parser = createCShaniDomParser();
-      final _ITextRenderer renderer = new _ITextRenderer();
+      final ReplayITextRenderer renderer = new ReplayITextRenderer();
 
       String html = IOUtils.toString(in, UTF_8);
 
@@ -439,19 +441,10 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
       final DocumentAndSize[] docs = CDocumentCut.cut(theDoc, size);
       for (DocumentAndSize doc1 : docs) {
         Document mydoc = doc1.doc;
-        body = mydoc.getDocumentElement().getElementsByTagName("body").item(0);
+        mydoc.getDocumentElement().getElementsByTagName("body").item(0);
         head = mydoc.getDocumentElement().getElementsByTagName("head").item(0);
-        try {
-          String surlForBase = ((Element) mydoc.getElementsByTagName("base").item(0)).getAttribute("href");
-          if (surlForBase != null && !surlForBase.isEmpty()) {
-            urlForBase = surlForBase;
-          }
-        }
-        catch (final Exception ignore) {
-        }
-        if (urlForBase != null) {
-          mydoc.setDocumentURI(urlForBase);
-        }
+        urlForBase = readBaseUrl(mydoc, urlForBase);
+        mydoc.setDocumentURI(urlForBase);
         final NodeList nl = mydoc.getElementsByTagName("base");
 
         if (nl.getLength() == 0) {
@@ -471,28 +464,12 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
           base.setAttribute("href", urlForBase);
         }
 
-        final NumberFormat nf = NumberFormat.getInstance(Locale.US);
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(0);
-        final Element style = mydoc.createElement("style");
+        final Element style = createTextElement(mydoc, "style", pageSize(doc1));
         style.setAttribute("type", "text/css");
-        final double[] dsize = doc1.size.getCMSize();
-        final double[] dmargin = doc1.size.getCMMargin();
-        style.setTextContent("\n@page {\n" + "size: "
-            + nf.format(dsize[0] / 2.54) + "in "
-            + nf.format(dsize[1] / 2.54) + "in;\n"
-            + "margin-left: " + nf.format(dmargin[0] / 2.54)
-            + "in;\n" + "margin-right: "
-            + nf.format(dmargin[1] / 2.54) + "in;\n"
-            + "margin-bottom: " + nf.format(dmargin[2] / 2.54)
-            + "in;\n" + "margin-top: "
-            + nf.format(dmargin[3] / 2.54) + "in;\npadding: 0in;\n"
-            + "}\n"
-
-        );
         head.appendChild(style);
+
         if (properties.get(IHtmlToPdfTransformer.FOP_TTF_FONT_PATH) != null) {
-          final File dir = new File((String) properties.get(IHtmlToPdfTransformer.FOP_TTF_FONT_PATH));
+          final File dir = new File(properties.get(IHtmlToPdfTransformer.FOP_TTF_FONT_PATH));
           if (dir.isDirectory()) {
             registerTTF(dir, renderer);
           }
@@ -505,12 +482,8 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         renderer.setDocument(mydoc, urlForBase);
         renderer.layout();
 
-        final File f = Files.createTempFile("pdf", "yahp").toFile();
+        File f = createPdfFile(renderer);
         files.add(f);
-        try (OutputStream fout = new BufferedOutputStream(new FileOutputStream(f))) {
-          renderer.createPDF(fout, true);
-          fout.flush();
-        }
       }
       final PageSize[] sizes = new PageSize[docs.length];
       for (int i = 0; i < docs.length; i++) {
@@ -526,24 +499,68 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
               "Flying Saucer Renderer (https://xhtmlrenderer.dev.java.net/)",
               sizes, hf);
     }
-    catch (final Throwable e) {
+    catch (DocumentException | IOException e) {
       log.error("Failed to transform html to pdf", e);
       throw new CConvertException("Failed to transform html to pdf: " + e, e);
     }
     finally {
-      try {
-        out.flush();
-      }
-      catch (final Exception ignore) {
-      }
-      for (final File f : files) {
-        try {
-          f.delete();
-        }
-        catch (final Exception ignore) {
-        }
+      flush(out);
+      delete(files);
+    }
+  }
+
+  private String readBaseUrl(Document doc, String defaultValue) {
+    NodeList base = doc.getElementsByTagName("base");
+    String url = base.getLength() == 0 ? defaultValue : ((Element) base.item(0)).getAttribute("href");
+    return url.isEmpty() ? defaultValue : url;
+  }
+
+  private void flush(OutputStream out) {
+    try {
+      out.flush();
+    }
+    catch (IOException e) {
+      log.info("Failed to flush output stream: {}", e.toString());
+    }
+  }
+
+  private void delete(List<File> files) {
+    for (final File f : files) {
+      if (!f.delete()) {
+        log.info("Failed to delete temporary file {}", f);
       }
     }
+  }
+
+  @Nonnull
+  private File createPdfFile(ReplayITextRenderer renderer) throws IOException, DocumentException {
+    File file = Files.createTempFile("pdf", "yahp").toFile();
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+      renderer.createPDF(out, true);
+      out.flush();
+    }
+    return file;
+  }
+
+  @Nonnull
+  private String pageSize(DocumentAndSize doc) {
+    final NumberFormat nf = NumberFormat.getInstance(Locale.US);
+    nf.setMaximumFractionDigits(2);
+    nf.setMinimumFractionDigits(0);
+
+    double[] size = doc.size.getCMSize();
+    double[] margin = doc.size.getCMMargin();
+
+    return "\n@page {\n" + "size: "
+           + nf.format(size[0] / 2.54) + "in "
+           + nf.format(size[1] / 2.54) + "in;\n"
+           + "margin-left: " + nf.format(margin[0] / 2.54)
+           + "in;\n" + "margin-right: "
+           + nf.format(margin[1] / 2.54) + "in;\n"
+           + "margin-bottom: " + nf.format(margin[2] / 2.54)
+           + "in;\n" + "margin-top: "
+           + nf.format(margin[3] / 2.54) + "in;\npadding: 0in;\n"
+           + "}\n";
   }
 
 }
