@@ -44,7 +44,8 @@ public class BeanWrapperTest {
 
     @Test
     public void testBind() {
-        Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+        Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost",
+            null, null);
         Session session = new Session();
 
         ValidationBuilder.build();

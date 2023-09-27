@@ -31,7 +31,7 @@ public class RequestLogPluginTest {
 
   private Http.Request request(String path, Map<String, Http.Header> headers) {
     Http.Request request = Http.Request.createRequest("127.0.0.1", "GET", path, "", "text/html", new ByteArrayInputStream("".getBytes(UTF_8)), "url", "host", false, 80, "domain",
-      true, headers, Map.of("PLAY_SESSIONID", new Cookie("PLAY_SESSIONID", "session-007")));
+        headers, Map.of("PLAY_SESSIONID", new Cookie("PLAY_SESSIONID", "session-007")));
     request.action = "action";
     request.actionMethod = "method";
     request.controller = "controller";

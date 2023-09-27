@@ -24,7 +24,8 @@ public class PlayBuilder {
 
     public void initMvcObject() {
         if (Request.current() == null) {
-            Request request = Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null,
+            Request request = Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost",
+                null,
                     null);
             request.body = new ByteArrayInputStream(new byte[0]);
             Request.setCurrent(request);
