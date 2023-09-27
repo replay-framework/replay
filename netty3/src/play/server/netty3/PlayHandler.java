@@ -498,8 +498,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
           getRemoteIPAddress(messageEvent), 
           nettyRequest.getMethod().getName(), 
           uri.getPath(), uri.getQuery(), contentType, body, relativeUrl, 
-          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false, 
-          getHeaders(nettyRequest), getCookies(nettyRequest));
+          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
+            getHeaders(nettyRequest), getCookies(nettyRequest));
 
         logger.trace("parseRequest: end");
         return request;

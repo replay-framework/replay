@@ -51,8 +51,7 @@ public class HttpRequestTest {
           false,
           80,
           "localhost",
-          false,
-          headers,
+            headers,
           null
         );
     }

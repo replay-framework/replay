@@ -14,7 +14,8 @@ import static play.mvc.Http.Request.createRequest;
 public class LocalDateTimeBinderTest {
 
   private final LocalDateTimeBinder binder = new LocalDateTimeBinder();
-  private final Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+  private final Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost",
+      null, null);
   private final Session session = new Session();
 
   @Test

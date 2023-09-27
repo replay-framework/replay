@@ -505,7 +505,7 @@ public class Router {
         }
 
         public void absolute(@Nullable Http.Request request) {
-            boolean isSecure = request != null && request.secure;
+            boolean isSecure = request != null && request.isSecure();
             String base = getBaseUrl();
             String hostPart = host;
             String domain = request == null ? "" : request.domain;
