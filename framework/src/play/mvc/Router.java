@@ -1,11 +1,16 @@
 package play.mvc;
 
+import java.util.Map.Entry;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
+import play.mvc.Router.Route.Arg;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 import play.mvc.routing.RoutesParser;
@@ -39,6 +44,7 @@ public class Router {
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
     public static final Router instance = new Router(new CopyOnWriteArrayList<>());
+    private static final Pattern HTTP_PROTO_REGEX = Pattern.compile("https?");
 
     /**
      * All the loaded routes.
@@ -142,7 +148,7 @@ public class Router {
     /**
      * @throws RenderStatic or NotFound
      */
-    public void routeOnlyStatic(Http.Request request) {
+    public void routeOnlyStatic(Request request) {
         Route parameterlessRoute = findParameterlessRoute(request.method, request.path);
         if (parameterlessRoute != null) {
             if (parameterlessRoute.matches(request.method, request.path) != null) {
@@ -157,7 +163,7 @@ public class Router {
         }
     }
 
-    Route route(Http.Request request) {
+    Route route(Request request) {
         logger.trace("Route: {} - {}", request.path, request.querystring);
 
         MatchingRoute match = matchRoute(request.method, request.path);
@@ -185,14 +191,14 @@ public class Router {
         return null;
     }
 
-    private Route processRoute(Http.Request request, MatchingRoute match) {
+    private Route processRoute(Request request, MatchingRoute match) {
         request.routeArgs = match.args;
         request.action = match.route.action;
         if (match.args.containsKey("format")) {
             request.format = match.args.get("format");
         }
-        if (request.action.contains("{")) { // more optimization ?
-            for (Map.Entry<String, String> arg : request.routeArgs.entrySet()) {
+        if (request.action.contains("{")) { // more optimization?
+            for (Entry<String, String> arg : request.routeArgs.entrySet()) {
                 request.action = request.action.replace("{" + arg.getKey() + "}", arg.getValue());
             }
         }
@@ -210,51 +216,72 @@ public class Router {
     }
 
     @Deprecated
+    @Nonnull
     public static String getFullUrl(String action, Map<String, Object> args) {
-        return getFullUrl(action, args, Http.Request.current());
+        return getFullUrl(action, args, Request.current());
     }
 
-    public static String getFullUrl(String action, Map<String, Object> args, Http.Request request) {
+    @Nonnull
+    public static String getFullUrl(String action, Map<String, Object> args, @Nullable Request request) {
+        String baseUrl = getBaseUrl(request);
+        return getFullUrl(action, args, baseUrl);
+    }
+
+    @Nonnull
+    public static String getFullUrl(@Nonnull String action, @Nonnull Map<String, Object> args, @Nonnull String baseUrl) {
         ActionDefinition actionDefinition = reverse(action, args);
-        String base = getBaseUrl(request);
         if ("WS".equals(actionDefinition.method)) {
-            return base.replaceFirst("https?", "ws") + actionDefinition;
+            return HTTP_PROTO_REGEX.matcher(baseUrl).replaceFirst("ws") + actionDefinition;
         }
-        return base + actionDefinition;
+        return baseUrl + actionDefinition;
     }
 
     /**
      * Gets baseUrl from current request or application.baseUrl in application.conf
      */
     @Deprecated
+    @Nonnull
     public static String getBaseUrl() {
-        return getBaseUrl(Http.Request.current());
+        return getBaseUrl(Request.current());
     }
 
-    public static String getBaseUrl(Http.Request request) {
+    @Nonnull
+    public static String getBaseUrl(@Nullable Request request) {
         if (request == null) {
-            // No current request is present - must get baseUrl from config
-            String appBaseUrl = Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
-            if (appBaseUrl.endsWith("/")) {
-                // remove the trailing slash
-                appBaseUrl = appBaseUrl.substring(0, appBaseUrl.length() - 1);
-            }
-            return appBaseUrl;
-
+            return getConfiguredBaseUrl();
         } else {
             return request.getBase();
         }
     }
 
-    @Deprecated
-    public static String getFullUrl(String action) {
-        return getFullUrl(action, Http.Request.current());
+    @Nonnull
+    public static String getConfiguredBaseUrl() {
+        String appBaseUrl = Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
+        if (appBaseUrl.endsWith("/")) {
+            // remove the trailing slash
+            appBaseUrl = appBaseUrl.substring(0, appBaseUrl.length() - 1);
+        }
+        return appBaseUrl;
     }
 
-    public static String getFullUrl(String action, Http.Request request) {
+    @Deprecated
+    @Nonnull
+    public static String getFullUrl(@Nonnull String action) {
+        return getFullUrl(action, Request.current());
+    }
+
+    @Nonnull
+    public static String getFullUrl(@Nonnull String action, @Nullable Request request) {
         // Note the map is not <code>Collections.EMPTY_MAP</code> because it
         // will be copied and changed.
         return getFullUrl(action, new HashMap<>(16), request);
+    }
+
+    @Nonnull
+    public static String getFullUrl(@Nonnull String action, @Nonnull String baseUrl) {
+        // Note the map is not <code>Collections.EMPTY_MAP</code> because it
+        // will be copied and changed.
+        return getFullUrl(action, new HashMap<>(16), baseUrl);
     }
 
     @Deprecated
@@ -267,7 +294,7 @@ public class Router {
             throw new NoRouteFoundException("File not found (" + file + ")");
         }
         String path = file.relativePath();
-        path = path.substring(path.indexOf("}") + 1);
+        path = path.substring(path.indexOf('}') + 1);
         for (Route route : routes) {
             String staticDir = route.staticDir;
             if (staticDir != null) {
@@ -300,24 +327,37 @@ public class Router {
     }
 
     @Deprecated
-    public static ActionDefinition reverse(String action, Map<String, Object> args) {
-        return reverse(action, args, Http.Request.current(), Http.Response.current());
+    @Nonnull
+    public static ActionDefinition reverse(@Nonnull String action, @Nullable Map<String, Object> args) {
+        return reverse(action, args, Request.current(), Response.current());
     }
 
-    public static ActionDefinition reverse(String action, Map<String, Object> args, Http.Request request, Http.Response response) {
+    @Nonnull
+    public static ActionDefinition reverse(@Nonnull String action, @Nullable Map<String, Object> args, @Nullable Request request, @Nullable Response response) {
         return instance.actionToUrl(action, args, request, response);
     }
 
-    public ActionDefinition actionToUrl(String action, Map<String, Object> actionArgs, Http.Request request, Http.Response response) {
+    @Nonnull
+    public static ActionDefinition reverse(@Nonnull String action, @Nullable Map<String, Object> args, @Nonnull String requestFormat, @Nullable Charset encoding) {
+        return instance.actionToUrl(action, args, requestFormat, encoding);
+    }
+
+    @Nonnull
+    public ActionDefinition actionToUrl(@Nonnull String action, @Nullable Map<String, Object> actionArgs, @Nullable Request request, @Nullable Response response) {
+        var requestFormat = request == null || request.format == null ? "" : request.format;
+        var responseEncoding = response == null ? null : response.encoding;
+        return actionToUrl(action, actionArgs, requestFormat, responseEncoding);
+    }
+
+    @Nonnull
+    public ActionDefinition actionToUrl(@Nonnull String action, @Nullable Map<String, Object> actionArgs, @Nonnull String requestFormat, @Nullable Charset encoding) {
         Map<String, Object> args = new LinkedHashMap<>(actionArgs);
-        Charset encoding = response == null ? Play.defaultWebEncoding : response.encoding;
+        Charset actualEncoding = encoding == null ? Play.defaultWebEncoding : encoding;
 
         if (action.startsWith("controllers.")) {
             action = action.substring(12);
         }
-        Map<String, Object> argsbackup = new HashMap<>(args);
-
-        String requestFormat = request == null || request.format == null ? "" : request.format;
+        Map<String, Object> argsBackup = new HashMap<>(args);
 
         List<MatchingRoute> matchingRoutes = getActionRoutes(action);
         for (MatchingRoute actionRoute : matchingRoutes) {
@@ -327,7 +367,7 @@ public class Router {
             List<String> inPathArgs = new ArrayList<>(16);
             boolean allRequiredArgsAreHere = true;
             // do the parameter names match?
-            for (Route.Arg arg : route.args) {
+            for (Arg arg : route.args) {
                 inPathArgs.add(arg.name);
                 Object value = args.get(arg.name);
                 if (value == null) {
@@ -342,7 +382,7 @@ public class Router {
                     }
                 }
             }
-            // les parametres codes en dur dans la route matchent-ils ?
+            // do the hardcoded parameters in the route match?
             for (String staticKey : route.staticArgs.keySet()) {
                 if (staticKey.equals("format")) {
                     if (!requestFormat.equals(route.staticArgs.get("format"))) {
@@ -364,31 +404,31 @@ public class Router {
                 if (path.endsWith("/?")) {
                     path = path.substring(0, path.length() - 2);
                 }
-                for (Map.Entry<String, Object> entry : args.entrySet()) {
+                for (Entry<String, Object> entry : args.entrySet()) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
                     if (inPathArgs.contains(key) && value != null) {
                         if (List.class.isAssignableFrom(value.getClass())) {
                             @SuppressWarnings("unchecked")
-                            List<Object> vals = (List<Object>) value;
-                            path = path.replaceAll("\\{(<[^>]+>)?" + key + "\\}", vals.get(0).toString()).replace("$", "\\$");
+                            List<Object> values = (List<Object>) value;
+                            path = path.replaceAll("\\{(<[^>]+>)?" + key + "\\}", values.get(0).toString()).replace("$", "\\$");
                         } else {
-                            path = path.replaceAll("\\{(<[^>]+>)?" + key + "\\}", URLEncoder.encode(value.toString(), encoding)
+                            path = path.replaceAll("\\{(<[^>]+>)?" + key + "\\}", URLEncoder.encode(value.toString(), actualEncoding)
                                     .replace("$", "\\$").replace("%3A", ":").replace("%40", "@").replace("+", "%20"));
-                            host = host.replaceAll("\\{(<[^>]+>)?" + key + "\\}", URLEncoder.encode(value.toString(), encoding)
+                            host = host.replaceAll("\\{(<[^>]+>)?" + key + "\\}", URLEncoder.encode(value.toString(), actualEncoding)
                                     .replace("$", "\\$").replace("%3A", ":").replace("%40", "@").replace("+", "%20"));
                         }
                     } else if (route.staticArgs.containsKey(key)) {
                         // Do nothing -> The key is static
-                    } else if (!argsbackup.containsKey(key)) {
+                    } else if (!argsBackup.containsKey(key)) {
                         // Do nothing -> The key is provided in
                         // RouteArgs and not used (see #447)
                     } else if (value != null) {
                         if (List.class.isAssignableFrom(value.getClass())) {
                             @SuppressWarnings("unchecked")
-                            List<Object> vals = (List<Object>) value;
-                            for (Object object : vals) {
-                                queryString.append(URLEncoder.encode(key, encoding));
+                            List<Object> values = (List<Object>) value;
+                            for (Object object : values) {
+                                queryString.append(URLEncoder.encode(key, actualEncoding));
                                 queryString.append("=");
                                 String objStr = object.toString();
                                 // Special case to handle jsAction
@@ -397,13 +437,13 @@ public class Router {
                                     queryString.append(':');
                                     objStr = objStr.substring(1);
                                 }
-                                queryString.append(URLEncoder.encode(objStr + "", encoding));
+                                queryString.append(URLEncoder.encode(objStr + "", actualEncoding));
                                 queryString.append("&");
                             }
                         } else if (value.getClass().equals(Default.class)) {
                             // Skip defaults in queryString
                         } else {
-                            queryString.append(URLEncoder.encode(key, encoding));
+                            queryString.append(URLEncoder.encode(key, actualEncoding));
                             queryString.append("=");
                             String objStr = value.toString();
                             // Special case to handle jsAction tag
@@ -411,7 +451,7 @@ public class Router {
                                 queryString.append(':');
                                 objStr = objStr.substring(1);
                             }
-                            queryString.append(URLEncoder.encode(objStr + "", encoding));
+                            queryString.append(URLEncoder.encode(objStr + "", actualEncoding));
                             queryString.append("&");
                         }
                     }
@@ -425,7 +465,7 @@ public class Router {
                 actionDefinition.method = route.method == null || "*".equals(route.method) ? "GET" : route.method.toUpperCase();
                 actionDefinition.star = "*".equals(route.method);
                 actionDefinition.action = action;
-                actionDefinition.args = argsbackup;
+                actionDefinition.args = argsBackup;
                 actionDefinition.host = host;
                 return actionDefinition;
             }
@@ -463,6 +503,8 @@ public class Router {
     }
 
     public static class ActionDefinition {
+        private static final Pattern HOST_REGEX =
+            Pattern.compile("([-_a-z0-9A-Z]+([.][-_a-z0-9A-Z]+)?)$");
 
         /**
          * The domain/host name.
@@ -477,7 +519,7 @@ public class Router {
          */
         public String url;
         /**
-         * Whether the route contains an astericks *.
+         * Whether the route contains an asterisks *.
          */
         public boolean star;
         /**
@@ -504,9 +546,9 @@ public class Router {
             return url;
         }
 
-        public void absolute(@Nullable Http.Request request) {
+        public void absolute(@Nullable Request request) {
             boolean isSecure = request != null && request.secure;
-            String base = getBaseUrl();
+            String base = request == null ? getBaseUrl() : getBaseUrl(request);
             String hostPart = host;
             String domain = request == null ? "" : request.domain;
             int port = request == null ? 80 : request.port;
@@ -518,8 +560,7 @@ public class Router {
                 if (StringUtils.isEmpty(host)) {
                     url = base + url;
                 } else if (host.contains("{_}")) {
-                    Matcher matcher = Pattern.compile("([-_a-z0-9A-Z]+([.][-_a-z0-9A-Z]+)?)$")
-                            .matcher(domain);
+                    Matcher matcher = HOST_REGEX.matcher(domain);
                     if (matcher.find()) {
                         url = (isSecure ? "https://" : "http://") + hostPart.replace("{_}", matcher.group(1)) + url;
                     } else {
@@ -529,7 +570,7 @@ public class Router {
                     url = (isSecure ? "https://" : "http://") + hostPart + url;
                 }
                 if ("WS".equals(method)) {
-                    url = url.replaceFirst("https?", "ws");
+                    url = HTTP_PROTO_REGEX.matcher(url).replaceFirst("ws");
                 }
             }
         }
@@ -611,7 +652,7 @@ public class Router {
         }
 
         /**
-         * Check if the parts of a HTTP request equal this Route.
+         * Check if the parts of an HTTP request equal this Route.
          *
          * @param method
          *            GET/POST/etc.
@@ -667,7 +708,7 @@ public class Router {
         }
 
         private static String normalizePath(String path) {
-            return "".equals(path) ? "/" : path;
+            return path != null && path.isEmpty() ? "/" : path;
         }
 
         static class Arg {
