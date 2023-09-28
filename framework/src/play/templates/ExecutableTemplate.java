@@ -10,6 +10,7 @@ import play.exceptions.*;
 import play.i18n.Messages;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
+import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.utils.HTML;
 import play.utils.Java;
@@ -214,7 +215,7 @@ public abstract class ExecutableTemplate extends Script {
                             }
                         }
                     }
-                    Router.ActionDefinition def = Router.reverse(action, r, request, Http.Response.current());
+                    Router.ActionDefinition def = Router.reverse(action, r, request.format, Response.current().encoding);
                     if (absolute) {
                         def.absolute(request);
                     }

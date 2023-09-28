@@ -424,6 +424,7 @@ public class Http {
          *
          * @return the request base of the url (protocol, host and port)
          */
+        @Nonnull
         public String getBase() {
             if (port == 80 || port == 443) {
                 return String.format("%s://%s", isSecure() ? "https" : "http", domain).intern();
