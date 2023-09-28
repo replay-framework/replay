@@ -547,7 +547,7 @@ public class Router {
         }
 
         public void absolute(@Nullable Request request) {
-            boolean isSecure = request != null && request.secure;
+            boolean isSecure = request != null && request.isSecure();
             String base = request == null ? getBaseUrl() : getBaseUrl(request);
             String hostPart = host;
             String domain = request == null ? "" : request.domain;

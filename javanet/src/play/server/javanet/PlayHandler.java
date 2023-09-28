@@ -467,8 +467,8 @@ public class PlayHandler implements HttpHandler {
     ServerAddress serverAddress = ipParser.parseHost(host);
 
     Http.Request request = Http.Request.createRequest(remoteAddress, method, path, querystring, contentType, body, relativeUrl,
-      serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false,
-      getHeaders(exchange), getCookies(exchange));
+      serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
+        getHeaders(exchange), getCookies(exchange));
 
     logger.trace("parseRequest: end");
     return request;

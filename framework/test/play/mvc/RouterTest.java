@@ -43,8 +43,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost",
-                false,
-                null,
+            null,
                 null
         );
 
@@ -85,8 +84,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost", // domain gets changed below a few times
-                false,
-                null,
+            null,
                 null
         );
         // we also request a static music file (which lives on NO specific domain)
@@ -102,8 +100,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost", // domain gets changed below a few times
-                false,
-                null,
+            null,
                 null
         );
 

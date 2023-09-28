@@ -151,6 +151,7 @@ public class LangTest {
     }
 
     private Http.Request newRequest() {
-        return Http.Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+        return Http.Request.createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost",
+            null, null);
     }
 }
