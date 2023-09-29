@@ -1,7 +1,23 @@
 # Changelog
 
-## 2.2.0 (under development) - see https://github.com/codeborne/replay/milestone/12?closed=1
-* 
+## 2.3.0 (under development) - see https://github.com/codeborne/replay/milestone/13?closed=1
+
+## 2.2.0 (released 30.09.2023) - see https://github.com/codeborne/replay/milestone/12?closed=1
+* #228 Migrate `javax.persistence` -> `jakarta.persistence` (#229)  --  thanks to Cies Breijs
+* The most important thing: A cool logo (#213)  --  thanks to Szabolcs Hubai
+* Load conf/log4j.properties automatically if exists (#203)  --  thanks to Szabolcs Hubai
+* Interesting bugfix in Play1 (on JPABase) (#230)  --  thanks to Cies Breijs
+* #256 [refactoring] Provide method isSecure() (with caching), remove property secure (#257)  --  thanks to Cies Breijs
+* #253 Add more specific url builder overloads (#255)  --  thanks to Cies Breijs
+* [refactoring] Make "play.mvc.Controller".setContext implementable (#223)  --  thanks to Cies Breijs
+* #182 [refactoring] Use Files instead of File (#185)  --  thanks to Cies Breijs
+* Bump netty4Version from 4.1.93.Final to 4.1.99.Final
+* Bump groovyVersion from 3.0.17 to 3.0.19 (#204) (#231)
+* Bump org.liquibase:liquibase-core from 4.22.0 to 4.23.2
+* Bump com.h2database:h2 from 2.1.214 to 2.2.224
+* Bump com.fasterxml.jackson.core:jackson-databind from 2.15.1 to 2.15.2 (#179)
+* Bump org.jetbrains.kotlin.jvm from 1.8.21 to 1.9.10
+* Bump FLYING_SOURCER_VERSION from 9.1.22 to 9.2.1 (#242) (#243)
 
 ## 2.1.0 (released 30.05.2023) - see https://github.com/codeborne/replay/milestone/11?closed=1
 * Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
