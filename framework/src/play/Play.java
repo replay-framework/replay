@@ -157,7 +157,7 @@ public class Play {
     setupTmpDir();
     setupApplicationMode();
     VirtualFile appRoot = setupAppRoot();
-    routes = appRoot.child("conf/routes");
+    routes = appRoot.find("conf/routes");
 
     modulesRoutes.clear();
     loadModules(appRoot);

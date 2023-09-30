@@ -33,7 +33,7 @@ public class PropertiesConfLoader implements ConfLoader {
   }
 
   private Properties readOneConfigurationFile(String filename, String playId, String inheritedId, Set<VirtualFile> confs) {
-    VirtualFile conf = VirtualFile.open(Play.applicationPath + "/conf/" + filename);
+    VirtualFile conf = VirtualFile.open(Play.applicationPath).find("conf/" + filename);
     if (confs.contains(conf)) {
       throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
     }
