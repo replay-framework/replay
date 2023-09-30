@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -221,5 +222,17 @@ public class VirtualFile {
         }
 
         return null;
+    }
+
+    public VirtualFile find(String name) {
+        VirtualFile file = child(name);
+        if (!file.exists()) {
+            try {
+                file = open(new File(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(name)).getFile()));
+            } catch (NullPointerException e) {
+                // keep going! VirtualFile's exception is more descriptive
+            }
+        }
+        return file;
     }
 }
