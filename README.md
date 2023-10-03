@@ -40,6 +40,11 @@ These were not used at Codeborne, but could be reintroduced if needed.
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
 
 
+#### Requirements
+
+At least JDK 11, and at most JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
+
+
 ## Getting started
 
 RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
