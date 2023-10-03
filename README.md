@@ -29,9 +29,9 @@ RePlay aims to provide a more sensible upgrade path for Play1 applications.
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
 These were not used at Codeborne, but could be reintroduced if needed.
 * The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
-* It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
+* It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers", resulting in:
   * shorter application startup times (seriously improves development cycles),
-  * and for other JVM languages out of the box, like Kotlin ([example project](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin)).
+  * and support for other JVM languages, like Kotlin ([example project](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin)).
 * Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
 * More actively maintained.
