@@ -8,9 +8,6 @@ public class Injector {
         Injector.beanSource = beanSource;
     }
 
-    /**
-     * @deprecated Use Play.beanSource instead
-     */
     @Deprecated
     public static <T> T getBeanOfType(String className) {
         try {
@@ -20,10 +17,6 @@ public class Injector {
         }
     }
 
-    /**
-     * @deprecated Use Play.beanSource instead
-     */
-    @Deprecated
     public static <T> T getBeanOfType(Class<T> clazz) {
         return beanSource.getBeanOfType(clazz);
     }
