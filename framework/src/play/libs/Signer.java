@@ -1,5 +1,7 @@
 package play.libs;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import play.Play;
 import play.exceptions.UnexpectedException;
 
@@ -11,17 +13,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Signer {
   private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
+  @Nonnull
   private final String salt;
 
-  public Signer(String salt) {
+  public Signer(@Nonnull String salt) {
     this.salt = salt;
   }
 
-  public String sign(String message) {
+  public @Nonnull String sign(@Nonnull String message) {
     return sign(message, Play.secretKey.getBytes(UTF_8));
   }
 
-  private String sign(String message, byte[] key) {
+  private @Nonnull String sign(@Nonnull String message, byte[] key) {
     if (key.length == 0) {
       throw new IllegalStateException("application.secret is not configured");
     }
@@ -30,7 +33,7 @@ public class Signer {
       Mac mac = Mac.getInstance("HmacSHA1");
       SecretKeySpec signingKey = new SecretKeySpec(key, "HmacSHA1");
       mac.init(signingKey);
-      byte[] messageBytes = (salt + message).getBytes("utf-8");
+      byte[] messageBytes = (salt + message).getBytes(UTF_8);
       byte[] result = mac.doFinal(messageBytes);
       int len = result.length;
       char[] hexChars = new char[len * 2];
@@ -47,7 +50,7 @@ public class Signer {
     }
   }
 
-  public boolean isValid(String signature, String message) {
+  public boolean isValid(@Nullable String signature, @Nonnull String message) {
     return signature != null && signature.equals(sign(message));
   }
 }
