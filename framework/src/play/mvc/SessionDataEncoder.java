@@ -26,13 +26,13 @@ public class SessionDataEncoder {
     }
     String[] keyValues = data.split("&");
     for (String keyValue : keyValues) {
-      String[] splitted = keyValue.split("=", 2);
-      if (splitted.length == 2) {
+      String[] splitValues = keyValue.split("=", 2);
+      if (splitValues.length == 2) {
         try {
-          map.put(URLDecoder.decode(splitted[0], UTF_8), URLDecoder.decode(splitted[1], UTF_8));
+          map.put(URLDecoder.decode(splitValues[0], UTF_8), URLDecoder.decode(splitValues[1], UTF_8));
         }
         catch (Exception e) {
-          logger.error("!!! Cookie parsing failed: {},\ncookie.key={}\n  Data: {}", e, splitted[0], data);
+          logger.error("!!! Cookie parsing failed: {},\ncookie.key={}\n  Data: {}", e, splitValues[0], data);
         }
       }
     }
