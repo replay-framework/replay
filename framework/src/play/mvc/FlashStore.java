@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.libs.Signer;
+import play.mvc.results.Forbidden;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,7 +38,7 @@ public class FlashStore {
       int splitterPosition = cookie.value.indexOf('-');
       if (splitterPosition == -1) {
           logger.warn("Flash cookie without signature: '{}'", cookie.value);
-          return new Scope.Flash();
+          throw new Forbidden("Flash cookie without signature");
       }
 
       String signature = cookie.value.substring(0, splitterPosition);
@@ -46,7 +47,7 @@ public class FlashStore {
           logger.warn("Invalid flash cookie signature on {} (decoded content: '{}')",
               cookie.value,
               encoder.decode(base64EncodedContent));
-          return new Scope.Flash();
+          throw new Forbidden("Invalid flash cookie signature");
       }
       return new Scope.Flash(encoder.decode(base64EncodedContent));
   }
