@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * <p>NaiveUserAgent is a simple implementation of {@link UserAgentCallback} which places no restrictions on what
@@ -52,7 +53,7 @@ public class NaiveUserAgent implements UserAgentCallback, DocumentListener {
   /**
    * a (simple) LRU cache
    */
-  protected final LinkedHashMap<String, ImageResource> _imageCache;
+  protected final Map<String, ImageResource> _imageCache;
   private final int _imageCacheCapacity;
   private String _baseURL;
 
