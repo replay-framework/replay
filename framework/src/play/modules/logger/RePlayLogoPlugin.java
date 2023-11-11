@@ -5,9 +5,11 @@ import org.slf4j.LoggerFactory;
 import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 public class RePlayLogoPlugin extends PlayPlugin {
 	private static final Logger logger = LoggerFactory.getLogger(RePlayLogoPlugin.class);
@@ -28,9 +30,9 @@ public class RePlayLogoPlugin extends PlayPlugin {
 
 	private String readReplayVersion() {
 		try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(REPLAY_VERSION_LOCATION)) {
-			return new String(Objects.requireNonNull(stream).readAllBytes(), StandardCharsets.UTF_8).trim();
-		} catch (Exception e) {
-			throw new UnexpectedException("Something is wrong with your build. Cannot find resource " + REPLAY_VERSION_LOCATION);
+			return stream == null ? "?" : new String(requireNonNull(stream).readAllBytes(), UTF_8).trim();
+		} catch (IOException e) {
+			throw new UnexpectedException("Something is wrong with your build. Cannot read resource " + REPLAY_VERSION_LOCATION, e);
 		}
 	}
 	@Override
