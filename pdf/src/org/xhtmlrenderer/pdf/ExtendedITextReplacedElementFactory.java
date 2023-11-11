@@ -10,7 +10,8 @@ import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
 import com.lowagie.text.Image;
-import com.lowagie.text.pdf.codec.Base64;
+
+import java.util.Base64;
 
 
 /**
@@ -49,7 +50,7 @@ public class ExtendedITextReplacedElementFactory extends ITextReplacedElementFac
         String encoded = StringUtils.substringAfter(src, ";base64,");
 
         if (!encoded.isEmpty()) {
-          byte[] decoded = Base64.decode(encoded);
+          byte[] decoded = Base64.getDecoder().decode(encoded);
 
           FSImage image = new ITextFSImage(Image.getInstance(decoded));
 
@@ -82,7 +83,7 @@ public class ExtendedITextReplacedElementFactory extends ITextReplacedElementFac
    * @param element element to analyze
    * @return true if the specified element is an image with a data uri, false otherwise
    * <p>
-   * see http://en.wikipedia.org/wiki/Data_URI_scheme for more information
+   * see <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">...</a> for more information
    */
   protected boolean isDataUriImage(Element element) {
     if (element != null) {
@@ -91,12 +92,8 @@ public class ExtendedITextReplacedElementFactory extends ITextReplacedElementFac
       if ("img".equalsIgnoreCase(tag)) {
         String src = element.getAttribute("src");
 
-        if (src != null) {
-          // Prepares the source value to make sure the next comparison will be case insensitive
-          src = src.trim().toLowerCase();
-
-          return src.startsWith("data:image/");
-        }
+        // Prepares the source value to make sure the next comparison will be case-insensitive
+        return src.trim().toLowerCase().startsWith("data:image/");
       }
     }
 

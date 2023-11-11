@@ -20,7 +20,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   thirdParty("org.xhtmlrenderer:flying-saucer-core:$FLYING_SOURCER_VERSION")
-  implementation("org.xhtmlrenderer:flying-saucer-pdf:$FLYING_SOURCER_VERSION") {
+  implementation("org.xhtmlrenderer:flying-saucer-pdf-openpdf:$FLYING_SOURCER_VERSION") {
     exclude group: 'org.xhtmlrenderer', module: 'flying-saucer-core'
     exclude group: 'org.bouncycastle'
   }
