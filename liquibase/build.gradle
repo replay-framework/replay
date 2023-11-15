@@ -2,7 +2,7 @@ dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  implementation('org.liquibase:liquibase-core:4.24.0') {transitive = false}
+  implementation('org.liquibase:liquibase-core:4.25.0') {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
