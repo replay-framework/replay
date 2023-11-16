@@ -7,7 +7,7 @@ dependencies {
     exclude group: 'org.apache.groovy'
   }
   testImplementation "io.rest-assured:json-schema-validator:$restAssuredVersion"
-  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.15.3") {
+  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.16.0") {
     because 'used by rest-assured'
   }
 }
