@@ -1,6 +1,6 @@
 dependencies {
   api('com.google.code.findbugs:jsr305:3.0.2')
-  implementation('io.github.classgraph:classgraph:4.8.164')
+  implementation('io.github.classgraph:classgraph:4.8.165')
   api('com.zaxxer:HikariCP:5.1.0')
   api('com.google.code.gson:gson:2.10.1')
   api('com.jamonapi:jamon:2.82') {transitive = false}
