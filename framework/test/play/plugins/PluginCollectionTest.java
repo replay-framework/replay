@@ -19,9 +19,10 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static play.ClasspathResource.file;
 
 public class PluginCollectionTest {
 
@@ -67,15 +68,15 @@ public class PluginCollectionTest {
     /**
      * Avoid including the same class+index twice.
      *
-     * This happened in the past under a range of circumstances, including: 1. Class path on NTFS or other case
-     * insensitive file system includes play.plugins directory 2x (C:/myproject/conf;c:/myproject/conf) 2.
-     * https://play.lighthouseapp.com/projects/57987/tickets/176-app-playplugins-loaded-twice-conf-on-2-classpaths
+     * This happened in the past under a range of circumstances, including: 
+     * 1. Class path on NTFS or other case-insensitive file system includes "play.plugins" directory 2x (C:/myproject/conf;c:/myproject/conf)
+     * 2. https://play.lighthouseapp.com/projects/57987/tickets/176-app-playplugins-loaded-twice-conf-on-2-classpaths
      */
     @Test
     public void skipsDuplicatePlugins() {
         PluginCollection pc = spy(new PluginCollection());
-        when(pc.getPlayPluginFileUrls())
-                .thenReturn(asList(getClass().getResource("custom-play.plugins"), getClass().getResource("custom-play.plugins.duplicate")));
+        doReturn(asList(file("play/plugins/custom-play.plugins"), file("play/plugins/custom-play.plugins.duplicate")))
+          .when(pc).getPlayPluginFiles();
         pc.loadPlugins();
         assertThat(pc.getAllPlugins()).containsExactly(pc.getPluginInstance(PlayStatusPlugin.class), pc.getPluginInstance(TestPlugin.class));
     }
@@ -84,17 +85,17 @@ public class PluginCollectionTest {
     public void canLoadPlayPluginsFromASingleDescriptor() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins");
         PluginCollection pc = new PluginCollection();
-        assertThat(pc.getPlayPluginFileUrls().size()).isEqualTo(1);
-        assertThat(pc.getPlayPluginFileUrls().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.getPlayPluginFiles().size()).isEqualTo(1);
+        assertThat(pc.getPlayPluginFiles().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
     }
 
     @Test
     public void canLoadPlayPluginsFromMultipleDescriptors() {
         Play.configuration.setProperty("play.plugins.descriptor", "play/plugins/custom-play.plugins,play.plugins.sample");
         PluginCollection pc = new PluginCollection();
-        assertThat(pc.getPlayPluginFileUrls().size()).isEqualTo(2);
-        assertThat(pc.getPlayPluginFileUrls().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
-        assertThat(pc.getPlayPluginFileUrls().get(1).toString()).endsWith("play.plugins.sample");
+        assertThat(pc.getPlayPluginFiles().size()).isEqualTo(2);
+        assertThat(pc.getPlayPluginFiles().get(0).toString()).endsWith("play/plugins/custom-play.plugins");
+        assertThat(pc.getPlayPluginFiles().get(1).toString()).endsWith("play.plugins.sample");
     }
 
     @Test

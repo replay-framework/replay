@@ -2,6 +2,7 @@ package play.plugins;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.ClasspathResource;
 import play.Play;
 import play.PlayPlugin;
 import play.data.binding.RootParamNode;
@@ -16,21 +17,18 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.list;
+import static java.lang.Integer.parseInt;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -62,33 +60,33 @@ public class PluginCollection {
      */
     public void loadPlugins() {
         logger.trace("Loading plugins");
-        List<URL> urls = getPlayPluginFileUrls();
+        List<ClasspathResource> pluginsFiles = getPlayPluginFiles();
 
-        // First we build one big SortedSet of all plugins to load (sorted based on index)
-        // This must be done to make sure the enhancing is happening
-        // when loading plugins using other classes that must be enhanced.
-        SortedSet<PluginDescriptor> pluginsToLoad = new TreeSet<>();
-        for (URL url : urls) {
-            logger.trace("Found one plugins descriptor, {}", url);
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty()) {
-                        continue;
-                    }
-                    String[] lineParts = line.split(":");
-                    PluginDescriptor info = new PluginDescriptor(lineParts[1].trim(), Integer.parseInt(lineParts[0]), url);
-                    pluginsToLoad.add(info);
-                }
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Failed to read plugins descriptor " + url, e);
-            }
-        }
+        // Sort plugins by index
+        SortedSet<PluginDescriptor> pluginsToLoad = pluginsFiles.stream()
+          .map(this::readPluginsDescriptor)
+          .flatMap(List::stream)
+          .collect(toCollection(TreeSet::new));
 
         loadPlugins(pluginsToLoad);
     }
 
-    public void loadPlugins(SortedSet<PluginDescriptor> pluginsToLoad) {
+    private List<PluginDescriptor> readPluginsDescriptor(ClasspathResource pluginsFile) {
+        logger.trace("Found one plugins descriptor, {}", pluginsFile);
+        return pluginsFile.lines().stream()
+          .filter(line -> !line.trim().isEmpty())
+          .map(line -> toPluginDescriptor(pluginsFile, line))
+          .collect(toList());
+    }
+
+    @Nonnull
+    @CheckReturnValue
+    private PluginDescriptor toPluginDescriptor(ClasspathResource pluginsFile, String line) {
+        String[] lineParts = line.split(":");
+        return new PluginDescriptor(lineParts[1].trim(), parseInt(lineParts[0]), pluginsFile.url());
+    }
+
+    private void loadPlugins(SortedSet<PluginDescriptor> pluginsToLoad) {
         for (PluginDescriptor info : pluginsToLoad) {
             logger.trace("Loading plugin {}", info.name);
             PlayPlugin plugin = Injector.getBeanOfType(info.name);
@@ -96,7 +94,7 @@ public class PluginCollection {
             addPlugin(plugin);
             logger.trace("Plugin {} loaded", plugin);
         }
-        // Now we call onLoad for all plugins and we detect if a plugin disables another plugin the
+        // Now we call onLoad for all plugins, and we detect if a plugin disables another plugin the
         // old way, by removing it from Play.plugins.
         getEnabledPlugins().forEach(plugin -> {
             logger.trace("Initializing plugin {}", plugin);
@@ -104,23 +102,14 @@ public class PluginCollection {
         });
     }
 
-    List<URL> getPlayPluginFileUrls() {
+    List<ClasspathResource> getPlayPluginFiles() {
         String[] pluginsDescriptorFilenames = Play.configuration.getProperty("play.plugins.descriptor", "play.plugins").split(",");
-        List<URL> pluginDescriptors = Arrays.stream(pluginsDescriptorFilenames)
-          .map(f -> getResources(f))
+        List<ClasspathResource> pluginDescriptors = Arrays.stream(pluginsDescriptorFilenames)
+          .map(fileName -> ClasspathResource.files(fileName))
           .flatMap(List::stream)
           .collect(toList());
         logger.info("Found plugin descriptors: {}", pluginDescriptors);
         return pluginDescriptors;
-    }
-
-    private List<URL> getResources(String f) {
-        try {
-            return list(Thread.currentThread().getContextClassLoader().getResources(f));
-        }
-        catch (IOException e) {
-            throw new IllegalArgumentException("Failed to read plugins from " + f);
-        }
     }
 
     /**
@@ -145,6 +134,7 @@ public class PluginCollection {
      * @return PlayPlugin
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public <T extends PlayPlugin> T getPluginInstance(Class<T> pluginClazz) {
         return getAllPlugins()
           .filter(p -> pluginClazz.isInstance(p))
