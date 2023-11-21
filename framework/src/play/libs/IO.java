@@ -1,6 +1,5 @@
 package play.libs;
 
-import org.apache.commons.io.FileUtils;
 import play.exceptions.UnexpectedException;
 import play.utils.OrderSafeProperties;
 import play.vfs.VirtualFile;
@@ -9,7 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 public class IO {
@@ -41,13 +39,5 @@ public class IO {
         Properties properties = new OrderSafeProperties();
         properties.load(is);
         return properties;
-    }
-
-    public static String readContentAsString(File file, Charset encoding) {
-        try {
-            return FileUtils.readFileToString(file, encoding);
-        } catch (IOException e) {
-            throw new UnexpectedException(e);
-        }
     }
 }
