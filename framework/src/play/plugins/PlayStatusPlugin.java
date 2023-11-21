@@ -7,6 +7,8 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 import com.jamonapi.utils.Misc;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Play;
 import play.PlayPlugin;
@@ -27,6 +29,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 public class PlayStatusPlugin extends PlayPlugin {
+    private static final Logger log = LoggerFactory.getLogger(PlayStatusPlugin.class);
+
     /**
      * Get the application status
      * 
@@ -50,7 +54,7 @@ public class PlayStatusPlugin extends PlayPlugin {
                 }
             });
             return o.toString();
-        };
+        }
         StringBuilder dump = new StringBuilder(16);
         Play.pluginCollection.getEnabledPlugins().forEach(plugin -> {
             try {
@@ -71,7 +75,7 @@ public class PlayStatusPlugin extends PlayPlugin {
      * send it over the HTTP response.
      *
      * You can ask the /@status using the authorization header and putting your status secret key in it. Prior to that
-     * you would be required to start play with a -DstatusKey=yourkey
+     * you would be required to start play with a {@code -DstatusKey=yourkey}
      */
     @Override
     public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
@@ -128,12 +132,6 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println("Name: " + Play.configuration.getProperty("application.name", "(not set)"));
         out.println("Started at: "
                 + (Play.started ? new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(Play.startedAt)) : "Not yet started"));
-        out.println();
-        out.println("Loaded modules:");
-        out.println("~~~~~~~~~~~~~~");
-        for (String module : Play.modules.keySet()) {
-            out.println(module + " at " + Play.modules.get(module).getRealFile());
-        }
         out.println();
         out.println("Loaded plugins:");
         out.println("~~~~~~~~~~~~~~");
@@ -230,7 +228,7 @@ public class PlayStatusPlugin extends PlayPlugin {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Failed to generate status in JSON format", e);
             }
             status.add("monitors", monitors);
         }
@@ -247,14 +245,14 @@ public class PlayStatusPlugin extends PlayPlugin {
         Thread[] threads = new Thread[numThreads * 2];
         numThreads = group.enumerate(threads, false);
 
-        // Enumerate each thread in `group'
+        // Enumerate each thread in "group"
         for (int i = 0; i < numThreads; i++) {
             // Get thread
             Thread thread = threads[i];
             out.println(thread + " " + thread.getState());
         }
 
-        // Get thread subgroups of `group'
+        // Get thread subgroups of "group"
         int numGroups = group.activeGroupCount();
         ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
         numGroups = group.enumerate(groups, false);

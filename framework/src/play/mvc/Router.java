@@ -135,13 +135,6 @@ public class Router {
         }
         if (Play.routes.lastModified() > lastLoading) {
             loadRoutesFromFile();
-        } else {
-            for (VirtualFile file : Play.modulesRoutes.values()) {
-                if (file.lastModified() > lastLoading) {
-                    loadRoutesFromFile();
-                    return;
-                }
-            }
         }
     }
 
