@@ -17,8 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   private static final Logger logger = LoggerFactory.getLogger(PlayFileResourceAccessor.class);
 
@@ -78,9 +76,7 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   }
 
   @Override public List<String> describeLocations() {
-    return Play.roots.stream()
-      .map(vf -> vf.getRealFile().getAbsolutePath())
-      .collect(toList());
+    return List.of(Play.appRoot.getRealFile().getAbsolutePath());
   }
 
   @Override

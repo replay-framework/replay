@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,12 +54,6 @@ public class VirtualFile {
                 prefix = "";
                 break;
             }
-            String module = isRoot(f);
-            if (module != null) {
-                prefix = module;
-                break;
-            }
-
         }
         Collections.reverse(path);
         StringBuilder builder = new StringBuilder(prefix);
@@ -68,18 +61,6 @@ public class VirtualFile {
             builder.append('/').append(p);
         }
         return builder.toString();
-    }
-
-    private String isRoot(File f) {
-        for (VirtualFile vf : Play.roots) {
-            if (vf.realFile.getAbsolutePath().equals(f.getAbsolutePath())) {
-                String modulePathName = vf.getName();
-                String moduleName = modulePathName.contains("-") ? modulePathName.substring(0, modulePathName.lastIndexOf("-"))
-                        : modulePathName;
-                return "{module:" + moduleName + "}";
-            }
-        }
-        return null;
     }
 
     public List<VirtualFile> list() {
@@ -188,6 +169,7 @@ public class VirtualFile {
         return getName();
     }
 
+    @Deprecated
     @Nullable
     public static VirtualFile search(Collection<VirtualFile> roots, String path) {
         for (VirtualFile file : roots) {
@@ -196,6 +178,12 @@ public class VirtualFile {
             }
         }
         return null;
+    }
+
+    @Nullable
+    public static VirtualFile search(VirtualFile root, String path) {
+        VirtualFile child = root.child(path);
+        return child.exists() ? child : null;
     }
 
     public static VirtualFile fromRelativePath(String relativePath) {
@@ -208,15 +196,8 @@ public class VirtualFile {
         if (matcher.matches()) {
             String path = matcher.group(3);
             String module = matcher.group(2);
-            if (module == null || module.equals("?") || module.equals("")) {
+            if (module == null || module.equals("?") || module.isEmpty()) {
                 return new VirtualFile(Play.applicationPath).child(path);
-            }
-            else if (module.startsWith("module:")) {
-                module = module.substring("module:".length());
-                for (Entry<String, VirtualFile> entry : Play.modules.entrySet()) {
-                    if (entry.getKey().equals(module))
-                        return entry.getValue().child(path);
-                }
             }
         }
 

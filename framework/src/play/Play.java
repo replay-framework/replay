@@ -72,7 +72,7 @@ public class Play {
   /**
    * All paths to search for files
    */
-  public static List<VirtualFile> roots = new ArrayList<>(16);
+  public static VirtualFile appRoot;
   /**
    * All paths to search for templates files
    */
@@ -81,10 +81,7 @@ public class Play {
    * Main routes file
    */
   public static VirtualFile routes;
-  /**
-   * Plugin routes files
-   */
-  public static Map<String, VirtualFile> modulesRoutes = new HashMap<>(16);
+
   /**
    * The app configuration (already resolved from the framework id)
    */
@@ -102,14 +99,9 @@ public class Play {
    */
   public static String secretKey;
   /**
-   * pluginCollection that holds all loaded plugins and all enabled plugins..
+   * pluginCollection that holds all loaded plugins and all enabled plugins
    */
   public static PluginCollection pluginCollection = new PluginCollection();
-
-  /**
-   * Modules
-   */
-  public static Map<String, VirtualFile> modules = new HashMap<>(16);
 
   public static boolean usePrecompiled;
 
@@ -158,9 +150,6 @@ public class Play {
     setupApplicationMode();
     VirtualFile appRoot = setupAppRoot();
     routes = appRoot.child("conf/routes");
-
-    modulesRoutes.clear();
-    loadModules(appRoot);
 
     pluginCollection.loadPlugins();
 
@@ -234,10 +223,7 @@ public class Play {
   }
 
   private static VirtualFile setupAppRoot() {
-    // Build basic java source path
-    VirtualFile appRoot = VirtualFile.open(applicationPath);
-    roots.clear();
-    roots.add(appRoot);
+    appRoot = VirtualFile.open(applicationPath);
 
     // Build basic templates path
     templatesPath.clear();
@@ -331,7 +317,7 @@ public class Play {
   /**
    * Can only register shutdown-hook if running as standalone server
    * registers shutdown hook - Now there's a good chance that we can notify
-   * our plugins that we're going down when some calls ctrl+c or just kills our process..
+   * our plugins that we're going down when some calls ctrl+c or just kills our process
    */
   private void registerShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
@@ -373,53 +359,6 @@ public class Play {
     return pluginCollection.getPluginInstance(clazz);
   }
 
-  private void loadModules(VirtualFile appRoot) {
-    File localModules = Play.getFile("modules");
-    if (localModules.exists() && localModules.isDirectory()) {
-      for (File module : localModules.listFiles()) {
-        if (module == null || !module.exists()) {
-          logger.error("Module {} will not be loaded because {} does not exist", module.getName(), module.getAbsolutePath());
-        }
-        else if (module.isDirectory()) {
-          addModule(appRoot, module.getName(), module);
-        }
-        else {
-          File modulePath = new File(IO.readContentAsString(module, UTF_8).trim());
-          if (!modulePath.exists() || !modulePath.isDirectory()) {
-            logger.error("Module {} will not be loaded because {} does not exist", module.getName(), modulePath.getAbsolutePath());
-          }
-          else {
-            addModule(appRoot, module.getName(), modulePath);
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Add a play application (as plugin)
-   *
-   * @param appRoot the application path virtual file
-   * @param name    the module name
-   * @param path    The application path
-   */
-  private void addModule(VirtualFile appRoot, String name, File path) {
-    VirtualFile root = VirtualFile.open(path);
-    modules.put(name, root);
-    if (root.child("app/views").exists()
-        || (usePrecompiled && appRoot.child("precompiled/templates/from_module_" + name + "/app/views").exists())) {
-      templatesPath.add(root.child("app/views"));
-    }
-    if (root.child("conf/routes").exists()
-        || (usePrecompiled && appRoot.child("precompiled/templates/from_module_" + name + "/conf/routes").exists())) {
-      modulesRoutes.put(name, root.child("conf/routes"));
-    }
-    roots.add(root);
-    if (!name.startsWith("_")) {
-      logger.info("Module {} is available ({})", name, path.getAbsolutePath());
-    }
-  }
-
   /**
    * Search a VirtualFile in all loaded applications and plugins
    *
@@ -428,7 +367,7 @@ public class Play {
    */
   @Nullable
   public static VirtualFile getVirtualFile(String path) {
-    return VirtualFile.search(roots, path);
+    return VirtualFile.search(appRoot, path);
   }
 
   /**
