@@ -1,10 +1,9 @@
 package play.mvc;
 
-import java.util.Map.Entry;
-import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.ClasspathResource;
 import play.Play;
 import play.Play.Mode;
 import play.exceptions.NoRouteFoundException;
@@ -18,6 +17,7 @@ import play.utils.Default;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
@@ -133,7 +134,7 @@ public class Router {
         if (Play.routes == null) {
             return;
         }
-        if (Play.routes.lastModified() > lastLoading) {
+        if (Play.routes.isModifiedAfter(lastLoading)) {
             loadRoutesFromFile();
         }
     }
@@ -580,13 +581,13 @@ public class Router {
         final Pattern pattern;
         final List<Arg> args = new ArrayList<>(3);
         final Map<String, String> staticArgs = new HashMap<>(3);
-        public final String routesFile;
+        public final ClasspathResource routesFile;
         public final int routesFileLine;
 
         private static final Pattern customRegexPattern = Pattern.compile("\\{([a-zA-Z_][a-zA-Z_0-9]*)}");
         private static final Pattern argsPattern = Pattern.compile("\\{<([^>]+)>([a-zA-Z_0-9]+)}");
 
-        public Route(String method, String path, String action, String sourceFile, int line) {
+        public Route(String method, String path, String action, ClasspathResource sourceFile, int line) {
             this.method = method;
             this.path = path;
             this.action = action;

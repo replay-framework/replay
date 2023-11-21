@@ -2,8 +2,8 @@ package play.mvc.routing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.ClasspathResource;
 import play.mvc.Router.Route;
-import play.vfs.VirtualFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,22 +18,21 @@ public class RoutesParser {
    * Parse a route file. If an action starts with <i>"plugin:name"</i>, replace that route by the ones declared in the
    * plugin route file denoted by that <i>name</i>, if found.
    */
-  public List<Route> parse(VirtualFile routeFile) {
-    String fileAbsolutePath = routeFile.getRealFile().getAbsolutePath();
-    String content = routeFile.contentAsString();
-    assertDoesNotContain(fileAbsolutePath, content, "${");
-    assertDoesNotContain(fileAbsolutePath, content, "#{");
-    assertDoesNotContain(fileAbsolutePath, content, "%{");
-    return parse(content, fileAbsolutePath);
+  public List<Route> parse(ClasspathResource routesFile) {
+    String content = routesFile.content();
+    assertDoesNotContain(routesFile, content, "${");
+    assertDoesNotContain(routesFile, content, "#{");
+    assertDoesNotContain(routesFile, content, "%{");
+    return parse(content, routesFile);
   }
 
-  private void assertDoesNotContain(String fileAbsolutePath, String content, String substring) {
+  private void assertDoesNotContain(ClasspathResource routesFile, String content, String substring) {
     if (content.contains(substring)) {
-      throw new IllegalArgumentException("Routes file " + fileAbsolutePath + " cannot contain " + substring);
+      throw new IllegalArgumentException("Routes file " + routesFile + " cannot contain " + substring);
     }
   }
 
-  private List<Route> parse(String content, String fileAbsolutePath) {
+  private List<Route> parse(String content, ClasspathResource routesFile) {
     List<Route> routes = new ArrayList<>();
 
     int lineNumber = 0;
@@ -48,7 +47,7 @@ public class RoutesParser {
         if (route.action.startsWith("module:")) {
           throw new IllegalArgumentException(String.format("Modules are not supported anymore (found route '%s')", route.action));
         } else {
-          routes.add(new Route(route.method, route.path.replace("//", "/"), route.action, fileAbsolutePath, lineNumber));
+          routes.add(new Route(route.method, route.path.replace("//", "/"), route.action, routesFile, lineNumber));
         }
       }
       catch (IllegalArgumentException invalidRoute) {

@@ -8,7 +8,6 @@ import play.inject.BeanSource;
 import play.inject.DefaultBeanSource;
 import play.inject.Injector;
 import play.jobs.Job;
-import play.libs.IO;
 import play.mvc.ActionInvoker;
 import play.mvc.CookieSessionStore;
 import play.mvc.PlayController;
@@ -29,12 +28,11 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static play.ClasspathResource.file;
 
 /**
  * Main framework class
@@ -78,9 +76,9 @@ public class Play {
    */
   public static List<VirtualFile> templatesPath = new ArrayList<>(2);
   /**
-   * Main routes file
+   * The routes file
    */
-  public static VirtualFile routes;
+  public static ClasspathResource routes;
 
   /**
    * The app configuration (already resolved from the framework id)
@@ -148,11 +146,9 @@ public class Play {
     logger.info("Starting {}", applicationPath.getAbsolutePath());
     setupTmpDir();
     setupApplicationMode();
-    VirtualFile appRoot = setupAppRoot();
-    routes = appRoot.child("conf/routes");
-
+    setupAppRoot();
+    routes = file("routes");
     pluginCollection.loadPlugins();
-
     Play.invoker = new Invoker();
   }
 
