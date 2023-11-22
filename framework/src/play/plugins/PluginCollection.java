@@ -15,16 +15,22 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
-import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
@@ -282,7 +288,7 @@ public class PluginCollection {
         }
     }
 
-    public Optional<Template> loadTemplate(VirtualFile file) {
+    public Optional<Template> loadTemplate(File file) {
         return getEnabledPlugins()
           .map(plugin -> plugin.loadTemplate(file))
           .filter(template -> template.isPresent())

@@ -8,12 +8,12 @@ import play.mvc.Http;
 import play.mvc.results.NotFound;
 import play.templates.TemplateLoader;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -111,10 +111,10 @@ public class ServerHelper {
 
   @Nullable
   @CheckReturnValue
-  public VirtualFile findFile(String resource) {
-    VirtualFile file = Play.getVirtualFile(resource);
+  public File findFile(String resource) {
+    File file = Play.getVirtualFile(resource);
     if (file != null && file.exists() && file.isDirectory()) {
-      VirtualFile index = file.child("index.html");
+      File index = new File(file, "index.html");
       if (index.exists()) {
         return index;
       }
@@ -126,7 +126,7 @@ public class ServerHelper {
   @CheckReturnValue
   public String relativeUrl(String path, @Nullable String query) {
     return Stream.of(path, query)
-      .filter(s -> s != null && s.length() > 0)
+      .filter(s -> s != null && !s.isEmpty())
       .collect(joining("?"));
   }
 }

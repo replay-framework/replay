@@ -31,7 +31,6 @@ import play.server.ServerHelper;
 import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -572,7 +571,7 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serveStatic: begin");
 
     try {
-      VirtualFile file = serverHelper.findFile(renderStatic.file);
+      File file = serverHelper.findFile(renderStatic.file);
       if ((file == null || !file.exists())) {
         serve404(new NotFound("The file " + renderStatic.file + " does not exist"), exchange, request);
       } else {
@@ -593,10 +592,9 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  private void serveLocalFile(VirtualFile file, Http.Request request, Http.Response response,
+  private void serveLocalFile(File localFile, Http.Request request, Http.Response response,
                               HttpExchange exchange) throws IOException {
 
-    File localFile = file.getRealFile();
     boolean keepAlive = isKeepAlive(exchange);
     addEtag(exchange, localFile);
 

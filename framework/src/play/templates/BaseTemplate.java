@@ -7,7 +7,11 @@ public abstract class BaseTemplate extends Template {
     public static final ThreadLocal<Map<Object, Object>> layoutData = new ThreadLocal<>();
     public static final ThreadLocal<BaseTemplate> currentTemplate = new ThreadLocal<>();
 
-    public static final class RawData {
+  protected BaseTemplate(String name) {
+    super(name);
+  }
+
+  public static final class RawData {
 
         public String data;
 

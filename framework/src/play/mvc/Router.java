@@ -279,15 +279,15 @@ public class Router {
     }
 
     @Deprecated
-    public static String reverse(VirtualFile file) {
+    public static String reverse(File file) {
         return instance.reverse(file, false);
     }
 
-    private String reverse(VirtualFile file, boolean absolute) {
+    private String reverse(File file, boolean absolute) {
         if (file == null || !file.exists()) {
             throw new NoRouteFoundException("File not found (" + file + ")");
         }
-        String path = file.relativePath();
+        String path = Play.relativePath(file);
         path = path.substring(path.indexOf('}') + 1);
         for (Route route : routes) {
             String staticDir = route.staticDir;
@@ -310,10 +310,10 @@ public class Router {
                 }
             }
         }
-        throw new NoRouteFoundException(file.relativePath());
+        throw new NoRouteFoundException(file.getAbsolutePath());
     }
 
-    public static String reverseWithCheck(String name, VirtualFile file, boolean absolute) {
+    public static String reverseWithCheck(String name, File file, boolean absolute) {
         if (file == null || !file.exists()) {
             throw new NoRouteFoundException(name + " (file not found)");
         }

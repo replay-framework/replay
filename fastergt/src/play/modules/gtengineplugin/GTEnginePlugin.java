@@ -5,6 +5,7 @@ import play.PlayPlugin;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import java.io.File;
 import java.util.Optional;
 
 public class GTEnginePlugin extends PlayPlugin {
@@ -17,11 +18,11 @@ public class GTEnginePlugin extends PlayPlugin {
         // Make sure our app/view-folder is the first one amongst the modules listed in Play.templatesPath
         // Look for our path
         int index = 0;
-        for( VirtualFile vf : Play.templatesPath ) {
-            // This is our path if we find the special file here..
-            if (vf.child("__faster_groovy_templates.txt").exists()) {
+        for (File vf : Play.templatesPath ) {
+            // This is our path if we find the special file here
+            if (new File(vf, "__faster_groovy_templates.txt").exists()) {
                 // This is our path.
-                if ( index == 1) {
+                if (index == 1) {
                     // the location is correct
                 } else {
                     // move it to location 1 (right after the app-view folder
@@ -47,7 +48,7 @@ public class GTEnginePlugin extends PlayPlugin {
     }
 
     @Override
-    public Optional<Template> loadTemplate(VirtualFile file) {
+    public Optional<Template> loadTemplate(File file) {
         return Optional.of(TemplateLoader.load(file));
     }
 }

@@ -9,17 +9,14 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
-
-    // when null we look for templates in working directory, if list, we look for template in those folders.
     private final List<File> templateFolders;
 
-    public GTFileResolver1xImpl(List<VirtualFile> templatesPaths) {
-        templateFolders = templatesPaths.stream().map(path -> path.getRealFile()).collect(toList());
+    public GTFileResolver1xImpl(List<File> templatesPaths) {
+        templateFolders = new ArrayList<>(templatesPaths);
     }
 
     @Nullable
@@ -52,10 +49,10 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
         }
         
         // try to find it directly on the app-root before we give up
-        VirtualFile tf = Play.getVirtualFile(queryPath);
+        File tf = Play.getVirtualFile(queryPath);
         if (tf != null && tf.exists() && !tf.isDirectory()) {
             try {
-                return new GTTemplateLocationReal(tf.relativePath(), tf.getRealFile().toURI().toURL());
+                return new GTTemplateLocationReal(Play.relativePath(tf), tf.toURI().toURL());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }

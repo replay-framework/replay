@@ -19,7 +19,7 @@ public class PlayBuilder {
 
     public void build() {
         Play.configuration = new Properties();
-        Play.applicationPath = new File(".");
+        Play.appRoot = new File(".");
     }
 
     public void initMvcObject() {

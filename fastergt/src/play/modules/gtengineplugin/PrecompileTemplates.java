@@ -5,8 +5,8 @@ import play.PlayPlugin;
 import play.plugins.PluginCollection;
 import play.templates.Template;
 import play.templates.TemplateLoader;
-import play.vfs.VirtualFile;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,7 +45,7 @@ public class PrecompileTemplates {
   private static class IgnoreOtherTemplatesPlugin extends PlayPlugin {
     private final DummyTemplate dummyTemplate = new DummyTemplate();
 
-    @Override public Optional<Template> loadTemplate(VirtualFile file) {
+    @Override public Optional<Template> loadTemplate(File file) {
       if (file.getName().endsWith(".html") || file.getName().endsWith(".tag")
         || file.getName().endsWith(".xml") || file.getName().endsWith(".json") || file.getName().endsWith(".txt")) {
         // will be precompiled by GTEnginePlugin
@@ -64,6 +64,10 @@ public class PrecompileTemplates {
   }
 
   private static class DummyTemplate extends Template {
+    private DummyTemplate() {
+      super("Dummy");
+    }
+
     @Override public void compile() {
     }
 
