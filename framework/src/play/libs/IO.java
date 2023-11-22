@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FileUtils.readFileToString;
+
 public class IO {
     public static Properties readUtf8Properties(File file) {
         try (InputStream in = new FileInputStream(file)) {
@@ -29,5 +32,13 @@ public class IO {
         Properties properties = new OrderSafeProperties();
         properties.load(is);
         return properties;
+    }
+
+    public static String contentAsString(File file) {
+        try {
+            return readFileToString(file, UTF_8);
+        } catch (IOException e) {
+            throw new UnexpectedException("Failed to read " + file.getAbsolutePath(), e);
+        }
     }
 }

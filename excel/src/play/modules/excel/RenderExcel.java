@@ -5,6 +5,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Play;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -12,8 +13,9 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
-import play.vfs.VirtualFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -28,24 +30,23 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * This Result try to render Excel file with given template and beans map The
  * code use jxls and poi library to render Excel
  */
-@SuppressWarnings("serial")
 public class RenderExcel extends Result {
     private static final Logger logger = LoggerFactory.getLogger(RenderExcel.class);
 
     public static final String RA_FILENAME = "__FILE_NAME__";
 
-    private final VirtualFile file;
+    private final File file;
     private final String fileName; // recommended report file name
     private final Map<String, Object> beans;
 
-    public RenderExcel(VirtualFile file, Map<String, Object> beans) {
+    public RenderExcel(File file, Map<String, Object> beans) {
         this(file, beans, null);
     }
 
-    public RenderExcel(VirtualFile file, Map<String, Object> beans, String fileName) {
+    public RenderExcel(File file, Map<String, Object> beans, String fileName) {
         this.file = file;
         this.beans = beans;
-        this.fileName = fileName == null ? fileName_(file.relativePath()) : fileName;
+        this.fileName = fileName == null ? fileName_(Play.relativePath(file)) : fileName;
     }
 
     public String getFileName() {
@@ -64,14 +65,14 @@ public class RenderExcel extends Result {
     @Override
     public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
           logger.debug("use sync excel rendering");
-          try (InputStream is = file.inputstream()) {
+          try (InputStream is = new FileInputStream(file)) {
               long start = nanoTime();
               Map<String, Object> args = new HashMap<>(beans);
               Workbook workbook = new XLSTransformer().transformXLS(is, args);
               workbook.write(response.out);
               logger.debug("Excel sync render takes {}ms", NANOSECONDS.toMillis(nanoTime() - start));
           } catch (IOException | InvalidFormatException e) {
-              throw new UnexpectedException(e);
+              throw new UnexpectedException("Failed to generate Excel file from template " + file.getAbsolutePath(), e);
           }
     }
 

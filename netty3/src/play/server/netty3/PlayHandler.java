@@ -54,7 +54,6 @@ import play.server.ServerHelper;
 import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -663,7 +662,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
         try {
-            VirtualFile file = serverHelper.findFile(renderStatic.file);
+            File file = serverHelper.findFile(renderStatic.file);
             if ((file == null || !file.exists())) {
                 serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, request);
             } else {
@@ -686,11 +685,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serveStatic: end");
     }
 
-    private void serveLocalFile(VirtualFile file, Request request, Response response, 
+    private void serveLocalFile(File localFile, Request request, Response response, 
                                 ChannelHandlerContext ctx, MessageEvent e, 
                                 HttpRequest nettyRequest, HttpResponse nettyResponse) throws FileNotFoundException {
-      
-        File localFile = file.getRealFile();
         boolean keepAlive = isKeepAlive(nettyRequest);
         addEtag(nettyRequest, nettyResponse, localFile);
 

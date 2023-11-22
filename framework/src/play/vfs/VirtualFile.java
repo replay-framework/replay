@@ -1,6 +1,5 @@
 package play.vfs;
 
-import org.apache.commons.io.IOUtils;
 import play.Play;
 import play.exceptions.UnexpectedException;
 
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,9 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
-import static org.apache.commons.io.FileUtils.readFileToString;
 
 public class VirtualFile {
 
@@ -50,7 +46,7 @@ public class VirtualFile {
             if (f == null) {
                 break; // ??
             }
-            if (f.equals(Play.applicationPath)) {
+            if (f.equals(Play.appRoot)) {
                 prefix = "";
                 break;
             }
@@ -86,21 +82,6 @@ public class VirtualFile {
         } catch (IOException e) {
             throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
         }
-    }
-
-    public void writeTo(Writer output) {
-        try (InputStream in = inputstream()) {
-            IOUtils.copy(in, output, UTF_8);
-        } catch (IOException e) {
-            throw new UnexpectedException("Failed to copy " + realFile.getAbsolutePath(), e);
-        }
-    }
-
-    public Long lastModified() {
-        if (realFile != null) {
-            return realFile.lastModified();
-        }
-        return 0L;
     }
 
     @Override
@@ -140,14 +121,6 @@ public class VirtualFile {
         return new VirtualFile(file);
     }
 
-    public String contentAsString() {
-        try {
-            return readFileToString(realFile, UTF_8);
-        } catch (IOException e) {
-            throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
-        }
-    }
-
     public File getRealFile() {
         return realFile;
     }
@@ -180,12 +153,6 @@ public class VirtualFile {
         return null;
     }
 
-    @Nullable
-    public static VirtualFile search(VirtualFile root, String path) {
-        VirtualFile child = root.child(path);
-        return child.exists() ? child : null;
-    }
-
     public static VirtualFile fromRelativePath(String relativePath) {
         if (relativePath == null) {
             return null;
@@ -197,7 +164,7 @@ public class VirtualFile {
             String path = matcher.group(3);
             String module = matcher.group(2);
             if (module == null || module.equals("?") || module.isEmpty()) {
-                return new VirtualFile(Play.applicationPath).child(path);
+                return new VirtualFile(Play.appRoot).child(path);
             }
         }
 

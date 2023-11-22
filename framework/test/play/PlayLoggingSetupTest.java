@@ -23,14 +23,14 @@ public class PlayLoggingSetupTest {
   @BeforeAll
   public static void rememberOriginalConfigurationAndLog() {
     playConfig = Play.configuration;
-    applicationPath = Play.applicationPath;
+    applicationPath = Play.appRoot;
     id = Play.id;
   }
 
   @AfterAll
   public static void restoreOriginalConfigurationAndLog() {
     Play.configuration = playConfig;
-    Play.applicationPath = applicationPath;
+    Play.appRoot = applicationPath;
     Play.id = id;
     if (Play.id != null && Play.configuration != null) {
       loggingSetup.init();
@@ -40,7 +40,7 @@ public class PlayLoggingSetupTest {
   @BeforeEach
   public void setUp() {
     Play.configuration = new Properties();
-    Play.applicationPath = new File(".");
+    Play.appRoot = new File(".");
     Play.id = "test";
   }
 

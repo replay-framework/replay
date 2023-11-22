@@ -5,8 +5,11 @@ import java.util.Map;
 
 public abstract class Template {
 
-    public String name;
-    public String source;
+    public final String name;
+
+    protected Template(String name) {
+        this.name = name;
+    }
 
     public abstract void compile();
 
@@ -39,7 +42,7 @@ public abstract class Template {
     protected abstract String internalRender(Map<String, Object> args);
 
     public String render() {
-        return internalRender(new HashMap<String, Object>());
+        return internalRender(new HashMap<>());
     }
 
     public String getName() {

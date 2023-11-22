@@ -26,9 +26,9 @@ public class GTTemplate extends Template {
     private final GTJavaBase gtJavaBase;
 
     public GTTemplate(GTTemplateLocation templateLocation, @Nullable GTJavaBase gtJavaBase) {
-        this.templateLocation = templateLocation;
-        this.gtJavaBase = gtJavaBase;
-        this.name = templateLocation.relativePath;
+      super(templateLocation.relativePath);
+      this.templateLocation = templateLocation;
+      this.gtJavaBase = gtJavaBase;
     }
 
     @Override

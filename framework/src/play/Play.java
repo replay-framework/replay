@@ -17,7 +17,6 @@ import play.plugins.PluginCollection;
 import play.templates.FastTags;
 import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -63,18 +62,14 @@ public class Play {
   public static boolean started;
   public static String id = System.getProperty("play.id", "");
   public static Mode mode = Mode.DEV;
-  public static File applicationPath = new File(System.getProperty("user.dir"));
+  public static File appRoot = new File(System.getProperty("user.dir"));
   public static File tmpDir;
   public static final ApplicationClasses classes = new ApplicationClasses();
 
   /**
-   * All paths to search for files
-   */
-  public static VirtualFile appRoot;
-  /**
    * All paths to search for templates files
    */
-  public static List<VirtualFile> templatesPath = new ArrayList<>(2);
+  public static List<File> templatesPath = new ArrayList<>(2);
   /**
    * The routes file
    */
@@ -143,7 +138,7 @@ public class Play {
     setupBase(id);
     readConfiguration();
     new PlayLoggingSetup().init();
-    logger.info("Starting {}", applicationPath.getAbsolutePath());
+    logger.info("Starting {}", appRoot.getAbsolutePath());
     setupTmpDir();
     setupApplicationMode();
     setupAppRoot();
@@ -161,7 +156,7 @@ public class Play {
   public void minimalInit(String id) {
     setupBase(id);
     new PlayLoggingSetup().init();
-    logger.info("Starting {}", applicationPath.getAbsolutePath());
+    logger.info("Starting {}", appRoot.getAbsolutePath());
     setupTmpDir();
     setupApplicationMode();
     setupAppRoot();
@@ -174,7 +169,6 @@ public class Play {
     Play.usePrecompiled = "true".equals(System.getProperty("precompiled", "false"));
     Play.id = id;
     Play.started = false;
-    Play.applicationPath = new File(System.getProperty("user.dir"));
   }
 
   private static void setupTmpDir() {
@@ -185,7 +179,7 @@ public class Play {
     else {
       tmpDir = new File(configuration.getProperty("play.tmp", "tmp"));
       if (!tmpDir.isAbsolute()) {
-        tmpDir = new File(applicationPath, tmpDir.getPath());
+        tmpDir = new File(appRoot, tmpDir.getPath());
       }
 
       logger.trace("Using {} as tmp dir", Play.tmpDir);
@@ -218,15 +212,12 @@ public class Play {
     }
   }
 
-  private static VirtualFile setupAppRoot() {
-    appRoot = VirtualFile.open(applicationPath);
-
+  private static void setupAppRoot() {
     // Build basic templates path
     templatesPath.clear();
-    if (appRoot.child("app/views").exists() || (usePrecompiled && appRoot.child("precompiled/templates/app/views").exists())) {
-      templatesPath.add(appRoot.child("app/views"));
+    if (new File(appRoot, "app/views").exists() || (usePrecompiled && new File(appRoot, "precompiled/templates/app/views").exists())) {
+      templatesPath.add(new File(appRoot, "app/views"));
     }
-    return appRoot;
   }
 
   public ActionInvoker getActionInvoker() {
@@ -362,8 +353,9 @@ public class Play {
    * @return The virtualFile or null
    */
   @Nullable
-  public static VirtualFile getVirtualFile(String path) {
-    return VirtualFile.search(appRoot, path);
+  public static File getVirtualFile(String path) {
+    File file = new File(appRoot, path);
+    return file.exists() ? file : null;
   }
 
   /**
@@ -373,7 +365,7 @@ public class Play {
    * @return The file even if it doesn't exist
    */
   public static File getFile(String path) {
-    return new File(applicationPath, path);
+    return new File(appRoot, path);
   }
 
   /**
@@ -391,4 +383,7 @@ public class Play {
     return "mock".equals(configuration.getProperty("mail.smtp", "")) && mode == Mode.DEV;
   }
 
+  public static String relativePath(File file) {
+    return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "");
+  }
 }

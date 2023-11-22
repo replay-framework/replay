@@ -19,6 +19,7 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+@ParametersAreNonnullByDefault
 public class PlayStatusPlugin extends PlayPlugin {
     private static final Logger log = LoggerFactory.getLogger(PlayStatusPlugin.class);
 
@@ -128,7 +130,7 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println();
         out.println("Application:");
         out.println("~~~~~~~~~~~~");
-        out.println("Path: " + Play.applicationPath);
+        out.println("Path: " + Play.appRoot);
         out.println("Name: " + Play.configuration.getProperty("application.name", "(not set)"));
         out.println("Started at: "
                 + (Play.started ? new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(Play.startedAt)) : "Not yet started"));
@@ -199,7 +201,7 @@ public class PlayStatusPlugin extends PlayPlugin {
         {
             JsonObject application = new JsonObject();
             application.addProperty("uptime", Play.started ? System.currentTimeMillis() - Play.startedAt : -1);
-            application.addProperty("path", Play.applicationPath.getAbsolutePath());
+            application.addProperty("path", Play.appRoot.getAbsolutePath());
             status.add("application", application);
         }
 
@@ -240,7 +242,7 @@ public class PlayStatusPlugin extends PlayPlugin {
      * Recursively visit all JVM threads
      */
     private void visit(PrintWriter out, ThreadGroup group, int level) {
-        // Get threads in `group'
+        // Get threads in 'group'
         int numThreads = group.activeCount();
         Thread[] threads = new Thread[numThreads * 2];
         numThreads = group.enumerate(threads, false);

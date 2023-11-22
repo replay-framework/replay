@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 import play.PlayPlugin;
 import play.libs.IO;
-import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,13 +24,13 @@ public class MessagesPlugin extends PlayPlugin {
     public void onApplicationStart() {
         includeMessageFilenames.clear();
         Messages.defaults = new Properties();
-        VirtualFile appDM = Play.getVirtualFile("conf/messages");
+        File appDM = Play.getVirtualFile("conf/messages");
         if (appDM != null && appDM.exists() && !appDM.isDirectory()) {
             Messages.defaults.putAll(read(appDM));
         }
         for (String locale : Play.langs) {
             Properties properties = new Properties();
-            VirtualFile appM = Play.getVirtualFile("conf/messages." + locale);
+            File appM = Play.getVirtualFile("conf/messages." + locale);
             if (appM != null && appM.exists() && !appM.isDirectory()) {
                 properties.putAll(read(appM));
             } else {
@@ -40,13 +39,6 @@ public class MessagesPlugin extends PlayPlugin {
             Messages.locales.put(locale, properties);
         }
         lastLoading = System.currentTimeMillis();
-    }
-
-    Properties read(VirtualFile vf) {
-        if (vf != null) {
-            return read(vf.getRealFile());
-        }
-        return null;
     }
 
     Properties read(File file) {
@@ -95,7 +87,7 @@ public class MessagesPlugin extends PlayPlugin {
 
     @Override
     public void detectChange() {
-        VirtualFile vf = Play.getVirtualFile("conf/messages");
+        File vf = Play.getVirtualFile("conf/messages");
         if (vf != null && vf.exists() && !vf.isDirectory()
                 && vf.lastModified() > lastLoading) {
             onApplicationStart();

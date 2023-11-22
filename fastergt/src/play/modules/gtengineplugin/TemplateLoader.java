@@ -10,7 +10,6 @@ import play.template2.*;
 import play.template2.compile.GTCompiler;
 import play.template2.compile.GTGroovyPimpTransformer;
 import play.templates.Template;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -32,14 +31,14 @@ public class TemplateLoader {
 
 
         if ( Play.configuration.getProperty("save-gttemplate-source-to-disk", null) != null ) {
-            GTCompiler.srcDestFolder = new File(Play.applicationPath, Play.configuration.getProperty("save-gttemplate-source-to-disk", null));
+            GTCompiler.srcDestFolder = new File(Play.appRoot, Play.configuration.getProperty("save-gttemplate-source-to-disk", null));
         }
 
         File folderToDumpClassesIn = null;
         if ( System.getProperty("precompile")!=null) {
-            folderToDumpClassesIn = new File(Play.applicationPath, "precompiled/java");
+            folderToDumpClassesIn = new File(Play.appRoot, "precompiled/java");
         } else if( Play.mode != Play.Mode.PROD ) {
-            folderToDumpClassesIn = new File(Play.applicationPath, "tmp/gttemplates");
+            folderToDumpClassesIn = new File(Play.appRoot, "tmp/gttemplates");
         }
 
         templateRepo = new GTTemplateRepo(
@@ -54,12 +53,12 @@ public class TemplateLoader {
      * @param file A VirtualFile
      * @return The executable template
      */
-    public static Template load(VirtualFile file) {
+    public static Template load(File file) {
         // Use default engine
 
         GTTemplateLocationReal templateLocation;
         try {
-            templateLocation = new GTTemplateLocationReal(file.relativePath(), file.getRealFile().toURI().toURL());
+            templateLocation = new GTTemplateLocationReal(Play.relativePath(file), file.toURI().toURL());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -99,11 +98,11 @@ public class TemplateLoader {
      */
     public static Template load(String path) {
         Template template = null;
-        for (VirtualFile vf : Play.templatesPath) {
+        for (File vf : Play.templatesPath) {
             if (vf == null) {
                 continue;
             }
-            VirtualFile tf = vf.child(path);
+            File tf = new File(vf, path);
             if (tf.exists()) {
                 template = load(tf);
                 break;
@@ -111,7 +110,7 @@ public class TemplateLoader {
         }
 
         if (template == null) {
-            VirtualFile tf = Play.getVirtualFile(path);
+            File tf = Play.getVirtualFile(path);
             if (tf != null && tf.exists()) {
                 template = load(tf);
             } else {

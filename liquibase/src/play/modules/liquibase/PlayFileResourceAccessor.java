@@ -7,7 +7,6 @@ import liquibase.resource.URIResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
-import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -21,12 +20,12 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   private static final Logger logger = LoggerFactory.getLogger(PlayFileResourceAccessor.class);
 
   File findFile(String changeLogPath) {
-    VirtualFile virtualFile = findVirtualFile(changeLogPath);
+    File virtualFile = findVirtualFile(changeLogPath);
     if (virtualFile == null) throw new IllegalArgumentException("Changelog file not found: app/" + changeLogPath);
-    return virtualFile.getRealFile();
+    return virtualFile;
   }
 
-  private VirtualFile findVirtualFile(String path) {
+  private File findVirtualFile(String path) {
     // TODO remove this hack.
     // TODO Why LiquiBase adds prefix "app/" for included files?
     return Play.getVirtualFile(path.startsWith("app/") ? path : "app/" + path);
@@ -59,7 +58,7 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   @Override
   public List<Resource> getAll(String path) {
     List<Resource> foundResources = new ArrayList<>();
-    VirtualFile virtualFile = findVirtualFile(path);
+    File virtualFile = findVirtualFile(path);
     if (virtualFile != null) {
       foundResources.add(toResource(virtualFile));
     }
@@ -71,12 +70,12 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
 
   @Nonnull
   @CheckReturnValue
-  private PathResource toResource(VirtualFile virtualFile) {
-    return new PathResource(virtualFile.relativePath(), virtualFile.getRealFile().toPath());
+  private PathResource toResource(File virtualFile) {
+    return new PathResource(Play.relativePath(virtualFile), virtualFile.toPath());
   }
 
   @Override public List<String> describeLocations() {
-    return List.of(Play.appRoot.getRealFile().getAbsolutePath());
+    return List.of(Play.appRoot.getAbsolutePath());
   }
 
   @Override
