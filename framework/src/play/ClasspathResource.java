@@ -1,13 +1,15 @@
 package play;
 
 import org.apache.commons.io.IOUtils;
-import play.exceptions.UnexpectedException;
+import play.libs.IO;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -50,20 +52,11 @@ public class ClasspathResource {
   }
 
   public String content() {
-    try {
-      return IOUtils.toString(url, UTF_8);
-    } catch (IOException e) {
-      throw new UnexpectedException(e);
-    }
+    return read(in -> IOUtils.toString(url, UTF_8));
   }
   
   public List<String> lines() {
-    try (InputStream in = url.openStream()) {
-      return IOUtils.readLines(in, UTF_8);
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Failed to read file " + url, e);
-    }
+    return read(in -> IOUtils.readLines(in, UTF_8));
   }
   
   public boolean isModifiedAfter(long timestamp) {
@@ -82,5 +75,22 @@ public class ClasspathResource {
 
   String getJarFilePath() {
     return RE_JAR_FILE_NAME.matcher(url.getPath()).replaceFirst("$1");
+  }
+
+  public Properties toProperties() {
+    return read(IO::readUtf8Properties);
+  }
+  
+  private <T> T read(IOFunction<InputStream, T> lambda) {
+    try (InputStream in = new BufferedInputStream(url.openStream())) {
+      return lambda.apply(in);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Failed to read file " + fileName + " content from " + url, e);
+    }
+  }
+
+  @FunctionalInterface
+  private interface IOFunction<Input, Output> {
+    Output apply(Input input) throws IOException;
   }
 }
