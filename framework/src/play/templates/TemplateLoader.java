@@ -76,6 +76,11 @@ public class TemplateLoader {
             return TemplateLoader.load(tf);
         }
 
+        URL fromClasspath = Thread.currentThread().getContextClassLoader().getResource("views/" + path);
+        if (fromClasspath != null) {
+            return loadTemplateFromClasspath(path, fromClasspath);
+        }
+
         URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
         if (resource != null) {
             return loadTemplateFromClasspath(path, resource);
