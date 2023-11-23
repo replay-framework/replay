@@ -2,7 +2,6 @@ package hello.plugins;
 
 import play.PlayPlugin;
 import play.templates.Template;
-import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.util.Optional;

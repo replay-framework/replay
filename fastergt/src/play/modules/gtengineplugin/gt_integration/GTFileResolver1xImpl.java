@@ -3,7 +3,6 @@ package play.modules.gtengineplugin.gt_integration;
 import play.Play;
 import play.template2.GTFileResolver;
 import play.template2.GTTemplateLocationReal;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -23,26 +22,26 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
     @Override 
     public GTTemplateLocationReal getTemplateLocationReal(String queryPath) {
         // look for template file in all folders in templateFolders-list
-        for ( File folder : templateFolders) {
+        for (File folder : templateFolders) {
 
             if ( folder == null) {
                 // look for template in working dir.
                 File file = new File(queryPath);
                 if (file.exists() && file.isFile()) {
                     try {
-                        return new GTTemplateLocationReal(VirtualFile.open(file).relativePath(), file.toURI().toURL());
+                        return new GTTemplateLocationReal(Play.relativePath(file), file.toURI().toURL());
                     } catch (MalformedURLException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Failed to read template from " + file.getAbsolutePath(), e);
                     }
                 }
             } else {
 
-                File file = new File ( folder, queryPath);
+                File file = new File(folder, queryPath);
                 if (file.exists() && file.isFile()) {
                     try {
-                        return new GTTemplateLocationReal(VirtualFile.open(file).relativePath(), file.toURI().toURL());
+                        return new GTTemplateLocationReal(Play.relativePath(file), file.toURI().toURL());
                     } catch (MalformedURLException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Failed to read template from " + file.getAbsolutePath(), e);
                     }
                 }
             }
@@ -54,11 +53,16 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
             try {
                 return new GTTemplateLocationReal(Play.relativePath(tf), tf.toURI().toURL());
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to read template from " + tf.getAbsolutePath(), e);
             }
         }
 
         // try to find in classpath (e.g. "tags/select.tag" is located in "io.github.replay-framework:framework.jar")
+        URL fromClasspath = Thread.currentThread().getContextClassLoader().getResource("views/" + queryPath);
+        if (fromClasspath != null) {
+            return new GTTemplateLocationReal(queryPath, fromClasspath);
+        }
+        
         URL resource = Thread.currentThread().getContextClassLoader().getResource(queryPath);
         if (resource != null) {
             return new GTTemplateLocationReal(queryPath, resource);
@@ -71,16 +75,17 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
     @Nullable
     @Override 
     public GTTemplateLocationReal getTemplateLocationFromRelativePath(String relativePath) {
-        
-        VirtualFile vf = VirtualFile.fromRelativePath(relativePath);
+
+        // TODO find in classpath?
+        File vf = Play.getVirtualFile(relativePath);
         if ( vf == null || !vf.exists() || vf.isDirectory()) {
             return null;
         }
 
         try {
-            return new GTTemplateLocationReal(relativePath, vf.getRealFile().toURI().toURL());
+            return new GTTemplateLocationReal(relativePath, vf.toURI().toURL());
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to read template from " + vf.getAbsolutePath(), e);
         }
     }
 

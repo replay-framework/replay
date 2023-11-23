@@ -28,7 +28,7 @@ public class SpecialTests {
         }
         
         assertThat(e).isNotNull();
-        assertThat(e.getMessage()).isEqualTo("Cannot find template");
+        assertThat(e.getMessage()).isEqualTo("Cannot find template missing.txt");
         assertThat(e.templateLocation.relativePath).contains("_generated_key_"); // generated source without filename
 
 
@@ -40,7 +40,7 @@ public class SpecialTests {
         }
 
         assertThat(e).isNotNull();
-        assertThat(e.getMessage()).isEqualTo("Cannot find template");
+        assertThat(e.getMessage()).isEqualTo("Cannot find template missing.txt");
         assertThat(e.templateLocation.relativePath).contains("_generated_key_"); // generated source without filename
 
     }

@@ -49,8 +49,8 @@ public class TemplateLoader {
     }
 
     /**
-     * Load a template from a virtual file
-     * @param file A VirtualFile
+     * Load a template from a file
+     * @param file A File
      * @return The executable template
      */
     public static Template load(File file) {

@@ -120,7 +120,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
             // Must create a new map to prevent script-generated variables to leak out
             final HashMap<String, Object> bindingsMap = new HashMap<>(orgArgs);
             if( tagArgs != null ) {
-                // make them available at scope, but not in orgArgs so they do not get passed along..
+                // make them available at scope, but not in orgArgs so they do not get passed along
                 bindingsMap.putAll(tagArgs);
             }
             this.binding = new Binding(bindingsMap);
@@ -136,7 +136,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
             // call _renderTemplate directly
             _renderTemplate();
 
-            // check if "we" have extended another template..
+            // check if "we" have extended another template
             if (extendsTemplateLocation != null) {
                 
                 if ( callingTemplate == null ) {
@@ -382,7 +382,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
      * @param name
      * @return
      */
-    public GTTemplateLocationReal resolveTemplateLocation (String name) {
+    public GTTemplateLocationReal resolveTemplateLocation(String name) {
         if (name.startsWith("./")) {
             String ct = this.templateLocation.relativePath;
             if (ct.matches("^/lib/[^/]+/app/views/.*")) {

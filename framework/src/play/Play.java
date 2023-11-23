@@ -347,7 +347,7 @@ public class Play {
   }
 
   /**
-   * Search a VirtualFile in all loaded applications and plugins
+   * Search a File in the application
    *
    * @param path Relative path from the applications root
    * @return The virtualFile or null
