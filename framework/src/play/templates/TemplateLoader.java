@@ -23,10 +23,9 @@ public class TemplateLoader {
     private static final Map<String, BaseTemplate> templates = new HashMap<>();
 
     /**
-     * Load a template from a virtual file
+     * Load a template from a file
      * 
-     * @param file
-     *            A VirtualFile
+     * @param file A File
      * @return The executable template
      */
     public static Template load(File file) {
@@ -90,9 +89,9 @@ public class TemplateLoader {
     }
 
     private static Template loadTemplateFromClasspath(String path, URL resource) {
-        File tmpTemplateFile = new File(Play.tmpDir, path);
+        File templateFile = new File(Play.tmpDir, path);
         try {
-            copyURLToFile(resource, tmpTemplateFile);
+            copyURLToFile(resource, templateFile);
         }
         catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,25 +1,25 @@
 package play.vfs;
 
-import play.Play;
 import play.exceptions.UnexpectedException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
+/**
+ * @deprecated This class is not needed anymore. 
+ * It was used in Play! framework to load resources from local folder "modules" which was a custom dependency management mechanism.
+ * RePlay uses standard Maven/Gradle dependencies. Folder "modules" doesn't exist anymore.
+ * 
+ * So we use plain old `java.util.File` instead.
+ */
+@Deprecated
 public class VirtualFile {
 
     private final File realFile;
@@ -32,75 +32,8 @@ public class VirtualFile {
         return realFile.getName();
     }
 
-    public boolean isDirectory() {
-        return realFile.isDirectory();
-    }
-
-    public String relativePath() {
-        List<String> path = new ArrayList<>();
-        File f = realFile;
-        String prefix = "{?}";
-        while (true) {
-            path.add(f.getName());
-            f = f.getParentFile();
-            if (f == null) {
-                break; // ??
-            }
-            if (f.equals(Play.appRoot)) {
-                prefix = "";
-                break;
-            }
-        }
-        Collections.reverse(path);
-        StringBuilder builder = new StringBuilder(prefix);
-        for (String p : path) {
-            builder.append('/').append(p);
-        }
-        return builder.toString();
-    }
-
-    public List<VirtualFile> list() {
-        List<VirtualFile> res = new ArrayList<>();
-        if (exists()) {
-            File[] children = realFile.listFiles();
-            if (children != null) {
-                for (File aChildren : children) {
-                    res.add(new VirtualFile(aChildren));
-                }
-            }
-        }
-        return res;
-    }
-
     public boolean exists() {
         return realFile != null && realFile.exists();
-    }
-
-    public InputStream inputstream() {
-        try {
-            return new FileInputStream(realFile);
-        } catch (IOException e) {
-            throw new UnexpectedException("Failed to read " + realFile.getAbsolutePath(), e);
-        }
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof VirtualFile) {
-            VirtualFile vf = (VirtualFile) other;
-            if (realFile != null && vf.realFile != null) {
-                return realFile.equals(vf.realFile);
-            }
-        }
-        return super.equals(other);
-    }
-
-    @Override
-    public int hashCode() {
-        if (realFile != null) {
-            return realFile.hashCode();
-        }
-        return super.hashCode();
     }
 
     public long length() {
@@ -150,24 +83,6 @@ public class VirtualFile {
                 return file.child(path);
             }
         }
-        return null;
-    }
-
-    public static VirtualFile fromRelativePath(String relativePath) {
-        if (relativePath == null) {
-            return null;
-        }
-        Pattern pattern = Pattern.compile("^(\\{(.+?)})?(.*)$");
-        Matcher matcher = pattern.matcher(relativePath);
-
-        if (matcher.matches()) {
-            String path = matcher.group(3);
-            String module = matcher.group(2);
-            if (module == null || module.equals("?") || module.isEmpty()) {
-                return new VirtualFile(Play.appRoot).child(path);
-            }
-        }
-
         return null;
     }
 }

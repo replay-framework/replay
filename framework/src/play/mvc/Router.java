@@ -15,7 +15,6 @@ import play.mvc.results.RenderStatic;
 import play.mvc.routing.RoutesParser;
 import play.utils.Default;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

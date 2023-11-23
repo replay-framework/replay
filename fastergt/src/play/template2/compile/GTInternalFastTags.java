@@ -92,7 +92,7 @@ public class GTInternalFastTags extends GTFastTag {
     public static void tag_ifError(GTJavaBase template, Map<String, Object> args, GTContentRenderer content ) {
         Object key = args.get("arg");
         if (key==null) {
-            throw new GTTemplateRuntimeException("Please specify the error key");
+            throw new GTTemplateRuntimeException("Please specify the error key when using #{ifError/}");
         }
         if ( template.validationHasError(key.toString())) {
             template.clearElseFlag();
@@ -106,17 +106,17 @@ public class GTInternalFastTags extends GTFastTag {
 
     public static void tag_include(GTJavaBase template, Map<String, Object> args, GTContentRenderer content ) {
         if (!args.containsKey("arg") || args.get("arg") == null) {
-            throw new GTTemplateRuntimeException("Specify a template name");
+            throw new GTTemplateRuntimeException("Specify a template name when using #{include/}");
         }
         String name = args.get("arg").toString();
         GTTemplateLocationReal templateLocation = template.resolveTemplateLocation( name );
 
-        if ( templateLocation == null) {
-            throw new GTTemplateRuntimeException("Cannot find template");
+        if (templateLocation == null) {
+            throw new GTTemplateRuntimeException("Cannot find template " + name);
         }
 
         GTJavaBase newTemplate = template.templateRepo.getTemplateInstance( templateLocation );
-        Map<String, Object> newArgs = new HashMap<String, Object>();
+        Map<String, Object> newArgs = new HashMap<>();
         newArgs.putAll(template.binding.getVariables());
         newArgs.put("_isInclude", true);
 
@@ -126,13 +126,13 @@ public class GTInternalFastTags extends GTFastTag {
 
     public static void tag_render(GTJavaBase template, Map<String, Object> args, GTContentRenderer content ) {
         if (!args.containsKey("arg") || args.get("arg") == null) {
-            throw new GTTemplateRuntimeException("Specify a template name");
+            throw new GTTemplateRuntimeException("Specify a template name when using #{render/}");
         }
         String name = args.get("arg").toString();
         GTTemplateLocationReal templateLocation = template.resolveTemplateLocation( name );
 
         if ( templateLocation == null) {
-            throw new GTTemplateRuntimeException("Cannot find template");
+            throw new GTTemplateRuntimeException("Cannot find template " + name);
         }
 
         GTJavaBase newTemplate = template.templateRepo.getTemplateInstance( templateLocation );
@@ -239,7 +239,7 @@ public class GTInternalFastTags extends GTFastTag {
 
     public static void tag_errorClass(GTJavaBase template, Map<String, Object> args, GTContentRenderer _content ) {
         if (args.get("arg") == null) {
-            throw new GTTemplateRuntimeException("Please specify the error key");
+            throw new GTTemplateRuntimeException("Please specify the error key when using #{errorClass/}");
         }
         if (template.validationHasError(args.get("arg").toString())) {
             template.out.append("hasError");
