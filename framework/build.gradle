@@ -13,7 +13,7 @@ dependencies {
   api('commons-codec:commons-codec:1.16.0') {transitive = false}
   api('org.apache.commons:commons-email:1.5') {transitive = false}
   api('commons-fileupload:commons-fileupload:1.5')
-  api('commons-io:commons-io:2.15.0')
+  api('commons-io:commons-io:2.15.1')
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
   implementation 'com.github.f4b6a3:ulid-creator:5.2.2'
