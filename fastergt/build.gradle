@@ -1,6 +1,9 @@
 dependencies {
   implementation project(':framework')
-  implementation('org.eclipse.jdt:ecj:3.33.0') {transitive = false}
+  implementation('org.eclipse.jdt:ecj:3.33.0') {
+    transitive = false
+    because "ECJ 3.34.0 dropped Java 11 compatibility, see https://github.com/eclipse-jdt/eclipse.jdt.core/commit/c25e22b15eebcc780b1a6c54d7af1911841c49b8"
+  }
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
   testImplementation project(':framework').sourceSets.test.compileClasspath
