@@ -2,7 +2,7 @@ defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 ext {
   commonsLangVersion = '3.14.0'
-  netty4Version = '4.1.101.Final'
+  netty4Version = '4.1.103.Final'
   commonsTextVersion = '1.11.0'
   slf4jVersion = '2.0.9'
   assertjVersion = '3.24.2'
