@@ -601,9 +601,9 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 nettyResponse = nettyResponse.replace(buf);
                 ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
                 writeFuture.addListener(ChannelFutureListener.CLOSE);
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
             } catch (Throwable ex) {
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
                 logger.error("Error during the 500 response generation", ex);
                 byte[] bytes = "Internal Error".getBytes(encoding);
                 ByteBuf buf = Unpooled.copiedBuffer(bytes);

@@ -534,7 +534,6 @@ public class PlayHandler implements HttpHandler {
 
   private void serve500(Exception e, HttpExchange exchange, Http.Request request, Http.Response response) {
     logger.trace("serve500: begin");
-    logger.error("Exception on request. serving 500 back", e);
 
     try {
       flushCookies(exchange, response);
@@ -545,10 +544,10 @@ public class PlayHandler implements HttpHandler {
       try {
         String errorHtml = serverHelper.generateErrorResponse(request, format, e);
         printResponse(exchange, INTERNAL_ERROR, contentType, errorHtml);
-        logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
       }
       catch (Throwable ex) {
-        logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
         logger.error("Error during the 500 response generation", ex);
         sendServerError(exchange, request);
       }
