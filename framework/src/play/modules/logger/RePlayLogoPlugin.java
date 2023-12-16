@@ -24,7 +24,7 @@ public class RePlayLogoPlugin extends PlayPlugin {
 		"  /     / /     /  | '_ / -_) '_ \\| |/ _' | || |_|\n" +
 		" /     / /     /   |_/  \\___|  __/|_|\\____|\\__ (_)\n" +
 		"/_____/ /_____/             |_|            |__/\n" +
-		"                   RePlay Framework {}, https://github.com/codeborne/replay\n";
+		"                   RePlay Framework {}, https://github.com/replay-framework/replay\n";
 
 	private static final String REPLAY_VERSION_LOCATION = "play/version";
 
