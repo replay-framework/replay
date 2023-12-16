@@ -1,6 +1,19 @@
 # Changelog
 
-## 2.3.0 (under development) - see https://github.com/codeborne/replay/milestone/13?closed=1
+## 2.3.0 (released 16.12.2023) - see https://github.com/codeborne/replay/milestone/13?closed=1
+* #281 Replace iText by OpenPDF for generating PDFs
+* #286 Replace query param decoder in UrlEncodedParser
+* #301 Log exception class name when 500 occurs (#303)
+* #264 Remove deprecation from Injector.getBeanOfType
+* #275 Reduce exception throwing from FlashStore (#278)
+* #282 don't fail app start in development mode
+* #283 Make Model.id field protected (#284)
+* #280 refactor PDF generation code
+* Bump liquibase from 4.23.2 to 4.25.0
+* Bump netty4 from 4.1.99.Final to 4.1.104.Final
+* Bump com.zaxxer:HikariCP from 5.0.1 to 5.1.0
+* Bump FLYING_SOURCER_VERSION from 9.2.2 to 9.3.1
+* Bump Jackson from 2.15.2 to 2.16.0
 
 ## 2.2.0 (released 30.09.2023) - see https://github.com/codeborne/replay/milestone/12?closed=1
 * #228 Migrate `javax.persistence` -> `jakarta.persistence` (#229)  --  thanks to Cies Breijs
