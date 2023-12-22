@@ -91,6 +91,12 @@ publishing {
           developerConnection = 'scm:git@github.com:replay-framework/replay.git'
           url = 'https://github.com/replay-framework/replay'
         }
+        distributionManagement {
+          relocation {
+            groupId = 'io.github.replay-framework'
+            artifactId = archivesBaseName
+          }
+        }
       }
     }
   }
