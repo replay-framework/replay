@@ -49,4 +49,8 @@ jar {
   from sourceSets.main.output + "$buildDir/thirdParty/"
 }
 
+javadoc {
+  exclude 'org/allcolor/**'
+}
+
 apply from: rootProject.file('gradle/deploy.gradle')
