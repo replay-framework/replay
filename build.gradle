@@ -16,8 +16,8 @@ ext {
 
 subprojects {
 
-  group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '2.3.0'
+  group='io.github.replay-framework'
+  version=project.properties['revision'] ?: '2.3.1'
 
   apply plugin: 'java'
   apply plugin: 'java-library'

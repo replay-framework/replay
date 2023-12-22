@@ -40,5 +40,5 @@ This requires write permission to `com.codeborne` group in Maven central reposit
 
     ./release.sh
 
-This uploads the `*.jar` files to: https://oss.sonatype.org/#stagingRepositories
+This uploads the `*.jar` files to: https://s01.oss.sonatype.org/#stagingRepositories
 

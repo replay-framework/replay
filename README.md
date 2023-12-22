@@ -1,4 +1,4 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codeborne.replay/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/com.codeborne.replay/framework)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/io.github.replay-framework/framework)
 ```
     ______  ______                 _            _
    /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
@@ -66,7 +66,7 @@ For a large part the [documentation of Play1](https://www.playframework.com/docu
 Keep the differences between Play1 and RePlay (outlined above) in mind, in order to know what parts of the Play1 documentation to ignore.
 
 API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder.
-The [javadoc.io](https://javadoc.io) project provides online access to the [*Javadoc* documentation of RePlay](https://javadoc.io/doc/com.codeborne.replay).
+The [javadoc.io](https://javadoc.io) project provides online access to the [*Javadoc* documentation of RePlay](https://javadoc.io/doc/io.github.replay-framework).
 
 
 ## Development flow (hot-swapping)
@@ -130,7 +130,7 @@ You may find some warnings for "illegal reflective access" when running the appl
 
 With this flag `--add-opens java.base/java.lang=ALL-UNNAMED` these warnings from `guice` may be suppressed (this will be fixed in a future version of `guice`).
 
-To suppress the "illegal reflective access" warnings from `netty` you could use `com.codeborne.replay:netty4` instead of `com.codeborne.replay:netty3`.
+To suppress the "illegal reflective access" warnings from `netty` you could use `io.github.replay-framework:netty4` instead of `io.github.replay-framework:netty3`.
 
 
 ## Plugins
@@ -153,9 +153,9 @@ The RePlay project comes with the following plugins:
 * `play.i18n.MessagesPlugin`¹ — The internationalization system for UI strings.
 * `play.jobs.JobsPlugin`¹ — Simple cron-style or out-of-request-cycle jobs runner.
 * `play.libs.WS`¹ — Simple HTTP client (to make webservices requests).
-* `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library).
+* `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `io.github.replay-framework:pdf` library).
 In Play1 this is available as a community plugin.
-* `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
+* `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `io.github.replay-framework:fastergt` library).
 * `play.modules.logger.RequestLogPlugin` — logs every request with response type+status
 * `play.modules.logger.RePlayLogoPlugin` — Shows the RePlay logo at application startup
 * `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
@@ -169,7 +169,7 @@ In Play1 the `checkAuthenticity()` method is built into the `Controller` class a
 
 A community [plugin for creating PDFs](https://github.com/pepite/play--pdf) exists for Play1.
 In RePlay this functionality is [part of the main project](https://github.com/replay-framework/replay/tree/main/pdf)
-and available as a regular library (no longer a plugin) named `com.codeborne.replay.pdf`.
+and available as a regular library (no longer a plugin) named `io.github.replay-framework:pdf`.
 
 RePlay projects put `play.plugins` file in `conf/`. The syntax of the `play.plugins` file remains the same.
 

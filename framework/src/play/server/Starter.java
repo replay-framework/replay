@@ -32,9 +32,9 @@ public class Starter {
     catch (ClassNotFoundException | NoSuchMethodException |
            InvocationTargetException | InstantiationException | IllegalAccessException e) {
       throw new IllegalStateException("Failed to start server. " +
-        "Please add the dependency com.codeborne.replay:netty3, com.codeborne.replay:netty4 or "
-        + "com.codeborne.replay:javanet to your project, and make sure it precedes "
-        + "com.codeborne.replay:framework in the runtime classpath", e);
+        "Please add the dependency io.github.replay-framework:netty3, io.github.replay-framework:netty4 or "
+        + "io.github.replay-framework:javanet to your project, and make sure it precedes "
+        + "io.github.replay-framework:framework in the runtime classpath", e);
     }
   }
 }

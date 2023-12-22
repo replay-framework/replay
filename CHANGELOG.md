@@ -1,8 +1,12 @@
 # Changelog
 
-## 2.3.1
+## 2.3.1 (released 22.12.2023) - see https://github.com/replay-framework/replay/milestone/14?closed=1
 
 * Move project from https://github.com/codeborne/replay to https://github.com/replay-framework/replay
+* Move project in Maven Central repo from "com.codeborne.replay" to "io.github.replay-framework" groupId
+* #309 Bump Kotlin from 1.9.21 to 1.9.22
+* #307 Bump LiquiBase from 4.25.0 to 4.25.1
+* #308 Bump Guava from 32.1.3-jre to 33.0.0-jre
 
 ## 2.3.0 (released 16.12.2023) - see https://github.com/replay-framework/replay/milestone/13?closed=1
 * #281 Replace iText by OpenPDF for generating PDFs
