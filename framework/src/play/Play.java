@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static play.ClasspathResource.file;
 
 /**
  * Main framework class
@@ -142,7 +141,7 @@ public class Play {
     setupTmpDir();
     setupApplicationMode();
     setupAppRoot();
-    routes = file("routes");
+    routes = ClasspathResource.file("routes");
     pluginCollection.loadPlugins();
     Play.invoker = new Invoker();
   }
@@ -353,7 +352,7 @@ public class Play {
    * @return The virtualFile or null
    */
   @Nullable
-  public static File getVirtualFile(String path) {
+  public static File file(String path) {
     File file = new File(appRoot, path);
     return file.exists() ? file : null;
   }

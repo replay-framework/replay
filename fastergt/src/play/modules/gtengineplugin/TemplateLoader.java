@@ -110,7 +110,7 @@ public class TemplateLoader {
         }
 
         if (template == null) {
-            File tf = Play.getVirtualFile(path);
+            File tf = Play.file(path);
             if (tf != null && tf.exists()) {
                 template = load(tf);
             } else {

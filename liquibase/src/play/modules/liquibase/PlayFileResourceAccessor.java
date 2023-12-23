@@ -28,7 +28,7 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   private File findVirtualFile(String path) {
     // TODO remove this hack.
     // TODO Why LiquiBase adds prefix "app/" for included files?
-    return Play.getVirtualFile(path.startsWith("app/") ? path : "app/" + path);
+    return Play.file(path.startsWith("app/") ? path : "app/" + path);
   }
   
   private void findInClasspath(String path, List<Resource> returnList) {
