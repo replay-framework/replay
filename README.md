@@ -22,10 +22,12 @@ RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
 #### Main differences between RePlay and Play1
 
-* It uses the [Gradle build tool](https://gradle.org) for dependency management and builds:
+* It uses standard Java build tools ([Gradle](https://gradle.org) or [Maven](https://maven.apache.org/)) for dependency management and builds:
   * better compile times by incremental builds,
   * no vendor code in your RePlay application's version control,
   * and no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies.
+  * no need for "modules" folder which was a custom dependency management mechanism.
+  * no need for class `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath)
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
 These were not used at Codeborne, but could be reintroduced if needed.
 * The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
