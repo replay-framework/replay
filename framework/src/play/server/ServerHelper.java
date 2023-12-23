@@ -112,7 +112,7 @@ public class ServerHelper {
   @Nullable
   @CheckReturnValue
   public File findFile(String resource) {
-    File file = Play.getVirtualFile(resource);
+    File file = Play.file(resource);
     if (file != null && file.exists() && file.isDirectory()) {
       File index = new File(file, "index.html");
       if (index.exists()) {

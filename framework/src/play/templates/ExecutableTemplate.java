@@ -132,7 +132,7 @@ public abstract class ExecutableTemplate extends Script {
     }
 
     private String __reverseWithCheck(String action, boolean absolute) {
-        return Router.reverseWithCheck(action, Play.getVirtualFile(action), absolute);
+        return Router.reverseWithCheck(action, Play.file(action), absolute);
     }
 
     public String __safe(Object val, String stringValue) {

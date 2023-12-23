@@ -70,7 +70,7 @@ public class TemplateLoader {
          * commented it out. template = templates.get(path); }
          */
         // TODO: remove ?
-        File tf = Play.getVirtualFile(path);
+        File tf = Play.file(path);
         if (tf != null) {
             return TemplateLoader.load(tf);
         }
@@ -96,7 +96,7 @@ public class TemplateLoader {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return TemplateLoader.load(Play.getVirtualFile("tmp/" + path));
+        return TemplateLoader.load(Play.file("tmp/" + path));
     }
 
     /**

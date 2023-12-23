@@ -48,7 +48,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
         }
         
         // try to find it directly on the app-root before we give up
-        File tf = Play.getVirtualFile(queryPath);
+        File tf = Play.file(queryPath);
         if (tf != null && tf.exists() && !tf.isDirectory()) {
             try {
                 return new GTTemplateLocationReal(Play.relativePath(tf), tf.toURI().toURL());
@@ -77,7 +77,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
     public GTTemplateLocationReal getTemplateLocationFromRelativePath(String relativePath) {
 
         // TODO find in classpath?
-        File vf = Play.getVirtualFile(relativePath);
+        File vf = Play.file(relativePath);
         if ( vf == null || !vf.exists() || vf.isDirectory()) {
             return null;
         }

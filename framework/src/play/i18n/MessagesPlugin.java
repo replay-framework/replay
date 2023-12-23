@@ -24,13 +24,13 @@ public class MessagesPlugin extends PlayPlugin {
     public void onApplicationStart() {
         includeMessageFilenames.clear();
         Messages.defaults = new Properties();
-        File defaultMessagesFile = Play.getVirtualFile("conf/messages");
+        File defaultMessagesFile = Play.file("conf/messages");
         if (defaultMessagesFile != null && defaultMessagesFile.exists() && !defaultMessagesFile.isDirectory()) {
             Messages.defaults.putAll(read(defaultMessagesFile));
         }
         for (String locale : Play.langs) {
             Properties properties = new Properties();
-            File messagesFile = Play.getVirtualFile("conf/messages." + locale);
+            File messagesFile = Play.file("conf/messages." + locale);
             if (messagesFile != null && messagesFile.exists() && !messagesFile.isDirectory()) {
                 properties.putAll(read(messagesFile));
             } else {
@@ -87,14 +87,14 @@ public class MessagesPlugin extends PlayPlugin {
 
     @Override
     public void detectChange() {
-        File vf = Play.getVirtualFile("conf/messages");
+        File vf = Play.file("conf/messages");
         if (vf != null && vf.exists() && !vf.isDirectory()
                 && vf.lastModified() > lastLoading) {
             onApplicationStart();
             return;
         }
         for (String locale : Play.langs) {
-            vf = Play.getVirtualFile("conf/messages." + locale);
+            vf = Play.file("conf/messages." + locale);
             if (vf != null && vf.exists() && !vf.isDirectory()
                     && vf.lastModified() > lastLoading) {
                 onApplicationStart();
