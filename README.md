@@ -47,6 +47,21 @@ At least JDK 11, and at most JDK 17 (as we are stuck at Hibernate 5.6 which does
 
 ## Getting started
 
+You need to add RePlay dependencies to your build.gradle (or pom.xml):
+```groovy
+dependencies {
+  implementation 'io.github.replay-framework:framework:2.3.1'
+  implementation 'io.github.replay-framework:javanet:2.3.1'  // you can replay "javanet" by "netty3" or "netty4"
+  
+  // Optionally:
+  implementation 'io.github.replay-framework:guice:2.3.1'
+  implementation 'io.github.replay-framework:fastergt:2.3.1'
+  implementation 'io.github.replay-framework:liquibase:2.3.1'
+  implementation 'io.github.replay-framework:pdf:2.3.1'
+  implementation 'io.github.replay-framework:excel:2.3.1'
+}
+```
+
 RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
 Hence, the `play new` scaffolding generator is not available in RePlay.
 To start a new RePlay application make a copy of [demo application](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) and work your way up from there.
