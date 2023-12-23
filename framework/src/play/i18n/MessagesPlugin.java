@@ -24,15 +24,15 @@ public class MessagesPlugin extends PlayPlugin {
     public void onApplicationStart() {
         includeMessageFilenames.clear();
         Messages.defaults = new Properties();
-        File appDM = Play.getVirtualFile("conf/messages");
-        if (appDM != null && appDM.exists() && !appDM.isDirectory()) {
-            Messages.defaults.putAll(read(appDM));
+        File defaultMessagesFile = Play.getVirtualFile("conf/messages");
+        if (defaultMessagesFile != null && defaultMessagesFile.exists() && !defaultMessagesFile.isDirectory()) {
+            Messages.defaults.putAll(read(defaultMessagesFile));
         }
         for (String locale : Play.langs) {
             Properties properties = new Properties();
-            File appM = Play.getVirtualFile("conf/messages." + locale);
-            if (appM != null && appM.exists() && !appM.isDirectory()) {
-                properties.putAll(read(appM));
+            File messagesFile = Play.getVirtualFile("conf/messages." + locale);
+            if (messagesFile != null && messagesFile.exists() && !messagesFile.isDirectory()) {
+                properties.putAll(read(messagesFile));
             } else {
                 logger.warn("Messages file missing for locale {}", locale);
             }
