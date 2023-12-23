@@ -17,7 +17,7 @@ import static org.apache.commons.io.FileUtils.readFileToByteArray;
  * It was used in Play! framework to load resources from local folder "modules" which was a custom dependency management mechanism.
  * RePlay uses standard Maven/Gradle dependencies. Folder "modules" doesn't exist anymore.
  * 
- * So we use plain old `java.util.File` instead.
+ * So we use plain old {@link java.io.File} instead.
  */
 @Deprecated
 public class VirtualFile {
