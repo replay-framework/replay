@@ -2,9 +2,9 @@ package org.allcolor.yahp.cl.converter;
 
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
 import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ExtendedITextReplacedElementFactory;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.pdf.ITextReplacedElementFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ class ReplayITextRenderer extends ITextRenderer {
    */
   ReplayITextRenderer() {
     ITextOutputDevice outputDevice = getOutputDevice();
-    ReplacedElementFactory replacedElementFactory = new ExtendedITextReplacedElementFactory(outputDevice);
+    ReplacedElementFactory replacedElementFactory = new ITextReplacedElementFactory(outputDevice);
     SharedContext sharedContext = getSharedContext();
     sharedContext.setReplacedElementFactory(replacedElementFactory);
   }
