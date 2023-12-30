@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
-import org.xhtmlrenderer.swing.FileSearcher;
 import play.Play;
 import play.vfs.VirtualFile;
 
@@ -21,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
+import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
+
 @ParametersAreNonnullByDefault
 public class ReplayUserAgent extends ITextUserAgent {
   private static final Logger logger = LoggerFactory.getLogger(ReplayUserAgent.class);
@@ -32,7 +33,7 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   ReplayUserAgent(ITextOutputDevice outputDevice, FileSearcher fileSearcher) {
-    super(outputDevice);
+    super(outputDevice, DEFAULT_DOTS_PER_PIXEL);
     this.fileSearcher = fileSearcher;
   }
 

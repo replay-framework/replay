@@ -1,4 +1,4 @@
-package org.xhtmlrenderer.swing;
+package play.modules.pdf;
 
 import play.Play;
 import play.vfs.VirtualFile;
