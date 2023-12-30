@@ -51,7 +51,6 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.Utils;
 
 import javax.annotation.CheckReturnValue;
@@ -90,10 +89,12 @@ import static io.netty.handler.codec.http.HttpMethod.HEAD;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.lang.Long.parseLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static play.utils.Utils.formatMemorySize;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -302,7 +303,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 error.append(":");
                 String size;
                 try {
-                    size = JavaExtensions.formatSize(Long.parseLong(length));
+                    size = formatMemorySize(parseLong(length));
                 } catch (Exception e) {
                     size = length + " bytes";
                 }
