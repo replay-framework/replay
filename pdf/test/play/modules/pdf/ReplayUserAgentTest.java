@@ -3,7 +3,6 @@ package play.modules.pdf;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
-import org.xhtmlrenderer.swing.FileSearcher;
 import play.vfs.VirtualFile;
 
 import java.io.File;

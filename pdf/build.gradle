@@ -4,7 +4,7 @@ configurations {
 }
 
 ext {
-  FLYING_SOURCER_VERSION = '9.3.2'
+  FLYING_SOURCER_VERSION = '9.4.0'
   YAHP_VERSION = 1.3
 }
 
@@ -19,7 +19,7 @@ dependencies {
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-  implementation("org.xhtmlrenderer:flying-saucer-pdf-openpdf:$FLYING_SOURCER_VERSION")
+  implementation("org.xhtmlrenderer:flying-saucer-pdf:$FLYING_SOURCER_VERSION")
 
   implementation('com.google.code.maven-play-plugin.org.allcolor.shanidom:shani-parser:1.4.17-patched-yahp-1.3')
   api("com.google.code.maven-play-plugin.org.allcolor.yahp:yahp:$YAHP_VERSION") {transitive = false}
