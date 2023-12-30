@@ -345,7 +345,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     List<File> files = new ArrayList<>();
     try {
       final CShaniDomParser parser = createCShaniDomParser();
-      final ReplayITextRenderer renderer = new ReplayITextRenderer();
+      final ReplayITextRenderer renderer = ReplayITextRenderer.build();
 
       String html = IOUtils.toString(in, UTF_8);
 
