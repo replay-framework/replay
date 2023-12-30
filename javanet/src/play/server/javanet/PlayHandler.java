@@ -28,7 +28,6 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 import play.vfs.VirtualFile;
@@ -68,6 +67,7 @@ import static play.mvc.Http.StatusCode.BAD_REQUEST;
 import static play.mvc.Http.StatusCode.INTERNAL_ERROR;
 import static play.mvc.Http.StatusCode.NOT_FOUND;
 import static play.mvc.Http.StatusCode.NOT_MODIFIED;
+import static play.utils.Utils.formatMemorySize;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler implements HttpHandler {
@@ -179,7 +179,7 @@ public class PlayHandler implements HttpHandler {
         error.append(":");
         String size;
         try {
-          size = JavaExtensions.formatSize(Long.parseLong(length));
+          size = formatMemorySize(Long.parseLong(length));
         } catch (Exception e) {
           size = length + " bytes";
         }

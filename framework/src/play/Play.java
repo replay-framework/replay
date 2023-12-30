@@ -15,8 +15,6 @@ import play.mvc.PlayController;
 import play.mvc.Router;
 import play.mvc.SessionStore;
 import play.plugins.PluginCollection;
-import play.templates.FastTags;
-import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 import play.vfs.VirtualFile;
 
@@ -102,7 +100,7 @@ public class Play {
    */
   public static String secretKey;
   /**
-   * pluginCollection that holds all loaded plugins and all enabled plugins..
+   * pluginCollection that holds all loaded plugins and all enabled plugins
    */
   public static PluginCollection pluginCollection = new PluginCollection();
 
@@ -296,8 +294,6 @@ public class Play {
   private void injectStaticFields() {
     injectStaticFields(Play.classes.getAssignableClasses(PlayController.class));
     injectStaticFields(Play.classes.getAssignableClasses(Job.class));
-    injectStaticFields(Play.classes.getAssignableClasses(FastTags.class));
-    injectStaticFields(Play.classes.getAssignableClasses(JavaExtensions.class));
   }
 
   private <T> void injectStaticFields(List<Class<? extends T>> classes) {
@@ -331,7 +327,7 @@ public class Play {
   /**
    * Can only register shutdown-hook if running as standalone server
    * registers shutdown hook - Now there's a good chance that we can notify
-   * our plugins that we're going down when some calls ctrl+c or just kills our process..
+   * our plugins that we're going down when some calls ctrl+c or just kills our process
    */
   private void registerShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
