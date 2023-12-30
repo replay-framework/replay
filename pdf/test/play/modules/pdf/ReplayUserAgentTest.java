@@ -3,7 +3,6 @@ package play.modules.pdf;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
-import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.net.URI;
@@ -26,7 +25,7 @@ public class ReplayUserAgentTest {
   @Test
   public void resolveUrlToLocalFile() throws Exception {
     URI uri = getClass().getResource("ReplayUserAgentTest.class").toURI();
-    when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
+    when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(new File(uri));
 
     assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class")).isEqualTo(uri.toURL().toString());
   }
@@ -34,7 +33,7 @@ public class ReplayUserAgentTest {
   @Test
   public void ignoresUrlParamsWhenResolvingToLocalFile() throws Exception {
     URI uri = getClass().getResource("ReplayUserAgentTest.class").toURI();
-    when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(VirtualFile.open(new File(uri)));
+    when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(new File(uri));
 
     assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class?123213231")).isEqualTo(uri.toURL().toString());
   }
