@@ -14,6 +14,7 @@ import play.mvc.results.NotFound;
 import play.mvc.results.Result;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -33,8 +34,16 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public class RequestLogPlugin extends PlayPlugin {
   private static final String REQUEST_ID_PREFIX = Integer.toHexString((int) (Math.random() * 0x1000));
   private static final AtomicLong counter = new AtomicLong(1);
-  private static final Logger logger = LoggerFactory.getLogger("request");
   private static final Pattern REGEX_CLEAN_PARAM_VALUE = Pattern.compile("\r?\n");
+  private final Logger logger;
+
+  RequestLogPlugin() {
+    this(LoggerFactory.getLogger("request"));
+  }
+
+  RequestLogPlugin(Logger logger) {
+    this.logger = logger;
+  }
 
   @Override public void routeRequest(Request request) {
     String requestId = REQUEST_ID_PREFIX + "-" + nextId();
@@ -51,7 +60,7 @@ public class RequestLogPlugin extends PlayPlugin {
     return requestNumber;
   }
 
-  @Override public void beforeActionInvocation(Request request, Response response, Session session,
+  @Override public void beforeActionInvocation(Request request, Response response, @Nullable Session session,
                                                RenderArgs renderArgs, Flash flash, Method actionMethod) {
     Object requestId = request.args.get("requestId");
     String sessionId = session == null ? "no-session" : session.getId();
@@ -83,7 +92,7 @@ public class RequestLogPlugin extends PlayPlugin {
   @Override
   public void onActionInvocationException(@Nonnull Request request, @Nonnull Response response, @Nonnull Throwable e) {
     if (e.getCause() != null) e = e.getCause();
-    request.args.put(Result.class.getName(), new Error(e.toString()));
+    request.args.put(Result.class.getName(), new play.mvc.results.Error(e.toString()));
   }
 
   @Override public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
@@ -104,7 +113,7 @@ public class RequestLogPlugin extends PlayPlugin {
     }
   }
 
-  public static void logRequestInfo(Request request, Result result) {
+  private void logRequestInfo(Request request, Result result) {
     if (logger.isInfoEnabled()) {
       StringBuilder sb = new StringBuilder()
         .append(request.method).append('\t')
@@ -137,14 +146,14 @@ public class RequestLogPlugin extends PlayPlugin {
     if (isNotEmpty(s)) sb.append(s).append('\t');
   }
 
-  static String result(Result result) {
+  static String result(@Nullable Result result) {
     return result == null ? "RenderError" : result.toString();
   }
 
   private static final Set<String> SKIPPED_PARAMS = new HashSet<>(asList("action", "controller", "body", "action", "controller"));
   private static final Integer EXCERPT_LENGTH = 100;
 
-  public static String extractParams(Request request) {
+  private String extractParams(Request request) {
     try {
       return extractParamsUnsafe(request);
     }
@@ -179,8 +188,8 @@ public class RequestLogPlugin extends PlayPlugin {
   }
 
   private static String excerpt(String value, int excerptLength) {
-    return value.length() > excerptLength ? 
-      String.format("%s...%s", value.substring(0, excerptLength - 5), value.substring(value.length() - 5)) : 
+    return value.length() > excerptLength ?
+      String.format("%s...%s", value.substring(0, excerptLength - 5), value.substring(value.length() - 5)) :
       value;
   }
 }
