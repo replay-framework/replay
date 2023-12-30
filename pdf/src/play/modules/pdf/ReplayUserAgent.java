@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
 import play.Play;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -13,6 +12,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -75,8 +75,8 @@ public class ReplayUserAgent extends ITextUserAgent {
     if (uri != null) {
       // try to find it in play
       String filePath = REGEX_URL_QUERY.matcher(uri).replaceFirst("");
-      VirtualFile file = fileSearcher.searchFor(filePath);
-      logger.debug("Resolved uri {} to file {}", uri, file == null ? null : file.getRealFile().getAbsolutePath());
+      File file = fileSearcher.searchFor(filePath);
+      logger.debug("Resolved uri {} to file {}", uri, file == null ? null : file.getAbsolutePath());
       if (file != null && file.exists()) {
         return toAbsoluteUrl(file);
       }
@@ -85,12 +85,12 @@ public class ReplayUserAgent extends ITextUserAgent {
     return super.resolveURI(uri);
   }
 
-  private String toAbsoluteUrl(VirtualFile file) {
+  private String toAbsoluteUrl(File file) {
     try {
-      return file.getRealFile().getCanonicalFile().toURI().toURL().toExternalForm();
+      return file.getCanonicalFile().toURI().toURL().toExternalForm();
     }
     catch (IOException e) {
-      throw new RuntimeException("Failed to convert to URL: " + file.getRealFile(), e);
+      throw new RuntimeException("Failed to convert to URL: " + file, e);
     }
   }
 }
