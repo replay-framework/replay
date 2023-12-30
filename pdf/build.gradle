@@ -19,11 +19,7 @@ dependencies {
   testImplementation("org.mockito:mockito-core:$mockitoVersion")
 
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-  thirdParty("org.xhtmlrenderer:flying-saucer-core:$FLYING_SOURCER_VERSION")
-  implementation("org.xhtmlrenderer:flying-saucer-pdf-openpdf:$FLYING_SOURCER_VERSION") {
-    exclude group: 'org.xhtmlrenderer', module: 'flying-saucer-core'
-    exclude group: 'org.bouncycastle'
-  }
+  implementation("org.xhtmlrenderer:flying-saucer-pdf-openpdf:$FLYING_SOURCER_VERSION")
 
   implementation('com.google.code.maven-play-plugin.org.allcolor.shanidom:shani-parser:1.4.17-patched-yahp-1.3')
   api("com.google.code.maven-play-plugin.org.allcolor.yahp:yahp:$YAHP_VERSION") {transitive = false}
@@ -39,7 +35,6 @@ task extractThirdPartyJars(type: Sync) {
   into "$buildDir/thirdParty/"
   exclude 'META-INF'
   exclude 'META-INF/**/*'
-  exclude 'org/xhtmlrenderer/swing/NaiveUserAgent*'
   exclude 'org/allcolor/yahp/cl/converter/CHtmlToPdfFlyingSaucerTransformer*'
 }
 
