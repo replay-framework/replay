@@ -91,7 +91,7 @@ providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
 
-These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/codeborne/replay/tree/main/replay-tests/criminals) RePlay example application:
+These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) RePlay example application:
 
 0. Clone the [replay](https://github.com/replay-framework/replay) repository
 1. Use IntelliJ IDEA to `File > Open...` the replay project (**not** `Import`) by selecting the root of this project's repository
