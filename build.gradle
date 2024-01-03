@@ -5,7 +5,7 @@ ext {
   netty4Version = '4.1.104.Final'
   commonsTextVersion = '1.11.0'
   slf4jVersion = '2.0.10'
-  assertjVersion = '3.24.2'
+  assertjVersion = '3.25.1'
   mockitoVersion = '5.8.0'
   pdfTestVersion = '1.8.1'
   groovyVersion = '3.0.20'
