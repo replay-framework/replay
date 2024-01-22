@@ -120,4 +120,17 @@ public class Utils {
     public static String urlEncodePath(String plain) {
         return URLEncoder.encode(plain, Play.defaultWebEncoding);
     }
+
+    public static String formatMemorySize(long bytes) {
+        if (bytes < 1024L) {
+            return bytes + " B";
+        }
+        if (bytes < 1048576L) {
+            return bytes / 1024L + "KB";
+        }
+        if (bytes < 1073741824L) {
+            return bytes / 1048576L + "MB";
+        }
+        return bytes / 1073741824L + "GB";
+    }
 }
