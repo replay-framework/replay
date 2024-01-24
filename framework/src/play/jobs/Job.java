@@ -1,7 +1,5 @@
 package play.jobs;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invocation;
@@ -152,16 +150,12 @@ public abstract class Job<V> extends Invocation implements Callable<V> {
 
     @Override
     public V call() {
-        Monitor monitor = null;
         try {
             if (init()) {
                 before();
                 lastException = null;
                 lastRun = System.currentTimeMillis();
-                monitor = MonitorFactory.start(this + ".doJob()");
                 V result = JPA.withinFilter(() -> doJobWithResult());
-                monitor.stop();
-                monitor = null;
                 wasError = false;
                 after();
                 return result;
@@ -169,9 +163,6 @@ public abstract class Job<V> extends Invocation implements Callable<V> {
         } catch (Throwable e) {
             onJobInvocationException(e);
         } finally {
-            if (monitor != null) {
-                monitor.stop();
-            }
             _finally();
         }
         return null;

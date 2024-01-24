@@ -1,14 +1,8 @@
 package play.plugins;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
-import com.jamonapi.utils.Misc;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.Invoker;
 import play.Play;
 import play.PlayPlugin;
@@ -23,16 +17,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
-import static java.util.Arrays.asList;
 
 @ParametersAreNonnullByDefault
 public class PlayStatusPlugin extends PlayPlugin {
-    private static final Logger log = LoggerFactory.getLogger(PlayStatusPlugin.class);
-
     /**
      * Get the application status
      * 
@@ -157,26 +145,6 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println("Scheduled task count: " + Invoker.executor.getTaskCount());
         out.println("Queue size: " + Invoker.executor.getQueue().size());
         out.println();
-        try {
-            out.println("Monitors:");
-            out.println("~~~~~~~~");
-            List<Monitor> monitors = new ArrayList<>(asList(MonitorFactory.getRootMonitor().getMonitors()));
-            monitors.sort((m1, m2) -> Double.compare(m2.getTotal(), m1.getTotal()));
-            int lm = 10;
-            for (Monitor monitor : monitors) {
-                if (monitor.getLabel().length() > lm) {
-                    lm = monitor.getLabel().length();
-                }
-            }
-            for (Monitor monitor : monitors) {
-                if (monitor.getHits() > 0) {
-                    out.println(String.format("%-" + lm + "s -> %8.0f hits; %8.1f avg; %8.1f min; %8.1f max;", monitor.getLabel(),
-                            monitor.getHits(), monitor.getAvg(), monitor.getMin(), monitor.getMax()));
-                }
-            }
-        } catch (Exception e) {
-            out.println("No monitors found: " + e);
-        }
         return sw.toString();
     }
 
@@ -212,27 +180,6 @@ public class PlayStatusPlugin extends PlayPlugin {
             pool.addProperty("scheduled", Invoker.executor.getTaskCount());
             pool.addProperty("queue", Invoker.executor.getQueue().size());
             status.add("pool", pool);
-        }
-
-        {
-            JsonArray monitors = new JsonArray();
-            try {
-                Object[][] data = Misc.sort(MonitorFactory.getRootMonitor().getBasicData(), 3, "desc");
-                for (Object[] row : data) {
-                    if (((Double) row[1]) > 0) {
-                        JsonObject o = new JsonObject();
-                        o.addProperty("name", row[0].toString());
-                        o.addProperty("hits", (Double) row[1]);
-                        o.addProperty("avg", (Double) row[2]);
-                        o.addProperty("min", (Double) row[6]);
-                        o.addProperty("max", (Double) row[7]);
-                        monitors.add(o);
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Failed to generate status in JSON format", e);
-            }
-            status.add("monitors", monitors);
         }
 
         return status;

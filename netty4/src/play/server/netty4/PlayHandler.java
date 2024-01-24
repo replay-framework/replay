@@ -232,7 +232,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         public void run() {
             try {
                 logger.trace("run: begin");
-                onStarted();
                 try {
                     preInit();
                     if (init()) {
@@ -266,7 +265,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 return;
             }
 
-            // Check the exceeded size before re rendering so we can render the
+            // Check the exceeded size before re-rendering, so we can render the
             // error if the size is exceeded
             saveExceededSizeError(nettyRequest, request);
             actionInvoker.invoke(request, response);

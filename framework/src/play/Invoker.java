@@ -1,7 +1,5 @@
 package play;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.utils.PThreadFactory;
@@ -42,9 +40,6 @@ public class Invoker {
      * @return The future object, to know when the task is completed
      */
     public Future<?> invoke(Invocation invocation) {
-        Monitor monitor = MonitorFactory.getMonitor("Invoker queue size", "elmts.");
-        monitor.add(executor.getQueue().size());
-        invocation.onQueued();
         return executor.submit(invocation);
     }
 }

@@ -242,7 +242,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         public void run() {
             try {
                 logger.trace("run: begin");
-                onStarted();
                 try {
                     preInit();
                     if (init()) {
@@ -277,7 +276,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
-            // Check the exceeded size before re rendering so we can render the
+            // Check the exceeded size before re-rendering, so we can render the
             // error if the size is exceeded
             saveExceededSizeError(nettyRequest, request);
             actionInvoker.invoke(request, response);

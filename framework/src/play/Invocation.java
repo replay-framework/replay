@@ -1,7 +1,5 @@
 package play;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import play.exceptions.UnexpectedException;
 import play.i18n.Lang;
 import play.mvc.Http;
@@ -14,21 +12,6 @@ import static java.lang.System.currentTimeMillis;
  * An Invocation in something to run in a Play! context
  */
 public abstract class Invocation implements Runnable {
-
-    /**
-     * If set, monitor the time the invocation waited in the queue
-     */
-    private Monitor waitInQueue;
-
-    public void onQueued() {
-        waitInQueue = MonitorFactory.start("Waiting for execution");
-    }
-
-    protected void onStarted() {
-        if (waitInQueue != null) {
-            waitInQueue.stop();
-        }
-    }
 
     /**
      * Override this method
