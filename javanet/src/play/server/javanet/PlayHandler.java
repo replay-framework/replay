@@ -395,7 +395,6 @@ public class PlayHandler implements HttpHandler {
     public void run() {
       try {
         logger.trace("run: begin");
-        onStarted();
         try {
           preInit();
           if (init()) {

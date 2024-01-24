@@ -1,7 +1,5 @@
 package play.mvc;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -98,7 +96,6 @@ public class ActionInvoker {
     }
 
     public void invoke(Http.Request request, Http.Response response) {
-        Monitor monitor = null;
         Session session = actionNeedsSession(request) ? sessionStore.restore(request) : new ReadonlySession();
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
@@ -113,9 +110,6 @@ public class ActionInvoker {
             Method actionMethod = request.invokedMethod;
 
             Play.pluginCollection.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod);
-
-            // Monitoring
-            monitor = MonitorFactory.start(request.action + "()");
 
             String cacheKey = null;
             Result actionResult = null;
@@ -153,9 +147,6 @@ public class ActionInvoker {
             // @After
             handleAfters(request, session);
 
-            monitor.stop();
-            monitor = null;
-
             // OK, re-throw the original action result
             if (actionResult != null) {
                 throw actionResult;
@@ -171,10 +162,6 @@ public class ActionInvoker {
         } catch (Throwable e) {
             handleFinallies(request, session, e);
             throw new UnexpectedException(e);
-        } finally {
-            if (monitor != null) {
-                monitor.stop();
-            }
         }
     }
 
