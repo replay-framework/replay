@@ -1,5 +1,5 @@
 dependencies {
-  implementation('com.google.guava:guava:33.0.0-jre') {transitive = false}
+  implementation('com.google.guava:guava:33.1.0-jre') {transitive = false}
   implementation project(':pdf')
   testImplementation("org.assertj:assertj-core:$assertjVersion")
   testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
