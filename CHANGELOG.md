@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.4.0 (released 22.03.2024) - see https://github.com/replay-framework/replay/milestone/15?closed=1
+* Upgrade to Java 17 (#356)
+* #198 #290 Multi module app (#291)
+* #327 remove Jamon dependency (#328)
+* fix ClassCastException in RequestLogPlugin (#317)
+* Bump netty from 4.1.104.Final to 4.1.108.Final
+* Bump liquibase from 4.25.1 to 4.26.0 (#339)
+* Bump groovy from 3.0.19 to 3.0.21
+* Bump ECJ from 3.33.0 to 3.37.0 (#356)
+* Bump FlyingSaucer from 9.3.2 to 9.7.1
+* Bump commons-email from 1.5 to 1.6.0 (#310)
+* Bump jackson from 2.16.0 to 2.17.0
+* Bump slf4j from 2.0.9 to 2.0.12
+* Bump commons-codec from 1.16.0 to 1.16.1 (#340)
+
 ## 2.3.1 (released 22.12.2023) - see https://github.com/replay-framework/replay/milestone/14?closed=1
 
 * Move project from https://github.com/codeborne/replay to https://github.com/replay-framework/replay

@@ -17,7 +17,7 @@ ext {
 subprojects {
 
   group='io.github.replay-framework'
-  version=project.properties['revision'] ?: '2.3.1'
+  version=project.properties['revision'] ?: '2.4.0'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
