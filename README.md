@@ -44,7 +44,7 @@ These were not used at Codeborne, but could be reintroduced if needed.
 
 #### Requirements
 
-At least JDK 11, and at most JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
+JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
 
 
 ## Getting started
@@ -104,7 +104,7 @@ with the value: `-parameters` (also found in the `build.gradle` file, it put the
 4. Go to `Run -> Edit Configurations...`, click the `+` (Add New Configuration) in the top-right corner and select "Application"
 5. Fill in the following details, and click `OK`:
   * *Name*: `Criminals` (how this run/debug configuration shows up in the IntelliJ UI)
-  * *JDK/JRE*: select one you prefer (Java 11 is a minimum requirement, Java 17 seems to work fine)
+  * *JDK/JRE*: select one you prefer (Java 17 seems to work fine)
   * *Use classpath of module*: `criminals.main`
   * *Main class*: `replay.replay-tests.criminals.Application` (the package name, `criminals` should match the package that contains you `Application` class in `app/`)
   * *VM options* (shown with *Modify options* drop-down item *Add VM options*): `-XX:+ShowCodeDetailsInExceptionMessages` (for more helpful errors) (applicable only for Java 14+)
