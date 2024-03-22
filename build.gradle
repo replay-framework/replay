@@ -29,7 +29,7 @@ subprojects {
     options.debugOptions.debugLevel = "source,lines,vars"
   }
   java.toolchain {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 
   repositories {
