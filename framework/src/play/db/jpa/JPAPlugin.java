@@ -170,8 +170,8 @@ public class JPAPlugin extends PlayPlugin {
     protected PersistenceUnitInfoImpl persistenceUnitInfo(String dbName, Configuration dbConfig) {
         final List<Class> managedClasses = entityClasses(dbName);
         final Properties properties = properties(dbName, dbConfig);
-        properties.put(org.hibernate.jpa.AvailableSettings.LOADED_CLASSES, managedClasses);
-        properties.put(org.hibernate.jpa.AvailableSettings.FLUSH_MODE, MANUAL);
+        properties.put(AvailableSettings.LOADED_CLASSES, managedClasses);
+        properties.put(AvailableSettings.FLUSH_MODE, MANUAL);
         return new PersistenceUnitInfoImpl(dbName,
                 managedClasses, mappingFiles(dbConfig), properties);
     }

@@ -1,7 +1,9 @@
 package play.db;
 
+import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.internal.SessionImpl;
-import org.hibernate.jpa.HibernateEntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.db.jpa.JPA;
@@ -165,55 +167,19 @@ public class DB {
         }
     }
 
-    /**
-     * Open a connection for the current thread.
-     * 
-     * @param name
-     *            Name of the DB
-     * @return A valid SQL connection
-     */
-    @Nonnull
-    public static Connection getConnection(String name) {
-        try {
-            if (JPA.isEnabled()) {
-                return ((SessionImpl) ((HibernateEntityManager) JPA.em(name)).getSession()).connection();
-            }
-
-            Connection localConnection = getLocalConnection(name);
-            if (localConnection != null) {
-                return localConnection;
-            }
-
-            // We have no connection
-            Connection connection = getDataSource(name).getConnection();
-            registerLocalConnection(name, connection);
-            return connection;
-        } catch (NullPointerException e) {
-            if (getDataSource(name) == null) {
-                throw new DatabaseException("No database found: '" + name + "'", e);
-            }
-            throw e;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Nonnull
-    public static Connection getConnection() {
-        return getConnection(DEFAULT);
-    }
-
     public static void execute(String SQL) {
         execute(DEFAULT, SQL);
     }
 
-    public static void execute(String name, String SQL) {
-        try (Statement statement = getConnection(name).createStatement()) {
-            statement.execute(SQL);
-        }
-        catch (SQLException ex) {
-            throw new DatabaseException(ex);
-        }
+    public static void execute(String name, String sql) {
+        JPA.em(name).unwrap(Session.class).doWork(con -> {
+            try (Statement statement = con.createStatement()) {
+                statement.execute(sql);
+            }
+            catch (SQLException ex) {
+                throw new DatabaseException(ex);
+            }
+        });
     }
 
     /**
