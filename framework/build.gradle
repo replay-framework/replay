@@ -26,11 +26,11 @@ dependencies {
   // Groovy 4 can be found in org.apache.groovy
   api("org.codehaus.groovy:groovy:$groovyVersion")
   api("org.codehaus.groovy:groovy-xml:$groovyVersion")
-  api('org.hibernate:hibernate-core-jakarta:5.6.15.Final')
+  api('org.hibernate:hibernate-core:6.4.4.Final')
   // Hibernate 5.6 series is only compatible with persistence-api:3.0.0
   api('jakarta.persistence:jakarta.persistence-api:3.1.0')
   api('org.hibernate.common:hibernate-commons-annotations:6.0.6.Final')
-  implementation('org.hibernate:hibernate-ehcache:5.6.15.Final') {transitive = false}
+  implementation('org.hibernate:hibernate-jcache:6.4.4.Final') {transitive = false}
   api("org.slf4j:slf4j-api:$slf4jVersion")
   api("org.slf4j:slf4j-reload4j:$slf4jVersion")
   api("org.slf4j:jul-to-slf4j:$slf4jVersion")

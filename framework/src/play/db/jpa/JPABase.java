@@ -1,9 +1,8 @@
 package play.db.jpa;
 
-import org.hibernate.collection.internal.PersistentMap;
 import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.collection.spi.PersistentMap;
 import org.hibernate.engine.spi.CollectionEntry;
-import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.PersistenceContext;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.internal.SessionImpl;
