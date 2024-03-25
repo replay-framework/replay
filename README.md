@@ -20,22 +20,24 @@ Porting a Play1 application to Play2 is really hard and has [questionable benefi
 RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
 
-#### Main differences between RePlay and Play1
+#### How is RePlay different from Play1?
 
-* It uses standard Java build tools ([Gradle](https://gradle.org) or [Maven](https://maven.apache.org/)) for dependency management and builds:
-  * better compile times by incremental builds,
-  * no vendor code in your RePlay application's version control,
-  * and no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies.
-  * no need for "modules" folder which was a custom dependency management mechanism.
-  * no need for class `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath)
+* Uses standard Java build tooling —[Gradle](https://gradle.org)— for dependency management and builds:
+  * resulting in better compile times by incremental builds,
+  * no [dependecies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
+  * no dependency on [Ivy](https://ant.apache.org/ivy) (an outdated dependency resolver),
+  * no Python scripts (with RePlay one simply uses Gradle or [Maven](https://maven.apache.org)),
+  * no "modules" folder which was a custom dependency management mechanism,
+  * no `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath).
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
-These were not used at Codeborne, but could be reintroduced if needed.
-* The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
+These were not used by RePlay's users (could be reintroduced if needed).
+* The `pdf` and `excel` Play1 contrib modules are part (a plugin) of the RePlay project.
+* Does not require [patches](https://github.com/playframework/play1/tree/master/framework/patches) to Hibernate, Javaflow, etc.
 * It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers", resulting in:
   * shorter application startup times (seriously improves development cycles),
   * and support for other JVM languages, like Kotlin ([example project](/replay-framework/replay/tree/main/replay-tests/helloworld-kotlin)).
 * Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
-* No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
+* No overuse of `static` fields/methods throughout your application code; RePlay follows generally accepted OO best practices.
 * More actively maintained.
 * Promotes [dependency injection](/replay-framework/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
