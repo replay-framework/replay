@@ -92,7 +92,7 @@ public class PluginCollection {
         return new PluginDescriptor(lineParts[1].trim(), parseInt(lineParts[0]), pluginsFile.url());
     }
 
-    private void loadPlugins(SortedSet<PluginDescriptor> pluginsToLoad) {
+    public void loadPlugins(SortedSet<PluginDescriptor> pluginsToLoad) {
         for (PluginDescriptor info : pluginsToLoad) {
             logger.trace("Loading plugin {}", info.name);
             PlayPlugin plugin = Injector.getBeanOfType(info.name);
