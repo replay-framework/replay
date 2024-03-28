@@ -3,6 +3,7 @@ package play.data.binding;
 import play.utils.Utils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class ParamNode {
     private final String name;
@@ -10,14 +11,13 @@ public class ParamNode {
     private String[] values = null;
     private String originalKey;
 
-    // splits a string on one-ore-more instances of .[]
-    // this works so that all the following strings (param naming syntax)
-    // is resolved into the same structural hierarchy:
+    // Regex to split the key of an x-www-form-urlencoded key-value pair on one-ore-more instances of ".[]".
+    // Using this all the following strings (Play's naming syntax for keys) resolved into the same structural hierarchy:
     // a.b.c=12
     // a[b].c=12
     // a[b][c]=12
     // a.b[c]=12
-    private static final String keyPartDelimiterRegexpString = "[\\.\\[\\]]+";
+    private static final Pattern keyPartDelimiterRegex = Pattern.compile("[.\\[\\]]+");
 
     public ParamNode(String name) {
         this.name = name;
@@ -36,15 +36,15 @@ public class ParamNode {
             return null;
         }
 
-        if (values.length>1 && String.class.equals(type)) {
-            // special handling for string - when multiple values, concatenate them with comma..
+        if (values.length > 1 && String.class.equals(type)) {
+            // Special handling for strings: when multiple values are provided, concatenate them into one
             return Utils.join(values, ", ");
         } else {
             return values[0];
         }
     }
 
-    public void addChild( ParamNode child) {
+    public void addChild(ParamNode child) {
         _children.put(child.name, child);
     }
 
@@ -53,7 +53,7 @@ public class ParamNode {
     }
 
     public ParamNode getChild(String name, boolean returnEmptyChildIfNotFound) {
-        ParamNode child = getChild( name.split(keyPartDelimiterRegexpString));
+        ParamNode child = getChild(keyPartDelimiterRegex.split(name));
         if (child == null && returnEmptyChildIfNotFound) {
             child = new ParamNode(name);
         }
@@ -72,7 +72,7 @@ public class ParamNode {
 
     /**
      * Removes a child from this node, but stores what is removed to list.
-     * The we can later call which will add it back again.
+     * Then we can later call which will add it back again.
      * This is a "hack" related to #1195 which makes it possible to reuse the RootParamsNode-structure
      * if you want to perform the bind-operation multiple times.
      *
@@ -82,8 +82,8 @@ public class ParamNode {
      */
     public boolean removeChild(String name, List<RemovedNode> removedNodesList) {
         ParamNode removedNode = _children.remove(name);
-        if ( removedNode != null) {
-            removedNodesList.add( new RemovedNode(this, removedNode));
+        if (removedNode != null) {
+            removedNodesList.add(new RemovedNode(this, removedNode));
             return true;
         } else {
             return false;
@@ -91,15 +91,15 @@ public class ParamNode {
     }
 
     public static void restoreRemovedChildren( List<RemovedNode> removedNodesList ) {
-        for ( RemovedNode rn : removedNodesList) {
+        for (RemovedNode rn : removedNodesList) {
             rn.removedFrom._children.put( rn.removedNode.name, rn.removedNode);
         }
     }
 
     private ParamNode getChild(String[] nestedNames) {
         ParamNode currentChildNode = this;
-        for (int i=0; i<nestedNames.length; i++) {
-            currentChildNode = currentChildNode._children.get(nestedNames[i]);
+        for (String nestedName : nestedNames) {
+            currentChildNode = currentChildNode._children.get(nestedName);
             if (currentChildNode == null) {
                 return null;
             }
@@ -128,7 +128,7 @@ public class ParamNode {
     }
 
     public static RootParamNode convert(Map<String, String[]> params) {
-        RootParamNode root = new RootParamNode( params);
+        RootParamNode root = new RootParamNode(params);
 
         for (Map.Entry<String, String[]> e : params.entrySet()) {
             String key = e.getKey();
@@ -139,8 +139,8 @@ public class ParamNode {
 
             ParamNode currentParent = root;
 
-            for ( String name : key.split(keyPartDelimiterRegexpString)) {
-                ParamNode paramNode = currentParent.getChild( name );
+            for (String name : keyPartDelimiterRegex.split(key)) {
+                ParamNode paramNode = currentParent.getChild(name);
                 if (paramNode ==null) {
                     // first time we see this node - create it and add it to parent
                     paramNode = new ParamNode(name);
@@ -150,8 +150,7 @@ public class ParamNode {
             }
 
             // currentParent is now the last node where we should place the values
-            currentParent.setValue( values, key);
-
+            currentParent.setValue(values, key);
         }
         return root;
     }
