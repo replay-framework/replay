@@ -54,22 +54,31 @@ public class BinderTest {
         data1.a = "aAaA";
         data1.b = 13;
 
-
-
         Map<String, Object> r = new HashMap<>();
         Data1.myStatic = 1;
 
         Unbinder.unBind(r, data1, "data1", noAnnotations);
-        // make sure we only have info about the properties we want..
+        // make sure we only have info about the properties we want
         assertThat(r.keySet()).containsOnly("data1.a", "data1.b");
 
-        Map<String, String[]> r2 = fromUnbindMap2BindMap( r);
+        Map<String, String[]> r2 = fromUnbindMap2BindMap(r);
 
         Data1.myStatic = 2;
         RootParamNode root = ParamNode.convert(r2);
         Object bindResult = Binder.bind(request, session, root, "data1", Data1.class, null, null);
         assertThat(bindResult).usingRecursiveComparison().isEqualTo(data1);
         assertThat(Data1.myStatic).isEqualTo(2);
+    }
+
+    @Test
+    public void verify_equality_of_structural_hierarchy() {
+
+        Map<String, String[]> abc12 = Map.of("a.b.c", new String[] {"12"});
+        RootParamNode root = ParamNode.convert(abc12);
+        assertThat(root.getChild("a.b.c").getValues()).isEqualTo(new String[] {"12"});
+        assertThat(root.getChild("a[b].c").getValues()).isEqualTo(new String[] {"12"});
+        assertThat(root.getChild("a[b][c]").getValues()).isEqualTo(new String[] {"12"});
+        assertThat(root.getChild("a.b[c]").getValues()).isEqualTo(new String[] {"12"});
     }
 
 
@@ -93,8 +102,6 @@ public class BinderTest {
         data2.data = new ArrayList<>(2);
         data2.data.add(data1_1);
         data2.data.add(data1_2);
-
-
 
         Map<String, Object> r = new HashMap<>();
         Unbinder.unBind(r, data2, "data2", noAnnotations);
@@ -234,8 +241,8 @@ public class BinderTest {
 
         RootParamNode rootParamNode = ParamNode.convert(params);
 
-        Data5 binded = (Data5) Binder.bind(request, session, rootParamNode, "data", Data5.class, Data5.class, noAnnotations);
-        assertThat(binded.testEnumSet).isEqualTo(data.testEnumSet);
+        Data5 bound = (Data5) Binder.bind(request, session, rootParamNode, "data", Data5.class, Data5.class, noAnnotations);
+        assertThat(bound.testEnumSet).isEqualTo(data.testEnumSet);
     }
 
     @Test
@@ -245,8 +252,8 @@ public class BinderTest {
 
         RootParamNode rootParamNode = ParamNode.convert(params);
 
-        Data6 binded = (Data6) Binder.bind(request, session, rootParamNode, "user", Data6.class, Data6.class, noAnnotations);
-        assertThat(binded.name).isEqualTo("john");
+        Data6 bound = (Data6) Binder.bind(request, session, rootParamNode, "user", Data6.class, Data6.class, noAnnotations);
+        assertThat(bound.name).isEqualTo("john");
     }
 
     /**
@@ -265,7 +272,7 @@ public class BinderTest {
             } else if (v instanceof String[]) {
                 r2.put(key, (String[])v);
             } else if (v instanceof Collection) {
-                Object[] array = ((Collection) v).toArray();
+                Object[] array = ((Collection<?>) v).toArray();
                 r2.put(key, Arrays.copyOf(array, array.length, String[].class));
             } else {
                 throw new RuntimeException("error");
