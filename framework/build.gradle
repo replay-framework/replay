@@ -1,6 +1,6 @@
 dependencies {
   api('com.google.code.findbugs:jsr305:3.0.2')
-  implementation('io.github.classgraph:classgraph:4.8.168')
+  implementation('io.github.classgraph:classgraph:4.8.170')
   api('com.zaxxer:HikariCP:5.1.0')
   api('com.google.code.gson:gson:2.10.1')
   // Cannot upgrade to org.asynchttpclient:async-http-client as that requires Netty4 and we use Netty3
