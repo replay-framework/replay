@@ -215,7 +215,7 @@ Where this is possible the guide below points this out with a **TIP**.
 The following list breaks down the porting effort into tasks:
 
 * Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
-* Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
+* Ensure that `app/play.plugins` file (or the file where the `play.plugins.descriptor` configuration property is pointing) is on the classpath (e.g. `sourceSets.main.resources { srcDir 'app' }`) and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
 [RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration). 
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
