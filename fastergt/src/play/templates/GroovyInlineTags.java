@@ -1,4 +1,4 @@
-package play.template2;
+package play.templates;
 
 public class GroovyInlineTags {
     

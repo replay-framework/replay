@@ -1,4 +1,4 @@
-package play.template2;
+package play.templates;
 
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
@@ -11,7 +11,6 @@ import play.i18n.Messages;
 import play.libs.I18N;
 import play.mvc.Http;
 import play.templates.BaseTemplate.RawData;
-import play.templates.JavaScriptEscaper;
 import play.utils.HTML;
 
 import java.io.PrintWriter;

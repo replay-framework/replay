@@ -1,7 +1,7 @@
 package play.modules.gtengineplugin.gt_integration;
 
 import play.template2.GTTagContext;
-import play.template2.TagContext;
+import play.templates.TagContext;
 
 import java.util.Map;
 

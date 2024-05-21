@@ -2,7 +2,7 @@ package play.modules.gtengineplugin.gt_integration;
 
 import play.Play;
 import play.template2.compile.GTJavaExtensionMethodResolver;
-import play.template2.JavaExtensions;
+import play.templates.JavaExtensions;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

@@ -8,8 +8,8 @@ import play.Play;
 import play.PlayPlugin;
 import play.jobs.Job;
 import play.mvc.PlayController;
-import play.template2.FastTags;
-import play.template2.JavaExtensions;
+import play.templates.FastTags;
+import play.templates.JavaExtensions;
 import play.templates.Template;
 
 import java.io.File;

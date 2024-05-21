@@ -7,8 +7,8 @@ import play.modules.gtengineplugin.InternalLegacyFastTagsImpls;
 import play.template2.GTJavaBase;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTLegacyFastTagResolver;
-import play.template2.ExecutableTemplate;
-import play.template2.FastTags;
+import play.templates.ExecutableTemplate;
+import play.templates.FastTags;
 
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;

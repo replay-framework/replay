@@ -1,7 +1,10 @@
-package play.template2;
+package play.templates;
 
 import groovy.lang.GroovyObjectSupport;
 import org.junit.jupiter.api.Test;
+import play.template2.GTTemplateRepoBuilder;
+import play.template2.TemplateRootFolder;
+import play.template2.TemplateSourceRenderer;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
