@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateNotFoundException;
-import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +23,14 @@ public class TemplateLoader {
     private static final Map<String, BaseTemplate> templates = new HashMap<>();
 
     /**
-     * Load a template from a virtual file
+     * Load a template from a file
      * 
-     * @param file
-     *            A VirtualFile
+     * @param file A File
      * @return The executable template
      */
-    public static Template load(VirtualFile file) {
+    public static Template load(File file) {
         return Play.pluginCollection.loadTemplate(file)
-          .orElseThrow(() -> new TemplateNotFoundException(file.relativePath()));
+          .orElseThrow(() -> new TemplateNotFoundException(file.getAbsolutePath()));
     }
 
     /**
@@ -50,22 +48,21 @@ public class TemplateLoader {
      * @return The executable template
      */
     public static Template load(String path) {
-        Template template = null;
-        for (VirtualFile vf : Play.templatesPath) {
+        for (File vf : Play.templatesPath) {
             if (vf == null) {
                 continue;
             }
-            VirtualFile tf = vf.child(path);
+            File tf = new File(vf, path);
             boolean templateExists = tf.exists();
             if (!templateExists && Play.usePrecompiled) {
-                String name = tf.relativePath().replaceAll("\\{(.*)\\}", "from_$1").replace(":", "_").replace("..", "parent");
+                String name = Play.relativePath(tf).replaceAll("\\{(.*)\\}", "from_$1").replace(":", "_").replace("..", "parent");
                 templateExists = Play.getFile("precompiled/templates/" + name).exists();
             }
             if (templateExists) {
-                template = TemplateLoader.load(tf);
-                break;
+                return TemplateLoader.load(tf);
             }
         }
+
         /*
          * if (template == null) { //When using the old 'key = (file.relativePath().hashCode() + "").replace("-",
          * "M");', //the next line never return anything, since all values written to templates is using the //above
@@ -73,32 +70,33 @@ public class TemplateLoader {
          * commented it out. template = templates.get(path); }
          */
         // TODO: remove ?
-        if (template == null) {
-            VirtualFile tf = Play.getVirtualFile(path);
-            if (tf != null && tf.exists()) {
-                template = TemplateLoader.load(tf);
-            }
+        File tf = Play.file(path);
+        if (tf != null) {
+            return TemplateLoader.load(tf);
+        }
+
+        URL fromClasspath = Thread.currentThread().getContextClassLoader().getResource("views/" + path);
+        if (fromClasspath != null) {
+            return loadTemplateFromClasspath(path, fromClasspath);
+        }
+
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
+        if (resource != null) {
+            return loadTemplateFromClasspath(path, resource);
         }
         
-        if (template == null) {
-            URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
-            if (resource != null) {
-                File tmpTemplateFile = new File(Play.tmpDir, path);
-                try {
-                    copyURLToFile(resource, tmpTemplateFile);
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                template = TemplateLoader.load(Play.getVirtualFile("tmp/" + path));
-            }
-        }
+        throw new TemplateNotFoundException(path);
+    }
 
-        if (template == null) {
-            throw new TemplateNotFoundException(path);
+    private static Template loadTemplateFromClasspath(String path, URL resource) {
+        File templateFile = new File(Play.tmpDir, path);
+        try {
+            copyURLToFile(resource, templateFile);
         }
-
-        return template;
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return TemplateLoader.load(Play.file("tmp/" + path));
     }
 
     /**
@@ -108,13 +106,13 @@ public class TemplateLoader {
      */
     public static List<Template> getAllTemplate() {
         List<Template> res = new ArrayList<>();
-        for (VirtualFile virtualFile : Play.templatesPath) {
+        for (File virtualFile : Play.templatesPath) {
             scan(res, virtualFile);
         }
         return res;
     }
 
-    private static void scan(List<Template> templates, VirtualFile current) {
+    private static void scan(List<Template> templates, File current) {
         if (!current.isDirectory() && !current.getName().startsWith(".")) {
             long start = nanoTime();
             Template template = load(current);
@@ -124,8 +122,11 @@ public class TemplateLoader {
                 templates.add(template);
             }
         } else if (current.isDirectory() && !current.getName().startsWith(".")) {
-            for (VirtualFile virtualFile : current.list()) {
-                scan(templates, virtualFile);
+            File[] files = current.listFiles();
+            if (files != null) {
+                for (File virtualFile : files) {
+                    scan(templates, virtualFile);
+                }
             }
         }
     }

@@ -43,8 +43,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost",
-                false,
-                null,
+            null,
                 null
         );
 
@@ -85,8 +84,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost", // domain gets changed below a few times
-                false,
-                null,
+            null,
                 null
         );
         // we also request a static music file (which lives on NO specific domain)
@@ -102,8 +100,7 @@ public class RouterTest {
                 false,
                 80,
                 "localhost", // domain gets changed below a few times
-                false,
-                null,
+            null,
                 null
         );
 
@@ -206,8 +203,8 @@ public class RouterTest {
           new Router.Route("GET", "/{controller}/{action}", "{controller}.{action}", null, 0)
         ));
 
-        assertThat(router.actionToUrl("MyController.myAction", emptyMap(), null, null).url).isEqualTo("/mycontroller/myaction");
-        assertThat(router.actionToUrl("somePackage.MyController.myAction", emptyMap(), null, null).url).isEqualTo("/somepackage.mycontroller/myaction");
+        assertThat(router.actionToUrl("MyController.myAction", emptyMap(), (String) null, null).url).isEqualTo("/mycontroller/myaction");
+        assertThat(router.actionToUrl("somePackage.MyController.myAction", emptyMap(), (String) null, null).url).isEqualTo("/somepackage.mycontroller/myaction");
     }
 
     private Router router() {
@@ -222,6 +219,6 @@ public class RouterTest {
     }
 
     private String actionToUrl(String action, Map<String, Object> args) {
-        return router().actionToUrl(action, args, null, null).toString();
+        return router().actionToUrl(action, args, (String) null, null).toString();
     }
 }

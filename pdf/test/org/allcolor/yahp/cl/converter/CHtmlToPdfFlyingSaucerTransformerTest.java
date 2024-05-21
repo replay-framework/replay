@@ -5,6 +5,8 @@ import static org.allcolor.yahp.cl.converter.CHtmlToPdfFlyingSaucerTransformer.r
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CHtmlToPdfFlyingSaucerTransformerTest {
+  CHtmlToPdfFlyingSaucerTransformer transformer = new CHtmlToPdfFlyingSaucerTransformer();
+
   @Test
   public void removesScriptTagFromHtml() {
     assertThat(removeScript("<script src=\"/public/gen/main.js?16b1e5a0df\"></script>")).isEqualTo("");
@@ -47,5 +49,32 @@ public class CHtmlToPdfFlyingSaucerTransformerTest {
                                              "\n" +
                                              "</head>\n" +
                                              "</html>\n\n");
+  }
+
+  @Test
+  void extractsWidthAndHeight() {
+    assertThat(transformer.transformSelectStyle(""))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;");
+
+    assertThat(transformer.transformSelectStyle("width: 200px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;");
+
+    assertThat(transformer.transformSelectStyle("height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 50px;height: 100px;");
+
+    assertThat(transformer.transformSelectStyle("width: 200px; height: 100px;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;height: 100px;");
+
+    assertThat(transformer.transformSelectStyle("border: 1px; width: 200px; height: 100px; position: absolute;"))
+      .isEqualTo("display: inline-block;border: 1px solid black;width: 200px;height: 100px;");
+  }
+
+  @Test
+  void parseCssProperty() {
+    assertThat(transformer.parseCssProperty("", "width")).isNull();
+    assertThat(transformer.parseCssProperty("disabled", "disabled")).isEqualTo("");
+    assertThat(transformer.parseCssProperty("width: 12px", "width")).isEqualTo("12px");
+    assertThat(transformer.parseCssProperty("width: 12px; height 3px;", "width")).isEqualTo("12px");
+    assertThat(transformer.parseCssProperty("top: 0px; width: 12px; height 3px;", "width")).isEqualTo("12px");
   }
 }

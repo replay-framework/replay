@@ -53,7 +53,6 @@ import play.server.ServerAddress;
 import play.server.ServerHelper;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -242,7 +241,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         public void run() {
             try {
                 logger.trace("run: begin");
-                onStarted();
                 try {
                     preInit();
                     if (init()) {
@@ -277,7 +275,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
-            // Check the exceeded size before re rendering so we can render the
+            // Check the exceeded size before re-rendering, so we can render the
             // error if the size is exceeded
             saveExceededSizeError(nettyRequest, request);
             actionInvoker.invoke(request, response);
@@ -497,8 +495,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
           getRemoteIPAddress(messageEvent), 
           nettyRequest.getMethod().getName(), 
           uri.getPath(), uri.getQuery(), contentType, body, relativeUrl, 
-          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false, 
-          getHeaders(nettyRequest), getCookies(nettyRequest));
+          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
+            getHeaders(nettyRequest), getCookies(nettyRequest));
 
         logger.trace("parseRequest: end");
         return request;
@@ -615,9 +613,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 nettyResponse.setContent(buf);
                 ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
                 writeFuture.addListener(ChannelFutureListener.CLOSE);
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
             } catch (Throwable ex) {
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
                 logger.error("Error during the 500 response generation", ex);
                 byte[] bytes = "Internal Error".getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
@@ -662,7 +660,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
         try {
-            VirtualFile file = serverHelper.findFile(renderStatic.file);
+            File file = serverHelper.findFile(renderStatic.file);
             if ((file == null || !file.exists())) {
                 serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, request);
             } else {
@@ -685,11 +683,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         logger.trace("serveStatic: end");
     }
 
-    private void serveLocalFile(VirtualFile file, Request request, Response response, 
+    private void serveLocalFile(File localFile, Request request, Response response, 
                                 ChannelHandlerContext ctx, MessageEvent e, 
                                 HttpRequest nettyRequest, HttpResponse nettyResponse) throws FileNotFoundException {
-      
-        File localFile = file.getRealFile();
         boolean keepAlive = isKeepAlive(nettyRequest);
         addEtag(nettyRequest, nettyResponse, localFile);
 

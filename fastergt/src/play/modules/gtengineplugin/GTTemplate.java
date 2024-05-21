@@ -1,7 +1,5 @@
 package play.modules.gtengineplugin;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import play.Play;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -26,9 +24,9 @@ public class GTTemplate extends Template {
     private final GTJavaBase gtJavaBase;
 
     public GTTemplate(GTTemplateLocation templateLocation, @Nullable GTJavaBase gtJavaBase) {
-        this.templateLocation = templateLocation;
-        this.gtJavaBase = gtJavaBase;
-        this.name = templateLocation.relativePath;
+      super(templateLocation.relativePath);
+      this.templateLocation = templateLocation;
+      this.gtJavaBase = gtJavaBase;
     }
 
     @Override
@@ -67,14 +65,8 @@ public class GTTemplate extends Template {
 
     protected GTRenderingResult renderGTTemplate(Map<String, Object> args) {
         GTJavaBase gtTemplate = getGTTemplateInstance();
-        Monitor monitor = MonitorFactory.start(this.name);
-        try {
-            gtTemplate.renderTemplate(args);
-            return gtTemplate;
-        }
-        finally {
-            monitor.stop();
-        }
+        gtTemplate.renderTemplate(args);
+        return gtTemplate;
     }
 
     @Override

@@ -5,8 +5,8 @@ import play.db.jpa.GenericModel.JPAQuery;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import javax.persistence.Entity;
-import javax.persistence.PersistenceUnit;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PersistenceUnit;
 import java.util.List;
 
 @Singleton

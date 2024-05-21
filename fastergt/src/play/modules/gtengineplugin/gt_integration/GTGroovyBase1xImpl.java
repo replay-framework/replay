@@ -112,7 +112,7 @@ public class GTGroovyBase1xImpl extends GTGroovyBase {
                                 }
                             }
                         }
-                        Router.ActionDefinition def = Router.reverse(action, r, request, response);
+                        Router.ActionDefinition def = Router.reverse(action, r, request.format, response.encoding);
                         if (absolute) {
                             def.absolute(request);
                         }

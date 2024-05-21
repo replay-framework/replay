@@ -92,7 +92,6 @@ import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -231,7 +230,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         public void run() {
             try {
                 logger.trace("run: begin");
-                onStarted();
                 try {
                     preInit();
                     if (init()) {
@@ -265,7 +263,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 return;
             }
 
-            // Check the exceeded size before re rendering so we can render the
+            // Check the exceeded size before re-rendering, so we can render the
             // error if the size is exceeded
             saveExceededSizeError(nettyRequest, request);
             actionInvoker.invoke(request, response);
@@ -477,8 +475,8 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
           getRemoteIPAddress(ctx.channel()),
           nettyRequest.method().name(),
           uri.getPath(), uri.getQuery(), contentType, body, relativeUrl, 
-          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false, 
-          getHeaders(nettyRequest), getCookies(nettyRequest));
+          serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
+            getHeaders(nettyRequest), getCookies(nettyRequest));
 
         logger.trace("parseRequest: end");
         return request;
@@ -599,9 +597,9 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 nettyResponse = nettyResponse.replace(buf);
                 ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
                 writeFuture.addListener(ChannelFutureListener.CLOSE);
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
             } catch (Throwable ex) {
-                logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+                logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
                 logger.error("Error during the 500 response generation", ex);
                 byte[] bytes = "Internal Error".getBytes(encoding);
                 ByteBuf buf = Unpooled.copiedBuffer(bytes);
@@ -651,7 +649,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         HttpResponse nettyResponse = createByteHttpResponse(HttpResponseStatus.valueOf(playResponse.status));
         try {
-            VirtualFile file = serverHelper.findFile(renderStatic.file);
+            File file = serverHelper.findFile(renderStatic.file);
 
             if ((file == null || !file.exists())) {
                 serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, playRequest);
@@ -675,10 +673,9 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         logger.trace("serveStatic: end");
     }
 
-    private void serveLocalFile(VirtualFile file, Request playRequest, Response playResponse,
+    private void serveLocalFile(File localFile, Request playRequest, Response playResponse,
                                 ChannelHandlerContext ctx, 
                                 FullHttpRequest nettyRequest, HttpResponse nettyResponse) throws FileNotFoundException {
-        File localFile = file.getRealFile();
         boolean keepAlive = isKeepAlive(nettyRequest);
         addEtag(nettyRequest, nettyResponse, localFile);
         Channel ch = ctx.channel();

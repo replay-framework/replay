@@ -10,10 +10,10 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -117,7 +117,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
      *            the file of the template to load
      * @return the template object
      */
-    public Optional<Template> loadTemplate(VirtualFile file) {
+    public Optional<Template> loadTemplate(File file) {
         return Optional.empty();
     }
 
@@ -140,7 +140,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     }
 
     /**
-     * Called at application stop (and before each reloading) Time to shutdown stateful things.
+     * Called at application stop (and before each reloading) Time to shut down stateful things.
      */
     public void onApplicationStop() {
     }

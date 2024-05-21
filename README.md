@@ -1,14 +1,14 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codeborne.replay/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/com.codeborne.replay/framework)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/io.github.replay-framework/framework)
 ```
     ______  ______                 _            _
    /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
   /     / /     /  | '_ / -_) '_ \| |/ _' | || |_|
  /     / /     /   |_/  \___|  __/|_|\____|\__ (_)
 /_____/ /_____/             |_|            |__/
-                   RePlay Framework, https://github.com/codeborne/replay
+                   RePlay Framework, https://github.com/replay-framework/replay
 ```
 
-RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, made and maintained by [Codeborne](https://codeborne.com).
+RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created and maintained by [Codeborne](https://codeborne.com) in 2017..2023.
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
 Compared to Play1, RePlay is a simpler and more standard/modern framework with greatly improved developer ergonomics.
 The main differences between Play1 and RePlay are outlined below.
@@ -20,31 +20,55 @@ Porting a Play1 application to Play2 is really hard and has [questionable benefi
 RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
 
-#### Main differences between RePlay and Play1
+#### How is RePlay different from Play1?
 
-* It uses the [Gradle build tool](https://gradle.org) for dependency management and builds:
-  * better compile times by incremental builds,
-  * no vendor code in your RePlay application's version control,
-  * and no need for [Ivy](https://ant.apache.org/ivy) and Play1's Python scripts to manage dependencies.
+* Uses standard Java build tooling —[Gradle](https://gradle.org)— for dependency management and builds:
+  * resulting in better compile times by incremental builds,
+  * no [dependecies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
+  * no dependency on [Ivy](https://ant.apache.org/ivy) (an outdated dependency resolver),
+  * no Python scripts (with RePlay one simply uses Gradle or [Maven](https://maven.apache.org)),
+  * no "modules" folder which was a custom dependency management mechanism,
+  * no `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath).
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
-These were not used at Codeborne, but could be reintroduced if needed.
-* The `pdf` and `excel` Play1 contrib modules are part of the RePlay project as plugins in separate libraries.
-* It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers":
+These were not used by RePlay's users (could be reintroduced if needed).
+* The `pdf` and `excel` Play1 contrib modules are part (a plugin) of the RePlay project.
+* Does not require [patches](https://github.com/playframework/play1/tree/master/framework/patches) to Hibernate, Javaflow, etc.
+* It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers", resulting in:
   * shorter application startup times (seriously improves development cycles),
-  * and for other JVM languages out of the box, like Kotlin ([example project](/codeborne/replay/tree/main/replay-tests/helloworld-kotlin)).
+  * and support for other JVM languages, like Kotlin ([example project](/replay-framework/replay/tree/main/replay-tests/helloworld-kotlin)).
 * Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
-* No overuse of `static` fields/methods throughout your application code; RePlay uses generally accepted OO best practices.
+* No overuse of `static` fields/methods throughout your application code; RePlay follows generally accepted OO best practices.
 * More actively maintained.
-* Promotes [dependency injection](/codeborne/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
+* Promotes [dependency injection](/replay-framework/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
 
 
+#### Requirements
+
+JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
+
+
 ## Getting started
+
+You need to add RePlay dependencies to your build.gradle (or pom.xml):
+```groovy
+dependencies {
+  implementation 'io.github.replay-framework:framework:2.4.0'
+  implementation 'io.github.replay-framework:javanet:2.4.0'  // you can replay "javanet" by "netty3" or "netty4"
+  
+  // Optionally:
+  implementation 'io.github.replay-framework:guice:2.4.0'
+  implementation 'io.github.replay-framework:fastergt:2.4.0'
+  implementation 'io.github.replay-framework:liquibase:2.4.0'
+  implementation 'io.github.replay-framework:pdf:2.4.0'
+  implementation 'io.github.replay-framework:excel:2.4.0'
+}
+```
 
 RePlay does not come with the `play` command line tool (written in Python 2.7) that it part of Play1.
 Hence, the `play new` scaffolding generator is not available in RePlay.
-To start a new RePlay application make a copy of [demo application](https://github.com/codeborne/replay/tree/main/replay-tests/criminals) and work your way up from there.
+To start a new RePlay application make a copy of [demo application](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) and work your way up from there.
 
 Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase, Kotlin and dependency injection with Guice).
 
@@ -61,7 +85,7 @@ For a large part the [documentation of Play1](https://www.playframework.com/docu
 Keep the differences between Play1 and RePlay (outlined above) in mind, in order to know what parts of the Play1 documentation to ignore.
 
 API docs for the RePlay `framework` package are generated with `./gradlew :framework:javadoc` after which they are found in the `/framework/build/docs/javadoc/` folder.
-The [javadoc.io](https://javadoc.io) project provides online access to the [*Javadoc* documentation of RePlay](https://javadoc.io/doc/com.codeborne.replay).
+The [javadoc.io](https://javadoc.io) project provides online access to the [*Javadoc* documentation of RePlay](https://javadoc.io/doc/io.github.replay-framework).
 
 
 ## Development flow (hot-swapping)
@@ -71,9 +95,9 @@ providing auto-compilation and hot-swapping of code changes.
 
 Developers of RePlay applications need to set up an IDE to get a good development flow.
 
-These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/codeborne/replay/tree/main/replay-tests/criminals) RePlay example application:
+These steps set up a hot-swapping development flow with IntelliJ IDEA for the [criminals](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) RePlay example application:
 
-0. Clone the [replay](https://github.com/codeborne/replay) repository
+0. Clone the [replay](https://github.com/replay-framework/replay) repository
 1. Use IntelliJ IDEA to `File > Open...` the replay project (**not** `Import`) by selecting the root of this project's repository
 2. In `File > Settings... > Build, Excecution, Deployment > Compiler > Java Compiler` fill the *Additional command line parameters*
 with the value: `-parameters` (also found in the `build.gradle` file, it put the method argument names in the bytecode by which the framework auto-binds params at run time)
@@ -82,7 +106,7 @@ with the value: `-parameters` (also found in the `build.gradle` file, it put the
 4. Go to `Run -> Edit Configurations...`, click the `+` (Add New Configuration) in the top-right corner and select "Application"
 5. Fill in the following details, and click `OK`:
   * *Name*: `Criminals` (how this run/debug configuration shows up in the IntelliJ UI)
-  * *JDK/JRE*: select one you prefer (Java 11 is a minimum requirement, Java 17 seems to work fine)
+  * *JDK/JRE*: select one you prefer (Java 17 seems to work fine)
   * *Use classpath of module*: `criminals.main`
   * *Main class*: `replay.replay-tests.criminals.Application` (the package name, `criminals` should match the package that contains you `Application` class in `app/`)
   * *VM options* (shown with *Modify options* drop-down item *Add VM options*): `-XX:+ShowCodeDetailsInExceptionMessages` (for more helpful errors) (applicable only for Java 14+)
@@ -125,7 +149,7 @@ You may find some warnings for "illegal reflective access" when running the appl
 
 With this flag `--add-opens java.base/java.lang=ALL-UNNAMED` these warnings from `guice` may be suppressed (this will be fixed in a future version of `guice`).
 
-To suppress the "illegal reflective access" warnings from `netty` you could use `com.codeborne.replay:netty4` instead of `com.codeborne.replay:netty3`.
+To suppress the "illegal reflective access" warnings from `netty` you could use `io.github.replay-framework:netty4` instead of `io.github.replay-framework:netty3`.
 
 
 ## Plugins
@@ -148,9 +172,9 @@ The RePlay project comes with the following plugins:
 * `play.i18n.MessagesPlugin`¹ — The internationalization system for UI strings.
 * `play.jobs.JobsPlugin`¹ — Simple cron-style or out-of-request-cycle jobs runner.
 * `play.libs.WS`¹ — Simple HTTP client (to make webservices requests).
-* `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `com.codeborne.replay:pdf` library).
+* `play.modules.excel.Plugin` — Installs the Excel spreadsheet rendering plugin (requires the `io.github.replay-framework:pdf` library).
 In Play1 this is available as a community plugin.
-* `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `com.codeborne.replay:fastergt` library).
+* `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `io.github.replay-framework:fastergt` library).
 * `play.modules.logger.RequestLogPlugin` — logs every request with response type+status
 * `play.modules.logger.RePlayLogoPlugin` — Shows the RePlay logo at application startup
 * `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
@@ -163,8 +187,8 @@ In Play1 the `checkAuthenticity()` method is built into the `Controller` class a
 ²) Built into the Play1 framework (not as a plugin), shipped as a plugin in RePlay.
 
 A community [plugin for creating PDFs](https://github.com/pepite/play--pdf) exists for Play1.
-In RePlay this functionality is [part of the main project](https://github.com/codeborne/replay/tree/main/pdf)
-and available as a regular library (no longer a plugin) named `com.codeborne.replay.pdf`.
+In RePlay this functionality is [part of the main project](https://github.com/replay-framework/replay/tree/main/pdf)
+and available as a regular library (no longer a plugin) named `io.github.replay-framework:pdf`.
 
 RePlay projects put `play.plugins` file in `conf/`. The syntax of the `play.plugins` file remains the same.
 
@@ -354,7 +378,7 @@ This means that running the Play1 version of the app side-by-side with the RePla
   
 ## Licence
 
-The RePlay Framework is distributed under [MIT license](https://github.com/codeborne/replay/blob/main/LICENSE).
+The RePlay Framework is distributed under [MIT license](https://github.com/replay-framework/replay/blob/main/LICENSE).
 
 The [Play1 Framework](https://github.com/playframework/play1), that RePlay forked, is distributed under [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0.html).
 

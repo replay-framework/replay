@@ -1,9 +1,61 @@
 # Changelog
 
-## 2.2.0 (under development) - see https://github.com/codeborne/replay/milestone/12?closed=1
-* 
+## 2.4.0 (released 22.03.2024) - see https://github.com/replay-framework/replay/milestone/15?closed=1
+* Upgrade to Java 17 (#356)
+* #198 #290 Multi module app (#291)
+* #327 remove Jamon dependency (#328)
+* fix ClassCastException in RequestLogPlugin (#317)
+* Bump netty from 4.1.104.Final to 4.1.108.Final
+* Bump liquibase from 4.25.1 to 4.26.0 (#339)
+* Bump groovy from 3.0.19 to 3.0.21
+* Bump ECJ from 3.33.0 to 3.37.0 (#356)
+* Bump FlyingSaucer from 9.3.2 to 9.7.1
+* Bump commons-email from 1.5 to 1.6.0 (#310)
+* Bump jackson from 2.16.0 to 2.17.0
+* Bump slf4j from 2.0.9 to 2.0.12
+* Bump commons-codec from 1.16.0 to 1.16.1 (#340)
 
-## 2.1.0 (released 30.05.2023) - see https://github.com/codeborne/replay/milestone/11?closed=1
+## 2.3.1 (released 22.12.2023) - see https://github.com/replay-framework/replay/milestone/14?closed=1
+
+* Move project from https://github.com/codeborne/replay to https://github.com/replay-framework/replay
+* Move project in Maven Central repo from "com.codeborne.replay" to "io.github.replay-framework" groupId
+* #309 Bump Kotlin from 1.9.21 to 1.9.22
+* #307 Bump LiquiBase from 4.25.0 to 4.25.1
+* #308 Bump Guava from 32.1.3-jre to 33.0.0-jre
+
+## 2.3.0 (released 16.12.2023) - see https://github.com/replay-framework/replay/milestone/13?closed=1
+* #281 Replace iText by OpenPDF for generating PDFs
+* #286 Replace query param decoder in UrlEncodedParser
+* #301 Log exception class name when 500 occurs (#303)
+* #264 Remove deprecation from Injector.getBeanOfType
+* #275 Reduce exception throwing from FlashStore (#278)
+* #282 don't fail app start in development mode
+* #283 Make Model.id field protected (#284)
+* #280 refactor PDF generation code
+* Bump liquibase from 4.23.2 to 4.25.0
+* Bump netty4 from 4.1.99.Final to 4.1.104.Final
+* Bump com.zaxxer:HikariCP from 5.0.1 to 5.1.0
+* Bump FLYING_SOURCER_VERSION from 9.2.2 to 9.3.1
+* Bump Jackson from 2.15.2 to 2.16.0
+
+## 2.2.0 (released 30.09.2023) - see https://github.com/replay-framework/replay/milestone/12?closed=1
+* #228 Migrate `javax.persistence` -> `jakarta.persistence` (#229)  --  thanks to Cies Breijs
+* The most important thing: A cool logo (#213)  --  thanks to Szabolcs Hubai
+* Load conf/log4j.properties automatically if exists (#203)  --  thanks to Szabolcs Hubai
+* Interesting bugfix in Play1 (on JPABase) (#230)  --  thanks to Cies Breijs
+* #256 [refactoring] Provide method isSecure() (with caching), remove property secure (#257)  --  thanks to Cies Breijs
+* #253 Add more specific url builder overloads (#255)  --  thanks to Cies Breijs
+* [refactoring] Make "play.mvc.Controller".setContext implementable (#223)  --  thanks to Cies Breijs
+* #182 [refactoring] Use Files instead of File (#185)  --  thanks to Cies Breijs
+* Bump netty4Version from 4.1.93.Final to 4.1.99.Final
+* Bump groovyVersion from 3.0.17 to 3.0.19 (#204) (#231)
+* Bump org.liquibase:liquibase-core from 4.22.0 to 4.23.2
+* Bump com.h2database:h2 from 2.1.214 to 2.2.224
+* Bump com.fasterxml.jackson.core:jackson-databind from 2.15.1 to 2.15.2 (#179)
+* Bump org.jetbrains.kotlin.jvm from 1.8.21 to 1.9.10
+* Bump FLYING_SOURCER_VERSION from 9.1.22 to 9.2.1 (#242) (#243)
+
+## 2.1.0 (released 30.05.2023) - see https://github.com/replay-framework/replay/milestone/11?closed=1
 * Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
 * bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600
 * Bump Liquibase from 4.21.1 to 4.22.0
@@ -13,7 +65,7 @@
 * Bump ClassGraph from 4.8.157 to 4.8.160
 * remove unused class ExceptionsMonitoringPlugin
 
-## 2.0.0 (released 18.04.2023) - see https://github.com/codeborne/replay/milestone/10?closed=1
+## 2.0.0 (released 18.04.2023) - see https://github.com/replay-framework/replay/milestone/10?closed=1
 * added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
 * added backend `javanet` as an alternative for Netty3/Netty4 (#152)
 * Bump org.liquibase:liquibase-core from 4.20.0 to 4.21.1 (#155) (#109)

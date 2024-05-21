@@ -14,6 +14,8 @@ public class HelloPdfWorldSpec extends TemplateErrorHandlerBaseSpec {
   public void downloadHelloWorldPdf() throws IOException {
     PDF pdf = new PDF(new URL(Configuration.baseUrl + "/pdf"));
     assertThat(pdf).containsExactText("Hello, PDF World!");
+    assertThat(pdf).containsExactText("Choose your role");
+    assertThat(pdf).containsExactText("Choose your car");
   }
 
   @Test

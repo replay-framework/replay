@@ -2,6 +2,7 @@
 <head>
   <title>Hello RePlay</title>
   <link rel="shortcut icon" href="/img/favicon.png">
+  #{include './meta.html'/}
 </head>
 <body>
 <h1>Hello, ${who}!</h1>
@@ -12,5 +13,31 @@
 <img id="img5" src="/img/banksy-kyiv-5.jpeg" width="300"/>
 <img id="img6" src="/img/banksy-kyiv-6.jpeg" width="300"/>
 <img id="img7" src="/img/banksy-kyiv-7.jpeg" width="300"/>
+
+<label for="role">Choose your role</label>
+<select id="role" size="2" style="width: 400px; height: 200px;">
+  <option value="user">User</option>
+  <option value="admin">Admin</option>
+</select>
+
+<label for="car">Choose your car</label>
+<select id="car">
+  <optgroup label="Japanese">
+    <option value="toyota">Toyota</option>
+    <option value="subaru">Subaru</option>
+  </optgroup>
+  <optgroup label="German">
+    <option value="volkswagen">Volkswagen</option>
+    <option value="audi">Audi</option>
+  </optgroup>
+</select>
+
+<div style="width: 100%">
+  <img id="img8" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="300"/>
+</div>
+<div style="width: 100%">
+  <img id="img-from-play-local-file" src="/app/public/img/banksy-kyiv-7.jpeg" width="300"/>
+</div>
+
 </body>
 </html>

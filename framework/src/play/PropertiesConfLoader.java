@@ -3,9 +3,7 @@ package play;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.IO;
 import play.utils.OrderSafeProperties;
-import play.vfs.VirtualFile;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -32,14 +30,14 @@ public class PropertiesConfLoader implements ConfLoader {
     return readOneConfigurationFile(filename, playId, null, new HashSet<>());
   }
 
-  private Properties readOneConfigurationFile(String filename, String playId, String inheritedId, Set<VirtualFile> confs) {
-    VirtualFile conf = VirtualFile.open(Play.applicationPath + "/conf/" + filename);
-    if (confs.contains(conf)) {
+  private Properties readOneConfigurationFile(String filename, String playId, String inheritedId, Set<String> confs) {
+    ClasspathResource conf = ClasspathResource.file(filename);
+    if (confs.contains(conf.url().toExternalForm())) {
       throw new RuntimeException("Detected recursive @include usage. Have seen the file " + filename + " before");
     }
 
-    confs.add(conf);
-    Properties propsFromFile = IO.readUtf8Properties(conf);
+    confs.add(conf.url().toExternalForm());
+    Properties propsFromFile = conf.toProperties();
 
     if (inheritedId == null) {
       inheritedId = propsFromFile.getProperty("%" + playId);
@@ -60,7 +58,7 @@ public class PropertiesConfLoader implements ConfLoader {
    * the ${...} interpolation syntax
    */
   @VisibleForTesting
-  void resolveEnvironmentVariables(Properties propsFromFile, VirtualFile conf) {
+  void resolveEnvironmentVariables(Properties propsFromFile, ClasspathResource conf) {
     for (Object key : propsFromFile.keySet()) {
       String value = propsFromFile.getProperty(key.toString());
       Matcher matcher = envVarInterpolationPattern.matcher(value);
@@ -69,8 +67,7 @@ public class PropertiesConfLoader implements ConfLoader {
         String envVarKey = matcher.group(1);
         String envVarValue = getEnvVar(envVarKey);
         if (envVarValue == null) {
-          logger.warn("Cannot replace {} in {} ({}={})",
-              envVarKey, conf == null ? "null" : conf.relativePath(), key, value);
+          logger.warn("Cannot replace {} in {} ({}={})", envVarKey, conf == null ? "null" : conf.toString(), key, value);
           continue;
         }
         matcher.appendReplacement(newValue, envVarValue.replaceAll("\\\\", "\\\\\\\\"));
@@ -113,7 +110,7 @@ public class PropertiesConfLoader implements ConfLoader {
     }
   }
 
-  private void resolveIncludes(Properties propsFromFile, String playId, String inheritedId, Set<VirtualFile> confs) {
+  private void resolveIncludes(Properties propsFromFile, String playId, String inheritedId, Set<String> confs) {
     for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
       if (e.getKey().toString().startsWith("@include.")) {
         try {

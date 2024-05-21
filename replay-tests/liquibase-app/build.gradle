@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':liquibase')
-  implementation('com.h2database:h2:2.2.220')
+  implementation('com.h2database:h2:2.2.224')
   implementation project(':guice')
   implementation project(':excel')
   testImplementation("org.assertj:assertj-core:$assertjVersion")

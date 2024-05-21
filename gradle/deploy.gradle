@@ -6,13 +6,13 @@ jar {
         "Automatic-Module-Name": project.group + '.' + project.name,
         "Implementation-Title": project.group + '.' + project.name,
         "Implementation-Version": archiveVersion,
-        "Implementation-Vendor": "Codeborne")
+        "Implementation-Vendor": "https://github.com/replay-framework")
   }
 }
 
 tasks.register('sourcesJar', Jar) {
   dependsOn classes
-  classifier = 'sources'
+  archiveClassifier = 'sources'
   from sourceSets.main.allSource
 }
 
@@ -25,7 +25,7 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.register('javadocJar', Jar) {
   dependsOn javadoc
-  classifier = 'javadoc'
+  archiveClassifier = 'javadoc'
   from javadoc.destinationDir
 }
 
@@ -51,8 +51,8 @@ publishing {
       maven {
         name 'Maven'
         url project.version.endsWith("-SNAPSHOT") ?
-          'https://oss.sonatype.org/content/repositories/snapshots/' :
-          'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+          'https://s01.oss.sonatype.org/content/repositories/snapshots/' :
+          'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
         credentials {
           username "$sonatypeUsername"
           password "$sonatypePassword"
@@ -72,8 +72,8 @@ publishing {
 
       pom {
         name = archivesBaseName
-        description = 'RePlay is a fork of the Play1 framework, made and maintained by Codeborne.'
-        url = 'https://github.com/codeborne/replay'
+        description = 'RePlay is a fork of the Play1 framework, created by Codeborne.'
+        url = 'https://github.com/replay-framework/replay'
         licenses {
           license {
             name = 'MIT'
@@ -87,9 +87,9 @@ publishing {
           }
         }
         scm {
-          connection = 'scm:git@github.com:codeborne/replay.git'
-          developerConnection = 'scm:git@github.com:codeborne/replay.git'
-          url = 'https://github.com/codeborne/replay'
+          connection = 'scm:git@github.com:replay-framework/replay.git'
+          developerConnection = 'scm:git@github.com:replay-framework/replay.git'
+          url = 'https://github.com/replay-framework/replay'
         }
       }
     }

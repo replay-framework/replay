@@ -30,7 +30,6 @@ import play.server.ServerAddress;
 import play.server.ServerHelper;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
-import play.vfs.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -395,7 +394,6 @@ public class PlayHandler implements HttpHandler {
     public void run() {
       try {
         logger.trace("run: begin");
-        onStarted();
         try {
           preInit();
           if (init()) {
@@ -466,8 +464,8 @@ public class PlayHandler implements HttpHandler {
     ServerAddress serverAddress = ipParser.parseHost(host);
 
     Http.Request request = Http.Request.createRequest(remoteAddress, method, path, querystring, contentType, body, relativeUrl,
-      serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain, false,
-      getHeaders(exchange), getCookies(exchange));
+      serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
+        getHeaders(exchange), getCookies(exchange));
 
     logger.trace("parseRequest: end");
     return request;
@@ -533,7 +531,6 @@ public class PlayHandler implements HttpHandler {
 
   private void serve500(Exception e, HttpExchange exchange, Http.Request request, Http.Response response) {
     logger.trace("serve500: begin");
-    logger.error("Exception on request. serving 500 back", e);
 
     try {
       flushCookies(exchange, response);
@@ -544,10 +541,10 @@ public class PlayHandler implements HttpHandler {
       try {
         String errorHtml = serverHelper.generateErrorResponse(request, format, e, Play.defaultWebEncoding);
         printResponse(exchange, INTERNAL_ERROR, contentType, errorHtml);
-        logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
       }
       catch (Throwable ex) {
-        logger.error("Internal Server Error (500) for request {} {}", request.method, request.url, e);
+        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
         logger.error("Error during the 500 response generation", ex);
         sendServerError(exchange, request);
       }
@@ -572,7 +569,7 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serveStatic: begin");
 
     try {
-      VirtualFile file = serverHelper.findFile(renderStatic.file);
+      File file = serverHelper.findFile(renderStatic.file);
       if ((file == null || !file.exists())) {
         serve404(new NotFound("The file " + renderStatic.file + " does not exist"), exchange, request);
       } else {
@@ -593,10 +590,9 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  private void serveLocalFile(VirtualFile file, Http.Request request, Http.Response response,
+  private void serveLocalFile(File localFile, Http.Request request, Http.Response response,
                               HttpExchange exchange) throws IOException {
 
-    File localFile = file.getRealFile();
     boolean keepAlive = isKeepAlive(exchange);
     addEtag(exchange, localFile);
 

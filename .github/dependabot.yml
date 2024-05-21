@@ -9,6 +9,9 @@ updates:
     - dependency-name: org.apache.poi:poi
     - dependency-name: org.apache.poi:poi-ooxml
     - dependency-name: org.apache.poi:poi-ooxml-schemas
+    - dependency-name: org.eclipse.jdt:ecj
+      versions:
+      - ">=3.34.0"
 
 - package-ecosystem: "github-actions"
   directory: "/"

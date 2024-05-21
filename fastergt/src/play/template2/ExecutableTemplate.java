@@ -10,6 +10,7 @@ import play.exceptions.*;
 import play.i18n.Messages;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
+import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.templates.BaseTemplate;
 import play.templates.TemplateLoader;
@@ -133,7 +134,7 @@ public abstract class ExecutableTemplate extends Script {
     }
 
     private String __reverseWithCheck(String action, boolean absolute) {
-        return Router.reverseWithCheck(action, Play.getVirtualFile(action), absolute);
+        return Router.reverseWithCheck(action, Play.file(action), absolute);
     }
 
     public String __safe(Object val, String stringValue) {
@@ -216,7 +217,7 @@ public abstract class ExecutableTemplate extends Script {
                             }
                         }
                     }
-                    Router.ActionDefinition def = Router.reverse(action, r, request, Http.Response.current());
+                    Router.ActionDefinition def = Router.reverse(action, r, request.format, Response.current().encoding);
                     if (absolute) {
                         def.absolute(request);
                     }

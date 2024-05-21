@@ -24,6 +24,7 @@
 package play.modules.excel;
 
 import org.apache.commons.codec.net.URLCodec;
+import play.Play;
 import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Header;
@@ -34,8 +35,9 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
-import play.vfs.VirtualFile;
 
+
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -50,7 +52,7 @@ public class Plugin extends PlayPlugin {
     private static final Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
 
     @Override
-    public Optional<Template> loadTemplate(VirtualFile file) {
+    public Optional<Template> loadTemplate(File file) {
         if (!p_.matcher(file.getName()).matches()) return Optional.empty();
         if (null == templateLoader) return Optional.of(new ExcelTemplate(file));
         return templateLoader.loadTemplate(file);
@@ -119,21 +121,22 @@ public class Plugin extends PlayPlugin {
     }
     
     public static class ExcelTemplate extends Template {
-        private VirtualFile file;
+        private File file;
         private RenderExcel r_;
         
-        public ExcelTemplate(VirtualFile file) {
-          this.file = file;
-          this.name = file.relativePath();
+        public ExcelTemplate(File file) {
+            super(Play.relativePath(file));
+            this.file = file;
         }
         
         public ExcelTemplate(RenderExcel render) {
+            super(render.getFileName());
             r_ = render;
         }
 
         @Override
         public void compile() {
-            if (!file.getRealFile().canRead()) throw new UnexpectedException("template file not readable: " + name);
+            if (!file.canRead()) throw new UnexpectedException("template file not readable: " + name);
         }
 
         @Override

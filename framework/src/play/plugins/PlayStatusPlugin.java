@@ -1,11 +1,7 @@
 package play.plugins;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
-import com.jamonapi.utils.Misc;
 import org.apache.commons.lang3.StringUtils;
 import play.Invoker;
 import play.Play;
@@ -17,15 +13,13 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import static java.util.Arrays.asList;
-
+@ParametersAreNonnullByDefault
 public class PlayStatusPlugin extends PlayPlugin {
     /**
      * Get the application status
@@ -50,7 +44,7 @@ public class PlayStatusPlugin extends PlayPlugin {
                 }
             });
             return o.toString();
-        };
+        }
         StringBuilder dump = new StringBuilder(16);
         Play.pluginCollection.getEnabledPlugins().forEach(plugin -> {
             try {
@@ -71,7 +65,7 @@ public class PlayStatusPlugin extends PlayPlugin {
      * send it over the HTTP response.
      *
      * You can ask the /@status using the authorization header and putting your status secret key in it. Prior to that
-     * you would be required to start play with a -DstatusKey=yourkey
+     * you would be required to start play with a {@code -DstatusKey=yourkey}
      */
     @Override
     public boolean rawInvocation(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws Exception {
@@ -124,16 +118,10 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println();
         out.println("Application:");
         out.println("~~~~~~~~~~~~");
-        out.println("Path: " + Play.applicationPath);
+        out.println("Path: " + Play.appRoot);
         out.println("Name: " + Play.configuration.getProperty("application.name", "(not set)"));
         out.println("Started at: "
                 + (Play.started ? new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(Play.startedAt)) : "Not yet started"));
-        out.println();
-        out.println("Loaded modules:");
-        out.println("~~~~~~~~~~~~~~");
-        for (String module : Play.modules.keySet()) {
-            out.println(module + " at " + Play.modules.get(module).getRealFile());
-        }
         out.println();
         out.println("Loaded plugins:");
         out.println("~~~~~~~~~~~~~~");
@@ -157,26 +145,6 @@ public class PlayStatusPlugin extends PlayPlugin {
         out.println("Scheduled task count: " + Invoker.executor.getTaskCount());
         out.println("Queue size: " + Invoker.executor.getQueue().size());
         out.println();
-        try {
-            out.println("Monitors:");
-            out.println("~~~~~~~~");
-            List<Monitor> monitors = new ArrayList<>(asList(MonitorFactory.getRootMonitor().getMonitors()));
-            monitors.sort((m1, m2) -> Double.compare(m2.getTotal(), m1.getTotal()));
-            int lm = 10;
-            for (Monitor monitor : monitors) {
-                if (monitor.getLabel().length() > lm) {
-                    lm = monitor.getLabel().length();
-                }
-            }
-            for (Monitor monitor : monitors) {
-                if (monitor.getHits() > 0) {
-                    out.println(String.format("%-" + lm + "s -> %8.0f hits; %8.1f avg; %8.1f min; %8.1f max;", monitor.getLabel(),
-                            monitor.getHits(), monitor.getAvg(), monitor.getMin(), monitor.getMax()));
-                }
-            }
-        } catch (Exception e) {
-            out.println("No monitors found: " + e);
-        }
         return sw.toString();
     }
 
@@ -201,7 +169,7 @@ public class PlayStatusPlugin extends PlayPlugin {
         {
             JsonObject application = new JsonObject();
             application.addProperty("uptime", Play.started ? System.currentTimeMillis() - Play.startedAt : -1);
-            application.addProperty("path", Play.applicationPath.getAbsolutePath());
+            application.addProperty("path", Play.appRoot.getAbsolutePath());
             status.add("application", application);
         }
 
@@ -214,27 +182,6 @@ public class PlayStatusPlugin extends PlayPlugin {
             status.add("pool", pool);
         }
 
-        {
-            JsonArray monitors = new JsonArray();
-            try {
-                Object[][] data = Misc.sort(MonitorFactory.getRootMonitor().getBasicData(), 3, "desc");
-                for (Object[] row : data) {
-                    if (((Double) row[1]) > 0) {
-                        JsonObject o = new JsonObject();
-                        o.addProperty("name", row[0].toString());
-                        o.addProperty("hits", (Double) row[1]);
-                        o.addProperty("avg", (Double) row[2]);
-                        o.addProperty("min", (Double) row[6]);
-                        o.addProperty("max", (Double) row[7]);
-                        monitors.add(o);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            status.add("monitors", monitors);
-        }
-
         return status;
     }
 
@@ -242,19 +189,19 @@ public class PlayStatusPlugin extends PlayPlugin {
      * Recursively visit all JVM threads
      */
     private void visit(PrintWriter out, ThreadGroup group, int level) {
-        // Get threads in `group'
+        // Get threads in 'group'
         int numThreads = group.activeCount();
         Thread[] threads = new Thread[numThreads * 2];
         numThreads = group.enumerate(threads, false);
 
-        // Enumerate each thread in `group'
+        // Enumerate each thread in "group"
         for (int i = 0; i < numThreads; i++) {
             // Get thread
             Thread thread = threads[i];
             out.println(thread + " " + thread.getState());
         }
 
-        // Get thread subgroups of `group'
+        // Get thread subgroups of "group"
         int numGroups = group.activeGroupCount();
         ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
         numGroups = group.enumerate(groups, false);

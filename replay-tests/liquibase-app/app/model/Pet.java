@@ -6,12 +6,12 @@ import play.data.validation.Min;
 import play.data.validation.MinSize;
 import play.data.validation.Required;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 
 @Entity
 public class Pet extends play.db.jpa.Model {

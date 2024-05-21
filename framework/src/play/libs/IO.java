@@ -1,27 +1,18 @@
 package play.libs;
 
-import org.apache.commons.io.FileUtils;
 import play.exceptions.UnexpectedException;
 import play.utils.OrderSafeProperties;
-import play.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
-public class IO {
-    public static Properties readUtf8Properties(VirtualFile file) {
-        try (InputStream in = file.inputstream()) {
-            return readUtf8Properties(in);
-        }
-        catch (IOException e) {
-            throw new UnexpectedException("Failed to read " + file.relativePath(), e);
-        }
-    }
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FileUtils.readFileToString;
 
+public class IO {
     public static Properties readUtf8Properties(File file) {
         try (InputStream in = new FileInputStream(file)) {
             return readUtf8Properties(in);
@@ -43,11 +34,11 @@ public class IO {
         return properties;
     }
 
-    public static String readContentAsString(File file, Charset encoding) {
+    public static String contentAsString(File file) {
         try {
-            return FileUtils.readFileToString(file, encoding);
+            return readFileToString(file, UTF_8);
         } catch (IOException e) {
-            throw new UnexpectedException(e);
+            throw new UnexpectedException("Failed to read " + file.getAbsolutePath(), e);
         }
     }
 }

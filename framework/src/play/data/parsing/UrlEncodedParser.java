@@ -1,6 +1,5 @@
 package play.data.parsing;
 
-import org.apache.commons.codec.net.URLCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -11,6 +10,7 @@ import play.utils.Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -79,7 +79,7 @@ public class UrlEncodedParser extends DataParser {
                 // split this key-value on the first '='
                 int i = keyValue.indexOf('=');
                 String key;
-                String value=null;
+                String value = null;
                 if ( i > 0) {
                     key = keyValue.substring(0,i);
                     value = keyValue.substring(i+1);
@@ -111,17 +111,16 @@ public class UrlEncodedParser extends DataParser {
 
             // We're ready to decode the params
             Map<String, String[]> decodedParams = new LinkedHashMap<>(params.size());
-            URLCodec codec = new URLCodec();
             for (Map.Entry<String, String[]> e : params.entrySet()) {
                 String key = e.getKey();
                 try {
-                    key = codec.decode(e.getKey(), charset.name());
+                    key = URLDecoder.decode(e.getKey(), charset);
                 } catch (Throwable z) {
                     // Nothing we can do about, ignore
                 }
                 for (String value : e.getValue()) {
                     try {
-                        Utils.Maps.mergeValueInMap(decodedParams, key, (value == null ? null : codec.decode(value, charset.name())));
+                        Utils.Maps.mergeValueInMap(decodedParams, key, (value == null ? null : URLDecoder.decode(value, charset)));
                     } catch (Throwable z) {
                         // Nothing we can do about, lets fill in with the non decoded value
                         Utils.Maps.mergeValueInMap(decodedParams, key, value);
@@ -130,7 +129,7 @@ public class UrlEncodedParser extends DataParser {
             }
 
             // add the complete body as a parameters
-            if(!forQueryString) {
+            if (!forQueryString) {
                 decodedParams.put("body", new String[] {data});
             }
 

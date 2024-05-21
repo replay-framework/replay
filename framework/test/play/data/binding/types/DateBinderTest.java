@@ -15,7 +15,8 @@ import static play.mvc.Http.Request.createRequest;
 
 public class DateBinderTest {
     private final DateBinder binder = new DateBinder();
-    private final Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost", false, null, null);
+    private final Http.Request request = createRequest(null, "GET", "/", "", null, null, null, null, false, 80, "localhost",
+        null, null);
     private final Session session = new Session();
 
     @Test

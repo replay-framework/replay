@@ -56,7 +56,7 @@ public class PlayHandlerTest {
     assertThat(request.remoteAddress).isEqualTo("192.168.0.10");
     assertThat(request.contentType).isEqualTo("text/json");
     assertThat(request.port).isEqualTo(8080);
-    assertThat(request.secure).isEqualTo(false);
+    assertThat(request.isSecure()).isEqualTo(false);
   }
 
   @Test

@@ -5,7 +5,7 @@ import play.mvc.results.BadRequest;
 import play.mvc.results.Forbidden;
 import play.rebel.View;
 
-public class Controller implements PlayController {
+public class Controller implements PlayContextController {
   protected ActionContext actionContext;
   protected Http.Request request;
   protected Http.Response response;
@@ -15,7 +15,7 @@ public class Controller implements PlayController {
   protected Scope.RenderArgs renderArgs;
   protected Validation validation;
 
-  protected void setContext(ActionContext actionContext) {
+  public void setContext(ActionContext actionContext) {
     this.actionContext = actionContext;
     request = actionContext.request;
     response = actionContext.response;

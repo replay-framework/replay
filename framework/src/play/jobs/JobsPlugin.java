@@ -163,6 +163,7 @@ public class JobsPlugin extends PlayPlugin {
         int core = Integer.parseInt(Play.configuration.getProperty("play.jobs.pool", "10"));
         executor = new ScheduledThreadPoolExecutor(core, new PThreadFactory("jobs"), new ThreadPoolExecutor.AbortPolicy());
         scheduledJobs.clear();
+        logger.info("Init jobs pool of size {}", core);
     }
 
     public static <V> void scheduleForCRON(Job<V> job) {

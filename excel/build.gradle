@@ -12,7 +12,7 @@ dependencies {
   api("org.apache.poi:poi:$poiVersion") {transitive = false}
   api("org.apache.poi:poi-ooxml:$poiVersion") {transitive = false}
   api("org.apache.poi:poi-ooxml-schemas:$poiVersion") {transitive = false}
-  api('org.apache.xmlbeans:xmlbeans:5.1.1') {transitive = false}
+  api('org.apache.xmlbeans:xmlbeans:5.2.0') {transitive = false}
   implementation('commons-digester:commons-digester:2.1') {transitive = false}
   implementation('org.apache.commons:commons-collections4:4.4') {transitive = false}
 }

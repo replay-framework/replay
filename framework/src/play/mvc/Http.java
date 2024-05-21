@@ -6,7 +6,9 @@ import play.Play;
 import play.exceptions.UnexpectedException;
 import play.libs.Codec;
 import play.libs.Time;
+import play.mvc.Scope.Params;
 import play.utils.HTTP;
+import play.utils.HTTP.ContentTypeWithEncoding;
 import play.utils.Utils;
 
 import javax.annotation.Nonnull;
@@ -145,6 +147,7 @@ public class Http {
 
     public static class Request {
         private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-fA-F]*");
+        private static final Pattern X_FWD_REGEX = Pattern.compile("[\\s,]+");
 
         public String host;
         public String path;
@@ -169,9 +172,8 @@ public class Http {
         public String controller;
         public String actionMethod;
         public Integer port;
-        public Boolean secure = false;
-        public Map<String, Http.Header> headers;
-        public Map<String, Http.Cookie> cookies;
+        public Map<String, Header> headers;
+        public Map<String, Cookie> cookies;
         public transient InputStream body;
         /**
          * Additional HTTP params extracted from route
@@ -215,7 +217,9 @@ public class Http {
         boolean resolved;
 
         @Nonnull
-        public final Scope.Params params = new Scope.Params(this);
+        public final Params params = new Params(this);
+
+        public Boolean cachedIsSecure = null;
 
         /**
          * Deprecate the default constructor to encourage the use of createRequest() when creating new requests.
@@ -229,16 +233,18 @@ public class Http {
             cookies = new HashMap<>(16);
         }
 
-        public static Request createRequest(String _remoteAddress, String _method, String _path, String _querystring, String _contentType,
-                InputStream _body, String _url, String _host, boolean _isLoopback, int _port, String _domain, boolean _secure,
-                Map<String, Http.Header> _headers, Map<String, Http.Cookie> _cookies) {
+        public static Request createRequest(String _remoteAddress, String _method, String _path,
+            String _querystring, String _contentType, InputStream _body, String _url, String _host,
+            boolean _isLoopback, int _port, String _domain, Map<String, Header> _headers,
+            Map<String, Cookie> _cookies)
+        {
             Request newRequest = new Request();
             newRequest.remoteAddress = _remoteAddress;
             newRequest.method = _method;
             newRequest.path = _path;
             newRequest.querystring = _querystring;
 
-            HTTP.ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
+            ContentTypeWithEncoding contentTypeEncoding = HTTP.parseContentType(_contentType);
             newRequest.contentType = contentTypeEncoding.contentType;
             newRequest.encoding = contentTypeEncoding.encoding;
             newRequest.body = _body;
@@ -247,7 +253,6 @@ public class Http {
             newRequest.isLoopback = _isLoopback;
             newRequest.port = _port;
             newRequest.domain = _domain;
-            newRequest.secure = _secure;
             newRequest.headers = _headers != null ? _headers : new HashMap<>(16);
             newRequest.cookies = _cookies != null ? _cookies : new HashMap<>(16);
             newRequest.parseXForwarded();
@@ -269,13 +274,11 @@ public class Http {
             String _host = this.host;
             if (Play.configuration.containsKey("XForwardedSupport") && headers.get("x-forwarded-for") != null) {
                 if (!"ALL".equalsIgnoreCase(Play.configuration.getProperty("XForwardedSupport"))
-                        && !asList(Play.configuration.getProperty("XForwardedSupport", "127.0.0.1").split("[\\s,]+"))
-                                .contains(remoteAddress)) {
+                    && !asList(X_FWD_REGEX.split(Play.configuration.getProperty("XForwardedSupport", "127.0.0.1"))).contains(remoteAddress)) {
                     throw new RuntimeException("This proxy request is not authorized: " + remoteAddress);
                 } else {
-                    this.secure = isRequestSecure();
                     if (Play.configuration.containsKey("XForwardedHost")) {
-                        this.host = (String) Play.configuration.getProperty("XForwardedHost");
+                        this.host = Play.configuration.getProperty("XForwardedHost");
                     } else if (this.headers.get("x-forwarded-host") != null) {
                         this.host = this.headers.get("x-forwarded-host").value();
                     }
@@ -285,7 +288,7 @@ public class Http {
                 }
             }
 
-            if ("true".equals(Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false").toLowerCase())
+            if ("true".equalsIgnoreCase(Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false"))
                     && this.host != null && !this.host.equals(_host)) {
                 if (this.host.contains(":")) {
                     String[] hosts = this.host.split(":");
@@ -304,34 +307,33 @@ public class Http {
             return index == -1 ? remoteAddress : remoteAddress.substring(index + 1).trim();
         }
 
-        private boolean isRequestSecure() {
+        public boolean isSecure() {
+            if (cachedIsSecure != null) return cachedIsSecure;
             Header xForwardedProtoHeader = headers.get("x-forwarded-proto");
             Header xForwardedSslHeader = headers.get("x-forwarded-ssl");
-            // Check the less common "front-end-https" header,
-            // used apparently only by "Microsoft Internet Security and
-            // Acceleration Server"
-            // and Squid when using Squid as a SSL frontend.
+            // Check the less common "front-end-https" header, used apparently only by
+            // "Microsoft Internet Security and Acceleration Server" and Squid (when using Squid as
+            // an SSL frontend).
             Header frontEndHttpsHeader = headers.get("front-end-https");
-            return ("https".equals(Play.configuration.getProperty("XForwardedProto"))
+            boolean result = ("https".equals(Play.configuration.getProperty("XForwardedProto"))
                     || (xForwardedProtoHeader != null && "https".equals(xForwardedProtoHeader.value()))
                     || (xForwardedSslHeader != null && "on".equals(xForwardedSslHeader.value()))
-                    || (frontEndHttpsHeader != null && "on".equals(frontEndHttpsHeader.value().toLowerCase())));
+                    || (frontEndHttpsHeader != null && "on".equalsIgnoreCase(frontEndHttpsHeader.value())));
+            cachedIsSecure = result;
+            return result;
         }
 
         protected void authorizationInit() {
             Header header = headers.get("authorization");
             if (header != null && header.value().startsWith("Basic ")) {
                 String data = header.value().substring(6);
-                // In basic auth, the password can contain a colon as well so
-                // split(":") may split the string into
-                // 3 parts....username, part1 of password and part2 of password
-                // so don't use split here
+                // In basic auth, the password can contain a colon as well so split(":") may split
+                // the string into 3 parts: username, part1 of password and part2 of password.
+                // So, don't use split here.
                 String decoded = new String(Codec.decodeBASE64(data), UTF_8);
-                // splitting on ONLY first : allows user's password to contain a
-                // :
+                // splitting on ONLY first ':' allows user's password to contain a ':'
                 int indexOf = decoded.indexOf(':');
-                if (indexOf < 0)
-                    return;
+                if (indexOf < 0) return;
 
                 String username = decoded.substring(0, indexOf);
                 String thePasswd = decoded.substring(indexOf + 1);
@@ -341,8 +343,8 @@ public class Http {
         }
 
         /**
-         * Automatically resolve request format from the Accept header (in this order : html &gt; xml &gt; json &gt;
-         * text)
+         * Automatically resolve request format from the Accept header (in this order: html &gt; xml
+         * &gt; json &gt; text)
          */
         public void resolveFormat() {
 
@@ -379,7 +381,6 @@ public class Http {
 
             if (accept.endsWith("*/*")) {
                 format = "html";
-                return;
             }
         }
 
@@ -414,20 +415,21 @@ public class Http {
 
         @Nullable
         public String getUserAgent() {
-            Http.Header agent = headers.get("user-agent");
+            Header agent = headers.get("user-agent");
             return agent != null ? agent.value() : "n/a";
         }
 
         /**
-         * Get the request base (ex: http://localhost:9000
-         * 
+         * Get the request base (e.g.: <a href="http://localhost:9000">http://localhost:9000</a>)
+         *
          * @return the request base of the url (protocol, host and port)
          */
+        @Nonnull
         public String getBase() {
             if (port == 80 || port == 443) {
-                return String.format("%s://%s", secure ? "https" : "http", domain).intern();
+                return String.format("%s://%s", isSecure() ? "https" : "http", domain).intern();
             }
-            return String.format("%s://%s:%s", secure ? "https" : "http", domain, port).intern();
+            return String.format("%s://%s:%s", isSecure() ? "https" : "http", domain, port).intern();
         }
 
         @Override
@@ -469,33 +471,28 @@ public class Http {
         }
 
         public boolean isModified(String etag, long last) {
-            if (!(headers.containsKey("if-none-match") && headers.containsKey("if-modified-since"))) {
-                return true;
-            } else {
+            if (headers.containsKey("if-none-match") && headers.containsKey("if-modified-since")) {
                 String browserEtag = headers.get("if-none-match").value();
-                if (!browserEtag.equals(etag)) {
-                    return true;
-                } else {
+                if (browserEtag.equals(etag)) {
                     try {
-                        Date browserDate = Utils.getHttpDateFormatter().parse(headers.get("if-modified-since").value());
-                        if (browserDate.getTime() >= last) {
-                            return false;
-                        }
+                        Date browserDate = Utils.getHttpDateFormatter()
+                            .parse(headers.get("if-modified-since").value());
+                        if (browserDate.getTime() >= last) return false;
                     } catch (ParseException ex) {
                         logger.error("Can't parse date", ex);
                     }
-                    return true;
                 }
             }
+            return true;
         }
 
         public void setCookie(String key, String value) {
-            cookies.put(key, new Http.Cookie(key, value));
+            cookies.put(key, new Cookie(key, value));
         }
 
         public void setHeader(String key, String value) {
             key = key.toLowerCase();
-            headers.put(key, new Http.Header(key, value));
+            headers.put(key, new Header(key, value));
         }
 
         public <T extends Annotation> T getActionAnnotation(Class<T> annotationClass) {
@@ -542,7 +539,7 @@ public class Http {
         @Nullable
         public String getHeader(@Nonnull String name) {
             for (Map.Entry<String, Header> entry : headers.entrySet()) {
-                if (entry.getKey().toLowerCase().equals(name.toLowerCase())) {
+                if (entry.getKey().equalsIgnoreCase(name)) {
                     if (entry.getValue() != null) {
                         return entry.getValue().value();
                     }
@@ -653,7 +650,7 @@ public class Http {
          * @param allowOrigin
          *            a comma separated list of domains allowed to perform the x-domain call, or "*" for all.
          * @param allowCredentials
-         *            Let the browser send the cookies when doing a x-domain request. Only respected by the browser if
+         *            Let the browser send the cookies when doing an x-domain request. Only respected by the browser if
          *            allowOrigin != "*"
          */
         public void accessControl(String allowOrigin, boolean allowCredentials) {
@@ -669,7 +666,7 @@ public class Http {
          * @param allowMethods
          *            a comma separated list of HTTP methods allowed, or null for all.
          * @param allowCredentials
-         *            Let the browser send the cookies when doing a x-domain request. Only respected by the browser if
+         *            Let the browser send the cookies when doing an x-domain request. Only respected by the browser if
          *            allowOrigin != "*"
          */
         public void accessControl(String allowOrigin, String allowMethods, boolean allowCredentials) {

@@ -255,9 +255,9 @@ public class ConfigurationTest {
         Play.configuration.put("db.pool.maxSize", "20");
         Play.configuration.put("db.pool.minSize", "1");
         Play.configuration.put("db.pool.maxIdleTimeExcessConnections", "60");
-        //javax.persistence
-        Play.configuration.put("javax.persistence.lock.scope", "EXTENDED");
-        Play.configuration.put("javax.persistence.lock.timeout", "1000");
+        //jakarta.persistence
+        Play.configuration.put("jakarta.persistence.lock.scope", "EXTENDED");
+        Play.configuration.put("jakarta.persistence.lock.timeout", "1000");
         //jpa
         Play.configuration.put("jpa.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         Play.configuration.put("jpa.debugSQL", "true");
@@ -280,9 +280,9 @@ public class ConfigurationTest {
       assertThat(properties.get("db.pool.maxSize")).isEqualTo("20");
       assertThat(properties.get("db.pool.minSize")).isEqualTo("1");
       assertThat(properties.get("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
-        //javax.persistence
-      assertThat(properties.get("javax.persistence.lock.scope")).isEqualTo("EXTENDED");
-      assertThat(properties.get("javax.persistence.lock.timeout")).isEqualTo("1000");
+        //jakarta.persistence
+      assertThat(properties.get("jakarta.persistence.lock.scope")).isEqualTo("EXTENDED");
+      assertThat(properties.get("jakarta.persistence.lock.timeout")).isEqualTo("1000");
         //jpa
       assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
       assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");
@@ -307,9 +307,9 @@ public class ConfigurationTest {
         Play.configuration.put("db.test.pool.maxSize", "20");
         Play.configuration.put("db.test.pool.minSize", "1");
         Play.configuration.put("db.test.pool.maxIdleTimeExcessConnections", "60");
-        //javax.persistence
-        Play.configuration.put("javax.persistence.test.lock.scope", "EXTENDED");
-        Play.configuration.put("javax.persistence.test.lock.timeout", "1000");
+        //jakarta.persistence
+        Play.configuration.put("jakarta.persistence.test.lock.scope", "EXTENDED");
+        Play.configuration.put("jakarta.persistence.test.lock.timeout", "1000");
         //jpa
         Play.configuration.put("jpa.test.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         Play.configuration.put("jpa.test.ddl", "update");
@@ -332,9 +332,9 @@ public class ConfigurationTest {
       assertThat(properties.get("db.pool.maxSize")).isEqualTo("20");
       assertThat(properties.get("db.pool.minSize")).isEqualTo("1");
       assertThat(properties.get("db.pool.maxIdleTimeExcessConnections")).isEqualTo("60");
-        //javax.persistence
-      assertThat(properties.get("javax.persistence.lock.scope")).isEqualTo("EXTENDED");
-      assertThat(properties.get("javax.persistence.lock.timeout")).isEqualTo("1000");
+        //jakarta.persistence
+      assertThat(properties.get("jakarta.persistence.lock.scope")).isEqualTo("EXTENDED");
+      assertThat(properties.get("jakarta.persistence.lock.timeout")).isEqualTo("1000");
         //jpa
       assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
       assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");

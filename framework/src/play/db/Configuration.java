@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class Configuration {
 
     /** definition of regex to filter db related settings. */
-    private final String regexDbRelatedSettings = "^(db|javax\\.persistence|jpa|(?:org\\.)?hibernate){1}";
+    private final String regexDbRelatedSettings = "^(db|jakarta\\.persistence|jpa|(?:org\\.)?hibernate){1}";
 
     /** compiled regex as a pattern for reuse to filter all db related settings. */
     private final Pattern compiledRegexDbRelatedSettings = Pattern.compile(regexDbRelatedSettings +".*");

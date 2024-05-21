@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.libs.Signer;
+import play.mvc.results.Forbidden;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,33 +26,35 @@ public class FlashStore {
     this(new Signer("флэшрояль"));
   }
 
-  FlashStore(Signer signer) {
+  FlashStore(@Nonnull Signer signer) {
     this.signer = signer;
   }
 
   @Nonnull
   public Scope.Flash restore(@Nonnull Http.Request request) {
       Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_FLASH");
-      if (cookie == null) {
-        return new Scope.Flash();
-      }
+      if (cookie == null) return new Scope.Flash();
+
       int splitterPosition = cookie.value.indexOf('-');
       if (splitterPosition == -1) {
-          logger.warn("Cookie without signature: {}", cookie.value);
-        return new Scope.Flash();
+          logger.warn("Flash cookie without signature: '{}'", cookie.value);
+          throw new Forbidden("Flash cookie without signature");
       }
 
       String signature = cookie.value.substring(0, splitterPosition);
-      String realValue = cookie.value.substring(splitterPosition + 1);
-      if (!signer.isValid(signature, realValue)) {
-          throw new ForbiddenException(String.format("Invalid flash signature: %s", cookie.value));
+      String base64EncodedContent = cookie.value.substring(splitterPosition + 1);
+      if (!signer.isValid(signature, base64EncodedContent)) {
+          logger.warn("Invalid flash cookie signature on {} (decoded content: '{}')",
+              cookie.value,
+              encoder.decode(base64EncodedContent));
+          throw new Forbidden("Invalid flash cookie signature");
       }
-      return new Scope.Flash(encoder.decode(realValue));
+      return new Scope.Flash(encoder.decode(base64EncodedContent));
   }
 
   public void save(@Nonnull Scope.Flash flash, @Nonnull Http.Request request, @Nullable Http.Response response) {
       if (response == null) {
-          // Some request like WebSocket don't have any response
+          // Some requests like WebSocket requests don't have a response
           return;
       }
 
@@ -83,7 +86,7 @@ public class FlashStore {
       }
   }
 
-  private void warnIfFlashIsGone(Scope.Flash flash, Http.Request request) {
+  private void warnIfFlashIsGone(@Nonnull Scope.Flash flash, @Nonnull Http.Request request) {
     for (Map.Entry<String, String> entry : flash.data.entrySet()) {
       if (!flash.out.containsKey(entry.getKey()) && !flash.used.contains(entry.getKey())) {
         logger.debug("Unused flash param: {}={} in request {}", entry.getKey(), entry.getValue(), request.path);

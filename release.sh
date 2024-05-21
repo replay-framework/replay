@@ -8,11 +8,12 @@ if [ -z "$version" ] ; then
   exit 0
 fi
 
+./gradlew clean check 
+./gradlew uitest -Dselenide.headless=true 
+
 echo "Releasing version: ${version}"
 git tag -a "v${version}" -m "released replay ${version}"
 git push origin --tags
 
-./gradlew clean check 
-./gradlew uitest -Dselenide.headless=true 
 ./gradlew publishToMavenLocal
 ./gradlew publish --no-parallel --info

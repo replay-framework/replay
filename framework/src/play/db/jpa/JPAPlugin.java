@@ -23,8 +23,8 @@ import play.inject.Injector;
 import play.mvc.Http;
 import play.mvc.Scope.Session;
 
-import javax.persistence.*;
-import javax.persistence.spi.PersistenceUnitInfo;
+import jakarta.persistence.*;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -185,8 +185,8 @@ public class JPAPlugin extends PlayPlugin {
     protected Properties properties(String dbName, Configuration dbConfig) {
         Properties properties = new Properties();
         properties.putAll(dbConfig.getProperties());
-        properties.put("javax.persistence.transaction", "RESOURCE_LOCAL");
-        properties.put("javax.persistence.provider", "org.hibernate.jpa.HibernatePersistence");
+        properties.put("jakarta.persistence.transaction", "RESOURCE_LOCAL");
+        properties.put("jakarta.persistence.provider", "org.hibernate.jpa.HibernatePersistence");
         properties.put("hibernate.dialect", getDefaultDialect(dbConfig, dbConfig.getProperty("db.driver")));
         properties.put("hibernate.type_contributors", new DynamicTypeContributorList());
         properties.put("hibernate.connection.datasource", DB.getDataSource(dbName));

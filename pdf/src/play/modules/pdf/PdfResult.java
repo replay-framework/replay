@@ -51,7 +51,7 @@ public class PdfResult extends Result {
   }
 
   private static void fixIEbugWhenUsingSSL(Request request, Response response) {
-    if (request.secure && helper.isIE(request)) {
+    if (request.isSecure() && helper.isIE(request)) {
       response.setHeader("Cache-Control", "");
     }
   }

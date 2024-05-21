@@ -1,7 +1,5 @@
 package play.mvc;
 
-import com.jamonapi.Monitor;
-import com.jamonapi.MonitorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -98,7 +96,6 @@ public class ActionInvoker {
     }
 
     public void invoke(Http.Request request, Http.Response response) {
-        Monitor monitor = null;
         Session session = actionNeedsSession(request) ? sessionStore.restore(request) : new ReadonlySession();
         Flash flash = flashStore.restore(request);
         RenderArgs renderArgs = new RenderArgs();
@@ -114,9 +111,6 @@ public class ActionInvoker {
 
             Play.pluginCollection.beforeActionInvocation(request, response, session, renderArgs, flash, actionMethod);
 
-            // Monitoring
-            monitor = MonitorFactory.start(request.action + "()");
-
             String cacheKey = null;
             Result actionResult = null;
 
@@ -130,7 +124,7 @@ public class ActionInvoker {
                 // Check the cache (only for GET or HEAD)
                 if ((request.method.equals("GET") || request.method.equals("HEAD")) && actionMethod.isAnnotationPresent(CacheFor.class)) {
                     cacheKey = actionMethod.getAnnotation(CacheFor.class).id();
-                    if ("".equals(cacheKey)) {
+                    if (cacheKey != null && cacheKey.isEmpty()) {
                         cacheKey = "urlcache:" + request.path + '?' + request.querystring;
                     }
                     actionResult = Cache.get(cacheKey);
@@ -153,9 +147,6 @@ public class ActionInvoker {
             // @After
             handleAfters(request, session);
 
-            monitor.stop();
-            monitor = null;
-
             // OK, re-throw the original action result
             if (actionResult != null) {
                 throw actionResult;
@@ -171,10 +162,6 @@ public class ActionInvoker {
         } catch (Throwable e) {
             handleFinallies(request, session, e);
             throw new UnexpectedException(e);
-        } finally {
-            if (monitor != null) {
-                monitor.stop();
-            }
         }
     }
 
@@ -184,8 +171,8 @@ public class ActionInvoker {
 
     private PlayController createController(ActionContext context) {
         PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
-        if (controller instanceof Controller) {
-          ((Controller) controller).setContext(context);
+        if (controller instanceof PlayContextController) {
+          ((PlayContextController) controller).setContext(context);
         }
         return controller;
     }
@@ -403,7 +390,6 @@ public class ActionInvoker {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static void inferResult(Object o) {
         // Return type inference
         if (o != null) {
@@ -468,8 +454,8 @@ public class ActionInvoker {
             if (!fullAction.startsWith("controllers.")) {
                 fullAction = "controllers." + fullAction;
             }
-            String controller = fullAction.substring(0, fullAction.lastIndexOf("."));
-            String action = fullAction.substring(fullAction.lastIndexOf(".") + 1);
+            String controller = fullAction.substring(0, fullAction.lastIndexOf('.'));
+            String action = fullAction.substring(fullAction.lastIndexOf('.') + 1);
             controllerClass = Play.classes.getClassIgnoreCase(controller);
             if (controllerClass == null) {
                 throw new ActionNotFoundException(fullAction, new Exception("Controller " + controller + " not found"));

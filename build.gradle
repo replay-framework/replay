@@ -1,39 +1,43 @@
 defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 ext {
-  commonsLangVersion = '3.13.0'
-  netty4Version = '4.1.96.Final'
-  commonsTextVersion = '1.10.0'
-  slf4jVersion = '2.0.7'
-  assertjVersion = '3.24.2'
-  mockitoVersion = '5.4.0'
+  commonsLangVersion = '3.14.0'
+  netty4Version = '4.1.109.Final'
+  commonsTextVersion = '1.12.0'
+  slf4jVersion = '2.0.13'
+  assertjVersion = '3.25.3'
+  mockitoVersion = '5.12.0'
   pdfTestVersion = '1.8.1'
-  groovyVersion = '3.0.18'
+  groovyVersion = '3.0.21'
   httpclientVersion = '4.5.14'
-  restAssuredVersion = '5.3.1'
-  junitVersion = '5.10.0'
+  restAssuredVersion = '5.4.0'
+  junitVersion = '5.10.2'
 }
 
 subprojects {
 
-  group='com.codeborne.replay'
-  version=project.properties['revision'] ?: '2.2.0-SNAPSHOT'
+  group='io.github.replay-framework'
+  version=project.properties['revision'] ?: '2.4.0'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
 
-  [compileJava, compileTestJava]*.options.collect {options ->
+  [compileJava, compileTestJava]*.options.collect { options ->
     options.encoding = 'UTF-8'
     options.compilerArgs << '-parameters'
     options.debug = true
     options.debugOptions.debugLevel = "source,lines,vars"
   }
-  sourceCompatibility = 11
-  targetCompatibility = 11
+  java.toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
 
   repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+      url "https://maven.repository.redhat.com/ga/"
+    }
   }
 
   sourceSets {

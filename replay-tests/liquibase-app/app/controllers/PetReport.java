@@ -33,7 +33,7 @@ public class PetReport extends Controller {
     );
     request.format = "xls";
     renderArgs.put(RA_FILENAME, "pets-report.xls");
-    return new RenderExcel(Play.getVirtualFile("app/views/report.xls"), args, "pets-report.xls");
+    return new RenderExcel(Play.file("app/views/report.xls"), args, "pets-report.xls");
   }
 
   private Properties allMessages() {
