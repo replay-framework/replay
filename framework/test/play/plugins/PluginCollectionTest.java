@@ -15,6 +15,7 @@ import play.jobs.JobsPlugin;
 import play.libs.WS;
 
 import java.util.List;
+import java.util.TreeSet;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -135,6 +136,11 @@ public class PluginCollectionTest {
         inOrder.verify(plugin3).onApplicationStop();
         inOrder.verify(plugin2).onApplicationStop();
         inOrder.verify(plugin1).onApplicationStop();
+    }
+
+    @Test
+    public void loadPlugins_shouldAllowDirectInvocation() {
+        new PluginCollection().loadPlugins(new TreeSet<>());
     }
 }
 
