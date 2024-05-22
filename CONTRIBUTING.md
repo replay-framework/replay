@@ -36,28 +36,31 @@ To run tests only on Javanet:
 
 ## How to release
 
-To make a release, you need to 
-1. have a write permission to `io.github.replay-framework` group in Maven central repository.
-2. have these lines in `~/.gradle/gradle.properties`:
-   > signing.keyId=2#####8
-   > signing.password=***********************
-   > signing.secretKeyRingFile=/Users/andrei/.gnupg/secring.gpg
-   > sonatypeUsername=*******
-   > sonatypePassword=********************
+To make a release, you need to:
+1. Have a write permission to `io.github.replay-framework` group in Maven central repository.
+2. Have these lines in `~/.gradle/gradle.properties`:
+
+```
+signing.keyId=2#####8
+signing.password=***********************
+signing.secretKeyRingFile=/path/to/.gnupg/secring.gpg
+sonatypeUsername=*******
+sonatypePassword=********************
+```
    
-Steps to release version 2.4.0 (for example)
+Steps to release version 2.4.0 (for example):
 1. Fill the CHANGELOG.md
 2. Replace previous version by "2.4.0" in build.gradle
-3. commit & push (CHANGELOG.md + build.gradle + maybe something else)
-4. run ./release.sh 2.4.0  // This uploads the `*.jar` files to https://oss.sonatype.org
+3. Commit & push (CHANGELOG.md + build.gradle + maybe something else)
+4. Run ./release.sh 2.4.0  // This uploads the `*.jar` files to https://oss.sonatype.org
 5. Login to https://oss.sonatype.org/#stagingRepositories
    5.1. Click "Close", wait until "release" button gets enabled (~1-2 minutes)
    5.2. Click "Release" (no need to fill description)
    5.3. After ~5 minutes, the new jar will be available in Central Maven repo
 6. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
 7. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
-   7.1. fill the release details (copy-paste from CHANGELOG.md)
-   7.2. click "Publish release"
+   7.1. Fill the release details (copy-paste from CHANGELOG.md)
+   7.2. Click "Publish release"
 8. Replace version in build.gradle by "2.5.0-SNAPSHOT" and commit
 9. Create a new release on github: https://github.com/replay-framework/replay/releases
 10. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
