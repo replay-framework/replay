@@ -47,20 +47,22 @@ signing.secretKeyRingFile=/path/to/.gnupg/secring.gpg
 sonatypeUsername=*******
 sonatypePassword=********************
 ```
-   
+
+A guide for setting up GPG for can be found on [the Sonatype website](https://central.sonatype.org/publish/requirements/gpg).
+
 Steps to release version 2.4.0 (for example):
 1. Fill the CHANGELOG.md
 2. Replace previous version by "2.4.0" in build.gradle
 3. Commit & push (CHANGELOG.md + build.gradle + maybe something else)
 4. Run ./release.sh 2.4.0  // This uploads the `*.jar` files to https://oss.sonatype.org
 5. Login to https://oss.sonatype.org/#stagingRepositories
-   5.1. Click "Close", wait until "release" button gets enabled (~1-2 minutes)
-   5.2. Click "Release" (no need to fill description)
-   5.3. After ~5 minutes, the new jar will be available in Central Maven repo
+   * Click "Close", wait until "release" button gets enabled (~1-2 minutes)
+   * Click "Release" (no need to fill description)
+   * After ~5 minutes, the new jar will be available in Central Maven repo
 6. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
 7. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
-   7.1. Fill the release details (copy-paste from CHANGELOG.md)
-   7.2. Click "Publish release"
+   * Fill the release details (copy-paste from CHANGELOG.md)
+   * Click "Publish release"
 8. Replace version in build.gradle by "2.5.0-SNAPSHOT" and commit
 9. Create a new release on github: https://github.com/replay-framework/replay/releases
 10. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
