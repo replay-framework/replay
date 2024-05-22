@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Similar to the error response tests in HttpResponsesSpec but with the TextErrorHandler
  */
-public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
+public class HttpSimpleErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
 
   @Test
   public void openMissingStaticFilePlain() {
@@ -49,7 +49,7 @@ public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
         .then()
         .log().ifValidationFails(LogDetail.ALL)
         .statusCode(404)
-        .header("Content-Length", Integer::parseInt, equalTo(247))
+        .header("Content-Length", Integer::parseInt, equalTo(223))
         .header("Cache-Control", nullValue())
         .header("accept-ranges", nullValue())
         .header("Last-Modified", nullValue())
@@ -83,14 +83,14 @@ public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
         IOUtils.toString(requireNonNull(getClass().getResourceAsStream("not-found-simple.html")), UTF_8));
     response.then()
-        .header("Content-Length", Integer::parseInt, equalTo(203));
+        .header("Content-Length", Integer::parseInt, equalTo(179));
   }
 
   @Test
   public void badRequest() {
     Response response = when().get("/repeat?times=zopa");
     response.then().log().ifValidationFails(LogDetail.ALL).statusCode(400)
-        .header("Content-Length", Integer::parseInt, equalTo(232))
+        .header("Content-Length", Integer::parseInt, equalTo(210))
         .contentType("text/html");
     assertThat(response.body().asString()).contains("<p>[validation.invalid, validation.min]</p>");
   }
@@ -102,7 +102,7 @@ public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
     response.then()
         .log().ifValidationFails(LogDetail.ALL)
         .statusCode(500)
-        .header("Content-Length", Integer::parseInt, equalTo(242))
+        .header("Content-Length", Integer::parseInt, equalTo(175))
         .contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
         IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error-simple.html")),
@@ -116,6 +116,6 @@ public class HttpErrorResponsesSpec extends SimpleErrorHandlerBaseSpec {
     response.then()
         .log().ifValidationFails(LogDetail.ALL)
         .statusCode(404)
-        .header("Content-Length", Integer::parseInt, equalTo(216)).contentType("text/html");
+        .header("Content-Length", Integer::parseInt, equalTo(192)).contentType("text/html");
   }
 }

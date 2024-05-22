@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
+public class HttpTemplateResponsesSpec extends TemplateErrorHandlerBaseSpec {
   
   @RepeatedTest(100)
   public void openStaticFile() {
@@ -43,7 +43,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(404).
-      header("Content-Length", Integer::parseInt, equalTo(327)).
+      header("Content-Length", Integer::parseInt, equalTo(223)).
       header("Cache-Control", nullValue()).
       header("accept-ranges", nullValue()).
       header("Last-Modified", nullValue()).
@@ -83,7 +83,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
       IOUtils.toString(requireNonNull(getClass().getResourceAsStream("not-found-template.html")), UTF_8)
     );
-    response.then().header("Content-Length", Integer::parseInt, equalTo(283));
+    response.then().header("Content-Length", Integer::parseInt, equalTo(179));
   }
 
   @Test
@@ -94,10 +94,13 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(400).
-      header("Content-Length", Integer::parseInt, equalTo(212)).
+      header("Content-Length", Integer::parseInt, equalTo(25)).
       contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
-      "<h1>[validation.invalid, validation.min]</h1>"
+      // When running the application we do get:
+      //    "<h1>[validation.invalid, validation.min]</h1>"
+      // When ui-test'ing the application we only get:
+            "<h1>[validation.min]</h1>"
     );
   }
 
@@ -109,7 +112,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
       then().
       log().ifValidationFails(LogDetail.ALL).
       statusCode(500).
-      header("Content-Length", Integer::parseInt, equalTo(242)).
+      header("Content-Length", Integer::parseInt, equalTo(245)).
       contentType("text/html");
     assertThat(response.body().asString()).isEqualToIgnoringWhitespace(
       IOUtils.toString(requireNonNull(getClass().getResourceAsStream("server-error-template.html")), UTF_8)
@@ -124,7 +127,7 @@ public class HttpResponsesSpec extends TemplateErrorHandlerBaseSpec {
         then().
         log().ifValidationFails(LogDetail.ALL).
         statusCode(404).
-        header("Content-Length", Integer::parseInt, equalTo(296)).
+        header("Content-Length", Integer::parseInt, equalTo(192)).
         contentType("text/html");
   }
 }

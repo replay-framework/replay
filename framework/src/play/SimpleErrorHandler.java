@@ -37,7 +37,7 @@ public class SimpleErrorHandler implements ErrorHandler {
       final String title = titleFromExceptionType(error);
       if (response.contentType.startsWith("text/html")) {
         response.out.write(
-            simpleErrorPageHtml(title, error.getMessage(), response.encoding)
+            simpleErrorPageHtml(title, error, response.encoding)
                 .getBytes(response.encoding));
       } else {
         response.out.write((title + "\n\n" + error.getMessage()).getBytes(response.encoding));
@@ -61,7 +61,7 @@ public class SimpleErrorHandler implements ErrorHandler {
     final String contentType = MimeTypes.getContentType("xx." + format);
     final String title = titleFromExceptionType(e);
     if (contentType.startsWith("text/html")) {
-      return simpleErrorPageHtml(title, e.getMessage(), encoding);
+      return simpleErrorPageHtml(title, e, encoding);
     } else {
       return title + "\n\n" + e.getMessage();
     }
@@ -80,18 +80,33 @@ public class SimpleErrorHandler implements ErrorHandler {
     return "Server error";
   }
 
-  private String simpleErrorPageHtml(String title, String message, Charset encoding) {
+  private static boolean isServerError(Exception e) {
+    if (e instanceof BadRequest) {
+      return false;
+    } else if (e instanceof Unauthorized) {
+      return false;
+    } else if (e instanceof Forbidden) {
+      return false;
+    } else if (e instanceof NotFound) {
+      return false;
+    }
+    return true;
+  }
+
+  private String simpleErrorPageHtml(String title, Exception e, Charset encoding) {
+    String bodyHtml = (Play.mode.isDev() || !isServerError(e))
+            ? "    <h1>" + title + "</h1>\n    <p>" + e.getMessage() + "</p>\n"
+            : "    <h1>Oops, an error occurred</h1>\n";
     return ""
         + "<!doctype html>\n"
         + "<html lang=\"en\">\n"
-        + "    <head>\n"
-        + "        <title>Not found</title>\n"
-        + "        <meta charset=\"" + encoding.name() + "\"/>\n"
-        + "    </head>\n"
-        + "    <body>\n"
-        + "        <h1>" + title + "</h1>\n"
-        + "        <p>" + message + "</p>\n"
-        + "    </body>\n"
+        + "  <head>\n"
+        + "    <title>" + title + "</title>\n"
+        + "    <meta charset=\"" + encoding.name() + "\"/>\n"
+        + "  </head>\n"
+        + "  <body>\n"
+        + bodyHtml
+        + "  </body>\n"
         + "</html>";
   }
 }
