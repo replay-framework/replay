@@ -1,5 +1,27 @@
 package play.server.netty4;
 
+import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.DATE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.ETAG;
+import static io.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
+import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
+import static io.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_SINCE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
+import static io.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
+import static io.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.WARNING;
+import static io.netty.handler.codec.http.HttpMethod.HEAD;
+import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNullElse;
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
@@ -28,6 +50,24 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invocation;
@@ -51,49 +91,7 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.Utils;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.DATE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ETAG;
-import static io.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
-import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
-import static io.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_SINCE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.WARNING;
-import static io.netty.handler.codec.http.HttpMethod.HEAD;
-import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -301,7 +299,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 error.append(":");
                 String size;
                 try {
-                    size = JavaExtensions.formatSize(Long.parseLong(length));
+                    size = Utils.formatSize(Long.parseLong(length));
                 } catch (Exception e) {
                     size = length + " bytes";
                 }
@@ -566,13 +564,13 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
         nettyResponse.headers().set(CONTENT_TYPE, contentType);
 
-        String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
-        printResponse(ctx, nettyResponse, errorHtml);
+        String errorBody = serverHelper.generateErrorResponse(request, format, e, Response.current().encoding);
+        printResponse(ctx, nettyResponse, errorBody);
         logger.trace("serve404: end");
     }
 
-    private void printResponse(ChannelHandlerContext ctx, FullHttpResponse nettyResponse, String errorHtml) {
-        byte[] bytes = errorHtml.getBytes(Response.current().encoding);
+    private void printResponse(ChannelHandlerContext ctx, FullHttpResponse nettyResponse, String errorBody) {
+        byte[] bytes = errorBody.getBytes(Response.current().encoding);
         ByteBuf buf = ctx.alloc().buffer(bytes.length).writeBytes(bytes);
         setContentLength(nettyResponse, bytes.length);
         nettyResponse = nettyResponse.replace(buf);
@@ -591,7 +589,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             String format = requireNonNullElse(request.format, "txt");
             nettyResponse.headers().set("Content-Type", MimeTypes.getContentType("500." + format, "text/plain"));
             try {
-                String errorHtml = serverHelper.generateErrorResponse(request, format, e);
+                String errorHtml = serverHelper.generateErrorResponse(request, format, e, Response.current().encoding);
 
                 byte[] bytes = errorHtml.getBytes(encoding);
                 ByteBuf buf = Unpooled.copiedBuffer(bytes);

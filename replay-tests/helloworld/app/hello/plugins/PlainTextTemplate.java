@@ -20,7 +20,7 @@ public class PlainTextTemplate extends Template {
   }
 
   @Override
-  protected String internalRender(Map<String, Object> args) {
+  public String internalRender(Map<String, Object> args) {
     String result = contentAsString(source);
     for (Map.Entry<String, Object> arg : args.entrySet()) {
       result = result.replace("${" + arg.getKey() + "}", arg.getValue().toString());

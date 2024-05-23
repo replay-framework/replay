@@ -8,7 +8,7 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
 /**
- * 200 OK with a text/plain
+ * 200 OK with a text/html
  */
 public class RenderHtml extends Result {
     

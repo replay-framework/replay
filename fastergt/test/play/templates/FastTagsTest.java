@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.Scope.Session;
+import play.templates.ExecutableTemplate;
+import play.templates.FastTags;
 import play.utils.DummyUuidGenerator;
 
 import java.io.PrintWriter;

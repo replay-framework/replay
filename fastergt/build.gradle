@@ -3,6 +3,8 @@ dependencies {
   implementation('org.eclipse.jdt:ecj:3.37.0')
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
+  api("org.codehaus.groovy:groovy:$groovyVersion")
+  api("org.codehaus.groovy:groovy-xml:$groovyVersion")
   testImplementation project(':framework').sourceSets.test.compileClasspath
   testImplementation("org.assertj:assertj-core:$assertjVersion")
 }

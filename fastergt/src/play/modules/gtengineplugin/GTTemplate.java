@@ -35,7 +35,7 @@ public class GTTemplate extends Template {
     }
 
     @Override
-    protected String internalRender(Map<String, Object> args) {
+    public String internalRender(Map<String, Object> args) {
         GTRenderingResult renderingResult = internalGTRender(args);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         renderingResult.writeOutput(out, UTF_8);

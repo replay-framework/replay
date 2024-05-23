@@ -51,7 +51,6 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 
@@ -310,7 +309,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 error.append(":");
                 String size;
                 try {
-                    size = JavaExtensions.formatSize(Long.parseLong(length));
+                    size = Utils.formatSize(Long.parseLong(length));
                 } catch (Exception e) {
                     size = length + " bytes";
                 }
@@ -581,13 +580,13 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
         nettyResponse.headers().set(CONTENT_TYPE, contentType);
 
-        String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
-        printResponse(ctx, nettyResponse, errorHtml);
+        String errorBody = serverHelper.generateErrorResponse(request, format, e, Response.current().encoding);
+        printResponse(ctx, nettyResponse, errorBody);
         logger.trace("serve404: end");
     }
 
-    private void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorHtml) {
-        byte[] bytes = errorHtml.getBytes(Response.current().encoding);
+    private void printResponse(ChannelHandlerContext ctx, HttpResponse nettyResponse, String errorBody) {
+        byte[] bytes = errorBody.getBytes(Response.current().encoding);
         ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
         setContentLength(nettyResponse, bytes.length);
         nettyResponse.setContent(buf);
@@ -606,7 +605,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             String format = requireNonNullElse(request.format, "txt");
             nettyResponse.headers().set("Content-Type", MimeTypes.getContentType("500." + format, "text/plain"));
             try {
-                String errorHtml = serverHelper.generateErrorResponse(request, format, e);
+                String errorHtml = serverHelper.generateErrorResponse(request, format, e, Response.current().encoding);
 
                 byte[] bytes = errorHtml.getBytes(encoding);
                 ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);

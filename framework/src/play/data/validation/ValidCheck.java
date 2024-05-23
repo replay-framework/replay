@@ -28,13 +28,11 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
         }
         try {
             if (context != null) {
-                if (context instanceof MethodParameterContext) {
-                    MethodParameterContext ctx = (MethodParameterContext) context;
+                if (context instanceof MethodParameterContext ctx) {
                     String[] paramNames = Java.parameterNames(ctx.getMethod());
                     key = paramNames[ctx.getParameterIndex()];
                 }
-                if (context instanceof FieldContext) {
-                    FieldContext ctx = (FieldContext) context;
+                if (context instanceof FieldContext ctx) {
                     key = ctx.getField().getName();
                 }
             }
@@ -48,8 +46,8 @@ public class ValidCheck extends AbstractAnnotationCheck<Required> {
             Collection<Object> valueCollection = (Collection<Object>) value;
             boolean everythingIsValid = true;
             int index = 0;
-            for(Object item : valueCollection) {
-                if(!validateObject(key + "[" + (index) + "]", item)) {
+            for (Object item : valueCollection) {
+                if (!validateObject(key + "[" + (index) + "]", item)) {
                     Validation.current().errors.add(new Error(key + "[" + (index) + "]", mes, emptyList()));
                     everythingIsValid = false;
                 }

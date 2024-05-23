@@ -1,7 +1,15 @@
 package play.modules.gtengineplugin;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.List;
+import javax.inject.Inject;
 import play.Play;
 import play.PlayPlugin;
+import play.jobs.Job;
+import play.mvc.PlayController;
+import play.templates.FastTags;
+import play.templates.JavaExtensions;
 import play.templates.Template;
 
 import java.io.File;
@@ -44,6 +52,42 @@ public class GTEnginePlugin extends PlayPlugin {
     public void onApplicationStart() {
         // need to re-init when app restarts
         init();
+        injectStaticFields();
+    }
+
+    private void injectStaticFields() {
+        injectStaticFields(Play.classes.getAssignableClasses(PlayController.class));
+        injectStaticFields(Play.classes.getAssignableClasses(Job.class));
+        injectStaticFields(Play.classes.getAssignableClasses(FastTags.class));
+        injectStaticFields(Play.classes.getAssignableClasses(JavaExtensions.class));
+    }
+
+    private <T> void injectStaticFields(List<Class<? extends T>> classes) {
+        for (Class<?> clazz : classes) {
+            injectStaticFields(clazz);
+        }
+    }
+
+    private void injectStaticFields(Class<?> clazz) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (isStaticInjectable(field)) {
+                inject(field);
+            }
+        }
+    }
+
+    private boolean isStaticInjectable(Field field) {
+        return Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(Inject.class);
+    }
+
+    private void inject(Field field) {
+        field.setAccessible(true);
+        try {
+            field.set(null, Play.beanSource.getBeanOfType(field.getType()));
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
