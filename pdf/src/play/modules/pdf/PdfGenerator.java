@@ -2,7 +2,7 @@ package play.modules.pdf;
 
 import play.mvc.Http;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 
 @Singleton

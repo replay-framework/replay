@@ -11,7 +11,7 @@ import play.mvc.results.Result;
 import play.rebel.View;
 import services.OtpCodeService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class Login extends Controller {
   private static final Logger log = LoggerFactory.getLogger(Login.class);
