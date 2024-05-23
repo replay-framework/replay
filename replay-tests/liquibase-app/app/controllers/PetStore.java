@@ -6,7 +6,7 @@ import model.PetRepository;
 import play.mvc.Controller;
 import play.rebel.View;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 
 public class PetStore extends Controller {
