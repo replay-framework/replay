@@ -95,7 +95,7 @@ public class GenericModel extends JPABase {
         // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
         // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
         ParamNode paramNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name, true);
-        // #1195 - Needs to keep track of whick keys we remove so that we can restore it before
+        // #1195 - Needs to keep track of which keys we remove so that we can restore it before
         // returning from this method.
         List<ParamNode.RemovedNode> removedNodesList = new ArrayList<>();
         try {
