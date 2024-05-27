@@ -1,6 +1,7 @@
 package play.db.jpa;
 
 import org.apache.commons.lang3.StringUtils;
+import play.db.Model;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
 import play.data.binding.BindingAnnotations;
@@ -135,7 +136,7 @@ public class GenericModel extends JPABase {
 
                     ParamNode fieldParamNode = paramNode.getChild(field.getName(), true);
 
-                    Class<Model> c = loadClass(relation);
+                    Class<GenericModel> c = loadClass(relation);
                     if (JPABase.class.isAssignableFrom(c)) {
                         String keyName = Model.Manager.factoryFor(c).keyName();
                         if (multiple && Collection.class.isAssignableFrom(field.getType())) {

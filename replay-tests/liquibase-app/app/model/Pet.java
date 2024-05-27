@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import static jakarta.persistence.EnumType.STRING;
 
 @Entity
-public class Pet extends play.db.jpa.Model {
+public class Pet extends IdModel {
   @Enumerated(STRING)
   @Required
   public Kind kind;
