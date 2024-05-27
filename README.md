@@ -70,7 +70,10 @@ RePlay does not come with the `play` command line tool (written in Python 2.7) t
 Hence, the `play new` scaffolding generator is not available in RePlay.
 To start a new RePlay application make a copy of [demo application](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) and work your way up from there.
 
-Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase, Kotlin and dependency injection with Guice).
+Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase and
+Hibernate backed applications (in `liquibase-app`), Kotlin (in `helloworld-kotlin`), some more advanced controller
+techniques (in `criminals`) a multi module application (in `multi-module-app`)
+and dependency injection with Guice (in `dependency-injection`)).
 
 Documentation for RePlay is found in (or referred to from) this README.
 
@@ -217,7 +220,10 @@ The following list breaks down the porting effort into tasks:
 * Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
 * Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
-[RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration). 
+[RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration).
+* Play1 recommends to subclass from `db.Model`, which is deprecated in RePlay. Instead implement a base model as part of
+your project as seen in `replay-test/liquibase-app`. This give you more flexibility in configuring Hibernate handling of
+the `id` column.
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
   * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard.
   In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and
@@ -241,7 +247,7 @@ The following list breaks down the porting effort into tasks:
   run `Refactor -> Encapsulate Fields...` on your own class (only generate the getter!),
   finally remove your class and string replace the imports back to what they were.
 * Play1's `JPAEnhancer` was removed.
-  * In RePlay, classes that extend `Model` have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
+  * In RePlay, classes that extend `Model` (the RePlay projects need to self-implement) have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
     * **TIP**: Reimplementing these methods using the methods found in RePlay's `play.db.jpa.JPARepository`.
   * **TIP**: By adding the following lines to `conf/application.conf` of a Play1 project,
   the work required can be performed on the Play1 based version of the application.
