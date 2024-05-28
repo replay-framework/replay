@@ -75,7 +75,7 @@ public class Server {
       return System.getProperty("http.address");
     }
 
-    return "localhost";
+    return "0.0.0.0";
   }
 
   public int port() {
