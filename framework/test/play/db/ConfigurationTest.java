@@ -262,8 +262,8 @@ public class ConfigurationTest {
         Play.configuration.put("jpa.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         Play.configuration.put("jpa.debugSQL", "true");
         //hibernate
-        Play.configuration.put("hibernate.ejb.event.post-insert", "postInsert");
-        Play.configuration.put("hibernate.ejb.event.post-update", "postUpdate");
+        Play.configuration.put("hibernate.event.post-insert", "postInsert");
+        Play.configuration.put("hibernate.event.post-update", "postUpdate");
         //org.hibernate
         Play.configuration.put("org.hibernate.flushMode", "AUTO");
         Play.configuration.put("hibernate.default_batch_fetch_size", "66");
@@ -287,8 +287,8 @@ public class ConfigurationTest {
       assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
       assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");
         //hibernate
-      assertThat(properties.get("hibernate.ejb.event.post-insert")).isEqualTo("postInsert");
-      assertThat(properties.get("hibernate.ejb.event.post-update")).isEqualTo("postUpdate");
+      assertThat(properties.get("hibernate.event.post-insert")).isEqualTo("postInsert");
+      assertThat(properties.get("hibernate.event.post-update")).isEqualTo("postUpdate");
         //org.hibernate
       assertThat(properties.get("org.hibernate.flushMode")).isEqualTo("AUTO");
       assertThat(properties.get("hibernate.default_batch_fetch_size")).isEqualTo("66");
@@ -315,8 +315,8 @@ public class ConfigurationTest {
         Play.configuration.put("jpa.test.ddl", "update");
         Play.configuration.put("jpa.test.debugSQL", "true");
         //hibernate
-        Play.configuration.put("hibernate.test.ejb.event.post-insert", "postInsert");
-        Play.configuration.put("hibernate.test.ejb.event.post-update", "postUpdate");
+        Play.configuration.put("hibernate.test.event.post-insert", "postInsert");
+        Play.configuration.put("hibernate.test.event.post-update", "postUpdate");
         //org.hibernate
         Play.configuration.put("org.hibernate.test.flushMode", "AUTO");
 
@@ -339,8 +339,8 @@ public class ConfigurationTest {
       assertThat(properties.get("jpa.dialect")).isEqualTo("org.hibernate.dialect.PostgreSQLDialect");
       assertThat(properties.get("jpa.debugSQL")).isEqualTo("true");
         //hibernate
-      assertThat(properties.get("hibernate.ejb.event.post-insert")).isEqualTo("postInsert");
-      assertThat(properties.get("hibernate.ejb.event.post-update")).isEqualTo("postUpdate");
+      assertThat(properties.get("hibernate.event.post-insert")).isEqualTo("postInsert");
+      assertThat(properties.get("hibernate.event.post-update")).isEqualTo("postUpdate");
         //org.hibernate
       assertThat(properties.get("org.hibernate.flushMode")).isEqualTo("AUTO");
 
