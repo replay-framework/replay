@@ -1,6 +1,7 @@
 package play.db.jpa;
 
 import org.apache.commons.lang3.StringUtils;
+import play.db.Model;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
 import play.data.binding.BindingAnnotations;
@@ -94,7 +95,7 @@ public class GenericModel extends JPABase {
         // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
         // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
         ParamNode paramNode = StringUtils.isEmpty(name) ? rootParamNode : rootParamNode.getChild(name, true);
-        // #1195 - Needs to keep track of whick keys we remove so that we can restore it before
+        // #1195 - Needs to keep track of which keys we remove so that we can restore it before
         // returning from this method.
         List<ParamNode.RemovedNode> removedNodesList = new ArrayList<>();
         try {
@@ -135,7 +136,7 @@ public class GenericModel extends JPABase {
 
                     ParamNode fieldParamNode = paramNode.getChild(field.getName(), true);
 
-                    Class<Model> c = loadClass(relation);
+                    Class<GenericModel> c = loadClass(relation);
                     if (JPABase.class.isAssignableFrom(c)) {
                         String keyName = Model.Manager.factoryFor(c).keyName();
                         if (multiple && Collection.class.isAssignableFrom(field.getType())) {
