@@ -35,9 +35,9 @@ subprojects {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-      url "https://maven.repository.redhat.com/ga/"
-    }
+
+    // For `commons-fileupload:commons-fileupload:1.5.0.redhat-00001`
+    maven { url "https://maven.repository.redhat.com/ga/" }
   }
 
   sourceSets {
