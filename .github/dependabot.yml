@@ -11,10 +11,13 @@ updates:
     - dependency-name: org.apache.poi:poi-ooxml-schemas
     - dependency-name: org.eclipse.jdt:ecj
       versions:
-      - ">=3.34.0"
+        - ">=3.34.0"
+    - dependency-name: jakarta.persistence:jakarta.persistence-api
+      versions:
+        - ">=3.1.0"
 
 - package-ecosystem: "github-actions"
   directory: "/"
-  schedule: 
+  schedule:
     interval: daily
   open-pull-requests-limit: 20
