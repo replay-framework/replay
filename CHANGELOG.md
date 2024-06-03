@@ -1,10 +1,43 @@
 # Changelog
 
-## 2.4.0 (released 22.03.2024) - see https://github.com/replay-framework/replay/milestone/15?closed=1
+## 2.5.0 (released 2024-06-03) - see https://github.com/replay-framework/replay/milestone/16?closed=1
+* #65 Remove Groovy dependencies from framework (thanks @asolntsev)
+* #385 Downgrade and pin jakarta.persistence:persistence-api:3.0.0
+* #375 Improve play.PropertiesConfLoader to ease conf/ directory usage (thanks @xabolcs)
+* #386 Replace javax.inject with jakarta.inject dependencies
+* #360 Re-expose PluginCollection.loadPlugins(SortedSet) refactoring
+* #362 Improve performance by pre-compiling a regex enhancement refactoring
+* #395 Listen incoming requests on address "0.0.0.0" instead of "localhost"
+* #390 Bump org.apache.xmlbeans:xmlbeans from 5.2.0 to 5.2.1
+* #391 Bump org.assertj:assertj-core from 3.25.3 to 3.26.0
+* #392 Bump org.xhtmlrenderer:flying-saucer-pdf from 9.7.2 to 9.8.0
+* #382 Bump com.google.code.gson:gson from 2.10.1 to 2.11.0
+* #387 Bump netty4Version from 4.1.109.Final to 4.1.110.Final
+* #388 Bump org.liquibase:liquibase-core from 4.27.0 to 4.28.0
+* #383 Bump org.jetbrains.kotlin.jvm from 1.9.24 to 2.0.0
+* #381 Bump commons-logging:commons-logging from 1.3.1 to 1.3.2
+* #380 Bump org.mockito:mockito-core from 5.11.0 to 5.12.0
+* #379 Bump org.jetbrains.kotlin.jvm from 1.9.23 to 1.9.24
+* #378 Bump com.fasterxml.jackson.core:jackson-databind from 2.17.0 to 2.17.1
+* #377 Bump com.google.guava:guava from 33.1.0-jre to 33.2.0-jre
+* #376 Bump commons-codec:commons-codec from 1.16.1 to 1.17.0
+* #374 Bump io.github.classgraph:classgraph from 4.8.171 to 4.8.172
+* #373 Bump io.github.classgraph:classgraph from 4.8.170 to 4.8.171
+* #372 Bump org.apache.commons:commons-text from 1.11.0 to 1.12.0
+* #370 Bump netty4Version from 4.1.108.Final to 4.1.109.Final
+* #369 Bump slf4jVersion from 2.0.12 to 2.0.13
+* #368 Bump org.xhtmlrenderer:flying-saucer-pdf from 9.7.1 to 9.7.2
+* #367 Bump commons-io:commons-io from 2.16.0 to 2.16.1
+* #366 Bump io.github.classgraph:classgraph from 4.8.168 to 4.8.170
+* #357 Bump commons-logging:commons-logging from 1.3.0 to 1.3.1
+* #365 Bump commons-io:commons-io from 2.15.1 to 2.16.0
+* #363 Bump org.liquibase:liquibase-core from 4.26.0 to 4.27.0
+
+## 2.4.0 (released 2024-03-22) - see https://github.com/replay-framework/replay/milestone/15?closed=1
 * Upgrade to Java 17 (#356)
 * #198 #290 Multi module app (#291)
 * #327 remove Jamon dependency (#328)
-* fix ClassCastException in RequestLogPlugin (#317)
+* Fix ClassCastException in RequestLogPlugin (#317)
 * Bump netty from 4.1.104.Final to 4.1.108.Final
 * Bump liquibase from 4.25.1 to 4.26.0 (#339)
 * Bump groovy from 3.0.19 to 3.0.21
@@ -15,15 +48,14 @@
 * Bump slf4j from 2.0.9 to 2.0.12
 * Bump commons-codec from 1.16.0 to 1.16.1 (#340)
 
-## 2.3.1 (released 22.12.2023) - see https://github.com/replay-framework/replay/milestone/14?closed=1
-
+## 2.3.1 (released 2023-12-22) - see https://github.com/replay-framework/replay/milestone/14?closed=1
 * Move project from https://github.com/codeborne/replay to https://github.com/replay-framework/replay
 * Move project in Maven Central repo from "com.codeborne.replay" to "io.github.replay-framework" groupId
 * #309 Bump Kotlin from 1.9.21 to 1.9.22
 * #307 Bump LiquiBase from 4.25.0 to 4.25.1
 * #308 Bump Guava from 32.1.3-jre to 33.0.0-jre
 
-## 2.3.0 (released 16.12.2023) - see https://github.com/replay-framework/replay/milestone/13?closed=1
+## 2.3.0 (released 2023-12-16) - see https://github.com/replay-framework/replay/milestone/13?closed=1
 * #281 Replace iText by OpenPDF for generating PDFs
 * #286 Replace query param decoder in UrlEncodedParser
 * #301 Log exception class name when 500 occurs (#303)
@@ -38,7 +70,7 @@
 * Bump FLYING_SOURCER_VERSION from 9.2.2 to 9.3.1
 * Bump Jackson from 2.15.2 to 2.16.0
 
-## 2.2.0 (released 30.09.2023) - see https://github.com/replay-framework/replay/milestone/12?closed=1
+## 2.2.0 (released 2023-09-30) - see https://github.com/replay-framework/replay/milestone/12?closed=1
 * #228 Migrate `javax.persistence` -> `jakarta.persistence` (#229)  --  thanks to Cies Breijs
 * The most important thing: A cool logo (#213)  --  thanks to Szabolcs Hubai
 * Load conf/log4j.properties automatically if exists (#203)  --  thanks to Szabolcs Hubai
@@ -55,7 +87,7 @@
 * Bump org.jetbrains.kotlin.jvm from 1.8.21 to 1.9.10
 * Bump FLYING_SOURCER_VERSION from 9.1.22 to 9.2.1 (#242) (#243)
 
-## 2.1.0 (released 30.05.2023) - see https://github.com/replay-framework/replay/milestone/11?closed=1
+## 2.1.0 (released 2023-05-30) - see https://github.com/replay-framework/replay/milestone/11?closed=1
 * Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
 * bump Guice from 5.1.0 to 6.0.0 - see https://github.com/google/guice/wiki/Guice600
 * Bump Liquibase from 4.21.1 to 4.22.0
@@ -65,7 +97,7 @@
 * Bump ClassGraph from 4.8.157 to 4.8.160
 * remove unused class ExceptionsMonitoringPlugin
 
-## 2.0.0 (released 18.04.2023) - see https://github.com/replay-framework/replay/milestone/10?closed=1
+## 2.0.0 (released 2023-04-18) - see https://github.com/replay-framework/replay/milestone/10?closed=1
 * added experimental support for Netty4 (Netty 3 is also still used by default)  --  thanks to Szabolcs Hubai! (#25) (#95)
 * added backend `javanet` as an alternative for Netty3/Netty4 (#152)
 * Bump org.liquibase:liquibase-core from 4.20.0 to 4.21.1 (#155) (#109)
@@ -75,7 +107,7 @@
 * Bump org.eclipse.jdt:org.eclipse.jdt.core from 3.32.0 to 3.33.0 (#137)
 * Bump ehcache from 3.10.1 to 3.10.8 (#108)
 
-## 1.12.0 (released 13.01.2023)
+## 1.12.0 (released 2023-01-13)
 * #77 Expose plugin descriptor  --  thanks to Cies Breijs for PR #79 and #66
 * #78 Allow null `Play.routes` in `Router.detectChanges()`  --  thanks to Cies Breijs for PR #81
 * Encrypt error cookie  --  thanks to Aleksei Anishchenko and Evgeny Tkachenya (#69)
@@ -92,7 +124,7 @@
 * Bump reload4j from 1.2.22 to 1.2.24 (#100)
 * Bump gson from 2.10 to 2.10.1 (#106)
 
-## 1.11.0 (released 28.10.2022)
+## 1.11.0 (released 2022-10-28)
 
 This release dropped some dependencies, if you need those simply add them as dependencies of your app.
 
@@ -103,49 +135,49 @@ The Hibernate upgrade exposes `jakarta.validation.*` instead of `javax.validatio
 * #56 Do not expose Apache's commons-lang v2
 * #57, #59 Remove unused dependencies (ezmorph, asm, cglib, javax.activation, validation-api, jboss-logging, classmate, xmlpull, snakeyaml, jsr107cache)
 * #60 Remove not-strictly-RePlay dependencies (groovy-dateutil, groovy-datetime)
-* upgrade dependencies (gson:2.10, groovy:3.0.13, hibernate:5.6.12, slf4j:2.0.3)
+* Upgrade dependencies (gson:2.10, groovy:3.0.13, hibernate:5.6.12, slf4j:2.0.3)
 * #48 Add test that exercises FileChannelBuffer - thanks to Cies Breijs for PR #52
 * #63 Make RePlay more modular
 
-## 1.10.0 (released 11.09.2022)
+## 1.10.0 (released 2022-09-11)
 
 * #53 refactor PDF generation code (removed `PDF.Options`, rewritten `PDFDocument`, `PdfHelper`, `PdfGenerator`)
 * #53 add an example how to implement custom plugin for generating HTML for PDF
 
-## 1.9.5 (released 01.09.2022)
+## 1.9.5 (released 2022-09-01)
 * #50 Make PdfHelper methods public  --  see PR #51
-* upgrade dependencies (Eclipse compiler 3.30.0, hibernate:5.6.11.Final, groovy:3.0.12, liquibase:4.15.0, ehcache:3.10.1, slf4j:2.0.0, reload4j:1.2.22, asm:9.3, gson:2.9.1, guava:31.1-jre)
+* Upgrade dependencies (Eclipse compiler 3.30.0, hibernate:5.6.11.Final, groovy:3.0.12, liquibase:4.15.0, ehcache:3.10.1, slf4j:2.0.0, reload4j:1.2.22, asm:9.3, gson:2.9.1, guava:31.1-jre)
 
-## 1.9.4 (released 04.02.2022)
+## 1.9.4 (released 2022-02-04)
 * #41 fix "IOException: mark/reset not supported" when parsing http parameters
 
-## 1.9.3 (released 03.02.2022)
-* upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc. 
+## 1.9.3 (released 2022-02=03)
+* Upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc. 
 
-## 1.9.2 (released 18.01.2022)
-* replace log4j:1.2.17 -> reload4j:1.2.18.0
-* upgrade slf4j:1.7.32 -> 1.7.33
+## 1.9.2 (released 2022-01-18)
+* Replace log4j:1.2.17 -> reload4j:1.2.18.0
+* Upgrade slf4j:1.7.32 -> 1.7.33
 
-## 1.9.1 (released 06.01.2022)
+## 1.9.1 (released 2022-01-06)
 * #36 fix annotation-based validation  --  see PR #37
 * #38 upgrade to EHCache 3.9.9, Eclipse compiler 3.28.0 etc
 * #34 Make the `i18n` tag to work
 
-## 1.9.0 (released 06.12.2021)
-* upgrade to Gradle 7.x (incl. declaring dependencies with `api` or `compile`)
-* add support for MySql 8 driver  --  thanks Cies Breijs for PR #32
+## 1.9.0 (released 2021-12-06)
+* Upgrade to Gradle 7.x (incl. declaring dependencies with `api` or `compile`)
+* Add support for MySql 8 driver  --  thanks Cies Breijs for PR #32
 * #29 replace environment variables in `${...}` in application.conf  --  thanks Cies Breijs for PR #31
-* improve readme file  --  thanks Cies Breijs for PR #30
+* Improve readme file  --  thanks Cies Breijs for PR #30
 * Deprecate Play1-style static methods `Controller.forbidden` 
 
-## 1.8.8 (released 30.06.2021)
-* upgrade dependencies: Eclipse compiler 3.26.0, Groovy 3.0.8, hibernate 5.5.2, Hikari CP 4.0.3 etc.
+## 1.8.8 (released 2021-06-30)
+* Upgrade dependencies: Eclipse compiler 3.26.0, Groovy 3.0.8, hibernate 5.5.2, Hikari CP 4.0.3 etc.
 
-## 1.8.7 (released 22.06.2021)
-* restore the lost dependency "shaniparser 1.4.22" (disappeared after shutting down JCentral repository)
+## 1.8.7 (released 2021-06-22)
+* Restore the lost dependency "shaniparser 1.4.22" (disappeared after shutting down JCentral repository)
 
-## 1.8.6 (released 13.01.2021)
-* load liquibase*.xsd files from classpath, not from network
+## 1.8.6 (released 2021-01-13)
+* Load `liquibase*.xsd` files from classpath, not from network
 
-## 1.7 (released 30.06.2020)
+## 1.7 (released 2020-06-30)
 * ...
