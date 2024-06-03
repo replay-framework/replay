@@ -1,5 +1,6 @@
 out
 .gradle
+.kotlin
 build
 tmp
 *.dump.sql
