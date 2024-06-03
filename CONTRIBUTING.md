@@ -41,30 +41,51 @@ To make a release, you need to:
 2. Have these lines in `~/.gradle/gradle.properties`:
 
 ```
-signing.keyId=2#####8
+signing.keyId=********
 signing.password=***********************
-signing.secretKeyRingFile=/path/to/.gnupg/secring.gpg
+signing.secretKeyRingFile=/home/username/.gnupg/trustdb.gpg
 sonatypeUsername=*******
 sonatypePassword=********************
 ```
 
-A guide for setting up GPG for can be found on [the Sonatype website](https://central.sonatype.org/publish/requirements/gpg).
+If you have no GnuPG singing key yet, there is a guide for setting up GnuPG on [the Sonatype website](https://central.sonatype.org/publish/requirements/gpg).
 
-Steps to release version 2.4.0 (for example):
-1. Fill the CHANGELOG.md
-2. Replace previous version by "2.4.0" in build.gradle
-3. Commit & push (CHANGELOG.md + build.gradle + maybe something else)
-4. Run ./release.sh 2.4.0  // This uploads the `*.jar` files to https://oss.sonatype.org
-5. Login to https://oss.sonatype.org/#stagingRepositories
+Once you have a signing key setup you need to fill in `signing.keyId` with the short key found after the encryption algorithm (or simply the last 8 characters of the long key format) shown with:
+
+```sh
+gpg --list-keys --keyid-format short
+```
+
+The `signing.password` should be set to the passphrase use to access GnuPG. You can test you passphrase with:
+
+```sh
+echo "1234" | gpg2 --batch --passphrase-fd 1 --local-user <GPG KEY ID> -as - > /dev/null && echo "Passphrase correct"
+```
+
+The `signing.secretKeyRingFile` should point to *your* keyring file (in your `$HOME` folder).
+
+And the Sonatype creds you should have gotten by registering [here](https://central.sonatype.org).
+
+
+Steps to release version, for exmaple, version `2.4.0`:
+
+1. Create a release branch, e.g. `release/2.4.0`
+2. Merge the branches that you want to be part of this release
+3. Fill/edit the `CHANGELOG.md`
+4. Replace previous version by "2.4.0" in build.gradle
+5. Commit & push (CHANGELOG.md + build.gradle + maybe something else)
+6. Run `./release.sh 2.4.0`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [oss.sonatype.org](https://oss.sonatype.org)
+7. Login to https://oss.sonatype.org/#stagingRepositories
    * Click "Close", wait until "release" button gets enabled (~1-2 minutes)
    * Click "Release" (no need to fill description)
    * After ~5 minutes, the new jar will be available in Central Maven repo
-6. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
-7. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
-   * Fill the release details (copy-paste from CHANGELOG.md)
+8. Merge the just created release branch into the `main` branch
+9. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
+10. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
+   * Fill the release details (copy-paste from `CHANGELOG.md`)
    * Click "Publish release"
-8. Replace version in build.gradle by "2.5.0-SNAPSHOT" and commit
-9. Create a new release on github: https://github.com/replay-framework/replay/releases
-10. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
+10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "2.5.0-SNAPSHOT") and commit
+11. Create a new release on github: https://github.com/replay-framework/replay/releases
+12. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
 
 This uploads the `*.jar` files to: https://s01.oss.sonatype.org/#stagingRepositories
