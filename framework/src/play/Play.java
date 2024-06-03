@@ -16,8 +16,8 @@ import play.mvc.SessionStore;
 import play.plugins.PluginCollection;
 import play.templates.TemplateLoader;
 
+import jakarta.inject.Inject;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;

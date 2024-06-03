@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import models.CriminalRecord;
 import org.apache.http.client.fluent.Request;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;

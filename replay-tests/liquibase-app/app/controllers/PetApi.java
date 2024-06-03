@@ -10,7 +10,7 @@ import play.mvc.results.Forbidden;
 import play.mvc.results.RenderJson;
 import play.mvc.results.Result;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Map;
 
 public class PetApi extends Controller {

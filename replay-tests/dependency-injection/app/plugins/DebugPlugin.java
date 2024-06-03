@@ -8,7 +8,7 @@ import play.mvc.Scope.Session;
 import play.mvc.Scope.Flash;
 import services.Mathematics;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
