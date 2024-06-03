@@ -17,13 +17,25 @@ public class PropertiesConfLoader implements ConfLoader {
   private final Pattern overrideKeyPattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
   private final Pattern envVarInterpolationPattern = Pattern.compile("\\$\\{([^}]+)}");
 
+  private String filePrefix = "";
+
+  public PropertiesConfLoader() {
+    this("");
+  }
+
+  public PropertiesConfLoader(String filePrefix) {
+    if (filePrefix != null) {
+      this.filePrefix = filePrefix;
+    }
+  }
+
   public static Properties read(String playId) {
     return new PropertiesConfLoader().readConfiguration(playId);
   }
 
   @Override
   public Properties readConfiguration(String playId) {
-    return readOneConfigurationFile(playId, "application.conf");
+    return readOneConfigurationFile(playId, filePrefix + "application.conf");
   }
 
   public Properties readOneConfigurationFile(String playId, String filename) {
@@ -114,7 +126,7 @@ public class PropertiesConfLoader implements ConfLoader {
     for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
       if (e.getKey().toString().startsWith("@include.")) {
         try {
-          String filenameToInclude = e.getValue().toString();
+          String filenameToInclude = filePrefix + e.getValue().toString();
           propsFromFile.putAll(readOneConfigurationFile(filenameToInclude, playId, inheritedId, confs));
         }
         catch (Exception ex) {
