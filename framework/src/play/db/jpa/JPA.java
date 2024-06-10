@@ -1,5 +1,7 @@
 package play.db.jpa;
 
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.InvocationContext;
@@ -8,6 +10,9 @@ import play.exceptions.JPAException;
 import play.libs.SupplierWithException;
 
 import jakarta.persistence.*;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -311,7 +316,7 @@ public class JPA {
                 // Be sure to set the connection is non-autoCommit mode as some driver will complain about COMMIT
                 // statement
                 try {
-                    DB.getConnection(name).setAutoCommit(false);
+                    manager.unwrap(Session.class).doWork(con -> con.setAutoCommit(false));
                 } catch (Exception e) {
                     logger.error("Why the driver complains here?", e);
                 }
@@ -339,7 +344,7 @@ public class JPA {
                 // Be sure to set the connection is non-autoCommit mode as some driver will complain about COMMIT
                 // statement
                 try {
-                    DB.getConnection(name).setAutoCommit(false);
+                    manager.unwrap(Session.class).doWork(con -> con.setAutoCommit(false));
                 } catch (Exception e) {
                     logger.error("Why the driver complains here?", e);
                 }
