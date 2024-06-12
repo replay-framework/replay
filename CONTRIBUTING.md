@@ -43,7 +43,7 @@ To make a release, you need to:
 ```
 signing.keyId=********
 signing.password=***********************
-signing.secretKeyRingFile=/home/username/.gnupg/trustdb.gpg
+signing.secretKeyRingFile=/home/username/.gnupg/secring.gpg
 sonatypeUsername=*******
 sonatypePassword=********************
 ```
@@ -59,10 +59,15 @@ gpg --list-keys --keyid-format short
 The `signing.password` should be set to the passphrase use to access GnuPG. You can test you passphrase with:
 
 ```sh
-echo "1234" | gpg2 --batch --passphrase-fd 1 --local-user <GPG KEY ID> -as - > /dev/null && echo "Passphrase correct"
+echo "1234" | gpg2 --batch --passphrase-fd 1 --local-user <SHORT KEY ID> -as - > /dev/null && echo "Passphrase correct"
 ```
 
 The `signing.secretKeyRingFile` should point to *your* keyring file (in your `$HOME` folder).
+Since `gnupg` v2.1 it is not create by default, generate it with:
+
+```sh
+gpg --export-secret-keys -o /home/username/.gnupg/secring.gpg
+```
 
 And the Sonatype creds you should have gotten by registering [here](https://central.sonatype.org).
 
@@ -72,8 +77,8 @@ Steps to release version, for exmaple, version `2.4.0`:
 1. Create a release branch, e.g. `release/2.4.0`
 2. Merge the branches that you want to be part of this release
 3. Fill/edit the `CHANGELOG.md`
-4. Replace previous version by "2.4.0" in build.gradle
-5. Commit & push (CHANGELOG.md + build.gradle + maybe something else)
+4. Replace previous version by "2.4.0" in `build.gradle`
+5. Commit & push (CHANGELOG.md + build.gradle + and all changes)
 6. Run `./release.sh 2.4.0`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [oss.sonatype.org](https://oss.sonatype.org)
 7. Login to https://oss.sonatype.org/#stagingRepositories
    * Click "Close", wait until "release" button gets enabled (~1-2 minutes)
