@@ -6,7 +6,7 @@ import play.mvc.results.Result;
 import play.rebel.View;
 import services.CriminalSafetyCalculator;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class Criminals extends Controller {
   @Inject

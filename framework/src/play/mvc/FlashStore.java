@@ -6,9 +6,9 @@ import play.exceptions.UnexpectedException;
 import play.libs.Signer;
 import play.mvc.results.Forbidden;
 
+import jakarta.inject.Singleton;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import java.util.Map;
 
 import static play.mvc.Scope.COOKIE_PREFIX;

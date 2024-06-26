@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import javax.net.ssl.SSLContext;
 import java.util.Optional;
 

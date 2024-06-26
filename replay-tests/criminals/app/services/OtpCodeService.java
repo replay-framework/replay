@@ -4,7 +4,7 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.SimpleEmail;
 import play.libs.Mail;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OtpCodeService {

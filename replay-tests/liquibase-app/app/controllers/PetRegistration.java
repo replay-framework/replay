@@ -9,7 +9,7 @@ import play.mvc.results.Redirect;
 import play.mvc.results.Result;
 import play.rebel.View;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Map;
 
 public class PetRegistration extends Controller {

@@ -10,7 +10,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import play.Invoker;
 import play.mvc.ActionInvoker;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static play.server.ServerHelper.maxContentLength;
 
