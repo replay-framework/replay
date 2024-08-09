@@ -2,7 +2,7 @@ package play.mvc;
 
 import play.data.binding.Unbinder;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;

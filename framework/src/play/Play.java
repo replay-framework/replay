@@ -14,12 +14,10 @@ import play.mvc.PlayController;
 import play.mvc.Router;
 import play.mvc.SessionStore;
 import play.plugins.PluginCollection;
-import play.templates.FastTags;
-import play.templates.JavaExtensions;
 import play.templates.TemplateLoader;
 
+import jakarta.inject.Inject;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
@@ -268,8 +266,6 @@ public class Play {
   private void injectStaticFields() {
     injectStaticFields(Play.classes.getAssignableClasses(PlayController.class));
     injectStaticFields(Play.classes.getAssignableClasses(Job.class));
-    injectStaticFields(Play.classes.getAssignableClasses(FastTags.class));
-    injectStaticFields(Play.classes.getAssignableClasses(JavaExtensions.class));
   }
 
   private <T> void injectStaticFields(List<Class<? extends T>> classes) {
