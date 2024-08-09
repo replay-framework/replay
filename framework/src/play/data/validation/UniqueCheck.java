@@ -6,7 +6,7 @@ import net.sf.oval.context.FieldContext;
 import net.sf.oval.context.OValContext;
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPQL;
-import play.db.jpa.Model;
+import play.db.Model;
 import play.exceptions.UnexpectedException;
 
 import java.lang.reflect.Field;
@@ -15,7 +15,6 @@ import java.util.TreeMap;
 
 /**
  * Check which proof if one or a set of properties is unique.
- *
  */
 public class UniqueCheck extends AbstractAnnotationCheck<Unique> {
 
