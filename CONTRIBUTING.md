@@ -56,7 +56,7 @@ Once you have a signing key setup you need to fill in `signing.keyId` with the s
 gpg --list-keys --keyid-format short
 ```
 
-The `signing.password` should be set to the passphrase use to access GnuPG. You can test you passphrase with:
+The `signing.password` should be set to the passphrase use to access GnuPG. You can test your passphrase with:
 
 ```sh
 echo "1234" | gpg2 --batch --passphrase-fd 1 --local-user <SHORT KEY ID> -as - > /dev/null && echo "Passphrase correct"
@@ -69,10 +69,10 @@ Since `gnupg` v2.1 it is not create by default, generate it with:
 gpg --export-secret-keys -o /home/username/.gnupg/secring.gpg
 ```
 
-And the Sonatype creds you should have gotten by registering [here](https://central.sonatype.org).
+And the Sonatype credentials you should have gotten by registering [here](https://central.sonatype.org).
 
 
-Steps to release version, for exmaple, version `2.4.0`:
+Steps to release version, for example, version `2.4.0`:
 
 1. Create a release branch, e.g. `release/2.4.0`
 2. Merge the branches that you want to be part of this release

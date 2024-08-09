@@ -54,15 +54,15 @@ JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions bey
 You need to add RePlay dependencies to your build.gradle (or pom.xml):
 ```groovy
 dependencies {
-  implementation 'io.github.replay-framework:framework:2.4.0'
-  implementation 'io.github.replay-framework:javanet:2.4.0'  // you can replay "javanet" by "netty3" or "netty4"
+  implementation 'io.github.replay-framework:framework:2.5.0'
+  implementation 'io.github.replay-framework:javanet:2.5.0'  // you can replace "javanet" by "netty3" or "netty4"
   
   // Optionally:
-  implementation 'io.github.replay-framework:guice:2.4.0'
-  implementation 'io.github.replay-framework:fastergt:2.4.0'
-  implementation 'io.github.replay-framework:liquibase:2.4.0'
-  implementation 'io.github.replay-framework:pdf:2.4.0'
-  implementation 'io.github.replay-framework:excel:2.4.0'
+  implementation 'io.github.replay-framework:guice:2.5.0'
+  implementation 'io.github.replay-framework:fastergt:2.5.0'
+  implementation 'io.github.replay-framework:liquibase:2.5.0'
+  implementation 'io.github.replay-framework:pdf:2.5.0'
+  implementation 'io.github.replay-framework:excel:2.5.0'
 }
 ```
 
