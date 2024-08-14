@@ -82,10 +82,11 @@ Steps to release version, for example, version `2.4.0`:
 4. Replace previous version by "2.4.0" in `build.gradle`
 5. Commit & push (CHANGELOG.md + build.gradle + and all changes)
 6. Run `./release.sh 2.4.0`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [oss.sonatype.org](https://oss.sonatype.org)
-7. Login to https://oss.sonatype.org/#stagingRepositories
-   * Click "Close", wait until "release" button gets enabled (~1-2 minutes)
+7. Login to https://oss.sonatype.org/#stagingRepositories and locate the staging repository...
+   * Click "Close", wait until "Release" button gets enabled (~1-2 minutes)
    * Click "Release" (no need to fill description)
-   * After ~5 minutes, the new jar will be available in Central Maven repo
+   * After ~5-10 minutes, the new jar will be available in Central Maven repo (it may take up to 2 hours until it shows up in [search.maven.org](https://search.maven.org))
+   * In more detail this is explained here: https://central.sonatype.org/publish/release
 8. Merge the just created release branch into the `main` branch
 9. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
 10. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
@@ -94,19 +95,6 @@ Steps to release version, for example, version `2.4.0`:
 10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "2.5.0-SNAPSHOT") and commit
 11. Create a new release on github: https://github.com/replay-framework/replay/releases
 12. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
-
-This uploads the `*.jar` files to: https://s01.oss.sonatype.org/#stagingRepositories
-
-In order to "release" the artifacts from the staging repository to Maven Central you can follow this guide:
-
-https://central.sonatype.org/publish/release
-
-In short you need to sign into https://s01.oss.sonatype.org locate the staging repository and "Close" it.
-After clicking the "Close" button the repository is validated which takes 1 to 5 minutes.
-Once validated the "Release" button is activated: click it.
-
-After a successful release the artifact will show up on [Central](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) typically within 10 minutes.
-However updates to [search.maven.org](https://search.maven.org) can take up to two hours.
 
 
 
