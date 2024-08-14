@@ -1,4 +1,4 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/io.github.replay-framework/framework)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions)
 ```
     ______  ______                 _            _
    /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
