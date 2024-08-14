@@ -69,7 +69,9 @@ Since `gnupg` v2.1 it is not create by default, generate it with:
 gpg --export-secret-keys -o /home/username/.gnupg/secring.gpg
 ```
 
-And the Sonatype credentials you should have gotten by registering [here](https://central.sonatype.org).
+And the Sonatype credentials `sonatypeUsername` and `sonatypePassword` need to contain the "user token".
+You need to generate this token by logging in to `s01.oss.sonatype.org` > click on your username in the top-right corner > click `Profile` > select `User Token` in the drop down.
+Important is that the account you are using has permissions for `io/github/replay-framework` (this needs to be granted by raising a support ticket with Sonatype).
 
 
 Steps to release version, for example, version `2.4.0`:
@@ -94,3 +96,17 @@ Steps to release version, for example, version `2.4.0`:
 12. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
 
 This uploads the `*.jar` files to: https://s01.oss.sonatype.org/#stagingRepositories
+
+In order to "release" the artifacts from the staging repository to Maven Central you can follow this guide:
+
+https://central.sonatype.org/publish/release
+
+In short you need to sign into https://s01.oss.sonatype.org locate the staging repository and "Close" it.
+After clicking the "Close" button the repository is validated which takes 1 to 5 minutes.
+Once validated the "Release" button is activated: click it.
+
+After a successful release the artifact will show up on [Central](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) typically within 10 minutes.
+However updates to [search.maven.org](https://search.maven.org) can take up to two hours.
+
+
+
