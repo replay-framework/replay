@@ -1,4 +1,4 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) [![Repository size](https://img.shields.io/github/repo-size/replay-framework/replay.svg?logo=git)](https://github.com/replay-framework/replay)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) [![Contributors](https://img.shields.io/github/contributors/replay-framework/replay)](https://github.com/replay-framework/replay/graphs/contributors) [![Repository size](https://img.shields.io/github/repo-size/replay-framework/replay.svg?logo=git)](https://github.com/replay-framework/replay)
 ```
     ______  ______                 _            _
    /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
