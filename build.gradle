@@ -11,7 +11,7 @@ ext {
   groovyVersion = '3.0.22'
   httpclientVersion = '4.5.14'
   restAssuredVersion = '5.5.0'
-  junitVersion = '5.10.3'
+  junitVersion = '5.11.0'
 }
 
 subprojects {
