@@ -5,6 +5,7 @@ import models.Verdict;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -35,7 +36,7 @@ public class CriminalSafetyCalculatorTest {
   @Test
   public void isUnsafeIfCriminalHistoryIsPresent() throws IOException {
     // arrange
-    when(restClient.get(anyString())).thenReturn(asList(new CriminalRecord("убийство")));
+    when(restClient.get(anyString())).thenReturn(List.of(new CriminalRecord("убийство")));
 
     // act
     Verdict verdict = service.check("111222333");

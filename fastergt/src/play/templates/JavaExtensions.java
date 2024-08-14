@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
+import static play.utils.Utils.formatMemorySize;
 
 /**
  * Java extensions in templates
@@ -255,17 +256,8 @@ public class JavaExtensions {
         return URLEncoder.encode(entity, encoding);
     }
 
-    public static String formatSize(Long bytes) {
-        if (bytes < 1024L) {
-            return bytes + " B";
-        }
-        if (bytes < 1048576L) {
-            return bytes / 1024L + "KB";
-        }
-        if (bytes < 1073741824L) {
-            return bytes / 1048576L + "MB";
-        }
-        return bytes / 1073741824L + "GB";
+    public static String formatSize(long bytes) {
+        return formatMemorySize(bytes);
     }
 
     public static String formatCurrency(Number number, String currencyCode) {

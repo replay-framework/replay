@@ -10,7 +10,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import play.Invoker;
 import play.mvc.ActionInvoker;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class HttpServerPipelineFactory implements ChannelPipelineFactory {
     private final Invoker invoker;

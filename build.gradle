@@ -1,23 +1,23 @@
 defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 ext {
-  commonsLangVersion = '3.14.0'
-  netty4Version = '4.1.109.Final'
+  commonsLangVersion = '3.16.0'
+  netty4Version = '4.1.112.Final'
   commonsTextVersion = '1.12.0'
-  slf4jVersion = '2.0.13'
-  assertjVersion = '3.25.3'
+  slf4jVersion = '2.0.16'
+  assertjVersion = '3.26.3'
   mockitoVersion = '5.12.0'
-  pdfTestVersion = '1.8.1'
-  groovyVersion = '3.0.21'
+  pdfTestVersion = '1.9.0'
+  groovyVersion = '3.0.22'
   httpclientVersion = '4.5.14'
-  restAssuredVersion = '5.4.0'
-  junitVersion = '5.10.2'
+  restAssuredVersion = '5.5.0'
+  junitVersion = '5.10.3'
 }
 
 subprojects {
 
   group='io.github.replay-framework'
-  version=project.properties['revision'] ?: '2.4.0'
+  version=project.properties['revision'] ?: '2.5.0'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
@@ -80,7 +80,7 @@ subprojects {
     testTask.testLogging {exceptionFormat = 'full'}
     testTask.outputs.upToDateWhen { false }
   }
-  
+
   dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")

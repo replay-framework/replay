@@ -51,7 +51,6 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 
@@ -92,6 +91,7 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
 import static play.server.ServerHelper.maxContentLength;
+import static play.utils.Utils.formatMemorySize;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler extends SimpleChannelUpstreamHandler {
@@ -179,7 +179,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         private final HttpRequest nettyRequest;
         private final MessageEvent event;
 
-        public Netty3Invocation(Request request, Response response, ChannelHandlerContext ctx, HttpRequest nettyRequest, MessageEvent e) {
+        private Netty3Invocation(Request request, Response response, ChannelHandlerContext ctx, HttpRequest nettyRequest, MessageEvent e) {
             this.ctx = ctx;
             this.request = request;
             this.response = response;
@@ -310,7 +310,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
                 error.append(":");
                 String size;
                 try {
-                    size = JavaExtensions.formatSize(Long.parseLong(length));
+                    size = formatMemorySize(Long.parseLong(length));
                 } catch (Exception e) {
                     size = length + " bytes";
                 }

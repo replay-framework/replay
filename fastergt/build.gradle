@@ -1,6 +1,11 @@
 dependencies {
   implementation project(':framework')
   implementation('org.eclipse.jdt:ecj:3.37.0')
+
+  // Groovy 4 can be found in org.apache.groovy
+  api("org.codehaus.groovy:groovy:$groovyVersion")
+  api("org.codehaus.groovy:groovy-xml:$groovyVersion")
+
   implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
   implementation "org.apache.commons:commons-text:$commonsTextVersion"
   testImplementation project(':framework').sourceSets.test.compileClasspath
