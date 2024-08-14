@@ -1,20 +1,14 @@
-package play.db.jpa;
+package model;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import play.db.jpa.GenericModel;
+
 import javax.annotation.Nullable;
 
-/**
- * Base class for JPA model objects.
- * Automatically provides an @Id Long id field.
- *
- * DEPRECATED: Implement your own subclass of GenericModel. See: replay-tests/liquibase-app/app/model/IdModel.java
- */
-@Deprecated
 @MappedSuperclass
-public class Model extends GenericModel {
-
+public class IdModel extends GenericModel {
     @Id
     @GeneratedValue
     protected Long id;
@@ -31,5 +25,4 @@ public class Model extends GenericModel {
     public Object _key() {
         return getId();
     }
-
 }
