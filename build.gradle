@@ -6,7 +6,7 @@ ext {
   commonsTextVersion = '1.12.0'
   slf4jVersion = '2.0.16'
   assertjVersion = '3.26.3'
-  mockitoVersion = '5.12.0'
+  mockitoVersion = '5.13.0'
   pdfTestVersion = '1.9.0'
   groovyVersion = '3.0.22'
   httpclientVersion = '4.5.14'
