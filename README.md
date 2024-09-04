@@ -46,7 +46,7 @@ These were not used by RePlay's users (could be reintroduced if needed).
 
 #### Requirements
 
-JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
+JDK 17. But since we are no longer stuck at Hibernate 5.6 (which does not support JDK versions beyond 17) this may soon change.
 
 
 ## Getting started
@@ -373,7 +373,11 @@ needs an additional `return new Ok()` with RePlay.
 * While porting the controllers you will find some changes to the views (templates) are required too:
   * In some cases the full package path needs to be provided, e.g.: `Play.configuration.getProperty("key")` becomes `play.Play.configuration.getProperty("key")`.
 * Due to changed encrypting/signing of `CookieSessionStore` all active sessions are logged out when migrating from Play1 to RePlay.
-This means that running the Play1 version of the app side-by-side with the RePlay version is not possible (all users get logged out all the time). 
+This means that running the Play1 version of the app side-by-side with the RePlay version is not possible (all users get logged out all the time).
+* As of September 2024, Play1 brings Hibernate 5.6 while RePlay upgraded to 6.4. This may result in some problems:
+  * Hibernate 6.4 is stricter when it comes to mapping columns to properties. This results in a `NonUniqueDiscoveredSqlAliasException`
+  thrown when a column name occurs twice (e.g. the `id` column) when mapping the result of a query with joins to an entity.
+  * Hibernate changed the "generation strategy" for MySQL, hence you may want to implement `jpa.Model` yourself which is fully supported in RePlay.
 
   
 ## Licence
