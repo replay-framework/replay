@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.0-RC1 (released 14.08.2024)
+## 2.6.0 (released 05.09.2024)
 * #358 Upgrade to Hibernate 6.4
 * #393 Deprecate jpa.Model
 
