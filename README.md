@@ -1,4 +1,4 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/io.github.replay-framework/framework)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) [![Contributors](https://img.shields.io/github/contributors/replay-framework/replay)](https://github.com/replay-framework/replay/graphs/contributors) [![Repository size](https://img.shields.io/github/repo-size/replay-framework/replay.svg?logo=git)](https://github.com/replay-framework/replay)
 ```
     ______  ______                 _            _
    /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
@@ -27,11 +27,10 @@ RePlay aims to provide a more sensible upgrade path for Play1 applications.
   * no [dependecies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
   * no dependency on [Ivy](https://ant.apache.org/ivy) (an outdated dependency resolver),
   * no Python scripts (with RePlay one simply uses Gradle or [Maven](https://maven.apache.org)),
-  * no "modules" folder which was a custom dependency management mechanism,
-  * no `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath).
+  * no "modules" folder (which was a custom dependency management mechanism),
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
 These were not used by RePlay's users (could be reintroduced if needed).
-* The `pdf` and `excel` Play1 contrib modules are part (a plugin) of the RePlay project.
+* The `pdf` and `excel` Play1 contrib modules are part of the RePlay project (they are plugins).
 * Does not require [patches](https://github.com/playframework/play1/tree/master/framework/patches) to Hibernate, Javaflow, etc.
 * It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers", resulting in:
   * shorter application startup times (seriously improves development cycles),
@@ -42,6 +41,7 @@ These were not used by RePlay's users (could be reintroduced if needed).
 * Promotes [dependency injection](/replay-framework/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
+* Removed the `VirtualFile` class (since RePlay 2.4.0), all resources are simply loaded from the classpath.
 
 
 #### Requirements
