@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0 (released 05.09.2024)
+* #358 Upgrade to Hibernate 6.4
+* #393 Deprecate jpa.Model
+
 ## 2.5.0 (released 09.08.2024) - see https://github.com/replay-framework/replay/milestone/16?closed=1
 * #386 Replace `javax.inject` with `jakarta.inject` (#389) @cies
 * #65 move all Groovy-related code from "framework" to "fastergt" (#316) @asolntsev
