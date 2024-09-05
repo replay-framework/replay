@@ -247,8 +247,8 @@ the `id` column.
   run `Refactor -> Encapsulate Fields...` on your own class (only generate the getter!),
   finally remove your class and string replace the imports back to what they were.
 * Play1's `JPAEnhancer` was removed.
-  * In RePlay, classes that extend `Model` (the RePlay projects need to self-implement) have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
-    * **TIP**: Reimplementing these methods using the methods found in RePlay's `play.db.jpa.JPARepository`.
+  * In RePlay, entity classes (they in Play1 extend `Model`) have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
+    * **TIP**: Reimplement these methods using the methods found in RePlay's `play.db.jpa.JPARepository`.
   * **TIP**: By adding the following lines to `conf/application.conf` of a Play1 project,
   the work required can be performed on the Play1 based version of the application.
 
