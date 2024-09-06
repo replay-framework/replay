@@ -19,6 +19,8 @@ It caters for Scala web application projects, and uses Scala internally.
 Porting a Play1 application to Play2 is really hard and has [questionable benefits](https://groups.google.com/g/play-framework/c/AcZs8GXNWUc).
 RePlay aims to provide a more sensible upgrade path for Play1 applications.
 
+We use Gitter to discuss RePlay development, feel free to join [the channel](https://app.gitter.im/#/room/#codeborne_replay:gitter.im) to ask questions or just say hi.
+
 
 #### How is RePlay different from Play1?
 
