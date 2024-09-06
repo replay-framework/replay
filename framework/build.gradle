@@ -22,7 +22,7 @@ dependencies {
   implementation('ch.qos.reload4j:reload4j:1.2.25')
   implementation('org.ehcache:ehcache:3.10.8')
   api('net.sf.oval:oval:3.2.1')
-  api('org.hibernate:hibernate-core:6.4.4.Final')
+  api('org.hibernate:hibernate-core:6.6.0.Final')
   // Hibernate 6.2-6.5 are only compatible with Jakarta Persistence 3.1
   api('jakarta.persistence:jakarta.persistence-api:3.1.0')
   api('org.hibernate.common:hibernate-commons-annotations:7.0.1.Final')
