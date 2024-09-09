@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.1 (released 09.09.2024)
+* Bump Hibernate to 6.6
+
 ## 2.6.0 (released 05.09.2024)
 * #358 Upgrade to Hibernate 6.4
 * #393 Deprecate jpa.Model
