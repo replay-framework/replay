@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.1 (released 09.09.2024)
+## 2.6.2 (released 09.09.2024)
 * Bump Hibernate to 6.6
 
 ## 2.6.0 (released 05.09.2024)
