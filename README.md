@@ -1,11 +1,11 @@
 # The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) [![Contributors](https://img.shields.io/github/contributors/replay-framework/replay)](https://github.com/replay-framework/replay/graphs/contributors) [![Repository size](https://img.shields.io/github/repo-size/replay-framework/replay.svg?logo=git)](https://github.com/replay-framework/replay)
 ```
-    ______  ______                 _            _
-   /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
-  /     / /     /  | '_ / -_) '_ \| |/ _' | || |_|
- /     / /     /   |_/  \___|  __/|_|\____|\__ (_)
-/_____/ /_____/             |_|            |__/
-                   RePlay Framework, https://github.com/replay-framework/replay
+    _____ _____  ___      ___  _             
+   /    //    / |   \ ___|   \| | ___ _  _   
+  /    //    /  | ' // -_) '_/| |/ _ | \| |  
+ /    //    /   |_|_\\___|_|  |_|\___|\_  /  
+/____//____/                           /_/ 
+                RePlay Framework, https://github.com/replay-framework/replay
 ```
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created and maintained by [Codeborne](https://codeborne.com) in 2017..2023.
@@ -48,7 +48,7 @@ These were not used by RePlay's users (could be reintroduced if needed).
 
 #### Requirements
 
-JDK 17. But since we are no longer stuck at Hibernate 5.6 (which does not support JDK versions beyond 17) this may soon change.
+JDK 17. But since we are no longer stuck at Hibernate 5.6 (which did not support JDK versions beyond 17) this may soon change.
 
 
 ## Getting started
