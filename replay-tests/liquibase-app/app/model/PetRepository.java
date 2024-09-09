@@ -1,9 +1,9 @@
 package model;
 
-import play.db.jpa.JPA;
-
 import jakarta.inject.Singleton;
 import jakarta.persistence.Query;
+import play.db.jpa.JPA;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

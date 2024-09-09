@@ -1,5 +1,6 @@
 package controllers;
 
+import jakarta.inject.Inject;
 import model.PetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import play.mvc.results.Forbidden;
 import play.mvc.results.RenderJson;
 import play.mvc.results.Result;
 
-import jakarta.inject.Inject;
 import java.util.Map;
 
 public class PetApi extends Controller {

@@ -1,9 +1,9 @@
 package play.db;
 
+import jakarta.persistence.Entity;
 import play.db.jpa.JPAModelLoader;
 import play.exceptions.UnexpectedException;
 
-import jakarta.persistence.Entity;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;

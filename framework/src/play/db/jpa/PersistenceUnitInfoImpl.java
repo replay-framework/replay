@@ -1,12 +1,12 @@
 package play.db.jpa;
 
-import org.hibernate.jpa.HibernatePersistenceProvider;
-
 import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.ClassTransformer;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+
 import javax.sql.DataSource;
 import java.net.URL;
 import java.util.Collections;

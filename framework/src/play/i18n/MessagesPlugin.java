@@ -7,11 +7,7 @@ import play.PlayPlugin;
 import play.libs.IO;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class MessagesPlugin extends PlayPlugin {
     private static final Logger logger = LoggerFactory.getLogger(MessagesPlugin.class);

@@ -12,11 +12,7 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;

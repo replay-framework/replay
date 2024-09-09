@@ -1,18 +1,13 @@
 package play.db.jpa;
 
+import jakarta.persistence.*;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.InvocationContext;
-import play.db.DB;
 import play.exceptions.JPAException;
 import play.libs.SupplierWithException;
 
-import jakarta.persistence.*;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

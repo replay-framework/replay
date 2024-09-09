@@ -1,10 +1,10 @@
 package play.db.jpa;
 
-import play.db.jpa.GenericModel.JPAQuery;
-
 import jakarta.inject.Singleton;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PersistenceUnit;
+import play.db.jpa.GenericModel.JPAQuery;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;

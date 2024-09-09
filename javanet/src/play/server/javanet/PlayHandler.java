@@ -33,39 +33,20 @@ import play.utils.Utils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
-import static com.google.common.net.HttpHeaders.COOKIE;
-import static com.google.common.net.HttpHeaders.ETAG;
-import static com.google.common.net.HttpHeaders.HOST;
-import static com.google.common.net.HttpHeaders.IF_MODIFIED_SINCE;
-import static com.google.common.net.HttpHeaders.IF_NONE_MATCH;
-import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
-import static com.google.common.net.HttpHeaders.SET_COOKIE;
+import static com.google.common.net.HttpHeaders.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static play.mvc.Http.Methods.GET;
 import static play.mvc.Http.Methods.HEAD;
-import static play.mvc.Http.StatusCode.BAD_REQUEST;
-import static play.mvc.Http.StatusCode.INTERNAL_ERROR;
-import static play.mvc.Http.StatusCode.NOT_FOUND;
-import static play.mvc.Http.StatusCode.NOT_MODIFIED;
+import static play.mvc.Http.StatusCode.*;
 import static play.utils.Utils.formatMemorySize;
 
 @ParametersAreNonnullByDefault

@@ -1,5 +1,6 @@
 package play.server.netty3;
 
+import jakarta.inject.Inject;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -9,8 +10,6 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import play.Invoker;
 import play.mvc.ActionInvoker;
-
-import jakarta.inject.Inject;
 
 public class HttpServerPipelineFactory implements ChannelPipelineFactory {
     private final Invoker invoker;

@@ -1,10 +1,9 @@
 package jobs;
 
+import jakarta.inject.Inject;
 import play.jobs.Every;
 import play.jobs.SimpleJob;
 import services.Counter;
-
-import jakarta.inject.Inject;
 
 @Every("1s")
 public class CounterUpdaterJob extends SimpleJob {

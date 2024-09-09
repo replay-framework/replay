@@ -3,6 +3,7 @@ package play.db.jpa;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+
 import javax.annotation.Nullable;
 
 /**

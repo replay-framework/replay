@@ -1,10 +1,9 @@
 package jobs;
 
+import jakarta.inject.Inject;
 import play.jobs.OnApplicationStart;
 import play.jobs.SimpleJob;
 import services.Counter;
-
-import jakarta.inject.Inject;
 
 @OnApplicationStart
 public class CounterUpdaterJob2 extends SimpleJob {

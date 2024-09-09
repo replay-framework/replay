@@ -1,11 +1,11 @@
 package play.db.jpa;
 
+import jakarta.persistence.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import play.data.binding.NoBinding;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 
-import jakarta.persistence.*;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

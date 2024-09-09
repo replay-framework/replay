@@ -1,5 +1,6 @@
 package controllers;
 
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.validation.Email;
@@ -10,8 +11,6 @@ import play.mvc.results.Redirect;
 import play.mvc.results.Result;
 import play.rebel.View;
 import services.OtpCodeService;
-
-import jakarta.inject.Inject;
 
 public class Login extends Controller {
   private static final Logger log = LoggerFactory.getLogger(Login.class);

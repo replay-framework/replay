@@ -7,11 +7,7 @@ import play.template2.legacy.GTContentRendererFakeClosure;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.binarySearch;

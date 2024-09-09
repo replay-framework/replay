@@ -1,5 +1,7 @@
 package play.db.jpa;
 
+import jakarta.persistence.*;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.apache.log4j.Level;
 import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.boot.model.TypeContributor;
@@ -23,8 +25,6 @@ import play.inject.Injector;
 import play.mvc.Http;
 import play.mvc.Scope.Session;
 
-import jakarta.persistence.*;
-import jakarta.persistence.spi.PersistenceUnitInfo;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -172,8 +172,7 @@ public class JPAPlugin extends PlayPlugin {
         final Properties properties = properties(dbName, dbConfig);
         properties.put(AvailableSettings.LOADED_CLASSES, managedClasses);
         properties.put(AvailableSettings.FLUSH_MODE, MANUAL);
-        return new PersistenceUnitInfoImpl(dbName,
-                managedClasses, mappingFiles(dbConfig), properties);
+        return new PersistenceUnitInfoImpl(dbName, managedClasses, mappingFiles(dbConfig), properties);
     }
 
     private List<String> mappingFiles(Configuration dbConfig) {

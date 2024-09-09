@@ -1,19 +1,19 @@
 package play.db.jpa;
 
+import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
-import play.db.Model;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
 import play.data.binding.BindingAnnotations;
 import play.data.binding.ParamNode;
 import play.data.validation.Validation;
+import play.db.Model;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http;
 import play.mvc.Scope;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jakarta.persistence.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

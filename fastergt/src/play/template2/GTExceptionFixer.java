@@ -1,11 +1,7 @@
 package play.template2;
 
 import play.template2.compile.GTPreCompiler;
-import play.template2.exceptions.GTAppClassException;
-import play.template2.exceptions.GTException;
-import play.template2.exceptions.GTRuntimeException;
-import play.template2.exceptions.GTRuntimeExceptionWithSourceInfo;
-import play.template2.exceptions.GTTemplateRuntimeException;
+import play.template2.exceptions.*;
 
 import java.util.ArrayList;
 import java.util.List;

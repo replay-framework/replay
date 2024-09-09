@@ -20,9 +20,7 @@ import java.util.TreeSet;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 import static play.ClasspathResource.file;
 
 public class PluginCollectionTest {

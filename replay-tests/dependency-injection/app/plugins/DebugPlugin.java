@@ -1,14 +1,14 @@
 package plugins;
 
+import jakarta.inject.Inject;
 import play.PlayPlugin;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
-import play.mvc.Scope.Flash;
 import services.Mathematics;
 
-import jakarta.inject.Inject;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 

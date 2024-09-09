@@ -1,10 +1,6 @@
 package play.server.netty3;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static java.util.Objects.requireNonNull;
 

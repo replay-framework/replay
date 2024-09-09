@@ -1,12 +1,12 @@
 package play.db.jpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import play.db.Configuration;
 import play.db.jpa.GenericModel.JPAQuery;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Map;
 

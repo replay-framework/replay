@@ -1,5 +1,6 @@
 package play.db.jpa;
 
+import jakarta.persistence.*;
 import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.collection.spi.PersistentMap;
 import org.hibernate.engine.spi.CollectionEntry;
@@ -13,7 +14,6 @@ import org.hibernate.type.Type;
 import play.db.Model;
 import play.exceptions.UnexpectedException;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

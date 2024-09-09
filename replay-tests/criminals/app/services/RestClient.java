@@ -2,10 +2,10 @@ package services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jakarta.inject.Singleton;
 import models.CriminalRecord;
 import org.apache.http.client.fluent.Request;
 
-import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;

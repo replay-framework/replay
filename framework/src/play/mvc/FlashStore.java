@@ -1,19 +1,17 @@
 package play.mvc;
 
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 import play.libs.Signer;
 import play.mvc.results.Forbidden;
 
-import jakarta.inject.Singleton;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static play.mvc.Scope.COOKIE_PREFIX;
-import static play.mvc.Scope.COOKIE_SECURE;
-import static play.mvc.Scope.SESSION_HTTPONLY;
+import static play.mvc.Scope.*;
 
 @Singleton
 public class FlashStore {

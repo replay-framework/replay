@@ -1,5 +1,6 @@
 package play;
 
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
@@ -8,15 +9,10 @@ import play.inject.BeanSource;
 import play.inject.DefaultBeanSource;
 import play.inject.Injector;
 import play.jobs.Job;
-import play.mvc.ActionInvoker;
-import play.mvc.CookieSessionStore;
-import play.mvc.PlayController;
-import play.mvc.Router;
-import play.mvc.SessionStore;
+import play.mvc.*;
 import play.plugins.PluginCollection;
 import play.templates.TemplateLoader;
 
-import jakarta.inject.Inject;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.management.ManagementFactory;

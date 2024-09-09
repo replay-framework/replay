@@ -1,5 +1,6 @@
 package controllers;
 
+import jakarta.inject.Inject;
 import model.Pet;
 import model.PetRepository;
 import play.data.validation.Valid;
@@ -9,7 +10,6 @@ import play.mvc.results.Redirect;
 import play.mvc.results.Result;
 import play.rebel.View;
 
-import jakarta.inject.Inject;
 import java.util.Map;
 
 public class PetRegistration extends Controller {

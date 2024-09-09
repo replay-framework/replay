@@ -1,14 +1,14 @@
 package model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import play.data.binding.NoBinding;
 import play.data.validation.Max;
 import play.data.validation.Min;
 import play.data.validation.MinSize;
 import play.data.validation.Required;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.EnumType.STRING;

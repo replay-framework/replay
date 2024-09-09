@@ -3,7 +3,7 @@ package play.data.parsing;
 import org.junit.jupiter.api.Test;
 import play.mvc.Http;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_16;

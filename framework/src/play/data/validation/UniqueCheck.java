@@ -4,9 +4,9 @@ import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.FieldContext;
 import net.sf.oval.context.OValContext;
+import play.db.Model;
 import play.db.jpa.GenericModel;
 import play.db.jpa.JPQL;
-import play.db.Model;
 import play.exceptions.UnexpectedException;
 
 import java.lang.reflect.Field;

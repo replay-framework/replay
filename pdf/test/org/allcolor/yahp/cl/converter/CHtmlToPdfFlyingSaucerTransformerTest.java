@@ -1,6 +1,7 @@
 package org.allcolor.yahp.cl.converter;
 
 import org.junit.jupiter.api.Test;
+
 import static org.allcolor.yahp.cl.converter.CHtmlToPdfFlyingSaucerTransformer.removeScript;
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,10 +1,9 @@
 package services;
 
+import jakarta.inject.Singleton;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.SimpleEmail;
 import play.libs.Mail;
-
-import jakarta.inject.Singleton;
 
 @Singleton
 public class OtpCodeService {

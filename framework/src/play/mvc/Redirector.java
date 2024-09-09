@@ -1,8 +1,8 @@
 package play.mvc;
 
+import jakarta.inject.Singleton;
 import play.data.binding.Unbinder;
 
-import jakarta.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;

@@ -7,10 +7,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import jakarta.inject.Inject;
 import play.Invoker;
 import play.mvc.ActionInvoker;
-
-import jakarta.inject.Inject;
 
 import static play.server.ServerHelper.maxContentLength;
 

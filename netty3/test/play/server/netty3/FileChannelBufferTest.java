@@ -1,6 +1,5 @@
 package play.server.netty3;
 
-import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import play.data.parsing.TextParser;
@@ -9,6 +8,7 @@ import play.mvc.Http;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toByteArray;

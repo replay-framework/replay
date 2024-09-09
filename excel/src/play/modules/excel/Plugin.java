@@ -36,7 +36,6 @@ import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 import play.templates.Template;
 
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
