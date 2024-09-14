@@ -48,7 +48,7 @@ These were not used by RePlay's users (could be reintroduced if needed).
 
 #### Requirements
 
-JDK 17. But since we are no longer stuck at Hibernate 5.6 (which did not support JDK versions beyond 17) this may soon change.
+RePlay requires JDK 17 to be built; it is the lower limit of serveral of our dependencies: ECJ (for rendering GroovyTemplates), FlyingSaucer (PDF generation) and Selenide (UI tests). Your project should use a JDK version equal to or greater than 17 that's also supported by Hibernate 6.6 (the version RePlay currently depends on), which are [JDK 17 and 21](https://hibernate.org/orm/releases/6.6).
 
 
 ## Getting started
