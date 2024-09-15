@@ -8,12 +8,12 @@
                 RePlay Framework, https://github.com/replay-framework/replay
 ```
 
-RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created and maintained by [Codeborne](https://codeborne.com) in 2017..2023.
+RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created by [Codeborne](https://codeborne.com) in 2017.
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
-Compared to Play1, RePlay is a simpler and more standard/modern framework with greatly improved developer ergonomics.
+RePlay is a simplification of the the Play1 codebase that aims to improve developer ergonomics.
 The main differences between Play1 and RePlay are outlined below.
 
-RePlay originally forked Play v1.5.0. Improvements made in the Play1 project since, are regularly ported to RePlay when applicable.
+RePlay originally forked Play v1.5.0. Any Play1 improvements that were made since then are ported to RePlay when applicable.
 [Version 2 of the Play Framework](https://github.com/playframework/playframework) (Play2) is significantly different from Play1.
 It caters for Scala web application projects, and uses Scala internally. 
 Porting a Play1 application to Play2 is really hard and has [questionable benefits](https://groups.google.com/g/play-framework/c/AcZs8GXNWUc).
@@ -40,6 +40,7 @@ These were not used by RePlay's users (could be reintroduced if needed).
 * Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay follows generally accepted OO best practices.
 * More actively maintained.
+* More up to date dependencies (e.g. Hibernate).
 * Promotes [dependency injection](/replay-framework/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
