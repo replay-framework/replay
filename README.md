@@ -8,7 +8,7 @@
                 RePlay Framework, https://github.com/replay-framework/replay
 ```
 
-RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created by [Codeborne](https://codeborne.com) in 2017.
+RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, created by [Codeborne](https://codeborne.com) in 2017.
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
 RePlay is a simplification of the the Play1 codebase that aims to improve developer ergonomics.
 The main differences between Play1 and RePlay are outlined below.
