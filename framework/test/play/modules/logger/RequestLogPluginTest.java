@@ -1,5 +1,12 @@
 package play.modules.logger;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -10,14 +17,6 @@ import play.mvc.Http.Cookie;
 import play.mvc.Scope;
 import play.mvc.results.RenderJson;
 import play.mvc.results.Result;
-
-import java.io.ByteArrayInputStream;
-import java.util.Map;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class RequestLogPluginTest {
   private final Logger logger = mock();
@@ -52,10 +51,9 @@ public class RequestLogPluginTest {
     plugin.onActionInvocationFinally(request, response);
 
     verify(logger).info("GET	/path	192.168.3.4:sid12345	->	RenderJson {\"ok\": true}");
-    assertThat(request.args).containsExactlyInAnyOrderEntriesOf(Map.of(
-      "sessionId", "sid12345",
-      Result.class.getName(), result
-    ));
+    assertThat(request.args)
+        .containsExactlyInAnyOrderEntriesOf(
+            Map.of("sessionId", "sid12345", Result.class.getName(), result));
   }
 
   @Test
@@ -66,9 +64,14 @@ public class RequestLogPluginTest {
     plugin.onActionInvocationException(request, response, failure);
     plugin.onActionInvocationFinally(request, response);
 
-    verify(logger).info("GET	/path	192.168.3.4:sid12345	->	Error \"play.exceptions.TemplateNotFoundException: Template not found : /missing-template.html\"");
-    assertThat(request.args.get(Result.class.getName())).isInstanceOf(play.mvc.results.Result.class);
-    assertThat(request.args.get(Result.class.getName())).hasToString("Error \"play.exceptions.TemplateNotFoundException: Template not found : /missing-template.html\"");
+    verify(logger)
+        .info(
+            "GET	/path	192.168.3.4:sid12345	->	Error \"play.exceptions.TemplateNotFoundException: Template not found : /missing-template.html\"");
+    assertThat(request.args.get(Result.class.getName()))
+        .isInstanceOf(play.mvc.results.Result.class);
+    assertThat(request.args.get(Result.class.getName()))
+        .hasToString(
+            "Error \"play.exceptions.TemplateNotFoundException: Template not found : /missing-template.html\"");
   }
 
   private Http.Request request() {
@@ -76,8 +79,21 @@ public class RequestLogPluginTest {
   }
 
   private Http.Request request(String path, Map<String, Http.Header> headers) {
-    Http.Request request = Http.Request.createRequest("127.0.0.1", "GET", path, "", "text/html", new ByteArrayInputStream("".getBytes(UTF_8)), "url", "host", false, 80, "domain",
-        headers, Map.of("PLAY_SESSIONID", new Cookie("PLAY_SESSIONID", "session-007")));
+    Http.Request request =
+        Http.Request.createRequest(
+            "127.0.0.1",
+            "GET",
+            path,
+            "",
+            "text/html",
+            new ByteArrayInputStream("".getBytes(UTF_8)),
+            "url",
+            "host",
+            false,
+            80,
+            "domain",
+            headers,
+            Map.of("PLAY_SESSIONID", new Cookie("PLAY_SESSIONID", "session-007")));
     request.action = "action";
     request.actionMethod = "method";
     request.controller = "controller";

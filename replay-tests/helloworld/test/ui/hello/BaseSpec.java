@@ -2,11 +2,10 @@ package ui.hello;
 
 import com.codeborne.selenide.Configuration;
 import io.restassured.RestAssured;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.BeforeEach;
 import play.Play;
 import play.server.Starter;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);

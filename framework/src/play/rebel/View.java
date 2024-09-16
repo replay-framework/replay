@@ -1,5 +1,13 @@
 package play.rebel;
 
+import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
@@ -13,18 +21,7 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.lang.System.nanoTime;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
-/**
- * 200 OK with a template rendering
- */
+/** 200 OK with a template rendering */
 public class View extends Result {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
@@ -47,16 +44,18 @@ public class View extends Result {
   }
 
   @Override
-  public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+  public void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     try {
       renderView(request, response, session, renderArgs, flash);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new UnexpectedException(e);
     }
   }
 
-  private void renderView(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) throws IOException {
+  private void renderView(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash)
+      throws IOException {
     long start = nanoTime();
     Template template = resolveTemplate();
 
@@ -79,7 +78,7 @@ public class View extends Result {
   private Template resolveTemplate() {
     return TemplateLoader.load(templateNameResolver.resolveTemplateName(templateName));
   }
-  
+
   public String getName() {
     return templateName;
   }
@@ -107,7 +106,7 @@ public class View extends Result {
 
   @Override
   public boolean isRenderingTemplate() {
-      return true;
+    return true;
   }
 
   @Override
@@ -115,4 +114,3 @@ public class View extends Result {
     return String.format("RenderTemplate %s %s ms", templateName, renderTime);
   }
 }
-

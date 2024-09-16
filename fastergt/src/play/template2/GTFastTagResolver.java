@@ -13,6 +13,6 @@ package play.template2;
  */
 public interface GTFastTagResolver {
 
-    // if fastTag is valid, this method returns full method-name for a static method..
-    String resolveFastTag(String tagName);
+  // if fastTag is valid, this method returns full method-name for a static method..
+  String resolveFastTag(String tagName);
 }

@@ -1,12 +1,11 @@
 package criminals;
 
+import static play.PropertiesConfLoader.read;
+
+import java.util.Properties;
+import javax.annotation.Nullable;
 import play.modules.guice.GuiceBeanSource;
 import play.server.Starter;
-
-import javax.annotation.Nullable;
-import java.util.Properties;
-
-import static play.PropertiesConfLoader.read;
 
 public class Application {
   public void start(String playId) {

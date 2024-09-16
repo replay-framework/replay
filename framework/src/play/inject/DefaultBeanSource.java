@@ -10,7 +10,10 @@ public class DefaultBeanSource implements BeanSource {
       Constructor<T> constructor = clazz.getDeclaredConstructor();
       constructor.setAccessible(true);
       return constructor.newInstance();
-    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+    } catch (InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException e) {
       throw new RuntimeException("Cannot instantiate " + clazz, e);
     }
   }

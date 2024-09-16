@@ -7,8 +7,7 @@ import services.Counter;
 
 @Every("1s")
 public class CounterUpdaterJob extends SimpleJob {
-  @Inject
-  private Counter counter;
+  @Inject private Counter counter;
 
   @Override
   public void doJob() {

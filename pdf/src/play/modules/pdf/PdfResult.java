@@ -1,5 +1,6 @@
 package play.modules.pdf;
 
+import javax.annotation.Nonnull;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -7,8 +8,6 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
-
-import javax.annotation.Nonnull;
 
 public class PdfResult extends Result {
   private static final PdfHelper helper = new PdfHelper();
@@ -37,7 +36,9 @@ public class PdfResult extends Result {
     return pdfTemplate;
   }
 
-  @Override public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+  @Override
+  public void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     renderArgs.put("session", session);
     renderArgs.put("flash", flash);
 
@@ -79,7 +80,7 @@ public class PdfResult extends Result {
 
   @Override
   public boolean isRenderingTemplate() {
-      return true;
+    return true;
   }
 
   @Override

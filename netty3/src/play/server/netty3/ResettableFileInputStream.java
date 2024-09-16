@@ -1,8 +1,8 @@
 package play.server.netty3;
 
-import java.io.*;
-
 import static java.util.Objects.requireNonNull;
+
+import java.io.*;
 
 public class ResettableFileInputStream extends InputStream {
   private final File file;

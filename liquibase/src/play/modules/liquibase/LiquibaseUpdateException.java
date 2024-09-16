@@ -6,5 +6,4 @@ public class LiquibaseUpdateException extends PlayException {
   public LiquibaseUpdateException(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

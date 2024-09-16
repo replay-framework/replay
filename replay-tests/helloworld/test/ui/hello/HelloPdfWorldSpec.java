@@ -1,13 +1,12 @@
 package ui.hello;
 
+import static com.codeborne.pdftest.assertj.Assertions.assertThat;
+
 import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.net.URL;
-
-import static com.codeborne.pdftest.assertj.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class HelloPdfWorldSpec extends BaseSpec {
   @Test

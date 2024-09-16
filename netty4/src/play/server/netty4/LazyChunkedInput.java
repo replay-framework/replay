@@ -1,15 +1,14 @@
 package play.server.netty4;
 
+import static io.netty.buffer.Unpooled.wrappedBuffer;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.stream.ChunkedInput;
-
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static io.netty.buffer.Unpooled.wrappedBuffer;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 class LazyChunkedInput implements ChunkedInput {
 
@@ -60,15 +59,14 @@ class LazyChunkedInput implements ChunkedInput {
     byte[] bytes;
     if (chunk instanceof byte[]) {
       bytes = (byte[]) chunk;
-    }
-    else {
+    } else {
       String message = chunk == null ? "" : chunk.toString();
       bytes = message.getBytes(encoding);
     }
 
     try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
       byteStream.write(Integer.toHexString(bytes.length).getBytes(UTF_8));
-      byte[] crlf = new byte[]{(byte) '\r', (byte) '\n'};
+      byte[] crlf = new byte[] {(byte) '\r', (byte) '\n'};
       byteStream.write(crlf);
       byteStream.write(bytes);
       byteStream.write(crlf);

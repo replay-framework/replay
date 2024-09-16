@@ -1,11 +1,10 @@
 package hello.plugins;
 
-import play.templates.Template;
+import static play.libs.IO.contentAsString;
 
 import java.io.File;
 import java.util.Map;
-
-import static play.libs.IO.contentAsString;
+import play.templates.Template;
 
 public class PlainTextTemplate extends Template {
   private final File source;
@@ -16,8 +15,7 @@ public class PlainTextTemplate extends Template {
   }
 
   @Override
-  public void compile() {
-  }
+  public void compile() {}
 
   @Override
   protected String internalRender(Map<String, Object> args) {

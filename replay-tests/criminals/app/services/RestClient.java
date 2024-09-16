@@ -3,13 +3,12 @@ package services;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.inject.Singleton;
-import models.CriminalRecord;
-import org.apache.http.client.fluent.Request;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import models.CriminalRecord;
+import org.apache.http.client.fluent.Request;
 
 @Singleton
 public class RestClient {
@@ -17,7 +16,8 @@ public class RestClient {
     String jsonResponse = Request.Get(url).execute().returnContent().asString();
 
     Type criminalRecordType = new TypeToken<CriminalRecord>() {}.getType();
-    Type criminalRecordListType = TypeToken.getParameterized(ArrayList.class, criminalRecordType).getType();
+    Type criminalRecordListType =
+        TypeToken.getParameterized(ArrayList.class, criminalRecordType).getType();
     return new Gson().fromJson(jsonResponse, criminalRecordListType);
   }
 }

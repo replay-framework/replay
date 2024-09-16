@@ -1,21 +1,19 @@
 package play.modules.pdf;
 
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
+import static java.util.Objects.requireNonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 
 @ParametersAreNonnullByDefault
 public class PdfTemplate {
-  @Nullable
-  private final String templateName;
+  @Nullable private final String templateName;
   private final Map<String, Object> arguments = new HashMap<>();
   private String fileName;
   private IHtmlToPdfTransformer.PageSize pageSize = IHtmlToPdfTransformer.A4P;
@@ -68,17 +66,20 @@ public class PdfTemplate {
     return fileName;
   }
 
-  @Override public boolean equals(Object object) {
+  @Override
+  public boolean equals(Object object) {
     if (!(object instanceof PdfTemplate)) return false;
 
     PdfTemplate other = (PdfTemplate) object;
     return Objects.equals(templateName, other.templateName)
-      && Objects.equals(arguments, other.arguments)
-      && Objects.equals(fileName, other.fileName)
-      && Objects.equals(pageSize, other.pageSize);
+        && Objects.equals(arguments, other.arguments)
+        && Objects.equals(fileName, other.fileName)
+        && Objects.equals(pageSize, other.pageSize);
   }
 
-  @Override public String toString() {
-    return String.format("PdfTemplate {%s, %s, %s, %s}", templateName, fileName, pageSize, arguments);
+  @Override
+  public String toString() {
+    return String.format(
+        "PdfTemplate {%s, %s, %s, %s}", templateName, fileName, pageSize, arguments);
   }
 }

@@ -1,12 +1,12 @@
 package ui;
 
-import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.By;
-import play.i18n.Messages;
-
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
+
+import com.codeborne.selenide.SelenideElement;
+import org.openqa.selenium.By;
+import play.i18n.Messages;
 
 public class LoginPage {
   private final SelenideElement username = $(By.name("username"));

@@ -1,15 +1,14 @@
 package ui;
 
+import static com.codeborne.pdftest.assertj.Assertions.assertThat;
+
 import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
+import java.io.IOException;
+import java.net.URL;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URL;
-
-import static com.codeborne.pdftest.assertj.Assertions.assertThat;
 
 public class ReportTest extends BaseUITest {
   private static final Logger log = LoggerFactory.getLogger(ReportTest.class);

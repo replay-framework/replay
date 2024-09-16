@@ -4,18 +4,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A cache implementation.
- * expiration is specified in seconds
+ * A cache implementation. expiration is specified in seconds
+ *
  * @see play.cache.Cache
  */
 public interface CacheImpl {
-    void set(@Nonnull String key, Object value, int expiration);
+  void set(@Nonnull String key, Object value, int expiration);
 
-    @Nullable Object get(@Nonnull String key);
+  @Nullable
+  Object get(@Nonnull String key);
 
-    void clear();
+  void clear();
 
-    void delete(@Nonnull String key);
+  void delete(@Nonnull String key);
 
-    void stop();
+  void stop();
 }

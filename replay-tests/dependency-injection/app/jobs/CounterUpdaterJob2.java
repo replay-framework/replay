@@ -7,8 +7,7 @@ import services.Counter;
 
 @OnApplicationStart
 public class CounterUpdaterJob2 extends SimpleJob {
-  @Inject
-  private Counter counter;
+  @Inject private Counter counter;
 
   @Override
   public void doJob() {

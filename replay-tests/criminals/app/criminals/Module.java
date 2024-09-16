@@ -1,10 +1,9 @@
 package criminals;
 
-import com.google.inject.AbstractModule;
-
-import java.util.Properties;
-
 import static com.google.inject.name.Names.named;
+
+import com.google.inject.AbstractModule;
+import java.util.Properties;
 
 public class Module extends AbstractModule {
   private final Properties configuration;

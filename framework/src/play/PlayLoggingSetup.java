@@ -1,11 +1,10 @@
 package play;
 
+import java.net.URL;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import java.net.URL;
 
 public class PlayLoggingSetup {
   public void init() {
@@ -29,8 +28,7 @@ public class PlayLoggingSetup {
 
     if (log4jPath.endsWith(".xml")) {
       DOMConfigurator.configure(log4jConf);
-    }
-    else {
+    } else {
       PropertyConfigurator.configure(log4jConf);
     }
 

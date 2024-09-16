@@ -1,5 +1,15 @@
 package play.server.netty3;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.netty.buffer.ChannelBuffers.EMPTY_BUFFER;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -7,17 +17,6 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.http.*;
 import org.junit.jupiter.api.Test;
 import play.mvc.Http;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.netty.buffer.ChannelBuffers.EMPTY_BUFFER;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
 
 public class PlayHandlerTest {
 
@@ -77,13 +76,17 @@ public class PlayHandlerTest {
 
     playHandler.messageReceived(ctx, messageEvent);
 
-    verify(channel, times(1)).write(argThat(obj -> {
-      if (obj instanceof HttpResponse) {
-        assertThat(((HttpResponse) obj).getStatus()).isEqualTo(HttpResponseStatus.BAD_REQUEST);
-        return true;
-      } else {
-        return false;
-      }
-    }));
+    verify(channel, times(1))
+        .write(
+            argThat(
+                obj -> {
+                  if (obj instanceof HttpResponse) {
+                    assertThat(((HttpResponse) obj).getStatus())
+                        .isEqualTo(HttpResponseStatus.BAD_REQUEST);
+                    return true;
+                  } else {
+                    return false;
+                  }
+                }));
   }
 }

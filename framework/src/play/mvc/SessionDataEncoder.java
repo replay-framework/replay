@@ -1,18 +1,15 @@
 package play.mvc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.libs.Codec;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.libs.Codec;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-/**
- * Provides operations around the encoding and decoding of Cookie data.
- */
+/** Provides operations around the encoding and decoding of Cookie data. */
 public class SessionDataEncoder {
   private static final Logger logger = LoggerFactory.getLogger(SessionDataEncoder.class);
 
@@ -20,8 +17,7 @@ public class SessionDataEncoder {
     Map<String, String> map = new HashMap<>();
     try {
       data = new String(Codec.decodeBASE64(data), UTF_8);
-    }
-    catch (Exception cookieWasNotEncoded) {
+    } catch (Exception cookieWasNotEncoded) {
       logger.warn("!!! Cookie decoding (base64) failed, will try plain");
     }
     String[] keyValues = data.split("&");
@@ -29,10 +25,11 @@ public class SessionDataEncoder {
       String[] splitValues = keyValue.split("=", 2);
       if (splitValues.length == 2) {
         try {
-          map.put(URLDecoder.decode(splitValues[0], UTF_8), URLDecoder.decode(splitValues[1], UTF_8));
-        }
-        catch (Exception e) {
-          logger.error("!!! Cookie parsing failed: {},\ncookie.key={}\n  Data: {}", e, splitValues[0], data);
+          map.put(
+              URLDecoder.decode(splitValues[0], UTF_8), URLDecoder.decode(splitValues[1], UTF_8));
+        } catch (Exception e) {
+          logger.error(
+              "!!! Cookie parsing failed: {},\ncookie.key={}\n  Data: {}", e, splitValues[0], data);
         }
       }
     }

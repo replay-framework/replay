@@ -1,52 +1,62 @@
 package play.libs.ws;
 
-import play.Play;
+import static java.util.Collections.emptyMap;
+import static play.libs.ws.HttpMethod.*;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.util.Collections.emptyMap;
-import static play.libs.ws.HttpMethod.*;
+import play.Play;
 
 public class DummyWSRequest extends WSRequest {
   private final Map<String, Map<HttpMethod, DummyWSRequest>> requests;
   private final Map<String, Map<HttpMethod, HttpResponse>> responses;
 
-  public DummyWSRequest(String url, Map<String, Map<HttpMethod, DummyWSRequest>> requests, Map<String, Map<HttpMethod, HttpResponse>> responses) {
+  public DummyWSRequest(
+      String url,
+      Map<String, Map<HttpMethod, DummyWSRequest>> requests,
+      Map<String, Map<HttpMethod, HttpResponse>> responses) {
     super(url, Play.defaultWebEncoding);
     this.requests = requests;
     this.responses = responses;
   }
 
-  @Override public HttpResponse get() {
+  @Override
+  public HttpResponse get() {
     return forMethod(GET);
   }
 
-  @Override public HttpResponse patch() {
+  @Override
+  public HttpResponse patch() {
     return forMethod(PATCH);
   }
 
-  @Override public HttpResponse post() {
+  @Override
+  public HttpResponse post() {
     return forMethod(POST);
   }
 
-  @Override public HttpResponse put() {
+  @Override
+  public HttpResponse put() {
     return forMethod(PUT);
   }
 
-  @Override public HttpResponse delete() {
+  @Override
+  public HttpResponse delete() {
     return forMethod(DELETE);
   }
 
-  @Override public HttpResponse options() {
+  @Override
+  public HttpResponse options() {
     return forMethod(OPTIONS);
   }
 
-  @Override public HttpResponse head() {
+  @Override
+  public HttpResponse head() {
     return forMethod(HEAD);
   }
 
-  @Override public HttpResponse trace() {
+  @Override
+  public HttpResponse trace() {
     return forMethod(TRACE);
   }
 
@@ -67,6 +77,7 @@ public class DummyWSRequest extends WSRequest {
   }
 
   private DummyHttpResponse notFound(HttpMethod method) {
-    return new DummyHttpResponse(404, "Not found: " + method + " " + url + ", expected responses: " + responses);
+    return new DummyHttpResponse(
+        404, "Not found: " + method + " " + url + ", expected responses: " + responses);
   }
 }

@@ -4,6 +4,5 @@ import org.apache.commons.mail.Email;
 
 public interface MailSystem {
 
-    boolean sendMessage(Email email);
-
+  boolean sendMessage(Email email);
 }

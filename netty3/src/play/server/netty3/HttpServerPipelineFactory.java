@@ -12,38 +12,38 @@ import play.Invoker;
 import play.mvc.ActionInvoker;
 
 public class HttpServerPipelineFactory implements ChannelPipelineFactory {
-    private final Invoker invoker;
-    private final ActionInvoker actionInvoker;
+  private final Invoker invoker;
+  private final ActionInvoker actionInvoker;
 
-    @Inject HttpServerPipelineFactory(Invoker invoker, ActionInvoker actionInvoker) {
-        this.invoker = invoker;
-        this.actionInvoker = actionInvoker;
+  @Inject
+  HttpServerPipelineFactory(Invoker invoker, ActionInvoker actionInvoker) {
+    this.invoker = invoker;
+    this.actionInvoker = actionInvoker;
+  }
+
+  @Override
+  public ChannelPipeline getPipeline() {
+    return new PlayChannelPipeline();
+  }
+
+  class PlayChannelPipeline extends DefaultChannelPipeline {
+    private final PlayHandler playHandler = new PlayHandler(invoker, actionInvoker);
+
+    PlayChannelPipeline() {
+      addChannelHandler(new FlashPolicyHandler());
+      addChannelHandler(new HttpRequestDecoder());
+      addChannelHandler(new StreamChunkAggregator());
+      addChannelHandler(new HttpResponseEncoder());
+      addChannelHandler(new ChunkedWriteHandler());
+
+      addLast("handler", playHandler);
+      playHandler.pipelines.put("handler", playHandler);
     }
 
-    @Override
-    public ChannelPipeline getPipeline() {
-        return new PlayChannelPipeline();
+    private void addChannelHandler(ChannelHandler instance) {
+      String name = instance.getClass().getSimpleName();
+      addLast(name, instance);
+      playHandler.pipelines.put(name, instance);
     }
-
-    class PlayChannelPipeline extends DefaultChannelPipeline {
-        private final PlayHandler playHandler = new PlayHandler(invoker, actionInvoker);
-
-        PlayChannelPipeline() {
-            addChannelHandler(new FlashPolicyHandler());
-            addChannelHandler(new HttpRequestDecoder());
-            addChannelHandler(new StreamChunkAggregator());
-            addChannelHandler(new HttpResponseEncoder());
-            addChannelHandler(new ChunkedWriteHandler());
-
-            addLast("handler", playHandler);
-            playHandler.pipelines.put("handler", playHandler);
-        }
-
-        private void addChannelHandler(ChannelHandler instance) {
-            String name = instance.getClass().getSimpleName();
-            addLast(name, instance);
-            playHandler.pipelines.put(name, instance);
-        }
-    }
+  }
 }
-

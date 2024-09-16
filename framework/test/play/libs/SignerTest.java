@@ -1,10 +1,10 @@
 package play.libs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.Play;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class SignerTest {
   private final Signer signer = new Signer("my-salt");

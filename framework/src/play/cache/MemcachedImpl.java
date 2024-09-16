@@ -1,26 +1,25 @@
 package play.cache;
 
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.transcoders.SerializingTranscoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.transcoders.SerializingTranscoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * Memcached implementation (using http://code.google.com/p/spymemcached/)
- * <p>
- * expiration is specified in seconds
+ *
+ * <p>expiration is specified in seconds
  */
 public class MemcachedImpl implements CacheImpl {
   private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
@@ -44,15 +43,21 @@ public class MemcachedImpl implements CacheImpl {
     Future<Object> future = client.asyncGet(key, transcoder());
     try {
       return future.get(1, TimeUnit.SECONDS);
-    }
-    catch (TimeoutException | InterruptedException e) {
-      logger.warn("Cache miss due to timeout. key={}, cause={}, connection={}, connectionStatus={}",
-        key, e, getConnectionDescription(), getConnectionStatus());
+    } catch (TimeoutException | InterruptedException e) {
+      logger.warn(
+          "Cache miss due to timeout. key={}, cause={}, connection={}, connectionStatus={}",
+          key,
+          e,
+          getConnectionDescription(),
+          getConnectionStatus());
       future.cancel(true);
-    }
-    catch (ExecutionException e) {
-      logger.error("Cache miss due to error. key={}, connection={}, connectionStatus={}",
-        key, getConnectionDescription(), getConnectionStatus(), e);
+    } catch (ExecutionException e) {
+      logger.error(
+          "Cache miss due to error. key={}, connection={}, connectionStatus={}",
+          key,
+          getConnectionDescription(),
+          getConnectionStatus(),
+          e);
       future.cancel(true);
     }
     return null;
@@ -61,8 +66,7 @@ public class MemcachedImpl implements CacheImpl {
   private String getConnectionDescription() {
     try {
       return client.getConnection().connectionsStatus();
-    }
-    catch (RuntimeException e) {
+    } catch (RuntimeException e) {
       return "Failed to get connection details: " + e;
     }
   }
@@ -70,16 +74,16 @@ public class MemcachedImpl implements CacheImpl {
   private String getConnectionStatus() {
     try {
       return client.getConnection().connectionsStatus();
-    }
-    catch (RuntimeException e) {
+    } catch (RuntimeException e) {
       return "Failed to check connection status: " + e;
     }
   }
 
-  @Nonnull SerializingTranscoder transcoder() {
-    return isEmpty(mdcParameterName) ?
-      tc :
-      new MDCAwareTranscoder(tc, mdcParameterName, MDC.get(mdcParameterName));
+  @Nonnull
+  SerializingTranscoder transcoder() {
+    return isEmpty(mdcParameterName)
+        ? tc
+        : new MDCAwareTranscoder(tc, mdcParameterName, MDC.get(mdcParameterName));
   }
 
   @Override

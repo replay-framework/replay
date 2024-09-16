@@ -1,15 +1,14 @@
 package play.utils;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static play.utils.Utils.getHttpDateFormatter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static play.utils.Utils.getHttpDateFormatter;
+import org.junit.jupiter.api.Test;
 
 public class UtilsTest {
   @Test
@@ -38,7 +37,8 @@ public class UtilsTest {
   @Test
   public void urlEncodePath() {
     assertThat(Utils.urlEncodePath("images/logo.gif")).isEqualTo("images%2Flogo.gif");
-    assertThat(Utils.urlEncodePath("somepackage.mycontroller")).isEqualTo("somepackage.mycontroller");
+    assertThat(Utils.urlEncodePath("somepackage.mycontroller"))
+        .isEqualTo("somepackage.mycontroller");
     assertThat(Utils.urlEncodePath("987654321")).isEqualTo("987654321");
     assertThat(Utils.urlEncodePath("/foo&bar'baz")).isEqualTo("%2Ffoo%26bar%27baz");
     assertThat(Utils.urlEncodePath("")).isEqualTo("");

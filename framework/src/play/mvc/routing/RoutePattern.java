@@ -1,11 +1,12 @@
 package play.mvc.routing;
 
-import java.util.Set;
-
 import static play.mvc.Http.Methods.*;
 
+import java.util.Set;
+
 class RoutePattern {
-  private static final Set<String> methodPattern = Set.of(GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, "WS", "*");
+  private static final Set<String> methodPattern =
+      Set.of(GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, "WS", "*");
 
   RouteLine matcher(String line) {
     return new RouteLine(line.split("\\s+"));
@@ -18,7 +19,8 @@ class RoutePattern {
 
     RouteLine(String[] tokens) {
       if (tokens.length != 3) {
-        throw new IllegalArgumentException("Invalid route definition: expected 3 parts <METHOD> <PATH> <ACTION>");
+        throw new IllegalArgumentException(
+            "Invalid route definition: expected 3 parts <METHOD> <PATH> <ACTION>");
       }
       this.method = tokens[0];
       this.path = tokens[1];

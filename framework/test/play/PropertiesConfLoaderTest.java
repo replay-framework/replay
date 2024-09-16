@@ -1,17 +1,16 @@
 package play;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
-
-import java.io.IOException;
-import java.util.Properties;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class PropertiesConfLoaderTest {
   private final PropertiesConfLoader loader = spy(new PropertiesConfLoader());

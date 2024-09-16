@@ -1,19 +1,18 @@
 package play.utils;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.io.IOUtils.readLines;
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.*;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.io.IOUtils.readLines;
-import static org.apache.commons.text.StringEscapeUtils.escapeJava;
-
 /**
- * Custom impl of java.util.properties that preserves the key-order from the file
- * and that reads the properties-file in utf-8
+ * Custom impl of java.util.properties that preserves the key-order from the file and that reads the
+ * properties-file in utf-8
  */
 public class OrderSafeProperties extends java.util.Properties {
 
@@ -21,25 +20,27 @@ public class OrderSafeProperties extends java.util.Properties {
   private final LinkedHashSet<Object> keys = new LinkedHashSet<>();
 
   /**
-   * escapes "special-chars" (to utf-16 on the format \\uxxxx) in lines and store as iso-8859-1.
-   * see info about escaping:
-   * - <a href="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html">...</a>
-   * - "public void load(InputStream inStream)"
+   * escapes "special-chars" (to utf-16 on the format \\uxxxx) in lines and store as iso-8859-1. see
+   * info about escaping: - <a
+   * href="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html">...</a> -
+   * "public void load(InputStream inStream)"
    */
   @Override
   public void load(InputStream inputStream) throws IOException {
-    String propertiesAsIso8859 = readLines(inputStream, UTF_8)
-        .stream()
-        .map(line -> removeEscapedBackslashes(escapeJava(unescapeQuotes(line))))
-        .collect(joining("\n"));
+    String propertiesAsIso8859 =
+        readLines(inputStream, UTF_8)
+            .stream()
+            .map(line -> removeEscapedBackslashes(escapeJava(unescapeQuotes(line))))
+            .collect(joining("\n"));
     super.load(new StringReader(propertiesAsIso8859));
   }
 
   /**
-   * There is a rule: "...by the rule above, single and double quote characters preceded
-   * by a backslash still yield single and double quote characters, respectively."
-   * <p>
-   * According to this rule, we must transform \" => " and \' => ' before escaping to prevent escaping the backslash
+   * There is a rule: "...by the rule above, single and double quote characters preceded by a
+   * backslash still yield single and double quote characters, respectively."
+   *
+   * <p>According to this rule, we must transform \" => " and \' => ' before escaping to prevent
+   * escaping the backslash
    */
   static String unescapeQuotes(String line) {
     return line.replaceAll("\\\\\"", "\"").replaceAll("(^|[^\\\\])(\\\\')", "$1'");

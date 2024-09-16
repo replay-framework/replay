@@ -1,18 +1,19 @@
 package play.modules.gtengineplugin.gt_integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import play.template2.GTJavaBase;
 import play.template2.TestTemplate;
 import play.templates.BaseTemplate.RawData;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class GTJavaBase1xImplTest {
   @Test
   public void escapes$ValuesForHtml() {
     GTJavaBase template = new TestTemplate("/app/views/home.html");
 
-    assertThat(template.objectToString("foo&bar<a>'</a>")).isEqualTo("foo&amp;bar&lt;a&gt;'&lt;/a&gt;");
+    assertThat(template.objectToString("foo&bar<a>'</a>"))
+        .isEqualTo("foo&amp;bar&lt;a&gt;'&lt;/a&gt;");
   }
 
   @Test
@@ -20,7 +21,8 @@ public class GTJavaBase1xImplTest {
     GTJavaBase template = new TestTemplate("/app/views/home.html");
     template.binding.setProperty("__inside_script_tag", "true");
 
-    assertThat(template.objectToString("foo&-alert('ups')-bar")).isEqualTo("foo&-alert(\\'ups\\')-bar");
+    assertThat(template.objectToString("foo&-alert('ups')-bar"))
+        .isEqualTo("foo&-alert(\\'ups\\')-bar");
   }
 
   @Test
@@ -35,7 +37,8 @@ public class GTJavaBase1xImplTest {
   public void escapes$ValuesForXml() {
     GTJavaBase template = new TestTemplate("/app/views/home.xml");
 
-    assertThat(template.objectToString("foo&bar<a>'</a>")).isEqualTo("foo&amp;bar&lt;a&gt;&apos;&lt;/a&gt;");
+    assertThat(template.objectToString("foo&bar<a>'</a>"))
+        .isEqualTo("foo&amp;bar&lt;a&gt;&apos;&lt;/a&gt;");
   }
 
   @Test
@@ -49,7 +52,8 @@ public class GTJavaBase1xImplTest {
   public void doesNotEscapeRawData() {
     GTJavaBase template = new TestTemplate("/app/views/home.html");
 
-    assertThat(template.objectToString(new RawData("this is a way <script>alert('to hell')</script>")))
-      .isEqualTo("this is a way <script>alert('to hell')</script>");
+    assertThat(
+            template.objectToString(new RawData("this is a way <script>alert('to hell')</script>")))
+        .isEqualTo("this is a way <script>alert('to hell')</script>");
   }
 }

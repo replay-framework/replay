@@ -1,7 +1,6 @@
 package services;
 
 import jakarta.inject.Singleton;
-
 import java.math.BigDecimal;
 
 @Singleton

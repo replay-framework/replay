@@ -12,8 +12,7 @@ public class TemplateRootFolder extends File {
   private static URI getTemplateRootFolder() {
     try {
       return Thread.currentThread().getContextClassLoader().getResource("template_root").toURI();
-    }
-    catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       throw new IllegalStateException("Folder template_root is not found in classpath");
     }
   }

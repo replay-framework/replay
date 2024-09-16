@@ -1,20 +1,20 @@
 package play.mvc;
 
-import org.junit.jupiter.api.Test;
-import play.mvc.Router.Route;
-import play.mvc.results.RenderStatic;
-
-import java.util.Map;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import play.mvc.Router.Route;
+import play.mvc.results.RenderStatic;
+
 public class RouteTest {
   @Test
   public void routeWithParameters() {
-    Route route = new Route("GET", "/cards/{cardId}/requisites", "cards.Requisites.showPopup", null, 0);
+    Route route =
+        new Route("GET", "/cards/{cardId}/requisites", "cards.Requisites.showPopup", null, 0);
 
     assertThat(route.method).isEqualTo("GET");
     assertThat(route.path).isEqualTo("/cards/{cardId}/requisites");
@@ -37,7 +37,8 @@ public class RouteTest {
     assertThat(route.actionPattern.matcher("cards.requisites.showpopup").matches()).isTrue();
     assertThat(route.actionPattern.matcher("cards-Requisites-showPopup").matches()).isFalse();
 
-    assertThat(route.matches("GET", "/cards/1234567890/requisites")).isEqualTo(Map.of("cardId", "1234567890"));
+    assertThat(route.matches("GET", "/cards/1234567890/requisites"))
+        .isEqualTo(Map.of("cardId", "1234567890"));
     assertThat(route.matches("GET", "/cards/requisites")).isNull();
   }
 
@@ -154,8 +155,8 @@ public class RouteTest {
     assertThat(route.pattern.matcher("/public/images/logo.gif").matches()).isTrue();
     assertThat(route.pattern.matcher("public/images/logo.gif").matches()).isFalse();
     assertThatThrownBy(() -> route.matches("GET", "/public/images/logo.gif"))
-      .isInstanceOf(RenderStatic.class)
-      .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("public/images/logo.gif"));
+        .isInstanceOf(RenderStatic.class)
+        .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("public/images/logo.gif"));
   }
 
   @Test
@@ -166,22 +167,25 @@ public class RouteTest {
     assertThat(route.path).isEqualTo("/robots.txt");
     assertThat(route.pattern).isNull();
     assertThatThrownBy(() -> route.matches("GET", "/robots.txt"))
-      .isInstanceOf(RenderStatic.class)
-      .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("/public/robots.txt"));
+        .isInstanceOf(RenderStatic.class)
+        .satisfies(e -> assertThat(((RenderStatic) e).file).isEqualTo("/public/robots.txt"));
   }
 
   @Test
   public void staticRouteSupportsOnlyGetMethod() {
-    assertThatThrownBy(() -> new Route("POST", "/robots.txt", "staticFile:/public/robots.txt", null, 0))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Static route only support GET method");
+    assertThatThrownBy(
+            () -> new Route("POST", "/robots.txt", "staticFile:/public/robots.txt", null, 0))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Static route only support GET method");
   }
 
   @Test
   public void pathPatternString() {
     assertThat(Route.pathPatternString("/foo/bar")).isEqualTo("/foo/bar");
-    assertThat(Route.pathPatternString("/cards/{<[^/]+>cardId}/details")).isEqualTo("/cards/(?<cardId>[^/]+)/details");
-    assertThat(Route.pathPatternString("/cards/{<[^/]+>id}/activate")).isEqualTo("/cards/(?<id>[^/]+)/activate");
+    assertThat(Route.pathPatternString("/cards/{<[^/]+>cardId}/details"))
+        .isEqualTo("/cards/(?<cardId>[^/]+)/details");
+    assertThat(Route.pathPatternString("/cards/{<[^/]+>id}/activate"))
+        .isEqualTo("/cards/(?<id>[^/]+)/activate");
     assertThat(Route.pathPatternString("/file/{<[^/]+>id}")).isEqualTo("/file/(?<id>[^/]+)");
   }
 

@@ -1,10 +1,9 @@
 package play.utils;
 
-import play.libs.Crypter;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import play.libs.Crypter;
 
 @ParametersAreNonnullByDefault
 public class ErrorsCookieCrypter {

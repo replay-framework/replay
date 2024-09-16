@@ -1,26 +1,26 @@
 package play.db.hikaricp;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import play.Play;
-import play.db.Configuration;
-import play.db.DB;
-import play.db.DataSourceFactory;
-
-import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Set;
-
-import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
+import javax.sql.DataSource;
+import play.Play;
+import play.db.Configuration;
+import play.db.DB;
+import play.db.DataSourceFactory;
 
 public class HikariDataSourceFactory implements DataSourceFactory {
 
   @Override
-  public DataSource createDataSource(Configuration dbConfig) throws PropertyVetoException, SQLException {
+  public DataSource createDataSource(Configuration dbConfig)
+      throws PropertyVetoException, SQLException {
     HikariDataSource ds = new HikariDataSource();
     ds.setDriverClassName(dbConfig.getProperty("db.driver"));
     ds.setJdbcUrl(dbConfig.getProperty("db.url"));
@@ -30,8 +30,10 @@ public class HikariDataSourceFactory implements DataSourceFactory {
     ds.setConnectionTimeout(parseLong(dbConfig.getProperty("db.pool.timeout", "5000")));
     ds.setMaximumPoolSize(parseInt(dbConfig.getProperty("db.pool.maxSize", "30")));
     ds.setMinimumIdle(parseInt(dbConfig.getProperty("db.pool.minSize", "1")));
-    ds.setIdleTimeout(parseLong(dbConfig.getProperty("db.pool.maxIdleTime", "0"))); // NB! Now in milliseconds
-    ds.setLeakDetectionThreshold(parseLong(dbConfig.getProperty("db.pool.unreturnedConnectionTimeout", "0")));
+    ds.setIdleTimeout(
+        parseLong(dbConfig.getProperty("db.pool.maxIdleTime", "0"))); // NB! Now in milliseconds
+    ds.setLeakDetectionThreshold(
+        parseLong(dbConfig.getProperty("db.pool.unreturnedConnectionTimeout", "0")));
     ds.setValidationTimeout(parseLong(dbConfig.getProperty("db.pool.validationTimeout", "5000")));
     ds.setLoginTimeout(parseInt(dbConfig.getProperty("db.pool.loginTimeout", "0"))); // in seconds
     ds.setMaxLifetime(parseLong(dbConfig.getProperty("db.pool.maxConnectionAge", "0"))); // in ms
@@ -49,25 +51,25 @@ public class HikariDataSourceFactory implements DataSourceFactory {
     // db.pool.maxStatementsPerConnection - HikariCP does not offer PreparedStatement caching
 
     // I could not find an analogue for HikariCP:
-//    ds.setAcquireRetryAttempts(parseInt(dbConfig.getProperty("db.pool.acquireRetryAttempts", "10")));
-//    ds.setAcquireRetryDelay(parseInt(dbConfig.getProperty("db.pool.acquireRetryDelay", "1000")));
-//    ds.setBreakAfterAcquireFailure(Boolean.parseBoolean(dbConfig.getProperty("db.pool.breakAfterAcquireFailure", "false")));
-//    ds.setTestConnectionOnCheckin(Boolean.parseBoolean(dbConfig.getProperty("db.pool.testConnectionOnCheckin", "true")));
-//    ds.setTestConnectionOnCheckout(Boolean.parseBoolean(dbConfig.getProperty("db.pool.testConnectionOnCheckout", "false")));
-//    ds.setMaxAdministrativeTaskTime(parseInt(dbConfig.getProperty("db.pool.maxAdministrativeTaskTime", "0")));
-//    ds.setNumHelperThreads(parseInt(dbConfig.getProperty("db.pool.numHelperThreads", "3")));
-//    ds.setDebugUnreturnedConnectionStackTraces(Boolean.parseBoolean(dbConfig.getProperty("db.pool.debugUnreturnedConnectionStackTraces", "false")));
-//    ds.setContextClassLoaderSource("library");
-//    ds.setPrivilegeSpawnedThreads(true);
+    //    ds.setAcquireRetryAttempts(parseInt(dbConfig.getProperty("db.pool.acquireRetryAttempts", "10")));
+    //    ds.setAcquireRetryDelay(parseInt(dbConfig.getProperty("db.pool.acquireRetryDelay", "1000")));
+    //    ds.setBreakAfterAcquireFailure(Boolean.parseBoolean(dbConfig.getProperty("db.pool.breakAfterAcquireFailure", "false")));
+    //    ds.setTestConnectionOnCheckin(Boolean.parseBoolean(dbConfig.getProperty("db.pool.testConnectionOnCheckin", "true")));
+    //    ds.setTestConnectionOnCheckout(Boolean.parseBoolean(dbConfig.getProperty("db.pool.testConnectionOnCheckout", "false")));
+    //    ds.setMaxAdministrativeTaskTime(parseInt(dbConfig.getProperty("db.pool.maxAdministrativeTaskTime", "0")));
+    //    ds.setNumHelperThreads(parseInt(dbConfig.getProperty("db.pool.numHelperThreads", "3")));
+    //    ds.setDebugUnreturnedConnectionStackTraces(Boolean.parseBoolean(dbConfig.getProperty("db.pool.debugUnreturnedConnectionStackTraces", "false")));
+    //    ds.setContextClassLoaderSource("library");
+    //    ds.setPrivilegeSpawnedThreads(true);
 
     if (dbConfig.getProperty("db.testquery") != null) {
       ds.setConnectionTestQuery(dbConfig.getProperty("db.testquery"));
     } else {
       String driverClass = dbConfig.getProperty("db.driver");
-            /*
-             * Pulled from http://dev.mysql.com/doc/refman/5.5/en/connector-j-usagenotes-j2ee-concepts-connection-pooling.html
-             * Yes, the select 1 also needs to be in there.
-             */
+      /*
+       * Pulled from http://dev.mysql.com/doc/refman/5.5/en/connector-j-usagenotes-j2ee-concepts-connection-pooling.html
+       * Yes, the select 1 also needs to be in there.
+       */
       if (driverClass.equals("com.mysql.jdbc.Driver")) {
         ds.setConnectionTestQuery("/* ping */ SELECT 1");
       }
@@ -129,4 +131,3 @@ public class HikariDataSourceFactory implements DataSourceFactory {
     return ((HikariConfig) ds).getUsername();
   }
 }
-

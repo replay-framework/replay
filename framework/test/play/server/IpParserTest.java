@@ -1,8 +1,8 @@
 package play.server;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class IpParserTest {
   private final IpParser parser = new IpParser();
@@ -11,8 +11,10 @@ public class IpParserTest {
   public void getRemoteIpAddress() {
     assertThat(parser.getRemoteIpAddress("127.0.0.1")).isEqualTo("127.0.0.1");
     assertThat(parser.getRemoteIpAddress("/192.168.0.10:66")).isEqualTo("192.168.0.10");
-    assertThat(parser.getRemoteIpAddress("fe80::3dd0:7f8e:57b7:34d5%19")).isEqualTo("fe80::3dd0:7f8e:57b7:34d5");
-    assertThat(parser.getRemoteIpAddress("fe80::71a3:2b00:ddd3:753f%eth0")).isEqualTo("fe80::71a3:2b00:ddd3:753f");
+    assertThat(parser.getRemoteIpAddress("fe80::3dd0:7f8e:57b7:34d5%19"))
+        .isEqualTo("fe80::3dd0:7f8e:57b7:34d5");
+    assertThat(parser.getRemoteIpAddress("fe80::71a3:2b00:ddd3:753f%eth0"))
+        .isEqualTo("fe80::71a3:2b00:ddd3:753f");
   }
 
   @Test
@@ -25,22 +27,26 @@ public class IpParserTest {
 
   @Test
   public void parseHost() {
-    assertThat(parser.parseHost("developer.mozilla.org")).usingRecursiveComparison()
-      .isEqualTo(new ServerAddress("developer.mozilla.org", 80, "developer.mozilla.org"));
+    assertThat(parser.parseHost("developer.mozilla.org"))
+        .usingRecursiveComparison()
+        .isEqualTo(new ServerAddress("developer.mozilla.org", 80, "developer.mozilla.org"));
 
-    assertThat(parser.parseHost("developer.mozilla.org:8088")).usingRecursiveComparison()
-      .isEqualTo(new ServerAddress("developer.mozilla.org", 8088, "developer.mozilla.org:8088"));
+    assertThat(parser.parseHost("developer.mozilla.org:8088"))
+        .usingRecursiveComparison()
+        .isEqualTo(new ServerAddress("developer.mozilla.org", 8088, "developer.mozilla.org:8088"));
   }
 
   @Test
   public void parseHost_null() {
-    assertThat(parser.parseHost(null)).usingRecursiveComparison()
-      .isEqualTo(new ServerAddress("", 80, ""));
+    assertThat(parser.parseHost(null))
+        .usingRecursiveComparison()
+        .isEqualTo(new ServerAddress("", 80, ""));
   }
 
   @Test
   public void parseHost_incorrectFormat() {
-    assertThat(parser.parseHost("[::1]:5001")).usingRecursiveComparison()
-      .isEqualTo(new ServerAddress("[::1]", 5001, "[::1]:5001"));
+    assertThat(parser.parseHost("[::1]:5001"))
+        .usingRecursiveComparison()
+        .isEqualTo(new ServerAddress("[::1]", 5001, "[::1]:5001"));
   }
 }

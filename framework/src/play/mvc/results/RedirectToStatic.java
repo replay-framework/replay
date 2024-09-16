@@ -8,33 +8,32 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
-/**
- * 302 Redirect
- */
+/** 302 Redirect */
 public class RedirectToStatic extends Result {
 
-    private final String file;
-    
-    public RedirectToStatic(String file) {
-        this.file = file;
-    }
+  private final String file;
 
-    @Override
-    public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
-        try {
-            response.status = Http.StatusCode.FOUND;
-            response.setHeader("Location", file);
-        } catch (Exception e) {
-            throw new UnexpectedException(e);
-        }
-    }
+  public RedirectToStatic(String file) {
+    this.file = file;
+  }
 
-    public String getFile() {
-        return file;
+  @Override
+  public void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+    try {
+      response.status = Http.StatusCode.FOUND;
+      response.setHeader("Location", file);
+    } catch (Exception e) {
+      throw new UnexpectedException(e);
     }
+  }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " " + file;
-    }
+  public String getFile() {
+    return file;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " " + file;
+  }
 }

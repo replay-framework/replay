@@ -1,11 +1,11 @@
 package play.mvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static play.mvc.Scope.Session.TS_KEY;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.Play;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static play.mvc.Scope.Session.TS_KEY;
 
 public class CookieSessionStoreTest {
   private final Http.Request request = new Http.Request();
