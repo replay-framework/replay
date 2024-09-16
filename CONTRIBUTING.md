@@ -95,7 +95,7 @@ Steps to release version, for example, version `X.Y.Z`:
    * Fill the release details (copy-paste from `CHANGELOG.md`)
    * Click "Publish release"
 10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "A.B.C-SNAPSHOT", where A/B/C are the next in line of X/Y/Z) and commit
-11. Create a new release on github: https://github.com/replay-framework/replay/releases
-12. Close milestone X.Y.Z and create a new milestone X.Y.Z: https://github.com/replay-framework/replay/milestones
+11. Create a new release on github -- https://github.com/replay-framework/replay/releases -- and save as "Draft"
+12. Close milestone X.Y.Z and create a new milestone A.B.C: https://github.com/replay-framework/replay/milestones
 
 
