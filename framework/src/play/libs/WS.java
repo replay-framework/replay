@@ -16,7 +16,7 @@ import play.libs.ws.WSRequest;
  * // the real pain begins here...
  * </pre>
  *
- * <p>Search what Yahoo! thinks of google (starting from the 30th result).
+ * <p>Search what Yahoo! thinks of Google (starting from the 30th result).
  *
  * <pre>
  * HttpResponse response = WS.url("http://search.yahoo.com/search?p=<em>%s</em>&amp;pstart=1&amp;b=<em>%s</em>", "Google killed me", "30").get();

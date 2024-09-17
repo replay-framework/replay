@@ -112,9 +112,9 @@ public class Lang {
    *
    * @param desiredLocales a collection of desired locales. If the collection is ordered, earlier
    *     locales are preferred over later ones. Locales should be of the form "[language]_[country"
-   *     or "[language]", e.g. "en_CA" or "en". The locale strings are case insensitive (e.g.
+   *     or "[language]", e.g. "en_CA" or "en". The locale strings are case-insensitive (e.g.
    *     "EN_CA" is considered the same as "en_ca"). Locales can also be of the form
-   *     "[language]-[country", e.g. "en-CA" or "en". They are still case insensitive, though (e.g.
+   *     "[language]-[country", e.g. "en-CA" or "en". They are still case-insensitive, though (e.g.
    *     "EN-CA" is considered the same as "en-ca").
    * @return the closest matching locale. If no closest match for a language/country is found, null
    *     is returned

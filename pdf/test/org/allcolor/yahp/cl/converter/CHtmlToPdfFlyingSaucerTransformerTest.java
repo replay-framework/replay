@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 public class CHtmlToPdfFlyingSaucerTransformerTest {
+
   CHtmlToPdfFlyingSaucerTransformer transformer = new CHtmlToPdfFlyingSaucerTransformer();
 
   @Test
@@ -42,18 +43,18 @@ public class CHtmlToPdfFlyingSaucerTransformerTest {
             + "</html>\n"
             + "<script>$.migrateMute = false;</script>\n"
             + "<script src=\"/public/gen/main.js?16b1e5a0df\"></script>";
-    assertThat(removeScript(html))
-        .isEqualTo(
-            "<!DOCTYPE html>\n"
-                + "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-                + "  <head>\n"
-                + "<style type=\"text/css\">\n"
-                + "/*<![CDATA[*/"
-                + "</style>\n"
-                + "\n"
-                + "\n"
-                + "</head>\n"
-                + "</html>\n\n");
+    String html2 =
+        "<!DOCTYPE html>\n"
+            + "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+            + "  <head>\n"
+            + "<style type=\"text/css\">\n"
+            + "/*<![CDATA[*/"
+            + "</style>\n"
+            + "\n"
+            + "\n"
+            + "</head>\n"
+            + "</html>\n\n";
+    assertThat(removeScript(html)).isEqualTo(html2);
   }
 
   @Test

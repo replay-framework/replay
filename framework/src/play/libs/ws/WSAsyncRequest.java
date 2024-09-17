@@ -436,11 +436,11 @@ class WSAsyncRequest extends WSRequest {
                     ? Arrays.asList((Object[]) value)
                     : (Collection<?>) value;
             for (Object v : values) {
-              // must encode it since AHC uses raw urls
+              // Must encode it since AHC uses raw urls
               builder.addQueryParam(encode(key), encode(v.toString()));
             }
           } else {
-            // must encode it since AHC uses raw urls
+            // Must encode it since AHC uses raw urls
             builder.addQueryParam(encode(key), encode(value.toString()));
           }
         }

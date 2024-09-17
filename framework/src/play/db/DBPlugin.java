@@ -253,9 +253,9 @@ public class DBPlugin extends PlayPlugin {
       return this.driver.jdbcCompliant();
     }
 
-    // Method not annotated with @Override since getParentLogger() is a new method
-    // in the CommonDataSource interface starting with JDK7 and this annotation
-    // would cause compilation errors with JDK6.
+    // Method not annotated with @Override since getParentLogger() is a new method in the
+    // CommonDataSource interface starting with JDK7 and this annotation would cause compilation
+    // errors with JDK6.
     @Override
     public java.util.logging.Logger getParentLogger() {
       try {

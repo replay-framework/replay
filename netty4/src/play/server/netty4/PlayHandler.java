@@ -518,19 +518,17 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
   private static InputStream readBody(FullHttpRequest nettyRequest) {
     InputStream body;
     ByteBuf b = nettyRequest.content();
-    //if (b instanceof FileChannelBuffer) {
+    // if (b instanceof FileChannelBuffer) {
     //    FileChannelBuffer buffer = (FileChannelBuffer) b;
     //    // An error occurred
     //    int max = serverHelper.maxContentLength();
-
     //    body = buffer.getInputStream();
     //    if (!(max == -1 || body.available() < max)) {
     //        body = new ByteArrayInputStream(new byte[0]);
     //    }
-
-    //} else {
+    // } else {
     body = new ByteBufInputStream(b);
-    //}
+    // }
     return body;
   }
 

@@ -71,10 +71,8 @@ public class PluginCollectionTest {
   /**
    * Avoid including the same class+index twice.
    *
-   * <p>This happened in the past under a range of circumstances, including: 1. Class path on NTFS
-   * or other case-insensitive file system includes "play.plugins" directory 2x
-   * (C:/myproject/conf;c:/myproject/conf) 2.
-   * https://play.lighthouseapp.com/projects/57987/tickets/176-app-playplugins-loaded-twice-conf-on-2-classpaths
+   * <p>This happened in the past under a range of circumstances, including: Class path on NTFS or
+   * other case-insensitive file system includes "play.plugins" directory 2 times.
    */
   @Test
   public void skipsDuplicatePlugins() {

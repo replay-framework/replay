@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
 
 class ByteRange {
+
   private static final Logger logger = LoggerFactory.getLogger(ByteRange.class);
 
   private final String file;

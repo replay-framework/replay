@@ -171,12 +171,12 @@ class JavaWithCaching {
               Integer priority2 = (Integer) priority.invoke(m2.getAnnotation(annotationType));
               return priority1.compareTo(priority2);
             } catch (Exception e) {
-              // should not happen
+              // Should not happen
               throw new RuntimeException(e);
             }
           });
     } catch (NoSuchMethodException e) {
-      // no need to sort - this annotation doesn't have priority() method
+      // No need to sort - this annotation doesn't have priority() method
     }
   }
 
@@ -188,13 +188,13 @@ class JavaWithCaching {
    */
   public List<Method> findAllAnnotatedMethods(Class<?> clazz) {
     synchronized (classAndAnnotationsLock) {
-      // first check the cache..
+      // First check the cache.
       List<Method> methods = class2AllMethodsWithAnnotations.get(clazz);
       if (methods != null) {
-        // cache hit
+        // Cache hit
         return methods;
       }
-      // have to resolve it..
+      // Have to resolve it.
       methods = new ArrayList<>();
       // Clazz can be null if we are looking at an interface / annotation
       while (clazz != null && !clazz.equals(Object.class)) {
@@ -211,7 +211,7 @@ class JavaWithCaching {
         clazz = clazz.getSuperclass();
       }
 
-      // store it in the cache.
+      // Store it in the cache.
       class2AllMethodsWithAnnotations.put(clazz, methods);
       return methods;
     }

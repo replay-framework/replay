@@ -19,7 +19,7 @@ import play.template2.exceptions.GTCompilationException;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 import play.template2.legacy.GTLegacyFastTagResolver;
 
-// This parsing code need some refactoring...
+// TODO: This parsing code need some refactoring...
 public class GTPreCompiler {
 
   public static final String generatedPackageName = "play.template2.generated_templates";

@@ -61,17 +61,22 @@ public class Play {
 
   /** All paths to search for templates files */
   public static List<File> templatesPath = new ArrayList<>(2);
+
   /** The routes file */
   public static ClasspathResource routes;
 
   /** The app configuration (already resolved from the framework id) */
   public static Properties configuration = new Properties();
+
   /** The last time than the application has started */
   public static long startedAt;
+
   /** The list of supported locales */
   public static List<String> langs = new ArrayList<>(16);
+
   /** The very secret key */
   public static String secretKey;
+
   /** pluginCollection that holds all loaded plugins and all enabled plugins */
   public static PluginCollection pluginCollection = new PluginCollection();
 

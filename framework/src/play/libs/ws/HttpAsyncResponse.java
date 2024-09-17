@@ -77,9 +77,9 @@ public class HttpAsyncResponse extends HttpResponse {
   }
 
   /**
-   * get the response as a stream
+   * Get the response as a stream
    *
-   * @return an inputstream
+   * @return an InputStream
    */
   @Override
   public InputStream getStream() {

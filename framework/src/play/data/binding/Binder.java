@@ -90,7 +90,7 @@ public abstract class Binder {
    * <p>E.g. @{code Binder.register(BigDecimal.class, new MyBigDecimalBinder());}
    *
    * <p>NB! Do not forget to UNREGISTER your custom binder when applications is reloaded (most
-   * probably in method onApplicationStop()). Otherwise you will have a memory leak.
+   * probably in method onApplicationStop()). Otherwise, you will have a memory leak.
    *
    * @param clazz The class to register
    * @param typeBinder The custom binder
@@ -102,7 +102,7 @@ public abstract class Binder {
   }
 
   /**
-   * Remove custom binder that was add with method #register(java.lang.Class,
+   * Remove custom binder that was added with method #register(java.lang.Class,
    * play.data.binding.TypeBinder)
    *
    * @param clazz The class to remove the custom binder
@@ -638,7 +638,7 @@ public abstract class Binder {
       Class<?> clazz,
       Type type)
       throws ParseException {
-    // calls the direct binding and returns null if no value could be resolved..
+    // Calls the direct binding and returns null if no value could be resolved.
     Object r = internalDirectBind(name, request, session, annotations, value, clazz, type);
     if (r == DIRECTBINDING_NO_RESULT) {
       return null;
@@ -647,8 +647,8 @@ public abstract class Binder {
     }
   }
 
-  // If internalDirectBind was not able to bind it, it returns a special variable instance: DIRECTBIND_MISSING
-  // Needs this because sometimes we need to know if no value was returned..
+  // If internalDirectBind was not able to bind it, it returns a special variable instance: DIRECTBIND_MISSING.
+  // Needs this because sometimes we need to know if no value was returned.
   @Nullable
   private static Object internalDirectBind(
       String name,

@@ -87,7 +87,7 @@ public class Configuration {
    *
    * @param key the key of the parameter
    * @param value the value of the parameter
-   * @return the previous value of the specified key in this hashtable, or null if it did not have
+   * @return the previous value of the key in this hashtable, or null if it did not have
    *     one
    */
   public Object put(String key, String value) {

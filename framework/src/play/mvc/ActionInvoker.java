@@ -491,8 +491,7 @@ public class ActionInvoker {
     // Check if we have already performed the bind operation
     Object[] rArgs = CachedBoundActionMethodArgs.current().retrieveActionMethodArgs(method);
     if (rArgs != null) {
-      // We have already performed the binding-operation for this method
-      // in this request.
+      // We have already performed the binding-operation for this method in this request.
       return rArgs;
     }
 

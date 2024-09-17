@@ -67,7 +67,7 @@ public class PlayLoggingSetupTest {
 
   @Test
   public void init_with_default_config() {
-    // delete the conf/log4j.properties from test classpath and fallback to the framework log4j.properties
+    // Delete the conf/log4j.properties from test classpath and fallback to the framework log4j.properties
     File confProp = new File(getClass().getResource("/conf/log4j.properties").getFile());
     assertThat(confProp.delete()).isTrue();
     loggingSetup.init();

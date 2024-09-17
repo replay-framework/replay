@@ -20,13 +20,12 @@ public abstract class Template {
    * @return the result of the complete rendering
    */
   public String render(Map<String, Object> args) {
-    // starts the internal recursive rendering process with
-    // a copy of the passed args-map. This is done
-    // to prevent us from pollution the users map with
-    // template-rendering-specific internal data
+    // Starts the internal recursive rendering process with a copy of the passed args-map.
+    // This is done to prevent us from pollution the users map with template-rendering-specific
+    // internal data.
     //
-    // Since the original args is not polluted it can be used as input
-    // to another rendering operation later
+    // Since the original args are not polluted it can be used as input to another rendering
+    // operation later.
     return internalRender(new HashMap<>(args));
   }
 

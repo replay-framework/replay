@@ -200,15 +200,14 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
       return res;
     }
 
-    // index is equal in both plugins.
-    // Sort on class type to get consistent order
+    // If indices are equal in both plugins: sort on class type to get consistent order
     res = this.getClass().getName().compareTo(o.getClass().getName());
     if (res != 0) {
       // class names where different
       return res;
     }
 
-    // Identical classnames.
+    // Identical class names.
     // Sort on instance to get consistent order.
     // We only return 0 (equal) if both identityHashCode are identical
     // which is only the case if both this and other are the same object instance.

@@ -15,6 +15,7 @@ import play.Play.Mode;
 
 @ParametersAreNonnullByDefault
 public class Server {
+
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
   @Deprecated public static int httpPort;
@@ -31,8 +32,8 @@ public class Server {
     httpPort = port;
   }
 
-  /*
-   * Inspired by https://dzone.com/articles/simple-http-server-in-java
+  /**
+   * Inspired by <a href="https://dzone.com/articles/simple-http-server-in-java">this article</a>.
    */
   public int start() {
     System.setProperty("file.encoding", "utf-8");

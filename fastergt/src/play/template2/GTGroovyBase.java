@@ -20,7 +20,7 @@ public class GTGroovyBase extends Script {
     try {
       return super.getProperty(property);
     } catch (MissingPropertyException mpe) {
-      // Just return null if not found - but check layoutData also..
+      // Just return null if not found - but check layoutData also.
       return GTJavaBase.layoutData.get().get(property); // will return null if not found
     }
   }
@@ -36,7 +36,7 @@ public class GTGroovyBase extends Script {
     if (out == null) {
       // Create PrintWriter that prints to our StringWriter
       GTJavaBase javaBase = (GTJavaBase) getProperty("java_class");
-      out = new PrintWriter(javaBase.out, true); // autoflush
+      out = new PrintWriter(javaBase.out, true); // auto flush
     }
     return out;
   }

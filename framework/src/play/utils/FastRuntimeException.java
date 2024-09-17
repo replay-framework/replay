@@ -3,7 +3,7 @@ package play.utils;
 /**
  * Fast Exception - skips creating stackTrace.
  *
- * <p>More info here: http://www.javaspecialists.eu/archive/Issue129.html
+ * <p>More info <a href="http://www.javaspecialists.eu/archive/Issue129.html">here</a>.
  */
 public class FastRuntimeException extends RuntimeException {
 

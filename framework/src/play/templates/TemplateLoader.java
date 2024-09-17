@@ -64,13 +64,6 @@ public class TemplateLoader {
       }
     }
 
-    /*
-     * if (template == null) { //When using the old 'key = (file.relativePath().hashCode() + "").replace("-",
-     * "M");', //the next line never return anything, since all values written to templates is using the //above
-     * key. //when using just file.relativePath() as key, the next line start returning stuff.. //therefor I have
-     * commented it out. template = templates.get(path); }
-     */
-    // TODO: remove ?
     File tf = Play.file(path);
     if (tf != null) {
       return TemplateLoader.load(tf);
