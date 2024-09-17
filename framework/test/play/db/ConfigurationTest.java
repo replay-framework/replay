@@ -2,7 +2,12 @@ package play.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.Play;

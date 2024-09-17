@@ -5,7 +5,13 @@ import static java.util.Collections.emptyList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import play.exceptions.UnexpectedException;

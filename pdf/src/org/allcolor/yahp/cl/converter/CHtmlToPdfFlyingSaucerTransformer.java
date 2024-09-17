@@ -5,7 +5,14 @@ import static java.util.Objects.requireNonNullElse;
 
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -22,7 +29,13 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  * This class transform a html document in a PDF.

@@ -1,6 +1,12 @@
 package play.mvc.routing;
 
-import static play.mvc.Http.Methods.*;
+import static play.mvc.Http.Methods.DELETE;
+import static play.mvc.Http.Methods.GET;
+import static play.mvc.Http.Methods.HEAD;
+import static play.mvc.Http.Methods.OPTIONS;
+import static play.mvc.Http.Methods.PATCH;
+import static play.mvc.Http.Methods.POST;
+import static play.mvc.Http.Methods.PUT;
 
 import java.util.Set;
 

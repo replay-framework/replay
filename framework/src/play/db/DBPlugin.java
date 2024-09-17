@@ -1,6 +1,10 @@
 package play.db;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;

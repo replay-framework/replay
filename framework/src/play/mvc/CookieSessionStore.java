@@ -1,6 +1,9 @@
 package play.mvc;
 
-import static play.mvc.Scope.*;
+import static play.mvc.Scope.COOKIE_PREFIX;
+import static play.mvc.Scope.COOKIE_SECURE;
+import static play.mvc.Scope.SESSION_HTTPONLY;
+import static play.mvc.Scope.Session;
 import static play.mvc.Scope.Session.TS_KEY;
 
 import javax.annotation.Nonnull;

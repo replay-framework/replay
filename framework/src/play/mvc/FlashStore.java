@@ -1,6 +1,8 @@
 package play.mvc;
 
-import static play.mvc.Scope.*;
+import static play.mvc.Scope.COOKIE_PREFIX;
+import static play.mvc.Scope.COOKIE_SECURE;
+import static play.mvc.Scope.SESSION_HTTPONLY;
 
 import jakarta.inject.Singleton;
 import java.util.Map;

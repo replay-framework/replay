@@ -2,7 +2,9 @@ package ui.petstore;
 
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.open;
 
 import org.junit.jupiter.api.Test;
 

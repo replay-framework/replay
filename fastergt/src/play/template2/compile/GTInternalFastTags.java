@@ -6,9 +6,18 @@ import static play.utils.HTML.htmlEscape;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import play.Play;
-import play.template2.*;
+import play.template2.GTContentRenderer;
+import play.template2.GTFastTag;
+import play.template2.GTJavaBase;
+import play.template2.GTRenderingResult;
+import play.template2.GTTagContext;
+import play.template2.GTTemplateLocationReal;
 import play.template2.exceptions.GTTemplateRuntimeException;
 import play.template2.legacy.GTContentRendererFakeClosure;
 

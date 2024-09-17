@@ -21,7 +21,11 @@ import play.inject.BeanSource;
 import play.inject.DefaultBeanSource;
 import play.inject.Injector;
 import play.jobs.Job;
-import play.mvc.*;
+import play.mvc.ActionInvoker;
+import play.mvc.CookieSessionStore;
+import play.mvc.PlayController;
+import play.mvc.Router;
+import play.mvc.SessionStore;
 import play.plugins.PluginCollection;
 import play.templates.TemplateLoader;
 

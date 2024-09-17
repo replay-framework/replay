@@ -3,7 +3,11 @@ package play.mvc.results;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.stream.Stream;

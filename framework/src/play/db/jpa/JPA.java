@@ -1,6 +1,10 @@
 package play.db.jpa;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.PersistenceUnit;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.hibernate.Session;

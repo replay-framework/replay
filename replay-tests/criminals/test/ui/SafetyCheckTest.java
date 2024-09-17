@@ -1,7 +1,9 @@
 package ui;
 
 import static com.codeborne.selenide.Selenide.open;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import org.junit.jupiter.api.Test;
 

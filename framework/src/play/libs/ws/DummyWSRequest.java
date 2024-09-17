@@ -1,7 +1,14 @@
 package play.libs.ws;
 
 import static java.util.Collections.emptyMap;
-import static play.libs.ws.HttpMethod.*;
+import static play.libs.ws.HttpMethod.DELETE;
+import static play.libs.ws.HttpMethod.GET;
+import static play.libs.ws.HttpMethod.HEAD;
+import static play.libs.ws.HttpMethod.OPTIONS;
+import static play.libs.ws.HttpMethod.PATCH;
+import static play.libs.ws.HttpMethod.POST;
+import static play.libs.ws.HttpMethod.PUT;
+import static play.libs.ws.HttpMethod.TRACE;
 
 import java.util.HashMap;
 import java.util.Map;

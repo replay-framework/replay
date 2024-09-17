@@ -5,7 +5,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import play.libs.I18N;
 
 /** Try to unbind an object to a Map&lt;String,String&gt; */

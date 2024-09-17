@@ -3,7 +3,11 @@ package play.template2;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import play.template2.compile.*;
+import play.template2.compile.GTGroovyPimpTransformer;
+import play.template2.compile.GTJavaBaseTesterImpl;
+import play.template2.compile.GTJavaExtensionMethodResolver;
+import play.template2.compile.GTPreCompiler;
+import play.template2.compile.GTPreCompilerFactory;
 
 public class GTTemplateRepoBuilder {
 

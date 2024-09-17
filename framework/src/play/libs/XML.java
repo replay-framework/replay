@@ -1,13 +1,24 @@
 package play.libs;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.security.Key;
 import java.security.Provider;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import javax.xml.crypto.KeySelector;
-import javax.xml.crypto.dsig.*;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.Reference;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.crypto.dsig.SignedInfo;
+import javax.xml.crypto.dsig.Transform;
+import javax.xml.crypto.dsig.XMLSignature;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;

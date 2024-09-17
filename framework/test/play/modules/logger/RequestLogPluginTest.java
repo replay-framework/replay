@@ -3,7 +3,9 @@ package play.modules.logger;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
