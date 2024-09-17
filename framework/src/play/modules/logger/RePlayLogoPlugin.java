@@ -15,15 +15,13 @@ public class RePlayLogoPlugin extends PlayPlugin {
 
   /** The most important thing: A cool logo. */
   private static final String REPLAY_LOGO =
-      """
-
-              _____ _____  ___      ___  _
-             /    //    / |   \\ ___|   \\| | ___ _  _
-            /    //    /  | ' // -_) '_/| |/ _ | \\| |
-           /    //    /   |_|_\\\\___|_|  |_|\\___|\\_  /
-          /____//____/                           /_/
-                          RePlay Framework {}, https://github.com/replay-framework/replay
-          """;
+      "\n"
+          + "    _____ _____  ___      ___  _\n"
+          + "   /    //    / |   \\ ___|   \\| | ___ _  _\n"
+          + "  /    //    /  | ' // -_) '_/| |/ _ | \\| |\n"
+          + " /    //    /   |_|_\\\\___|_|  |_|\\___|\\_  /\n"
+          + "/____//____/                           /_/\n"
+          + "                RePlay Framework {}, https://github.com/replay-framework/replay\n";
 
   private static final String REPLAY_VERSION_LOCATION = "play/version";
 

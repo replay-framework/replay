@@ -58,6 +58,7 @@ public class PlayLoggingSetupTest {
   }
 
   @Test
+  // This test sometimes fails from IntelliJ, but succeeds from the command line (`./gradlew check`)
   public void init_with_conf_dir() {
     loggingSetup.init();
     Logger log4jLogger = Logger.getLogger("logtest.confdir");
@@ -66,6 +67,7 @@ public class PlayLoggingSetupTest {
   }
 
   @Test
+  // This test sometimes fails from IntelliJ, but succeeds from the command line (`./gradlew check`)
   public void init_with_default_config() {
     // Delete the conf/log4j.properties from test classpath and fallback to the framework log4j.properties
     File confProp = new File(getClass().getResource("/conf/log4j.properties").getFile());
