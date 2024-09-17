@@ -159,18 +159,20 @@ public class GenericModel extends JPABase {
           if (JPABase.class.isAssignableFrom(c)) {
             String keyName = Model.Manager.factoryFor(c).keyName();
             if (multiple && Collection.class.isAssignableFrom(field.getType())) {
-              Collection l = new ArrayList<>();
+              Collection<Object> l;
               if (SortedSet.class.isAssignableFrom(field.getType())) {
-                l = new TreeSet();
+                l = new TreeSet<>();
               } else if (Set.class.isAssignableFrom(field.getType())) {
-                l = new HashSet();
+                l = new HashSet<>();
+              } else {
+                l = new ArrayList<>();
               }
               String[] ids = fieldParamNode.getChild(keyName, true).getValues();
               if (ids != null) {
                 // Remove it to prevent us from finding it again later
                 fieldParamNode.removeChild(keyName, removedNodesList);
-                for (String _id : ids) {
-                  if (_id == null || _id.equals("")) {
+                for (String localId : ids) {
+                  if (localId == null || localId.isEmpty()) {
                     continue;
                   }
 
@@ -184,21 +186,21 @@ public class GenericModel extends JPABase {
                           request,
                           session,
                           annotations,
-                          _id,
+                          localId,
                           Model.Manager.factoryFor(loadClass(relation)).keyType(),
                           null));
                   try {
                     l.add(q.getSingleResult());
 
                   } catch (NoResultException e) {
-                    Validation.addError(name + "." + field.getName(), "validation.notFound", _id);
+                    Validation.addError(name + "." + field.getName(), "validation.notFound", localId);
                   }
                 }
                 bw.set(field.getName(), o, l);
               }
             } else {
               String[] ids = fieldParamNode.getChild(keyName, true).getValues();
-              if (ids != null && ids.length > 0 && !ids[0].equals("")) {
+              if (ids != null && ids.length > 0 && !ids[0].isEmpty()) {
 
                 Query q =
                     JPA.em(dbName).createQuery("from " + relation + " where " + keyName + " = ?1");
@@ -224,13 +226,13 @@ public class GenericModel extends JPABase {
                   // Remove only the key to prevent us from finding it again later
                   // This how the old impl does it.
                   fieldParamNode.removeChild(keyName, removedNodesList);
-                  if (fieldParamNode.getAllChildren().size() == 0) {
-                    // remove the whole node..
+                  if (fieldParamNode.getAllChildren().isEmpty()) {
+                    // Remove the whole node.
                     paramNode.removeChild(field.getName(), removedNodesList);
                   }
                 }
 
-              } else if (ids != null && ids.length > 0 && ids[0].equals("")) {
+              } else if (ids != null && ids.length > 0 && ids[0].isEmpty()) {
                 bw.set(field.getName(), o, null);
                 // Remove the key to prevent us from finding it again later
                 fieldParamNode.removeChild(keyName, removedNodesList);

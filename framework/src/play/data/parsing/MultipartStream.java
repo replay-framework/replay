@@ -274,7 +274,7 @@ public class MultipartStream {
    */
   public boolean readBoundary() throws MalformedStreamException {
     byte[] marker = new byte[2];
-    boolean nextChunk = false;
+    boolean nextChunk;
 
     head += boundaryLength;
     try {
@@ -290,9 +290,9 @@ public class MultipartStream {
       }
 
       marker[1] = readByte();
-      if (arrayequals(marker, STREAM_TERMINATOR, 2)) {
+      if (arraysEqual(marker, STREAM_TERMINATOR, 2)) {
         nextChunk = false;
-      } else if (arrayequals(marker, FIELD_SEPARATOR, 2)) {
+      } else if (arraysEqual(marker, FIELD_SEPARATOR, 2)) {
         nextChunk = true;
       } else {
         throw new MalformedStreamException("Unexpected characters follow a boundary");
@@ -447,7 +447,7 @@ public class MultipartStream {
    * @return <code>true</code> if <code>count</code> first bytes in arrays <code>a</code> and <code>
    *     b</code> are equal.
    */
-  public static boolean arrayequals(byte[] a, byte[] b, int count) {
+  private static boolean arraysEqual(byte[] a, byte[] b, int count) {
     for (int i = 0; i < count; i++) {
       if (a[i] != b[i]) {
         return false;
@@ -485,10 +485,10 @@ public class MultipartStream {
   protected int findSeparator() {
     int first;
     int match = 0;
-    int maxpos = tail - boundaryLength;
-    for (first = head; (first <= maxpos) && (match != boundaryLength); first++) {
+    int maxPos = tail - boundaryLength;
+    for (first = head; (first <= maxPos) && (match != boundaryLength); first++) {
       first = findByte(boundary[0], first);
-      if (first == -1 || (first > maxpos)) {
+      if (first == -1 || (first > maxPos)) {
         return -1;
       }
       for (match = 1; match < boundaryLength; match++) {
@@ -564,11 +564,7 @@ public class MultipartStream {
     private void findSeparator() {
       pos = MultipartStream.this.findSeparator();
       if (pos == -1) {
-        if (tail - head > keepRegion) {
-          pad = keepRegion;
-        } else {
-          pad = tail - head;
-        }
+        pad = Math.min(tail - head, keepRegion);
       }
     }
 
@@ -584,16 +580,16 @@ public class MultipartStream {
     /**
      * Returns the number of bytes, which are currently available, without blocking.
      *
-     * @throws IOException An I/O error occurs.
      * @return Number of bytes in the buffer.
      */
     @Override
-    public int available() throws IOException {
+    public int available() {
       if (pos == -1) {
         return tail - head - pad;
       }
       return pos - head;
     }
+
     /** Offset when converting negative bytes to integers. */
     private static final int BYTE_POSITIVE_OFFSET = 256;
 

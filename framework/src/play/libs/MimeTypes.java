@@ -2,7 +2,6 @@ package play.libs;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +40,7 @@ public class MimeTypes {
     if (matcher.matches()) {
       ext = matcher.group(1);
     }
-    if (ext.length() > 0) {
+    if (!ext.isEmpty()) {
       String mimeType = mimetypes().getProperty(ext);
       if (mimeType == null) {
         return defaultMimeType;
@@ -94,7 +93,7 @@ public class MimeTypes {
   public static boolean isValidMimeType(String mimeType) {
     if (mimeType == null) {
       return false;
-    } else if (mimeType.indexOf(";") != -1) {
+    } else if (mimeType.contains(";")) {
       return mimetypes().contains(mimeType.split(";")[0]);
     } else {
       return mimetypes().contains(mimeType);
@@ -117,12 +116,11 @@ public class MimeTypes {
       logger.error("Failed to read file {}", fileName, ex);
     }
     // Load custom mimetypes from the application configuration
-    Enumeration<Object> confenum = Play.configuration.keys();
-    while (confenum.hasMoreElements()) {
-      String key = (String) confenum.nextElement();
+    for (Object o : Play.configuration.keySet()) {
+      String key = (String) o;
       if (key.startsWith("mimetype.")) {
         String type = key.substring(key.indexOf('.') + 1).toLowerCase();
-        String value = (String) Play.configuration.get(key);
+        String value = Play.configuration.getProperty(key);
         mimetypes.setProperty(type, value);
       }
     }

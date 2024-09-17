@@ -23,25 +23,22 @@ public class BinaryBinder implements TypeBinder<Model.BinaryField> {
       String value,
       Class actualClass,
       Type genericType) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
     try {
-      if (request.args != null) {
-        Model.BinaryField b =
-            (Model.BinaryField) actualClass.getDeclaredConstructor().newInstance();
-        List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-        if (uploads != null) {
-          for (Upload upload : uploads) {
-            if (upload.getFieldName().equals(value) && upload.getFileName().trim().length() > 0) {
-              b.set(upload.asStream(), upload.getContentType());
-              return b;
-            }
+      Model.BinaryField b = (Model.BinaryField) actualClass.getDeclaredConstructor().newInstance();
+      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+      if (uploads != null) {
+        for (Upload upload : uploads) {
+          if (upload.getFieldName().equals(value) && !upload.getFileName().trim().isEmpty()) {
+            b.set(upload.asStream(), upload.getContentType());
+            return b;
           }
         }
       }
 
-      if (request.params != null && request.params.get(value + "_delete_") != null) {
+      if (request.params.get(value + "_delete_") != null) {
         return null;
       }
       return Binder.MISSING;

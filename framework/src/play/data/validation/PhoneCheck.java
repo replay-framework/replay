@@ -12,7 +12,7 @@ public class PhoneCheck extends AbstractAnnotationCheck<Phone> {
 
   static Pattern phonePattern =
       Pattern.compile(
-          "^([\\+][0-9]{1,3}([ \\.\\-]))?([\\(]{1}[0-9]{1,6}[\\)])?([0-9 \\.\\-/]{3,20})((x|ext|extension)[ ]?[0-9]{1,4})?$");
+          "^([+][0-9]{1,3}([ .\\-]))?([(][0-9]{1,6}[)])?([0-9 .\\-/]{3,20})((x|ext|extension) ?[0-9]{1,4})?$");
 
   @Override
   public void configure(Phone phone) {
@@ -23,7 +23,7 @@ public class PhoneCheck extends AbstractAnnotationCheck<Phone> {
   public boolean isSatisfied(
       Object validatedObject, Object value, OValContext context, Validator validator)
       throws OValException {
-    if (value == null || value.toString().length() == 0) {
+    if (value == null || value.toString().isEmpty()) {
       return true;
     }
     return phonePattern.matcher(value.toString()).matches();

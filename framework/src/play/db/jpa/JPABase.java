@@ -144,7 +144,7 @@ public class JPABase implements Serializable, play.db.Model {
           Object value = field.get(this);
           if (value != null) {
             if (value instanceof PersistentMap) {
-              if (((PersistentMap) value).wasInitialized()) {
+              if (((PersistentMap<?, ?>) value).wasInitialized()) {
 
                 cascadeOrphans((PersistentCollection) value, willBeSaved);
 

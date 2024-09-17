@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.mail.BodyPart;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
@@ -62,9 +61,9 @@ public class LegacyMockMailSystem implements MailSystem {
       content.append("\n");
       logger.info(content.toString());
 
-      for (Object add : email.getToAddresses()) {
+      for (InternetAddress add : email.getToAddresses()) {
         content.append(", ").append(add);
-        emails.put(((InternetAddress) add).getAddress(), content.toString());
+        emails.put(add.getAddress(), content.toString());
       }
       return true;
 
@@ -78,33 +77,26 @@ public class LegacyMockMailSystem implements MailSystem {
 
     if (message.getContent() instanceof String) {
       return message.getContentType() + ": " + message.getContent() + " \n\t";
-    } else if (message.getContent() != null && message.getContent() instanceof Multipart) {
-      Multipart part = (Multipart) message.getContent();
-      String text = "";
+    } else if (message.getContent() != null && message.getContent() instanceof Multipart part) {
+      StringBuilder text = new StringBuilder();
       for (int i = 0; i < part.getCount(); i++) {
         BodyPart bodyPart = part.getBodyPart(i);
-        if (!Message.ATTACHMENT.equals(bodyPart.getDisposition())) {
-          text += getContent(bodyPart);
+        if (!Part.ATTACHMENT.equals(bodyPart.getDisposition())) {
+          text.append(getContent(bodyPart));
         } else {
-          text +=
-              "attachment: \n"
-                  + "\t\t name: "
-                  + (StringUtils.isEmpty(bodyPart.getFileName()) ? "none" : bodyPart.getFileName())
-                  + "\n"
-                  + "\t\t disposition: "
-                  + bodyPart.getDisposition()
-                  + "\n"
-                  + "\t\t description: "
-                  + (StringUtils.isEmpty(bodyPart.getDescription())
-                      ? "none"
-                      : bodyPart.getDescription())
-                  + "\n\t";
+          text.append("attachment: \n" + "\t\t name: ")
+              .append(StringUtils.isEmpty(bodyPart.getFileName()) ? "none" : bodyPart.getFileName())
+              .append("\n").append("\t\t disposition: ").append(bodyPart.getDisposition())
+              .append("\n").append("\t\t description: ")
+              .append(StringUtils.isEmpty(bodyPart.getDescription())
+                  ? "none"
+                  : bodyPart.getDescription()).append("\n\t");
         }
       }
-      return text;
+      return text.toString();
     }
     if (message.getContent() != null && message.getContent() instanceof Part) {
-      if (!Message.ATTACHMENT.equals(message.getDisposition())) {
+      if (!Part.ATTACHMENT.equals(message.getDisposition())) {
         return getContent((Part) message.getContent());
       } else {
         return "attachment: \n"

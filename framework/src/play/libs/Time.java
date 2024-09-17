@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * &quot;2d&quot;, &quot;1w2d3h10s&quot; or &quot;2d4h10s&quot;.
  */
 public class Time {
-  private static final Pattern p = Pattern.compile("(([0-9]+?)((d|h|mi|min|mn|s)))+?");
+  private static final Pattern TIME_CHUNKS = Pattern.compile("(([0-9]+?)(d|h|mi|min|mn|s))+?");
   private static final Integer MINUTE = 60;
   private static final Integer HOUR = 60 * MINUTE;
   private static final Integer DAY = 24 * HOUR;
@@ -28,7 +28,7 @@ public class Time {
       throw new IllegalArgumentException("duration cannot be null");
     }
 
-    Matcher matcher = p.matcher(duration);
+    Matcher matcher = TIME_CHUNKS.matcher(duration);
     int seconds = 0;
     if (!matcher.matches()) {
       throw new IllegalArgumentException(

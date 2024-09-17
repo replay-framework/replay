@@ -1,5 +1,6 @@
 package play.mvc;
 
+import java.util.Objects;
 import play.data.validation.Validation;
 import play.mvc.results.BadRequest;
 import play.mvc.results.Forbidden;
@@ -28,7 +29,7 @@ public class Controller implements PlayContextController {
 
   protected void checkAuthenticity() {
     if (params.get("authenticityToken") == null
-        || !params.get("authenticityToken").equals(session.getAuthenticityToken())) {
+        || !Objects.equals(params.get("authenticityToken"), session.getAuthenticityToken())) {
       throw new Forbidden("Bad authenticity token");
     }
   }

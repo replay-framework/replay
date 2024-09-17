@@ -11,6 +11,7 @@ import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 
 public class RePlayLogoPlugin extends PlayPlugin {
+
   private static final Logger logger = LoggerFactory.getLogger(RePlayLogoPlugin.class);
 
   /** The most important thing: A cool logo. */

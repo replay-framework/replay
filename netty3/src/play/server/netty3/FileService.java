@@ -176,7 +176,7 @@ public class FileService {
     private final String file;
     private final long startedAt;
 
-    public FileServingListener(String file, long startedAt) {
+    private FileServingListener(String file, long startedAt) {
       this.file = file;
       this.startedAt = startedAt;
     }

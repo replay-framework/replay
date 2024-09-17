@@ -247,9 +247,9 @@ public class FileChannelBuffer extends AbstractChannelBuffer implements WrappedC
 
   @Override
   public ChannelBuffer readBytes(int length) {
-    //          ChannelBuffer buf = ChannelBuffers.buffer(length);
-    //          getBytes(0, buf);
-    //          return buf;
+    // ChannelBuffer buf = ChannelBuffers.buffer(length);
+    // getBytes(0, buf);
+    // return buf;
     throw new RuntimeException();
   }
 
@@ -306,8 +306,7 @@ public class FileChannelBuffer extends AbstractChannelBuffer implements WrappedC
   @Override
   public int readBytes(GatheringByteChannel out, int length) throws IOException {
     checkReadableBytes(length);
-    int readBytes = getBytes(0, out, length);
-    return readBytes;
+    return getBytes(0, out, length);
   }
 
   @Override

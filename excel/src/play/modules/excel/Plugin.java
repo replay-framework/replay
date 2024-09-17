@@ -38,18 +38,20 @@ import play.templates.Template;
 
 public class Plugin extends PlayPlugin {
 
-  public static PlayPlugin templateLoader;
+  private static final Pattern EXCEL_MIME =
+      Pattern.compile(".*application/(excel|vnd\\.ms-excel|x-excel|x-msexcel).*");
+  private static final Pattern IE_USER_AGENT = Pattern.compile(".*MSIE\\s+[678]\\.0.*");
+  private static final Pattern SPREADSHEET_EXTENSION = Pattern.compile("(csv|xls|xlsx)");
+  private static final Pattern EXCEL_EXTENSION = Pattern.compile(".*\\.(xls|xlsx)");
 
-  private static final Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
+  public static PlayPlugin templateLoader;
 
   @Override
   public Optional<Template> loadTemplate(File file) {
-    if (!p_.matcher(file.getName()).matches()) return Optional.empty();
+    if (!EXCEL_EXTENSION.matcher(file.getName()).matches()) return Optional.empty();
     if (null == templateLoader) return Optional.of(new ExcelTemplate(file));
     return templateLoader.loadTemplate(file);
   }
-
-  private static final Pattern pIE678_ = Pattern.compile(".*MSIE\\s+[6|7|8]\\.0.*");
 
   /** Extend play format processing */
   @Override
@@ -63,14 +65,13 @@ public class Plugin extends PlayPlugin {
     Header h = request.headers.get("user-agent");
     if (null == h) return;
     String userAgent = h.value();
-    if (pIE678_.matcher(userAgent).matches())
+    if (IE_USER_AGENT.matcher(userAgent).matches())
       return; // IE678 is tricky!, IE678 is buggy, IE678 is evil!
     if (request.headers.get("accept") != null) {
       String accept = request.headers.get("accept").value();
-      if (accept.indexOf("text/csv") != -1) request.format = "csv";
-      if (accept.matches(".*application\\/(excel|vnd\\.ms\\-excel|x\\-excel|x\\-msexcel).*"))
-        request.format = "xls";
-      if (accept.indexOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") != -1)
+      if (accept.contains("text/csv")) request.format = "csv";
+      if (EXCEL_MIME.matcher(accept).matches()) request.format = "xls";
+      if (accept.contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
         request.format = "xlsx";
     }
   }
@@ -81,7 +82,7 @@ public class Plugin extends PlayPlugin {
   @Override
   public void onActionInvocationResult(
       Request request, Response response, Session session, RenderArgs renderArgs, Result result) {
-    if (null == request.format || !request.format.matches("(csv|xls|xlsx)")) return;
+    if (null == request.format || !SPREADSHEET_EXTENSION.matcher(request.format).matches()) return;
 
     if (!response.headers.containsKey("Content-Disposition")) {
       String fileName = renderArgs.get(RenderExcel.RA_FILENAME, String.class);
@@ -109,7 +110,7 @@ public class Plugin extends PlayPlugin {
 
   public static class ExcelTemplate extends Template {
     private File file;
-    private RenderExcel r_;
+    private RenderExcel renderExcel;
 
     public ExcelTemplate(File file) {
       super(Play.relativePath(file));
@@ -118,7 +119,7 @@ public class Plugin extends PlayPlugin {
 
     public ExcelTemplate(RenderExcel render) {
       super(render.getFileName());
-      r_ = render;
+      renderExcel = render;
     }
 
     @Override
@@ -128,7 +129,7 @@ public class Plugin extends PlayPlugin {
 
     @Override
     protected String internalRender(Map<String, Object> args) {
-      throw null == r_ ? new RenderExcel(file, args) : r_;
+      throw null == renderExcel ? new RenderExcel(file, args) : renderExcel;
     }
   }
 }

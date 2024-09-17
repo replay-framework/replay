@@ -31,7 +31,9 @@ public class JavaClassesScanner {
       return emptyList(); // it causes initialisation of org.xhtmlrenderer.swing.AWTFSImage which is slow
 
     List<Class<?>> result = new ArrayList<>();
-    for (File file : directory.listFiles()) {
+    var files = directory.listFiles();
+    if (files == null) return result;
+    for (File file : files) {
       if (file.isDirectory()) {
         String subPackage =
             packageName == null ? file.getName() : packageName + '.' + file.getName();

@@ -172,7 +172,7 @@ public class BeanWrapper {
       String prefix,
       Object instance,
       Annotation[] annotations) {
-    RootParamNode paramNode = RootParamNode.convert(params);
+    RootParamNode paramNode = ParamNode.convert(params);
     // when looking at the old code in BeanBinder and Binder.bindInternal, I
     // think it is correct to use 'name+prefix'
     Binder.bindBean(request, session, paramNode.getChild(name + prefix), instance, annotations);

@@ -2,6 +2,7 @@ package play.plugins.security;
 
 import java.lang.reflect.Method;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import play.PlayPlugin;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -12,6 +13,8 @@ import play.mvc.Scope.Session;
 import play.mvc.results.Forbidden;
 
 public class AuthenticityTokenPlugin extends PlayPlugin {
+
+  @ParametersAreNonnullByDefault
   @Override
   public void beforeActionInvocation(
       Request request,

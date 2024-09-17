@@ -51,7 +51,7 @@ public class AnnotationHelper {
     return null;
   }
 
-  public static Tuple getLocale(String[] langs) {
+  private static Tuple getLocale(String[] langs) {
     int i = 0;
     for (String l : langs) {
       String[] commaSeparatedLang = l.split(",");
@@ -80,7 +80,7 @@ public class AnnotationHelper {
     public int index = -1;
     public Locale locale;
 
-    public Tuple(int index, Locale locale) {
+    Tuple(int index, Locale locale) {
       this.locale = locale;
       this.index = index;
     }

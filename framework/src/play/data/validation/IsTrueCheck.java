@@ -4,7 +4,6 @@ import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.OValContext;
 
-@SuppressWarnings("serial")
 public class IsTrueCheck extends AbstractAnnotationCheck<IsTrue> {
 
   static final String mes = "validation.isTrue";

@@ -1,7 +1,5 @@
 package play.utils;
 
-import static java.util.Collections.sort;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import play.mvc.With;
 
-/** Java utils */
+/**
+ * Java utils
+ */
 public class Java {
 
   protected static JavaWithCaching _javaWithCaching = new JavaWithCaching();
@@ -43,7 +43,7 @@ public class Java {
   /**
    * Find all annotated method from a class
    *
-   * @param clazz The class
+   * @param clazz          The class
    * @param annotationType The annotation class
    * @return A list of method object
    */
@@ -79,8 +79,11 @@ public class Java {
  */
 class JavaWithCaching {
 
-  /** Class uses as key for storing info about the relation between a Class and an Annotation */
+  /**
+   * Class uses as key for storing info about the relation between a Class and an Annotation
+   */
   private static class ClassAndAnnotation {
+
     private final Class<?> clazz;
     private final Class<? extends Annotation> annotation;
 
@@ -91,13 +94,18 @@ class JavaWithCaching {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       ClassAndAnnotation that = (ClassAndAnnotation) o;
 
-      if (annotation != null ? !annotation.equals(that.annotation) : that.annotation != null)
+      if (annotation != null ? !annotation.equals(that.annotation) : that.annotation != null) {
         return false;
+      }
       return clazz != null ? clazz.equals(that.clazz) : that.clazz == null;
     }
 
@@ -118,7 +126,7 @@ class JavaWithCaching {
   /**
    * Find all annotated method from a class
    *
-   * @param clazz The class
+   * @param clazz          The class
    * @param annotationType The annotation class
    * @return A list of method object
    */
@@ -163,8 +171,8 @@ class JavaWithCaching {
       List<Method> methods, final Class<? extends Annotation> annotationType) {
     try {
       final Method priority = annotationType.getMethod("priority");
-      sort(
-          methods,
+
+      methods.sort(
           (m1, m2) -> {
             try {
               Integer priority1 = (Integer) priority.invoke(m1.getAnnotation(annotationType));

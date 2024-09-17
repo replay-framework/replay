@@ -36,9 +36,9 @@ public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
       return;
     }
 
-    HttpMessage currentMessage = this.currentMessage;
+    HttpMessage localCurrentMessage = this.currentMessage;
     File localFile = this.file;
-    if (currentMessage == null) {
+    if (localCurrentMessage == null) {
       HttpMessage m = (HttpMessage) msg;
       if (m.isChunked()) {
         String localName = UUID.randomUUID().toString();
@@ -61,7 +61,7 @@ public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
       HttpChunk chunk = (HttpChunk) msg;
       if (maxContentLength != -1
           && (localFile.length() > (maxContentLength - chunk.getContent().readableBytes()))) {
-        currentMessage
+        localCurrentMessage
             .headers()
             .set(HttpHeaders.Names.WARNING, "play.netty.content.length.exceeded");
       } else {
@@ -71,16 +71,16 @@ public class StreamChunkAggregator extends SimpleChannelUpstreamHandler {
           this.out.flush();
           this.out.close();
 
-          currentMessage
+          localCurrentMessage
               .headers()
               .set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(localFile.length()));
 
-          currentMessage.setContent(new FileChannelBuffer(localFile));
+          localCurrentMessage.setContent(new FileChannelBuffer(localFile));
           this.out = null;
           this.currentMessage = null;
           this.file.delete();
           this.file = null;
-          Channels.fireMessageReceived(ctx, currentMessage, e.getRemoteAddress());
+          Channels.fireMessageReceived(ctx, localCurrentMessage, e.getRemoteAddress());
         }
       }
     }

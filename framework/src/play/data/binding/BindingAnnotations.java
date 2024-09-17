@@ -62,20 +62,16 @@ public class BindingAnnotations {
 
   public boolean checkNoBinding() {
 
-    String[] _profiles = getProfiles();
-    String[] _noBindingProfiles = getNoBindingProfiles();
+    String[] localProfiles = getProfiles();
+    String[] localNoBindingProfiles = getNoBindingProfiles();
 
-    if (_noBindingProfiles.length > 0) {
-      for (String l : _noBindingProfiles) {
-        if ("*".equals(l)) {
+    for (String l : localNoBindingProfiles) {
+      if ("*".equals(l)) {
+        return true;
+      }
+      for (String p : localProfiles) {
+        if (l.equals(p) || "*".equals(p)) {
           return true;
-        }
-        if (_profiles.length > 0) {
-          for (String p : _profiles) {
-            if (l.equals(p) || "*".equals(p)) {
-              return true;
-            }
-          }
         }
       }
     }

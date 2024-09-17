@@ -21,7 +21,7 @@ import play.Play;
 
 public class Expression {
 
-  private static final Pattern expression = Pattern.compile("^\\$\\{(.*)\\}$");
+  private static final Pattern expression = Pattern.compile("^\\$\\{(.*)}$");
 
   public static Object evaluate(String value, String defaultValue) {
     Matcher matcher = expression.matcher(value);

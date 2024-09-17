@@ -130,7 +130,7 @@ public abstract class Job<V> extends Invocation implements Callable<V> {
   }
 
   private Throwable unwrap(Throwable e) {
-    while ((e instanceof UnexpectedException || e instanceof PlayException)
+    while ((e instanceof PlayException)
         && e.getCause() != null) {
       e = e.getCause();
     }

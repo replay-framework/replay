@@ -7,7 +7,6 @@ import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.OValContext;
 
-@SuppressWarnings("serial")
 public class MatchCheck extends AbstractAnnotationCheck<Match> {
 
   static final String mes = "validation.match";
@@ -23,7 +22,7 @@ public class MatchCheck extends AbstractAnnotationCheck<Match> {
   public boolean isSatisfied(
       Object validatedObject, Object value, OValContext context, Validator validator) {
     requireMessageVariablesRecreation();
-    if (value == null || value.toString().length() == 0) {
+    if (value == null || value.toString().isEmpty()) {
       return true;
     }
     return pattern.matcher(value.toString()).matches();

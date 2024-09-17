@@ -35,15 +35,13 @@ public class Scope {
       Play.configuration.getProperty("application.session.cookie", "PLAY");
   public static final boolean COOKIE_SECURE =
       "true"
-          .equals(
-              Play.configuration.getProperty("application.session.secure", "false").toLowerCase());
+          .equalsIgnoreCase(
+              Play.configuration.getProperty("application.session.secure", "false"));
   public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
   public static final boolean SESSION_HTTPONLY =
       "true"
-          .equals(
-              Play.configuration
-                  .getProperty("application.session.httpOnly", "false")
-                  .toLowerCase());
+          .equalsIgnoreCase(
+              Play.configuration.getProperty("application.session.httpOnly", "false"));
 
   /** Flash scope */
   public static class Flash {

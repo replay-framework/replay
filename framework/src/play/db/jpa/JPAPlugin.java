@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.boot.model.TypeContributor;
@@ -46,9 +47,11 @@ import play.mvc.Http;
 import play.mvc.Scope.Session;
 
 public class JPAPlugin extends PlayPlugin {
-  private static final Logger logger = LoggerFactory.getLogger(JPAPlugin.class);
 
+  private static final Logger logger = LoggerFactory.getLogger(JPAPlugin.class);
   public static boolean autoTxs = true;
+  private static final Pattern COMMA_SEPARATOR = Pattern.compile(", ");
+
 
   @Override
   public Object bind(
@@ -162,7 +165,8 @@ public class JPAPlugin extends PlayPlugin {
     }
 
     // Add entities
-    String[] moreEntities = Play.configuration.getProperty("jpa.entities", "").split(", ");
+    String[] moreEntities =
+        COMMA_SEPARATOR.split(Play.configuration.getProperty("jpa.entities", ""));
     for (String entity : moreEntities) {
       if (entity.trim().isEmpty()) {
         continue;
@@ -203,9 +207,7 @@ public class JPAPlugin extends PlayPlugin {
 
   private List<String> mappingFiles(Configuration dbConfig) {
     String mappingFile = dbConfig.getProperty("jpa.mapping-file", "");
-    return mappingFile != null && mappingFile.length() > 0
-        ? singletonList(mappingFile)
-        : emptyList();
+    return mappingFile != null && !mappingFile.isEmpty() ? singletonList(mappingFile) : emptyList();
   }
 
   protected Properties properties(String dbName, Configuration dbConfig) {
@@ -221,6 +223,7 @@ public class JPAPlugin extends PlayPlugin {
   }
 
   private static class DynamicTypeContributorList implements TypeContributorList {
+
     @Override
     public List<TypeContributor> getTypeContributors() {
       return singletonList(new DynamicTypeContributor());
@@ -228,6 +231,7 @@ public class JPAPlugin extends PlayPlugin {
   }
 
   private static class DynamicTypeContributor implements TypeContributor {
+
     @Override
     public void contribute(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
       for (Class<? extends BasicType> customType :

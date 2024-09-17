@@ -6,7 +6,6 @@ import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.OValContext;
 
-@SuppressWarnings("serial")
 public class RangeCheck extends AbstractAnnotationCheck<Range> {
 
   static final String mes = "validation.range";

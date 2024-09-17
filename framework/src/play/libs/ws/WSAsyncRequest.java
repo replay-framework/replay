@@ -278,26 +278,13 @@ class WSAsyncRequest extends WSRequest {
 
   private AsyncHttpClient.BoundRequestBuilder prepare(AsyncHttpClient.BoundRequestBuilder builder) {
     if (this.username != null && this.password != null && this.scheme != null) {
-      Realm.AuthScheme authScheme;
-      switch (this.scheme) {
-        case DIGEST:
-          authScheme = Realm.AuthScheme.DIGEST;
-          break;
-        case NTLM:
-          authScheme = Realm.AuthScheme.NTLM;
-          break;
-        case KERBEROS:
-          authScheme = Realm.AuthScheme.KERBEROS;
-          break;
-        case SPNEGO:
-          authScheme = Realm.AuthScheme.SPNEGO;
-          break;
-        case BASIC:
-          authScheme = Realm.AuthScheme.BASIC;
-          break;
-        default:
-          throw new RuntimeException("Scheme " + this.scheme + " not supported by WS backend.");
-      }
+      Realm.AuthScheme authScheme = switch (this.scheme) {
+        case DIGEST -> Realm.AuthScheme.DIGEST;
+        case NTLM -> Realm.AuthScheme.NTLM;
+        case KERBEROS -> Realm.AuthScheme.KERBEROS;
+        case SPNEGO -> Realm.AuthScheme.SPNEGO;
+        case BASIC -> Realm.AuthScheme.BASIC;
+      };
       builder.setRealm(
           (new Realm.RealmBuilder())
               .setScheme(authScheme)
@@ -348,35 +335,31 @@ class WSAsyncRequest extends WSRequest {
     setResolvedContentType(null);
     if (this.fileParams != null) {
       // could be optimized, we know the size of this array.
-      for (int i = 0; i < this.fileParams.length; i++) {
+      for (FileParam fileParam : this.fileParams) {
         builder.addBodyPart(
             new FilePart(
-                this.fileParams[i].paramName,
-                this.fileParams[i].file,
-                MimeTypes.getMimeType(this.fileParams[i].file.getName()),
+                fileParam.paramName,
+                fileParam.file,
+                MimeTypes.getMimeType(fileParam.file.getName()),
                 encoding));
       }
-      if (this.parameters != null) {
-        // AHC only supports ascii chars in keys in multipart
-        for (String key : this.parameters.keySet()) {
-          Object value = this.parameters.get(key);
-          if (value instanceof Collection<?> || value.getClass().isArray()) {
-            Collection<?> values =
-                value.getClass().isArray()
-                    ? Arrays.asList((Object[]) value)
-                    : (Collection<?>) value;
-            for (Object v : values) {
-              Part part =
-                  new ByteArrayPart(
-                      key, v.toString().getBytes(encoding), "text/plain", encoding, null);
-              builder.addBodyPart(part);
-            }
-          } else {
-            Part part =
-                new ByteArrayPart(
-                    key, value.toString().getBytes(encoding), "text/plain", encoding, null);
+      // AHC only supports ascii chars in keys in multipart
+      for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
+        if (value instanceof Collection<?> || value.getClass().isArray()) {
+          Collection<?> values = value.getClass().isArray()
+              ? Arrays.asList((Object[]) value)
+              : (Collection<?>) value;
+          for (Object v : values) {
+            Part part = new ByteArrayPart(
+                key, v.toString().getBytes(encoding), "text/plain", encoding, null);
             builder.addBodyPart(part);
           }
+        } else {
+          Part part = new ByteArrayPart(
+              key, value.toString().getBytes(encoding), "text/plain", encoding, null);
+          builder.addBodyPart(part);
         }
       }
 
@@ -385,16 +368,19 @@ class WSAsyncRequest extends WSRequest {
 
       return;
     }
-    if (this.parameters != null && !this.parameters.isEmpty()) {
+    if (!this.parameters.isEmpty()) {
       boolean isPostPut = "POST".equals(this.type) || ("PUT".equals(this.type));
 
       if (isPostPut) {
         // Since AHC is hard-coded to encode to use UTF-8, we must build the content ourselves
         StringBuilder sb = new StringBuilder();
 
-        for (String key : this.parameters.keySet()) {
-          Object value = this.parameters.get(key);
-          if (value == null) continue;
+        for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
+          String key = entry.getKey();
+          Object value = entry.getValue();
+          if (value == null) {
+            continue;
+          }
 
           if (value instanceof Collection<?> || value.getClass().isArray()) {
             Collection<?> values =
@@ -402,7 +388,7 @@ class WSAsyncRequest extends WSRequest {
                     ? Arrays.asList((Object[]) value)
                     : (Collection<?>) value;
             for (Object v : values) {
-              if (sb.length() > 0) {
+              if (!sb.isEmpty()) {
                 sb.append('&');
               }
               sb.append(encode(key));
@@ -413,7 +399,7 @@ class WSAsyncRequest extends WSRequest {
             // Since AHC is hard-coded to encode using UTF-8, we
             // must build
             // the content ourself..
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append('&');
             }
             sb.append(encode(key));
@@ -427,12 +413,14 @@ class WSAsyncRequest extends WSRequest {
         setResolvedContentType("application/x-www-form-urlencoded; charset=" + encoding);
 
       } else {
-        for (String key : this.parameters.keySet()) {
-          Object value = this.parameters.get(key);
-          if (value == null) continue;
+        for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
+          String key = entry.getKey();
+          Object value = entry.getValue();
+          if (value == null) {
+            continue;
+          }
           if (value instanceof Collection<?> || value.getClass().isArray()) {
-            Collection<?> values =
-                value.getClass().isArray()
+            Collection<?> values = value.getClass().isArray()
                     ? Arrays.asList((Object[]) value)
                     : (Collection<?>) value;
             for (Object v : values) {
@@ -448,7 +436,7 @@ class WSAsyncRequest extends WSRequest {
       }
     }
     if (this.body != null) {
-      if (this.parameters != null && !this.parameters.isEmpty()) {
+      if (!this.parameters.isEmpty()) {
         throw new RuntimeException(
             "POST or PUT method with parameters AND body are not supported.");
       }

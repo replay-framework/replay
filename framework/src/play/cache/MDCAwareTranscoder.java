@@ -1,7 +1,6 @@
 package play.cache;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
-
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.spy.memcached.transcoders.SerializingTranscoder;
@@ -25,7 +24,7 @@ class MDCAwareTranscoder extends SerializingTranscoder {
   @Override
   protected Object deserialize(byte[] data) {
     String originalMdcParameterValue = MDC.get(mdcParameterName);
-    MDC.put(mdcParameterName, defaultString(mdcParameterValue, "?"));
+    MDC.put(mdcParameterName, Objects.toString(mdcParameterValue, "?"));
 
     try {
       return delegate.deserialize(data);

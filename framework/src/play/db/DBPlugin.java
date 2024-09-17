@@ -5,7 +5,6 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -24,6 +23,7 @@ import play.mvc.Http;
 
 @ParametersAreNonnullByDefault
 public class DBPlugin extends PlayPlugin {
+
   private static final Logger logger = LoggerFactory.getLogger(DBPlugin.class);
 
   public static String url = "";
@@ -48,14 +48,13 @@ public class DBPlugin extends PlayPlugin {
       String dbName = "";
       try {
         // Destroy all connections
-        if (!DB.datasources.isEmpty()) {
+        if (!DB.dataSources.isEmpty()) {
           DB.destroyAll();
         }
 
         Set<String> dbNames = Configuration.getDbNames();
-        Iterator<String> it = dbNames.iterator();
-        while (it.hasNext()) {
-          dbName = it.next();
+        for (String name : dbNames) {
+          dbName = name;
           Configuration dbConfig = new Configuration(dbName);
 
           boolean isJndiDatasource = false;
@@ -70,10 +69,10 @@ public class DBPlugin extends PlayPlugin {
           if (isJndiDatasource || datasourceName.startsWith("java:")) {
             Context ctx = new InitialContext();
             DataSource ds = (DataSource) ctx.lookup(datasourceName);
-            DB.datasource = ds;
+            DB.dataSource = ds;
             DB.destroyMethod = "";
-            DB.ExtendedDatasource extDs = new DB.ExtendedDatasource(ds, "");
-            DB.datasources.put(dbName, extDs);
+            ExtendedDatasource extDs = new ExtendedDatasource(ds, "");
+            DB.dataSources.put(dbName, extDs);
           } else {
 
             // Try the driver
@@ -107,19 +106,19 @@ public class DBPlugin extends PlayPlugin {
 
             // Current datasource. This is actually deprecated.
             String destroyMethod = dbConfig.getProperty("db.destroyMethod", "");
-            DB.datasource = ds;
+            DB.dataSource = ds;
             DB.destroyMethod = destroyMethod;
 
-            DB.ExtendedDatasource extDs = new DB.ExtendedDatasource(ds, destroyMethod);
+            ExtendedDatasource extDs = new ExtendedDatasource(ds, destroyMethod);
 
             url = testDataSource(ds);
             logger.info("Connected to {} for {}", url, dbName);
-            DB.datasources.put(dbName, extDs);
+            DB.dataSources.put(dbName, extDs);
           }
         }
 
       } catch (Exception e) {
-        DB.datasource = null;
+        DB.dataSource = null;
         logger.error(
             "Database [{}] Cannot connected to the database : {}", dbName, e.getMessage(), e);
         if (e.getCause() instanceof InterruptedException) {
@@ -202,7 +201,7 @@ public class DBPlugin extends PlayPlugin {
         }
       }
 
-      ExtendedDatasource extDataSource = DB.datasources.get(dbName);
+      ExtendedDatasource extDataSource = DB.dataSources.get(dbName);
 
       if (extDataSource != null
           && !dbConfig

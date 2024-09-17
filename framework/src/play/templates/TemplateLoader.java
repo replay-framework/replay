@@ -11,15 +11,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.TemplateNotFoundException;
 
 public class TemplateLoader {
+
   private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
   private static final Map<String, BaseTemplate> templates = new HashMap<>();
+  private static final Pattern CURLEY_WRAPPED = Pattern.compile("\\{(.*)}");
 
   /**
    * Load a template from a file
@@ -52,9 +55,9 @@ public class TemplateLoader {
       File tf = new File(vf, path);
       boolean templateExists = tf.exists();
       if (!templateExists && Play.usePrecompiled) {
-        String name =
-            Play.relativePath(tf)
-                .replaceAll("\\{(.*)\\}", "from_$1")
+        String name = CURLEY_WRAPPED
+                .matcher(Play.relativePath(tf))
+                .replaceAll("from_$1")
                 .replace(":", "_")
                 .replace("..", "parent");
         templateExists = Play.getFile("precompiled/templates/" + name).exists();

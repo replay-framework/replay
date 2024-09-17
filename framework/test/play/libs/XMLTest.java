@@ -2,12 +2,14 @@ package play.libs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Tests for {@link XML} class. */
 public class XMLTest {
+  private static final Pattern TAG_PATTERN = Pattern.compile("<\\?[^?]+\\?>\\s*");
 
   private static final String ORIGINAL_DOCUMENT =
       "<?xml version=\"1.0\"?>\n"
@@ -23,7 +25,7 @@ public class XMLTest {
   }
 
   private static String stripPreamble(String text) {
-    return text.replaceFirst("<\\?[^?]+\\?>\\s*", "");
+    return TAG_PATTERN.matcher(text).replaceFirst("");
   }
 
   @Test

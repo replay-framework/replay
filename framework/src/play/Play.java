@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import play.templates.TemplateLoader;
 /** Main framework class */
 public class Play {
   private static final Logger logger = LoggerFactory.getLogger(Play.class);
+
+  private static final Pattern TEST_PATTERN = Pattern.compile("test|test-?.*");
 
   public enum Mode {
 
@@ -298,7 +301,7 @@ public class Play {
     langs =
         new ArrayList<>(
             Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
-    if (langs.size() == 1 && langs.get(0).trim().length() == 0) {
+    if (langs.size() == 1 && langs.get(0).trim().isEmpty()) {
       langs = new ArrayList<>(16);
     }
   }
@@ -362,7 +365,7 @@ public class Play {
    * @return true if test mode
    */
   public static boolean runningInTestMode() {
-    return id.matches("test|test-?.*");
+    return TEST_PATTERN.matcher(id).matches();
   }
 
   public static boolean useDefaultMockMailSystem() {

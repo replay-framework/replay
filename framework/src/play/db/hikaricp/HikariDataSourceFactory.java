@@ -9,7 +9,6 @@ import java.beans.PropertyVetoException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
-import java.util.Set;
 import javax.sql.DataSource;
 import play.Play;
 import play.db.Configuration;
@@ -80,40 +79,38 @@ public class HikariDataSourceFactory implements DataSourceFactory {
   @Override
   public String getStatus() throws SQLException {
     StringWriter sw = new StringWriter();
-    PrintWriter out = new PrintWriter(sw);
-    Set<String> dbNames = Configuration.getDbNames();
-
-    for (String dbName : dbNames) {
-      DataSource ds = DB.getDataSource(dbName);
-      if (ds == null || !(ds instanceof HikariDataSource)) {
-        out.println("Datasource:");
+    try (PrintWriter out = new PrintWriter(sw)) {
+      for (String dbName : Configuration.getDbNames()) {
+        DataSource ds = DB.getDataSource(dbName);
+        if (!(ds instanceof HikariDataSource datasource)) {
+          out.println("Datasource:");
+          out.println("~~~~~~~~~~~");
+          out.println("(not yet connected)");
+          return sw.toString();
+        }
+        out.println("Datasource (" + dbName + "):");
         out.println("~~~~~~~~~~~");
-        out.println("(not yet connected)");
-        return sw.toString();
-      }
-      HikariDataSource datasource = (HikariDataSource) ds;
-      out.println("Datasource (" + dbName + "):");
-      out.println("~~~~~~~~~~~");
-      out.println("Jdbc url: " + getJdbcUrl(datasource));
-      out.println("Jdbc driver: " + getDriverClass(datasource));
-      out.println("Jdbc user: " + getUser(datasource));
-      if (Play.mode.isDev()) {
-        out.println("Jdbc password: " + datasource.getPassword());
-      }
-      out.println("Min idle: " + datasource.getMinimumIdle());
-      out.println("Max pool size: " + datasource.getMaximumPoolSize());
+        out.println("Jdbc url: " + getJdbcUrl(datasource));
+        out.println("Jdbc driver: " + getDriverClass(datasource));
+        out.println("Jdbc user: " + getUser(datasource));
+        if (Play.mode.isDev()) {
+          out.println("Jdbc password: " + datasource.getPassword());
+        }
+        out.println("Min idle: " + datasource.getMinimumIdle());
+        out.println("Max pool size: " + datasource.getMaximumPoolSize());
 
-      out.println("Max lifetime: " + datasource.getMaxLifetime());
-      out.println("Leak detection threshold: " + datasource.getLeakDetectionThreshold());
-      out.println("Initialization fail timeout: " + datasource.getInitializationFailTimeout());
-      out.println("Validation timeout: " + datasource.getValidationTimeout());
-      out.println("Idle timeout: " + datasource.getIdleTimeout());
-      out.println("Login timeout: " + datasource.getLoginTimeout());
-      out.println("Connection timeout: " + datasource.getConnectionTimeout());
-      out.println("Test query : " + datasource.getConnectionTestQuery());
-      out.println("\r\n");
+        out.println("Max lifetime: " + datasource.getMaxLifetime());
+        out.println("Leak detection threshold: " + datasource.getLeakDetectionThreshold());
+        out.println("Initialization fail timeout: " + datasource.getInitializationFailTimeout());
+        out.println("Validation timeout: " + datasource.getValidationTimeout());
+        out.println("Idle timeout: " + datasource.getIdleTimeout());
+        out.println("Login timeout: " + datasource.getLoginTimeout());
+        out.println("Connection timeout: " + datasource.getConnectionTimeout());
+        out.println("Test query : " + datasource.getConnectionTestQuery());
+        out.println("\r\n");
+      }
+      return sw.toString();
     }
-    return sw.toString();
   }
 
   @Override

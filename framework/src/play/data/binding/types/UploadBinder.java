@@ -28,18 +28,16 @@ public class UploadBinder implements TypeBinder<Model.BinaryField> {
       return null;
     }
     try {
-      if (request.args != null) {
-        List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-        if (uploads != null) {
-          for (Upload upload : uploads) {
-            if (upload.getFieldName().equals(value) && !upload.getFileName().trim().isEmpty()) {
-              return upload;
-            }
+      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+      if (uploads != null) {
+        for (Upload upload : uploads) {
+          if (upload.getFieldName().equals(value) && !upload.getFileName().trim().isEmpty()) {
+            return upload;
           }
         }
       }
 
-      if (request.params != null && request.params.get(value + "_delete_") != null) {
+      if (request.params.get(value + "_delete_") != null) {
         return null;
       }
       return Binder.MISSING;
