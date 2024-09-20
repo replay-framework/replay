@@ -121,7 +121,7 @@ public class Lang {
    */
   private static String findClosestMatch(Collection<String> desiredLocales) {
     ArrayList<String> cleanLocales = new ArrayList<>(desiredLocales.size());
-    //look for an exact match
+    // Look for an exact match
     for (String a : desiredLocales) {
       a = a.replace("-", "_");
       cleanLocales.add(a);
@@ -176,10 +176,10 @@ public class Lang {
       String localeFromCookie = request.cookies.get(cn).value;
       if (localeFromCookie != null && !localeFromCookie.trim().isEmpty()) {
         if (set(localeFromCookie)) {
-          // we're using locale from cookie
+          // We're using locale from cookie
           return;
         }
-        // could not use locale from cookie - clear the locale-cookie
+        // Could not use locale from cookie; clear the locale-cookie.
         response.setCookie(cn, "", null, "/", null, Scope.COOKIE_SECURE);
       }
     }
@@ -187,7 +187,7 @@ public class Lang {
     if (closestLocaleMatch != null) {
       set(closestLocaleMatch);
     } else {
-      // Did not find anything - use default
+      // Did not find anything; use the default.
       setDefaultLocale();
     }
   }

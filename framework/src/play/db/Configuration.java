@@ -34,7 +34,7 @@ public class Configuration {
 
   public static Set<String> getDbNames() {
     TreeSet<String> dbNames = new TreeSet<>();
-    // search for case db= or db.url= as at least one of these property is required
+    // Search for case db= or db.url= as at least one of these property is required
     String DB_CONFIG_PATTERN = "^db\\.([^.]*)$|^db\\.([^.]*)\\.url$";
     Pattern pattern = Pattern.compile(DB_CONFIG_PATTERN);
 

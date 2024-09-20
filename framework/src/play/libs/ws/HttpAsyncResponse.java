@@ -86,7 +86,7 @@ public class HttpAsyncResponse extends HttpResponse {
     try {
       return response.getResponseBodyAsStream();
     } catch (IllegalStateException e) {
-      // This works around AHC's bug with empty responses
+      // This works around AsyncHttpClient's bug with empty responses
       return new ByteArrayInputStream(new byte[] {});
     } catch (Exception e) {
       throw new RuntimeException(e);

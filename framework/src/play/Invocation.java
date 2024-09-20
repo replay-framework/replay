@@ -19,7 +19,7 @@ public abstract class Invocation implements Runnable {
    * super.init()
    */
   protected void preInit() {
-    // clear language for this request - we're resolving it later when it is needed
+    // Clear the locale (Lang) for this request. We're resolving it later when it is needed.
     Lang.clear();
   }
 

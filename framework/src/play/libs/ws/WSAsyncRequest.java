@@ -30,8 +30,7 @@ class WSAsyncRequest extends WSRequest {
   }
 
   /**
-   * Returns the URL but removed the queryString-part of it The QueryString-info is later added with
-   * addQueryString()
+   * Returns the URL but removed the queryString-part of it The QueryString-info is later added with addQueryString().
    *
    * @return The URL without the queryString-part
    */
@@ -47,43 +46,34 @@ class WSAsyncRequest extends WSRequest {
   /**
    * Adds the queryString-part of the url to the BoundRequestBuilder
    *
-   * @param requestBuilder : The request buider to add the queryString-part
+   * @param requestBuilder The request builder to add the queryString-part
    */
   protected void addQueryString(AsyncHttpClient.BoundRequestBuilder requestBuilder) {
 
-    // AsyncHttpClient is by default encoding everything in utf-8 so for
-    // us to be able to use
-    // different encoding we have configured AHC to use raw urls. When
-    // using raw urls,
-    // AHC does not encode url and QueryParam with utf-8 - but there is
-    // another problem:
-    // If we send raw (none-encoded) url (with queryString) to AHC, it
-    // does not url-encode it,
-    // but transform all illegal chars to '?'.
-    // If we pre-encoded the url with QueryString before sending it to
-    // AHC, ahc will decode it, and then
-    // later break it with '?'.
+    // AsyncHttpClient is by default encoding everything in UTF-8. So for us to be able to use a different encoding we
+    // have configured AsyncHttpClient to use raw urls. When using raw urls, AsyncHttpClient does not encode url and
+    // QueryParam with utf-8 - but there is another problem:
+    // If we send raw (none-encoded) url (with queryString) to AsyncHttpClient, it does not url-encode it, but it
+    // transforms all illegal chars to '?'. If we pre-encoded the url with QueryString before sending it to
+    // AsyncHttpClient, it will decode it, and then later break it with '?'.
 
-    // This method basically does the same as
-    // RequestBuilderBase.buildUrl() except from destroying the
-    // pre-encoding
+    // This method basically does the same as RequestBuilderBase.buildUrl() except from destroying the pre-encoding.
 
-    // does url contain query_string?
     int i = url.indexOf('?');
+    // Only do this if the url contains one or more query parameters.
     if (i > 0) {
 
-      // extract query-string-part
+      // Extract query-parameters-part
       String queryPart = url.substring(i + 1);
 
-      // parse queryPart - and decode it... (it is going to be
-      // re-encoded later)
+      // Parse the query part and decode it... (it is going to be re-encoded later)
       for (String param : queryPart.split("&")) {
 
         i = param.indexOf('=');
         String name;
         String value = null;
         if (i <= 0) {
-          // only a flag
+          // `name` is only a flag
           name = URLDecoder.decode(param, encoding);
         } else {
           name = URLDecoder.decode(param.substring(0, i), encoding);
@@ -93,8 +83,8 @@ class WSAsyncRequest extends WSRequest {
         if (value == null) {
           requestBuilder.addQueryParam(URLEncoder.encode(name, encoding), null);
         } else {
-          requestBuilder.addQueryParam(
-              URLEncoder.encode(name, encoding), URLEncoder.encode(value, encoding));
+          requestBuilder.addQueryParam(URLEncoder.encode(name, encoding),
+              URLEncoder.encode(value, encoding));
         }
       }
     }
@@ -136,7 +126,9 @@ class WSAsyncRequest extends WSRequest {
     return prepareAll(httpClient.prepareDelete(getUrlWithoutQueryString()));
   }
 
-  /** Execute a GET request synchronously. */
+  /**
+   * Execute a GET request synchronously.
+   */
   @Override
   public HttpResponse get() {
     this.type = "GET";
@@ -147,14 +139,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a GET request asynchronously. */
+  /**
+   * Execute a GET request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> getAsync() {
     this.type = "GET";
     return execute(prepareGet());
   }
 
-  /** Execute a PATCH request. */
+  /**
+   * Execute a PATCH request.
+   */
   @Override
   public HttpResponse patch() {
     this.type = "PATCH";
@@ -165,14 +161,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a PATCH request asynchronously. */
+  /**
+   * Execute a PATCH request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> patchAsync() {
     this.type = "PATCH";
     return execute(preparePatch());
   }
 
-  /** Execute a POST request. */
+  /**
+   * Execute a POST request.
+   */
   @Override
   public HttpResponse post() {
     this.type = "POST";
@@ -183,14 +183,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a POST request asynchronously. */
+  /**
+   * Execute a POST request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> postAsync() {
     this.type = "POST";
     return execute(preparePost());
   }
 
-  /** Execute a PUT request. */
+  /**
+   * Execute a PUT request.
+   */
   @Override
   public HttpResponse put() {
     this.type = "PUT";
@@ -201,14 +205,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a PUT request asynchronously. */
+  /**
+   * Execute a PUT request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> putAsync() {
     this.type = "PUT";
     return execute(preparePut());
   }
 
-  /** Execute a DELETE request. */
+  /**
+   * Execute a DELETE request.
+   */
   @Override
   public HttpResponse delete() {
     this.type = "DELETE";
@@ -219,14 +227,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a DELETE request asynchronously. */
+  /**
+   * Execute a DELETE request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> deleteAsync() {
     this.type = "DELETE";
     return execute(prepareDelete());
   }
 
-  /** Execute a OPTIONS request. */
+  /**
+   * Execute a OPTIONS request.
+   */
   @Override
   public HttpResponse options() {
     this.type = "OPTIONS";
@@ -237,14 +249,18 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a OPTIONS request asynchronously. */
+  /**
+   * Execute a OPTIONS request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> optionsAsync() {
     this.type = "OPTIONS";
     return execute(prepareOptions());
   }
 
-  /** Execute a HEAD request. */
+  /**
+   * Execute a HEAD request.
+   */
   @Override
   public HttpResponse head() {
     this.type = "HEAD";
@@ -255,21 +271,27 @@ class WSAsyncRequest extends WSRequest {
     }
   }
 
-  /** Execute a HEAD request asynchronously. */
+  /**
+   * Execute a HEAD request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> headAsync() {
     this.type = "HEAD";
     return execute(prepareHead());
   }
 
-  /** Execute a TRACE request. */
+  /**
+   * Execute a TRACE request.
+   */
   @Override
   public HttpResponse trace() {
     this.type = "TRACE";
     throw new NotImplementedException();
   }
 
-  /** Execute a TRACE request asynchronously. */
+  /**
+   * Execute a TRACE request asynchronously.
+   */
   @Override
   public Promise<HttpResponse> traceAsync() {
     this.type = "TRACE";
@@ -319,8 +341,7 @@ class WSAsyncRequest extends WSRequest {
 
                 @Override
                 public void onThrowable(Throwable t) {
-                  // An error happened - must "forward" the exception to
-                  // the one waiting for the result
+                  // An error happened, here the exception is being "forwarded" to the future that's awaiting the result
                   smartFuture.invokeWithException(t);
                 }
               });
@@ -334,7 +355,7 @@ class WSAsyncRequest extends WSRequest {
   private void checkFileBody(AsyncHttpClient.BoundRequestBuilder builder) {
     setResolvedContentType(null);
     if (this.fileParams != null) {
-      // could be optimized, we know the size of this array.
+      // Could be optimized, we know the size of this array.
       for (FileParam fileParam : this.fileParams) {
         builder.addBodyPart(
             new FilePart(
@@ -343,28 +364,33 @@ class WSAsyncRequest extends WSRequest {
                 MimeTypes.getMimeType(fileParam.file.getName()),
                 encoding));
       }
-      // AHC only supports ascii chars in keys in multipart
+      // AsyncHttpClient only supports ASCII chars in keys in multipart
       for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
         String key = entry.getKey();
         Object value = entry.getValue();
         if (value instanceof Collection<?> || value.getClass().isArray()) {
-          Collection<?> values = value.getClass().isArray()
-              ? Arrays.asList((Object[]) value)
-              : (Collection<?>) value;
+          Collection<?> values = value.getClass().isArray() ? Arrays.asList((Object[]) value) : (Collection<?>) value;
           for (Object v : values) {
             Part part = new ByteArrayPart(
-                key, v.toString().getBytes(encoding), "text/plain", encoding, null);
+                key,
+                v.toString().getBytes(encoding),
+                "text/plain",
+                encoding,
+                null);
             builder.addBodyPart(part);
           }
         } else {
           Part part = new ByteArrayPart(
-              key, value.toString().getBytes(encoding), "text/plain", encoding, null);
+              key,
+              value.toString().getBytes(encoding),
+              "text/plain",
+              encoding,
+              null);
           builder.addBodyPart(part);
         }
       }
 
-      // Don't have to set content-type: AHC will automatically choose
-      // multipart
+      // Don't have to set content-type: AsyncHttpClient will automatically choose multipart
 
       return;
     }
@@ -372,7 +398,7 @@ class WSAsyncRequest extends WSRequest {
       boolean isPostPut = "POST".equals(this.type) || ("PUT".equals(this.type));
 
       if (isPostPut) {
-        // Since AHC is hard-coded to encode to use UTF-8, we must build the content ourselves
+        // Since AsyncHttpClient is hard-coded to encode to use UTF-8, we must build the content ourselves
         StringBuilder sb = new StringBuilder();
 
         for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
@@ -383,10 +409,7 @@ class WSAsyncRequest extends WSRequest {
           }
 
           if (value instanceof Collection<?> || value.getClass().isArray()) {
-            Collection<?> values =
-                value.getClass().isArray()
-                    ? Arrays.asList((Object[]) value)
-                    : (Collection<?>) value;
+            Collection<?> values = value.getClass().isArray() ? Arrays.asList((Object[]) value) : (Collection<?>) value;
             for (Object v : values) {
               if (!sb.isEmpty()) {
                 sb.append('&');
@@ -396,9 +419,7 @@ class WSAsyncRequest extends WSRequest {
               sb.append(encode(v.toString()));
             }
           } else {
-            // Since AHC is hard-coded to encode using UTF-8, we
-            // must build
-            // the content ourself..
+            // Since AsyncHttpClient is hard-coded to encode using UTF-8, we must build the content ourselves.
             if (!sb.isEmpty()) {
               sb.append('&');
             }
@@ -421,14 +442,14 @@ class WSAsyncRequest extends WSRequest {
           }
           if (value instanceof Collection<?> || value.getClass().isArray()) {
             Collection<?> values = value.getClass().isArray()
-                    ? Arrays.asList((Object[]) value)
-                    : (Collection<?>) value;
+                ? Arrays.asList((Object[]) value)
+                : (Collection<?>) value;
             for (Object v : values) {
-              // Must encode it since AHC uses raw urls
+              // Must encode it since AsyncHttpClient uses raw urls
               builder.addQueryParam(encode(key), encode(v.toString()));
             }
           } else {
-            // Must encode it since AHC uses raw urls
+            // Must encode it since AsyncHttpClient uses raw urls
             builder.addQueryParam(encode(key), encode(value.toString()));
           }
         }
@@ -437,8 +458,7 @@ class WSAsyncRequest extends WSRequest {
     }
     if (this.body != null) {
       if (!this.parameters.isEmpty()) {
-        throw new RuntimeException(
-            "POST or PUT method with parameters AND body are not supported.");
+        throw new RuntimeException("POST or PUT method with parameters AND body are not supported.");
       }
       if (this.body instanceof InputStream) {
         builder.setBody((InputStream) this.body);
@@ -450,23 +470,23 @@ class WSAsyncRequest extends WSRequest {
     }
 
     if (this.mimeType != null) {
-      // User has specified mimeType
+      // The requester has specified mimeType
       this.headers.put("Content-Type", this.mimeType);
     }
   }
 
   /**
-   * Sets the resolved Content-type - This is added as Content-type-header to AHC if ser has not
-   * specified Content-type or mimeType manually (Cannot add it directly to this.header since this
-   * cause problem when Request-object is used multiple times with first GET, then POST)
+   * Sets the resolved Content-type. This is added as Content-type-header to AsyncHttpClient if the requester has not
+   * specified Content-type or mimeType explicitly. Cannot add it directly to this.header since this causes problems
+   * when Request-object is used multiple times, e.g.: first GET, then POST.
    */
   private void setResolvedContentType(String contentType) {
     generatedContentType = contentType;
   }
 
   /**
-   * If generatedContentType is present AND if Content-type header is not already present, add
-   * generatedContentType as Content-Type to headers in requestBuilder
+   * If generatedContentType is present AND if Content-type header is not already present, add generatedContentType as
+   * Content-Type to headers in requestBuilder.
    */
   private void addGeneratedContentType(AsyncHttpClient.BoundRequestBuilder requestBuilder) {
     if (!headers.containsKey("Content-Type") && generatedContentType != null) {

@@ -69,9 +69,8 @@ public class WSAsync implements WSClient {
       confBuilder.setSSLContext(sslCTX);
     }
 
-    // when using raw urls, AHC does not encode the params in url.
-    // this means we can/must encode it(with correct encoding) before
-    // passing it to AHC
+    // When using raw urls, AsyncHttpClient does not encode the params in url. This means we can/must encode it (with
+    // the correct encoding) before passing it to AsyncHttpClient.
     confBuilder.setDisableUrlEncodingForBoundedRequests(true);
     httpClient = new AsyncHttpClient(confBuilder.build());
   }
