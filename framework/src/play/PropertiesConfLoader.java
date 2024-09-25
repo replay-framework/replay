@@ -22,13 +22,25 @@ public class PropertiesConfLoader implements ConfLoader {
   private static final Pattern ENV_VAR_INTERPOLATION_PATTERN =
       Pattern.compile("\\$\\{([^}]+)}");
 
+  private String filePrefix = "";
+
+  public PropertiesConfLoader() {
+    this("");
+  }
+
+  public PropertiesConfLoader(String filePrefix) {
+    if (filePrefix != null) {
+      this.filePrefix = filePrefix;
+    }
+  }
+
   public static Properties read(String playId) {
     return new PropertiesConfLoader().readConfiguration(playId);
   }
 
   @Override
   public Properties readConfiguration(String playId) {
-    return readOneConfigurationFile(playId, "application.conf");
+    return readOneConfigurationFile(playId, filePrefix + "application.conf");
   }
 
   public Properties readOneConfigurationFile(String playId, String filename) {

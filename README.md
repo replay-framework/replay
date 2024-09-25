@@ -221,8 +221,10 @@ Where this is possible the guide below points this out with a **TIP**.
 The following list breaks down the porting effort into tasks:
 
 * Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
-* Move `app/play.plugins` to `conf/` and add all plugins you need explicitly (see the section on "Plugins").
+* Ensure that `app/play.plugins` file (or the file where the `play.plugins.descriptor` configuration property is pointing) is on the classpath (e.g. `sourceSets.main.resources { srcDir 'app' }`) and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
+[RePlay example project](/replay-framework/replay/tree/main/replay-tests/criminals) and
+[multi-module-app test](/replay-framework/replay/tree/main/replay-tests/multi-module-app) for inspiration).
 [RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration).
 * Play1 recommends to subclass from `db.Model`, which is deprecated in RePlay. Instead implement a base model as part of
 your project as seen in `replay-test/liquibase-app`. This give you more flexibility in configuring Hibernate handling of

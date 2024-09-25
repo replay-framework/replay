@@ -1,10 +1,10 @@
 package ui.hello;
 
 import com.codeborne.selenide.Configuration;
+import hello.HelloWorldApp;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.BeforeEach;
 import play.Play;
-import play.server.Starter;
 
 public class BaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);
@@ -19,7 +19,7 @@ public class BaseSpec {
   private static synchronized void startApp() {
     if (appStarted.get()) return;
 
-    int port = Starter.start("test");
+    int port = new HelloWorldApp().start("test");
 
     Configuration.baseUrl = "http://localhost:" + port;
     Play.configuration.setProperty("application.baseUrl", Configuration.baseUrl);
