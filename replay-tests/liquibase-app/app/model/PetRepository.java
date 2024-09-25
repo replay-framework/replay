@@ -1,18 +1,18 @@
 package model;
 
-import play.db.jpa.JPA;
-
 import jakarta.inject.Singleton;
 import jakarta.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
+import play.db.jpa.JPA;
 
 @Singleton
 public class PetRepository {
   public List<Pet> loadAllPets() {
-    return JPA.em().createQuery("select p from Pet p where p.createdAt > ?1 order by p.id", Pet.class)
-      .setParameter(1, LocalDateTime.now().minusYears(5))
-      .getResultList();
+    return JPA.em()
+        .createQuery("select p from Pet p where p.createdAt > ?1 order by p.id", Pet.class)
+        .setParameter(1, LocalDateTime.now().minusYears(5))
+        .getResultList();
   }
 
   public void register(Pet pet) {

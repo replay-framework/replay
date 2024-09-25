@@ -1,15 +1,14 @@
 package play.modules.pdf;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.xhtmlrenderer.pdf.ITextOutputDevice;
-
-import java.io.File;
-import java.net.URI;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.net.URI;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.xhtmlrenderer.pdf.ITextOutputDevice;
 
 public class ReplayUserAgentTest {
 
@@ -27,7 +26,8 @@ public class ReplayUserAgentTest {
     URI uri = getClass().getResource("ReplayUserAgentTest.class").toURI();
     when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(new File(uri));
 
-    assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class")).isEqualTo(uri.toURL().toString());
+    assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class"))
+        .isEqualTo(uri.toURL().toString());
   }
 
   @Test
@@ -35,7 +35,8 @@ public class ReplayUserAgentTest {
     URI uri = getClass().getResource("ReplayUserAgentTest.class").toURI();
     when(fileSearcher.searchFor("org/blah/ReplayUserAgentTest.class")).thenReturn(new File(uri));
 
-    assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class?123213231")).isEqualTo(uri.toURL().toString());
+    assertThat(userAgent.resolveURI("org/blah/ReplayUserAgentTest.class?123213231"))
+        .isEqualTo(uri.toURL().toString());
   }
 
   @Test

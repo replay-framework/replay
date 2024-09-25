@@ -1,20 +1,18 @@
 package play.libs;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import play.Play;
-import play.exceptions.UnexpectedException;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import play.Play;
+import play.exceptions.UnexpectedException;
 
 public class Signer {
   private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
-  @Nonnull
-  private final String salt;
+  @Nonnull private final String salt;
 
   public Signer(@Nonnull String salt) {
     this.salt = salt;
@@ -44,8 +42,7 @@ public class Signer {
         hexChars[charIndex++] = HEX_CHARS[bite & 0xf];
       }
       return new String(hexChars);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new UnexpectedException(ex);
     }
   }

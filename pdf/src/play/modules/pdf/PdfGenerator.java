@@ -1,9 +1,8 @@
 package play.modules.pdf;
 
-import play.mvc.Http;
-
 import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
+import play.mvc.Http;
 
 @Singleton
 public class PdfGenerator {

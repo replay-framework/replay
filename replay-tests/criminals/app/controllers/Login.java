@@ -1,5 +1,6 @@
 package controllers;
 
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.validation.Email;
@@ -11,29 +12,23 @@ import play.mvc.results.Result;
 import play.rebel.View;
 import services.OtpCodeService;
 
-import jakarta.inject.Inject;
-
 public class Login extends Controller {
   private static final Logger log = LoggerFactory.getLogger(Login.class);
 
-  @Inject
-  OtpCodeService otpCodeService;
+  @Inject OtpCodeService otpCodeService;
 
   public Result loginForm() {
     return new View("login/form.html");
   }
 
-  public Result firstStep(@Required @Email String username, @Required String password) throws Exception {
+  public Result firstStep(@Required @Email String username, @Required String password)
+      throws Exception {
     if (Validation.hasErrors()) {
-      return new View("login/form.html")
-          .with("username", username)
-          .with("password", password);
+      return new View("login/form.html").with("username", username).with("password", password);
     }
 
     if (!username.equals(password)) {
-      return new View("login/form.html")
-          .with("username", username)
-          .with("wrongCredentials", true);
+      return new View("login/form.html").with("username", username).with("wrongCredentials", true);
     }
     log.info("Logging in as {} ...", username);
 

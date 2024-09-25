@@ -1,11 +1,11 @@
 package play.data.validation;
 
-import org.junit.jupiter.api.Test;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class ValidationPluginTest {
   private final ValidationPlugin plugin = new ValidationPlugin();
@@ -15,13 +15,14 @@ public class ValidationPluginTest {
   @Test
   public void composeErrorsCookieValue() {
     assertThat(plugin.composeErrorsCookieValue(singletonList(error1)))
-      .isEqualTo("[{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[]}]");
+        .isEqualTo("[{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[]}]");
 
     assertThat(plugin.composeErrorsCookieValue(asList(error1, error2)))
-      .isEqualTo("[" +
-        "{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[]}," +
-        "{\"message\":\"too short\",\"key\":\"account\",\"variables\":[\"foo\",\"bar\"]}" +
-        "]");
+        .isEqualTo(
+            "["
+                + "{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[]},"
+                + "{\"message\":\"too short\",\"key\":\"account\",\"variables\":[\"foo\",\"bar\"]}"
+                + "]");
   }
 
   @Test
@@ -41,15 +42,19 @@ public class ValidationPluginTest {
 
   @Test
   public void parseCookie() {
-    assertThat(plugin.parseErrorsCookie("[{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[],\"severity\":0}]"))
-      .usingRecursiveFieldByFieldElementComparator()
-      .containsExactly(error1);
+    assertThat(
+            plugin.parseErrorsCookie(
+                "[{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[],\"severity\":0}]"))
+        .usingRecursiveFieldByFieldElementComparator()
+        .containsExactly(error1);
 
-    assertThat(plugin.parseErrorsCookie("[" +
-      "{\"message\":\"too short\",\"key\":\"account\",\"variables\":[\"foo\",\"bar\"],\"severity\":42}," +
-      "{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[],\"severity\":0}" +
-      "]"))
-      .usingRecursiveFieldByFieldElementComparator()
-      .containsExactly(error2, error1);
+    assertThat(
+            plugin.parseErrorsCookie(
+                "["
+                    + "{\"message\":\"too short\",\"key\":\"account\",\"variables\":[\"foo\",\"bar\"],\"severity\":42},"
+                    + "{\"message\":\"negative\",\"key\":\"amount\",\"variables\":[],\"severity\":0}"
+                    + "]"))
+        .usingRecursiveFieldByFieldElementComparator()
+        .containsExactly(error2, error1);
   }
 }

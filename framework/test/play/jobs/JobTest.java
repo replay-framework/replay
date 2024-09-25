@@ -1,12 +1,5 @@
 package play.jobs;
 
-import org.junit.jupiter.api.Test;
-import play.Play;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -14,6 +7,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import play.Play;
 
 public class JobTest {
   @Test
@@ -68,7 +67,7 @@ public class JobTest {
 
   @On("0 0 10 * * ?")
   private static class TestJob extends SimpleJob {
-    @Override public void doJob() {
-    }
+    @Override
+    public void doJob() {}
   }
 }

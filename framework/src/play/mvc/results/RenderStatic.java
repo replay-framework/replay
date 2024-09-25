@@ -8,18 +8,18 @@ import play.mvc.Scope.Session;
 
 public class RenderStatic extends Result {
 
-    public String file;
+  public String file;
 
-    public RenderStatic(String file) {
-        this.file = file;
-    }
+  public RenderStatic(String file) {
+    this.file = file;
+  }
 
-    @Override
-    public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
-    }
+  @Override
+  public void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {}
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " " + file;
-    }
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " " + file;
+  }
 }

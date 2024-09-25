@@ -7,25 +7,23 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.utils.FastRuntimeException;
 
-/**
- * Result support
- */
+/** Result support */
 public abstract class Result extends FastRuntimeException {
 
-    protected Result() {
-    }
+  protected Result() {}
 
-    protected Result(String description) {
-        super(description);
-    }
+  protected Result(String description) {
+    super(description);
+  }
 
-    public abstract void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash);
+  public abstract void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash);
 
-    protected void setContentTypeIfNotSet(Response response, String contentType) {
-        response.setContentTypeIfNotSet(contentType);
-    }
+  protected void setContentTypeIfNotSet(Response response, String contentType) {
+    response.setContentTypeIfNotSet(contentType);
+  }
 
-    public boolean isRenderingTemplate() {
-        return false;
-    }
+  public boolean isRenderingTemplate() {
+    return false;
+  }
 }

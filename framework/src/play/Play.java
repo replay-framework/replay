@@ -1,5 +1,18 @@
 package play;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import jakarta.inject.Inject;
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.Cache;
@@ -16,35 +29,18 @@ import play.mvc.SessionStore;
 import play.plugins.PluginCollection;
 import play.templates.TemplateLoader;
 
-import jakarta.inject.Inject;
-import javax.annotation.Nullable;
-import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-/**
- * Main framework class
- */
+/** Main framework class */
 public class Play {
   private static final Logger logger = LoggerFactory.getLogger(Play.class);
 
   public enum Mode {
 
     /**
-     * Enable development-specific features, e.g. view the documentation at the URL {@literal "/@documentation"}.
+     * Enable development-specific features, e.g. view the documentation at the URL {@literal
+     * "/@documentation"}.
      */
     DEV,
-    /**
-     * Disable development-specific features.
-     */
+    /** Disable development-specific features. */
     PROD;
 
     public boolean isDev() {
@@ -63,48 +59,32 @@ public class Play {
   public static File tmpDir;
   public static final ApplicationClasses classes = new ApplicationClasses();
 
-  /**
-   * All paths to search for templates files
-   */
+  /** All paths to search for templates files */
   public static List<File> templatesPath = new ArrayList<>(2);
-  /**
-   * The routes file
-   */
+  /** The routes file */
   public static ClasspathResource routes;
 
-  /**
-   * The app configuration (already resolved from the framework id)
-   */
+  /** The app configuration (already resolved from the framework id) */
   public static Properties configuration = new Properties();
-  /**
-   * The last time than the application has started
-   */
+  /** The last time than the application has started */
   public static long startedAt;
-  /**
-   * The list of supported locales
-   */
+  /** The list of supported locales */
   public static List<String> langs = new ArrayList<>(16);
-  /**
-   * The very secret key
-   */
+  /** The very secret key */
   public static String secretKey;
-  /**
-   * pluginCollection that holds all loaded plugins and all enabled plugins
-   */
+  /** pluginCollection that holds all loaded plugins and all enabled plugins */
   public static PluginCollection pluginCollection = new PluginCollection();
 
   public static boolean usePrecompiled;
 
-  /**
-   * This is used as default encoding everywhere related to the web: request, response, WS
-   */
+  /** This is used as default encoding everywhere related to the web: request, response, WS */
   public static final Charset defaultWebEncoding = UTF_8;
 
   public static Invoker invoker;
 
   /**
-   * Not recommended to use directly. 
-   * Instead, you should use @Inject annotation to inject your dependencies (either constructor or field injection).
+   * Not recommended to use directly. Instead, you should use @Inject annotation to inject your
+   * dependencies (either constructor or field injection).
    */
   public static BeanSource beanSource;
 
@@ -145,8 +125,8 @@ public class Play {
   }
 
   /**
-   * Minimalistic initialization of the framework; allowing DIY-initialization
-   * (no modules, no plugins from .plugins file, no routes from routes file, no config file)
+   * Minimalistic initialization of the framework; allowing DIY-initialization (no modules, no
+   * plugins from .plugins file, no routes from routes file, no config file)
    *
    * @param id The framework id to use
    */
@@ -172,8 +152,7 @@ public class Play {
     if (configuration.getProperty("play.tmp", "tmp").equals("none")) {
       tmpDir = null;
       logger.debug("No tmp folder will be used (play.tmp is set to none)");
-    }
-    else {
+    } else {
       tmpDir = new File(configuration.getProperty("play.tmp", "tmp"));
       if (!tmpDir.isAbsolute()) {
         tmpDir = new File(appRoot, tmpDir.getPath());
@@ -193,14 +172,21 @@ public class Play {
     try {
       String configuredMode = configuration.getProperty("application.mode");
       if (configuredMode == null) {
-        boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+        boolean isDebug =
+            ManagementFactory.getRuntimeMXBean()
+                    .getInputArguments()
+                    .toString()
+                    .indexOf("-agentlib:jdwp")
+                > 0;
         configuredMode = isDebug ? "DEV" : "PROD";
       }
       mode = Mode.valueOf(configuredMode.toUpperCase());
-    }
-    catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
-          String.format("Illegal mode '%s', use either prod or dev", configuration.getProperty("application.mode")), e);
+          String.format(
+              "Illegal mode '%s', use either prod or dev",
+              configuration.getProperty("application.mode")),
+          e);
     }
 
     // Set to the Prod mode must be done before loadModules call as some modules (e.g. DocViewer) is only available in DEV
@@ -212,7 +198,8 @@ public class Play {
   private static void setupAppRoot() {
     // Build basic templates path
     templatesPath.clear();
-    if (new File(appRoot, "app/views").exists() || (usePrecompiled && new File(appRoot, "precompiled/templates/app/views").exists())) {
+    if (new File(appRoot, "app/views").exists()
+        || (usePrecompiled && new File(appRoot, "precompiled/templates/app/views").exists())) {
       templatesPath.add(new File(appRoot, "app/views"));
     }
   }
@@ -221,9 +208,7 @@ public class Play {
     return actionInvoker;
   }
 
-  /**
-   * Read application.conf and resolve overridden key using the play id mechanism.
-   */
+  /** Read application.conf and resolve overridden key using the play id mechanism. */
   private void readConfiguration() {
     configuration = confLoader.readConfiguration(Play.id);
     pluginCollection.onConfigurationRead();
@@ -252,11 +237,11 @@ public class Play {
 
       started = true;
       startedAt = System.currentTimeMillis();
-      logger.info("Application '{}' is now started !", configuration.getProperty("application.name", ""));
+      logger.info(
+          "Application '{}' is now started !", configuration.getProperty("application.name", ""));
 
       pluginCollection.afterApplicationStart();
-    }
-    catch (RuntimeException e) {
+    } catch (RuntimeException e) {
       stop();
       started = false;
       throw e;
@@ -290,23 +275,24 @@ public class Play {
     field.setAccessible(true);
     try {
       field.set(null, beanSource.getBeanOfType(field.getType()));
-    }
-    catch (IllegalAccessException e) {
+    } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Can only register shutdown-hook if running as standalone server
-   * registers shutdown hook - Now there's a good chance that we can notify
-   * our plugins that we're going down when some calls ctrl+c or just kills our process
+   * Can only register shutdown-hook if running as standalone server registers shutdown hook - Now
+   * there's a good chance that we can notify our plugins that we're going down when some calls
+   * ctrl+c or just kills our process
    */
   private void registerShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
   }
 
   private static void initLangs() {
-    langs = new ArrayList<>(Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
+    langs =
+        new ArrayList<>(
+            Arrays.asList(configuration.getProperty("application.langs", "").split(",")));
     if (langs.size() == 1 && langs.get(0).trim().length() == 0) {
       langs = new ArrayList<>(16);
     }
@@ -326,8 +312,7 @@ public class Play {
       started = false;
       Cache.stop();
       Router.lastLoading = 0L;
-    }
-    else {
+    } else {
       logger.warn("Cannot stop because Play is not started");
     }
   }
@@ -364,9 +349,10 @@ public class Play {
   }
 
   /**
-   * Returns true if application is running in test-mode. Test-mode is resolved from the framework id.
-   * <p>
-   * Your app is running in test-mode if the framework id (Play.id) is 'test' or 'test-?.*'
+   * Returns true if application is running in test-mode. Test-mode is resolved from the framework
+   * id.
+   *
+   * <p>Your app is running in test-mode if the framework id (Play.id) is 'test' or 'test-?.*'
    *
    * @return true if test mode
    */

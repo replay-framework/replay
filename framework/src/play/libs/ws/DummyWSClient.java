@@ -1,9 +1,9 @@
 package play.libs.ws;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.util.Collections.emptyMap;
 
 public class DummyWSClient extends WSAsync {
   private final Map<String, Map<HttpMethod, DummyWSRequest>> requests = new HashMap<>();
@@ -11,8 +11,8 @@ public class DummyWSClient extends WSAsync {
 
   public void replyWith(String url, HttpMethod method, int status, String body) {
     this.responses
-      .computeIfAbsent(url, u -> new HashMap<>())
-      .put(method, new DummyHttpResponse(status, body));
+        .computeIfAbsent(url, u -> new HashMap<>())
+        .put(method, new DummyHttpResponse(status, body));
   }
 
   @Override

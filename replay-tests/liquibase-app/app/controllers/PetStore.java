@@ -1,13 +1,12 @@
 package controllers;
 
 import com.google.common.collect.ImmutableMap;
+import jakarta.inject.Inject;
+import java.util.List;
 import model.Pet;
 import model.PetRepository;
 import play.mvc.Controller;
 import play.rebel.View;
-
-import jakarta.inject.Inject;
-import java.util.List;
 
 public class PetStore extends Controller {
   private final PetRepository repository;

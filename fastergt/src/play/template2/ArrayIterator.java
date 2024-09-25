@@ -15,18 +15,21 @@ class ArrayIterator<T> implements Iterator<T> {
     this.index = 0;
   }
 
-  @Override public boolean hasNext() {
+  @Override
+  public boolean hasNext() {
     return index < endIndex;
   }
 
-  @Override public T next() {
+  @Override
+  public T next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
     return (T) Array.get(array, index++);
   }
 
-  @Override public void remove() {
+  @Override
+  public void remove() {
     throw new UnsupportedOperationException("remove() method is not supported");
   }
 }

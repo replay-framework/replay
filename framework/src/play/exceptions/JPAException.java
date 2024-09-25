@@ -1,7 +1,7 @@
 package play.exceptions;
 
 public class JPAException extends PlayException {
-    public JPAException(String message) {
-        super(message);
-    }
+  public JPAException(String message) {
+    super(message);
+  }
 }

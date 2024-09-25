@@ -1,10 +1,9 @@
 package play.server;
 
-import play.Play;
-import play.inject.BeanSource;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import play.Play;
+import play.inject.BeanSource;
 
 public class Starter {
   public static int start(String playId, BeanSource beanSource) {
@@ -28,13 +27,17 @@ public class Starter {
       constructor.setAccessible(true);
       PlayServer server = (PlayServer) constructor.newInstance(play);
       return server.start();
-    }
-    catch (ClassNotFoundException | NoSuchMethodException |
-           InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      throw new IllegalStateException("Failed to start server. " +
-        "Please add the dependency io.github.replay-framework:netty3, io.github.replay-framework:netty4 or "
-        + "io.github.replay-framework:javanet to your project, and make sure it precedes "
-        + "io.github.replay-framework:framework in the runtime classpath", e);
+    } catch (ClassNotFoundException
+        | NoSuchMethodException
+        | InvocationTargetException
+        | InstantiationException
+        | IllegalAccessException e) {
+      throw new IllegalStateException(
+          "Failed to start server. "
+              + "Please add the dependency io.github.replay-framework:netty3, io.github.replay-framework:netty4 or "
+              + "io.github.replay-framework:javanet to your project, and make sure it precedes "
+              + "io.github.replay-framework:framework in the runtime classpath",
+          e);
     }
   }
 }

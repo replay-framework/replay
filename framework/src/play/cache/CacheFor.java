@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface CacheFor {
-    String value() default "1h";
-    String id() default "";
+  String value() default "1h";
+
+  String id() default "";
 }

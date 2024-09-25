@@ -1,14 +1,14 @@
 package play.server;
 
+import static java.util.regex.Pattern.compile;
+
+import java.net.InetSocketAddress;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.net.InetSocketAddress;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.compile;
 
 @ParametersAreNonnullByDefault
 public class IpParser {
@@ -41,8 +41,7 @@ public class IpParser {
   public boolean isLoopback(String host, InetSocketAddress address) {
     try {
       return address.getAddress().isLoopbackAddress() && isLocalhost(host);
-    }
-    catch (RuntimeException ignore) {
+    } catch (RuntimeException ignore) {
       return false;
     }
   }
@@ -51,7 +50,7 @@ public class IpParser {
   boolean isLocalhost(String host) {
     return REGEX_LOCALHOST.matcher(host).matches();
   }
- 
+
   @Nonnull
   @CheckReturnValue
   public ServerAddress parseHost(@Nullable String host) {
@@ -84,5 +83,4 @@ public class IpParser {
 
     return new ServerAddress(host, 80, host);
   }
-
 }

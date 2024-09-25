@@ -1,13 +1,12 @@
 package play.db.jpa;
 
-import play.db.jpa.GenericModel.JPAQuery;
-
 import jakarta.inject.Singleton;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PersistenceUnit;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+import play.db.jpa.GenericModel.JPAQuery;
 
 @Singleton
 public class JPARepository<T extends JPABase> {
@@ -46,8 +45,7 @@ public class JPARepository<T extends JPABase> {
   public T findById(Object id) {
     try {
       return (T) JPQL.instance.findById(dbName, entityName, id);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

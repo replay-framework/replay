@@ -1,8 +1,7 @@
 package play.modules.pdf;
 
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
-
 import javax.annotation.ParametersAreNonnullByDefault;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 
 @ParametersAreNonnullByDefault
 public class PDFDocument {

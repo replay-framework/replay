@@ -1,14 +1,10 @@
 package play.data.parsing;
 
+import java.util.Map;
 import play.mvc.Http;
 
-import java.util.Map;
-
-/**
- * A data parser parse the HTTP request data to a Map&lt;String,String[]&gt;
- */
+/** A data parser parse the HTTP request data to a Map&lt;String,String[]&gt; */
 public abstract class DataParser {
 
-    public abstract Map<String, String[]> parse(Http.Request request);
-
+  public abstract Map<String, String[]> parse(Http.Request request);
 }

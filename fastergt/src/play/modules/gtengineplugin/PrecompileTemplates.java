@@ -1,14 +1,13 @@
 package play.modules.gtengineplugin;
 
+import java.io.File;
+import java.util.Map;
+import java.util.Optional;
 import play.Play;
 import play.PlayPlugin;
 import play.plugins.PluginCollection;
 import play.templates.Template;
 import play.templates.TemplateLoader;
-
-import java.io.File;
-import java.util.Map;
-import java.util.Optional;
 
 public class PrecompileTemplates {
   public static void main(String[] args) {
@@ -30,7 +29,8 @@ public class PrecompileTemplates {
   }
 
   private static class SinglePluginCollection extends PluginCollection {
-    @Override public void loadPlugins() {
+    @Override
+    public void loadPlugins() {
       IgnoreOtherTemplatesPlugin otherTemplatesPlugin = new IgnoreOtherTemplatesPlugin();
       otherTemplatesPlugin.index = 1;
       addPlugin(otherTemplatesPlugin);
@@ -45,15 +45,20 @@ public class PrecompileTemplates {
   private static class IgnoreOtherTemplatesPlugin extends PlayPlugin {
     private final DummyTemplate dummyTemplate = new DummyTemplate();
 
-    @Override public Optional<Template> loadTemplate(File file) {
-      if (file.getName().endsWith(".html") || file.getName().endsWith(".tag")
-        || file.getName().endsWith(".xml") || file.getName().endsWith(".json") || file.getName().endsWith(".txt")) {
+    @Override
+    public Optional<Template> loadTemplate(File file) {
+      if (file.getName().endsWith(".html")
+          || file.getName().endsWith(".tag")
+          || file.getName().endsWith(".xml")
+          || file.getName().endsWith(".json")
+          || file.getName().endsWith(".txt")) {
         // will be precompiled by GTEnginePlugin
         return Optional.empty();
       }
-      if (file.getName().endsWith(".xls") || file.getName().endsWith(".js") ||
-        file.getName().endsWith(".md") ||
-        file.getName().endsWith(".cer")) {
+      if (file.getName().endsWith(".xls")
+          || file.getName().endsWith(".js")
+          || file.getName().endsWith(".md")
+          || file.getName().endsWith(".cer")) {
         // no need to precompile
         return Optional.of(dummyTemplate);
       }
@@ -68,10 +73,11 @@ public class PrecompileTemplates {
       super("Dummy");
     }
 
-    @Override public void compile() {
-    }
+    @Override
+    public void compile() {}
 
-    @Override protected String internalRender(Map<String, Object> args) {
+    @Override
+    protected String internalRender(Map<String, Object> args) {
       throw new UnsupportedOperationException();
     }
   }

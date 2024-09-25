@@ -1,11 +1,10 @@
 package play.templates;
 
+import java.util.HashMap;
+import java.util.Map;
 import play.templates.types.SafeCSVFormatter;
 import play.templates.types.SafeHTMLFormatter;
 import play.templates.types.SafeXMLFormatter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SafeFormatters {
   private final Map<String, SafeFormatter> safeFormatters = new HashMap<>();

@@ -1,5 +1,7 @@
 package ui.hello;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.codeborne.selenide.Configuration;
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import play.libs.ws.HttpResponse;
 import play.libs.ws.WSAsync;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class LargePostBodySpec extends BaseSpec {
 
   @Test
@@ -17,11 +17,13 @@ public class LargePostBodySpec extends BaseSpec {
     int contentLength = 1024 * 1024;
     String requestBody = Strings.repeat("X", contentLength);
 
-    HttpResponse res = (new WSAsync()).newRequest(Configuration.baseUrl + "/post")
-        .mimeType("application/json")
-        // large bodies become a ResettableFileInputStream
-        .body(requestBody)
-        .post();
+    HttpResponse res =
+        (new WSAsync())
+            .newRequest(Configuration.baseUrl + "/post")
+            .mimeType("application/json")
+            // large bodies become a ResettableFileInputStream
+            .body(requestBody)
+            .post();
 
     assertThat(res.getStatus()).isEqualTo(200);
 

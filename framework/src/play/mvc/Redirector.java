@@ -1,18 +1,17 @@
 package play.mvc;
 
-import play.data.binding.Unbinder;
-
 import jakarta.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import play.data.binding.Unbinder;
 
 /**
  * This class is deprecated.
  *
- * Please RETURN (not throw) `play.mvc.results.Result`
+ * <p>Please RETURN (not throw) `play.mvc.results.Result`
  */
 @Singleton
 public class Redirector {
@@ -40,18 +39,21 @@ public class Redirector {
       this.value = value;
     }
 
-    @Override public boolean equals(Object other) {
+    @Override
+    public boolean equals(Object other) {
       if (this == other) return true;
       if (other == null || getClass() != other.getClass()) return false;
       Parameter parameter = (Parameter) other;
       return Objects.equals(name, parameter.name) && Objects.equals(value, parameter.value);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       return Objects.hash(name, value);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return name + '=' + value;
     }
   }

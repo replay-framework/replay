@@ -1,19 +1,19 @@
 package play.utils;
 
-import org.junit.jupiter.api.Test;
-import play.libs.IO;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.utils.OrderSafeProperties.removeEscapedBackslashes;
 import static play.utils.OrderSafeProperties.unescapeQuotes;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
+import org.junit.jupiter.api.Test;
+import play.libs.IO;
+
 public class OrderSafePropertiesTest {
   @Test
-  public void verifyThatEscaping_properties_content_giveSameResultAs_java_util_properties() throws IOException {
+  public void verifyThatEscaping_properties_content_giveSameResultAs_java_util_properties()
+      throws IOException {
     // see info about escaping - http://download.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html - "public void load(InputStream inStream)"
     Properties javaP = readJavaProperties("/play/utils/OrderSaferPropertiesTest2.properties");
     Properties playP = IO.readUtf8Properties("/play/utils/OrderSaferPropertiesTest2.properties");
@@ -35,9 +35,12 @@ public class OrderSafePropertiesTest {
   @Test
   public void removeEscapedBackslashes_xx() {
     assertThat(removeEscapedBackslashes("'quoted string'")).isEqualTo("'quoted string'");
-    assertThat(removeEscapedBackslashes("\\\\\"quote \\'apostrophe")).isEqualTo("\\\"quote \\'apostrophe");
-    assertThat(removeEscapedBackslashes("\\\\\\\"quote \\\\'apostrophe")).isEqualTo("\\\\\"quote \\'apostrophe");
-    assertThat(removeEscapedBackslashes("\\\\\\\\\"quote \\\\\\'apostrophe")).isEqualTo("\\\\\"quote \\\\'apostrophe");
+    assertThat(removeEscapedBackslashes("\\\\\"quote \\'apostrophe"))
+        .isEqualTo("\\\"quote \\'apostrophe");
+    assertThat(removeEscapedBackslashes("\\\\\\\"quote \\\\'apostrophe"))
+        .isEqualTo("\\\\\"quote \\'apostrophe");
+    assertThat(removeEscapedBackslashes("\\\\\\\\\"quote \\\\\\'apostrophe"))
+        .isEqualTo("\\\\\"quote \\\\'apostrophe");
   }
 
   @Test
@@ -92,7 +95,8 @@ public class OrderSafePropertiesTest {
     assertThat(p.getProperty("_check_5")).isEqualTo("newLineString\n");
     assertThat(p.getProperty("_check_6")).isEqualTo("欢迎");
     assertThat(p.getProperty("_check_7.ยินดีต้อนรับ")).isEqualTo("ยินดีต้อนรับ");
-    assertThat(p.getProperty("_check_8")).isEqualTo("х");// Unicode Character 'CYRILLIC SMALL LETTER HA' (U+0445)
+    assertThat(p.getProperty("_check_8"))
+        .isEqualTo("х"); // Unicode Character 'CYRILLIC SMALL LETTER HA' (U+0445)
 
     String cyrillic_bulgarian_caps = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ";
     String cyrillic_bulgarian_small = "абвгдежзийклмнопрстуфхцчшщъьюя";

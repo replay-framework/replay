@@ -1,20 +1,19 @@
 package play.server.javanet;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import org.junit.jupiter.api.Test;
-import play.mvc.Http;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
+import play.mvc.Http;
 
 public class PlayHandlerTest {
 
@@ -30,8 +29,9 @@ public class PlayHandlerTest {
     when(headers.getFirst("Host")).thenReturn("site.eu:8080");
     when(headers.getFirst("Content-Type")).thenReturn("text/json");
     when(exchange.getRemoteAddress()).thenReturn(new InetSocketAddress("192.168.0.10", 443));
-    when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream("I am request body".getBytes(UTF_8)));
-    
+    when(exchange.getRequestBody())
+        .thenReturn(new ByteArrayInputStream("I am request body".getBytes(UTF_8)));
+
     Http.Request request = playHandler.parseRequest(exchange);
 
     assertThat(request.host).isEqualTo("site.eu:8080");

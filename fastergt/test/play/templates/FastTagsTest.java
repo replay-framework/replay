@@ -1,19 +1,5 @@
 package play.templates;
 
-import groovy.lang.Closure;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import play.mvc.Http;
-import play.mvc.Router;
-import play.mvc.Scope.Session;
-import play.utils.DummyUuidGenerator;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.util.Map;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -22,14 +8,29 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import groovy.lang.Closure;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import play.mvc.Http;
+import play.mvc.Router;
+import play.mvc.Scope.Session;
+import play.utils.DummyUuidGenerator;
+
 public class FastTagsTest {
   private final StringWriter out = new StringWriter();
   private final String backupSystemLineBreak = System.getProperty("line.separator");
-  private final ExecutableTemplate template = new ExecutableTemplate() {
-    @Override public Object run() {
-      return null;
-    }
-  };
+  private final ExecutableTemplate template =
+      new ExecutableTemplate() {
+        @Override
+        public Object run() {
+          return null;
+        }
+      };
   private final FastTags tags = new FastTags(new DummyUuidGenerator("some-uuid"));
   private final Closure body = mock(Closure.class);
 
@@ -67,9 +68,11 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -78,16 +81,15 @@ public class FastTagsTest {
     actionDefinition.url = "/foo/bar";
     actionDefinition.method = "GET";
 
-    var args = Map.of(
-      "arg", actionDefinition,
-      "name", "my-form"
-    );
+    var args = Map.of("arg", actionDefinition, "name", "my-form");
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" name=\"my-form\">\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" name=\"my-form\">\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -99,11 +101,13 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n" +
-                                         "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
+                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -115,11 +119,13 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n" +
-                                         "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
+                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -128,18 +134,17 @@ public class FastTagsTest {
     actionDefinition.url = "/foo/bar";
     actionDefinition.method = "GET";
 
-    var args = Map.of(
-      "arg", actionDefinition,
-      "method", "POST"
-    );
+    var args = Map.of("arg", actionDefinition, "method", "POST");
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n" +
-                                         "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
+                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -148,16 +153,15 @@ public class FastTagsTest {
     actionDefinition.url = "/foo/bar";
     actionDefinition.method = "GET";
 
-    var args = Map.of(
-      "arg", actionDefinition,
-      "data-customer", "12"
-    );
+    var args = Map.of("arg", actionDefinition, "data-customer", "12");
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" data-customer=\"12\" >\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" data-customer=\"12\" >\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -169,9 +173,11 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -180,16 +186,15 @@ public class FastTagsTest {
     actionDefinition.url = "/foo/bar";
     actionDefinition.method = "GET";
 
-    var args = Map.of(
-      "arg", actionDefinition,
-      "enctype", "xyz"
-    );
+    var args = Map.of("arg", actionDefinition, "enctype", "xyz");
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"xyz\" >\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"xyz\" >\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test
@@ -198,11 +203,13 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString()).isEqualTo("<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n" +
-                                         "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n" +
-                                         "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n" +
-                                         "\n" +
-                                         "</form>");
+    assertThat(out.toString())
+        .isEqualTo(
+            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
+                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
+                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
+                + "\n"
+                + "</form>");
   }
 
   @Test

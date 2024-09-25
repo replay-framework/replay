@@ -1,5 +1,9 @@
 package play.rebel;
 
+import static java.util.Arrays.asList;
+import static play.mvc.Redirector.toMap;
+
+import java.util.Map;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Redirector;
@@ -9,15 +13,10 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Redirect;
 
-import java.util.Map;
-
-import static java.util.Arrays.asList;
-import static play.mvc.Redirector.toMap;
-
 public class RedirectToAction extends Redirect {
   private final String action;
   private final Map<String, Object> parameters;
-  
+
   public RedirectToAction(String action, Map<String, Object> parameters) {
     super("not defined yet");
     this.action = action;
@@ -28,7 +27,9 @@ public class RedirectToAction extends Redirect {
     this(action, toMap(asList(args)));
   }
 
-  @Override public void apply(Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+  @Override
+  public void apply(
+      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     this.url = url(request, action, parameters);
     super.apply(request, response, session, renderArgs, flash);
   }
@@ -41,8 +42,8 @@ public class RedirectToAction extends Redirect {
       }
     }
 
-    Router.ActionDefinition actionDefinition = parameters.isEmpty() ? 
-        Router.reverse(action) : Router.reverse(action, parameters);
+    Router.ActionDefinition actionDefinition =
+        parameters.isEmpty() ? Router.reverse(action) : Router.reverse(action, parameters);
     return actionDefinition.toString();
   }
 

@@ -1,5 +1,12 @@
 package controllers;
 
+import static play.modules.excel.RenderExcel.RA_FILENAME;
+
+import jakarta.inject.Inject;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import model.Pet;
 import model.PetRepository;
 import play.Play;
@@ -9,28 +16,22 @@ import play.modules.excel.RenderExcel;
 import play.mvc.Controller;
 import play.mvc.results.Result;
 
-import jakarta.inject.Inject;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import static play.modules.excel.RenderExcel.RA_FILENAME;
-
 public class PetReport extends Controller {
   private final PetRepository repository;
 
-  @Inject PetReport(PetRepository repository) {
+  @Inject
+  PetReport(PetRepository repository) {
     this.repository = repository;
   }
 
   public Result report() {
     List<Pet> pets = repository.loadAllPets();
-    Map<String, Object> args = Map.of(
-      "i18n", allMessages(),
-      "today", LocalDate.now(),
-      "pets", pets,
-      "petsCount", pets.size()
-    );
+    Map<String, Object> args =
+        Map.of(
+            "i18n", allMessages(),
+            "today", LocalDate.now(),
+            "pets", pets,
+            "petsCount", pets.size());
     request.format = "xls";
     renderArgs.put(RA_FILENAME, "pets-report.xls");
     return new RenderExcel(Play.file("app/views/report.xls"), args, "pets-report.xls");

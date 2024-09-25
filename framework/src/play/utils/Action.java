@@ -2,5 +2,5 @@ package play.utils;
 
 public interface Action<T> {
 
-    void invoke(T result);
+  void invoke(T result);
 }

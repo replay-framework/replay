@@ -1,5 +1,22 @@
 package play.server;
 
+import static com.google.common.net.HttpHeaders.KEEP_ALIVE;
+import static java.lang.Integer.parseInt;
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static play.mvc.Http.Headers.Values.CLOSE;
+
+import java.io.File;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -8,24 +25,6 @@ import play.mvc.Http;
 import play.mvc.results.NotFound;
 import play.templates.TemplateLoader;
 import play.utils.Utils;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.File;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static com.google.common.net.HttpHeaders.KEEP_ALIVE;
-import static java.lang.Integer.parseInt;
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static play.mvc.Http.Headers.Values.CLOSE;
 
 @ParametersAreNonnullByDefault
 public class ServerHelper {
@@ -40,13 +39,16 @@ public class ServerHelper {
   @CheckReturnValue
   public boolean isKeepAlive(String protocol, String connectionHeader) {
     switch (protocol) {
-      case "HTTP/1.0": return KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
-      default: return !CLOSE.equalsIgnoreCase(connectionHeader);
+      case "HTTP/1.0":
+        return KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
+      default:
+        return !CLOSE.equalsIgnoreCase(connectionHeader);
     }
   }
 
   @CheckReturnValue
-  public boolean isModified(String etag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
+  public boolean isModified(
+      String etag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
     if (ifNoneMatch != null) {
       return !ifNoneMatch.equals(etag);
     }
@@ -58,8 +60,7 @@ public class ServerHelper {
           if (browserDate.getTime() >= last) {
             return false;
           }
-        }
-        catch (ParseException ex) {
+        } catch (ParseException ex) {
           logger.warn("Can't parse HTTP date", ex);
         }
         return true;
@@ -71,23 +72,25 @@ public class ServerHelper {
   @Nonnull
   @CheckReturnValue
   public String generateNotFoundResponse(Http.Request request, String format, NotFound e) {
-    return TemplateLoader.load("errors/404." + format).render(getBindingForErrors(request, e, false));
+    return TemplateLoader.load("errors/404." + format)
+        .render(getBindingForErrors(request, e, false));
   }
 
   @Nonnull
   @CheckReturnValue
   public String generateErrorResponse(Http.Request request, String format, Exception e) {
-    return TemplateLoader.load("errors/500." + format).render(getBindingForErrors(request, e, true));
+    return TemplateLoader.load("errors/500." + format)
+        .render(getBindingForErrors(request, e, true));
   }
 
   @Nonnull
   @CheckReturnValue
-  private Map<String, Object> getBindingForErrors(Http.Request request, Exception e, boolean isError) {
+  private Map<String, Object> getBindingForErrors(
+      Http.Request request, Exception e, boolean isError) {
     Map<String, Object> binding = new HashMap<>(4);
     if (isError) {
       binding.put("exception", e);
-    }
-    else {
+    } else {
       binding.put("result", e);
     }
     binding.put("request", request);
@@ -125,8 +128,6 @@ public class ServerHelper {
   @Nonnull
   @CheckReturnValue
   public String relativeUrl(String path, @Nullable String query) {
-    return Stream.of(path, query)
-      .filter(s -> s != null && !s.isEmpty())
-      .collect(joining("?"));
+    return Stream.of(path, query).filter(s -> s != null && !s.isEmpty()).collect(joining("?"));
   }
 }

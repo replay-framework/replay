@@ -1,3 +1,12 @@
+plugins {
+  // To enforce Google's Java CodyStyle from the `googleJavaFormat` Gradle task
+  id 'com.github.sherter.google-java-format' version '0.9'
+}
+
+repositories {
+  mavenCentral()
+}
+
 defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 subprojects {
@@ -74,4 +83,8 @@ subprojects {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.assertjCore)
   }
+}
+
+googleJavaFormat {
+  toolVersion = '1.1'
 }

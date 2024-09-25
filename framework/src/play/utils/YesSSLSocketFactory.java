@@ -1,93 +1,92 @@
 package play.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.security.cert.X509Certificate;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.security.cert.X509Certificate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * SSL Sockets created by this factory won't check
- * if certificates are signed with a root certificate (or chained from root)
+ * SSL Sockets created by this factory won't check if certificates are signed with a root
+ * certificate (or chained from root)
  */
 public class YesSSLSocketFactory extends SSLSocketFactory {
-    private static final Logger logger = LoggerFactory.getLogger(YesSSLSocketFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(YesSSLSocketFactory.class);
 
-    public static class YesTrustManager implements X509TrustManager {
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] cert, String authType) {
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] cert, String authType) {
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[0];
-        }
-    }
-    private SSLSocketFactory factory;
-
-    public YesSSLSocketFactory() {
-        try {
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(null, new TrustManager[]{new YesTrustManager()}, null);
-            factory = sslcontext.getSocketFactory();
-        } catch (Exception ex) {
-            logger.error("Failed to initialize factory", ex);
-        }
-    }
-
-    public static SocketFactory getDefault() {
-        return new YesSSLSocketFactory();
-    }
+  public static class YesTrustManager implements X509TrustManager {
 
     @Override
-    public Socket createSocket(Socket socket, String s, int i, boolean flag) throws IOException {
-        return factory.createSocket(socket, s, i, flag);
-    }
+    public void checkClientTrusted(X509Certificate[] cert, String authType) {}
 
     @Override
-    public Socket createSocket() throws IOException {
-        return factory.createSocket();
-    }
+    public void checkServerTrusted(X509Certificate[] cert, String authType) {}
 
     @Override
-    public Socket createSocket(InetAddress inaddr, int i, InetAddress inaddr1, int j) throws IOException {
-        return factory.createSocket(inaddr, i, inaddr1, j);
+    public X509Certificate[] getAcceptedIssuers() {
+      return new X509Certificate[0];
     }
+  }
 
-    @Override
-    public Socket createSocket(InetAddress inaddr, int i) throws IOException {
-        return factory.createSocket(inaddr, i);
-    }
+  private SSLSocketFactory factory;
 
-    @Override
-    public Socket createSocket(String s, int i, InetAddress inaddr, int j) throws IOException {
-        return factory.createSocket(s, i, inaddr, j);
+  public YesSSLSocketFactory() {
+    try {
+      SSLContext sslcontext = SSLContext.getInstance("TLS");
+      sslcontext.init(null, new TrustManager[] {new YesTrustManager()}, null);
+      factory = sslcontext.getSocketFactory();
+    } catch (Exception ex) {
+      logger.error("Failed to initialize factory", ex);
     }
+  }
 
-    @Override
-    public Socket createSocket(String s, int i) throws IOException {
-        return factory.createSocket(s, i);
-    }
+  public static SocketFactory getDefault() {
+    return new YesSSLSocketFactory();
+  }
 
-    @Override
-    public String[] getDefaultCipherSuites() {
-        return factory.getDefaultCipherSuites();
-    }
+  @Override
+  public Socket createSocket(Socket socket, String s, int i, boolean flag) throws IOException {
+    return factory.createSocket(socket, s, i, flag);
+  }
 
-    @Override
-    public String[] getSupportedCipherSuites() {
-        return factory.getSupportedCipherSuites();
-    }
+  @Override
+  public Socket createSocket() throws IOException {
+    return factory.createSocket();
+  }
+
+  @Override
+  public Socket createSocket(InetAddress inaddr, int i, InetAddress inaddr1, int j)
+      throws IOException {
+    return factory.createSocket(inaddr, i, inaddr1, j);
+  }
+
+  @Override
+  public Socket createSocket(InetAddress inaddr, int i) throws IOException {
+    return factory.createSocket(inaddr, i);
+  }
+
+  @Override
+  public Socket createSocket(String s, int i, InetAddress inaddr, int j) throws IOException {
+    return factory.createSocket(s, i, inaddr, j);
+  }
+
+  @Override
+  public Socket createSocket(String s, int i) throws IOException {
+    return factory.createSocket(s, i);
+  }
+
+  @Override
+  public String[] getDefaultCipherSuites() {
+    return factory.getDefaultCipherSuites();
+  }
+
+  @Override
+  public String[] getSupportedCipherSuites() {
+    return factory.getSupportedCipherSuites();
+  }
 }

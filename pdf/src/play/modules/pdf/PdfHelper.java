@@ -1,5 +1,19 @@
 package play.modules.pdf;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNullElseGet;
+import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
+
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
 import play.Play;
@@ -9,29 +23,13 @@ import play.mvc.TemplateNameResolver;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.ByteArrayInputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNullElseGet;
-import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
-import static org.apache.commons.io.FilenameUtils.getBaseName;
-
 @ParametersAreNonnullByDefault
 public class PdfHelper {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
   private static IHtmlToPdfTransformer transformer;
 
   public boolean isIE(Http.Request request) {
-    if (!request.headers.containsKey("user-agent"))
-      return false;
+    if (!request.headers.containsKey("user-agent")) return false;
 
     Http.Header userAgent = request.headers.get("user-agent");
     return userAgent.value().contains("MSIE");
@@ -42,16 +40,21 @@ public class PdfHelper {
       Map<?, ?> properties = new HashMap<>(Play.configuration);
       String uri = request == null ? "" : (request.getBase() + request.url);
       renderDoc(document, uri, properties, out);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out) throws CConvertException {
-    getTransformer().transform(new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
-      uri, doc.pageSize, emptyList(),
-      properties, out);
+  private void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out)
+      throws CConvertException {
+    getTransformer()
+        .transform(
+            new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
+            uri,
+            doc.pageSize,
+            emptyList(),
+            properties,
+            out);
   }
 
   @Nonnull
@@ -59,9 +62,10 @@ public class PdfHelper {
   private static synchronized IHtmlToPdfTransformer getTransformer() {
     if (transformer == null) {
       try {
-        transformer = (IHtmlToPdfTransformer) Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
-      }
-      catch (Exception e) {
+        transformer =
+            (IHtmlToPdfTransformer)
+                Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
+      } catch (Exception e) {
         throw new RuntimeException("Exception initializing pdf module", e);
       }
     }

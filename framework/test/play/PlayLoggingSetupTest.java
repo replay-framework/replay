@@ -1,18 +1,15 @@
 package play;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.File;
+import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import play.libs.Files;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlayLoggingSetupTest {
   private static Properties playConfig;
