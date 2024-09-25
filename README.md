@@ -59,6 +59,7 @@ You need to add RePlay dependencies to your build.gradle (or pom.xml):
 dependencies {
   implementation 'io.github.replay-framework:framework:2.5.0'
   implementation 'io.github.replay-framework:javanet:2.5.0'  // you can replace "javanet" by "netty3" or "netty4"
+  implementation 'io.github.replay-framework:ehcache:2.5.0'  // or `memcached`, or don't specify a cache package to disable caching
   
   // Optionally:
   implementation 'io.github.replay-framework:guice:2.5.0'
