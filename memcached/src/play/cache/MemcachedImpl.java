@@ -26,6 +26,7 @@ import org.slf4j.MDC;
 public class MemcachedImpl implements CacheImpl {
 
   private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
+  private static MemcachedImpl uniqueInstance = null;
   private final MemcachedClient client;
   private final String mdcParameterName;
   private final MemcachedTranscoder tc = new MemcachedTranscoder();
@@ -38,6 +39,14 @@ public class MemcachedImpl implements CacheImpl {
 
   public MemcachedClient getClient() {
     return client;
+  }
+
+  @Override
+  public CacheImpl instance(@Nonnull Properties playProperties) throws IOException {
+    if (uniqueInstance == null) {
+      uniqueInstance = new MemcachedImpl(playProperties);
+    }
+    return null;
   }
 
   @Override

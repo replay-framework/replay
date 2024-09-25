@@ -2,6 +2,8 @@ package play.cache;
 
 import java.io.NotSerializableException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import play.libs.Time;
  * between different cache implementations
  */
 public abstract class Cache {
+
   private static final Logger logger = LoggerFactory.getLogger(Cache.class);
 
   /** The underlying cache implementation */
@@ -25,8 +28,8 @@ public abstract class Cache {
   /**
    * Set an element.
    *
-   * @param key Element key
-   * @param value Element value
+   * @param key        Element key
+   * @param value      Element value
    * @param expiration Ex: 10s, 3mn, 8h
    */
   public static void set(String key, Object value, String expiration) {
@@ -63,17 +66,25 @@ public abstract class Cache {
 
   /** Initialize the cache system. */
   public static void init() {
-    if ("enabled".equals(Play.configuration.getProperty("memcached", "disabled"))) {
-      try {
-        cacheImpl = new MemcachedImpl(Play.configuration);
-        logger.info("Connected to memcached");
-      } catch (Exception e) {
-        logger.error("Error while connecting to memcached", e);
-        logger.warn("Fallback to local cache");
-        cacheImpl = EhCacheImpl.newInstance();
-      }
-    } else {
-      cacheImpl = EhCacheImpl.newInstance();
+    CacheImpl cache;
+    try {
+      Class<?> klass = Class.forName("play.cache.CacheImpl");
+      Constructor<?> constructor = klass.getDeclaredConstructor();
+      constructor.setAccessible(true);
+      cache = (CacheImpl) constructor.newInstance();
+    } catch (ClassNotFoundException
+             | NoSuchMethodException
+             | InvocationTargetException
+             | InstantiationException
+             | IllegalAccessException e) {
+      cache = new DummyCacheImpl();
+    }
+    try {
+      cacheImpl = cache.instance(Play.configuration);
+    } catch (Exception e) {
+      logger.error("Error while instantiating cache", e);
+      logger.warn("Fallback to dummy cache (no caching)");
+      cacheImpl = (new DummyCacheImpl()).instance(Play.configuration);
     }
   }
 

@@ -142,9 +142,9 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "1");
 
-    EhCacheImpl cache = EhCacheImpl.newInstance();
+    EhCacheImpl locaCache = EhCacheImpl.newInstance();
     ResourcePools resourcePools =
-        cache
+        locaCache
             .cacheManager
             .getRuntimeConfiguration()
             .getCacheConfigurations()
@@ -154,7 +154,7 @@ public class EhCacheImplTest {
     assertThat(resourcePools.getPoolForResource(HEAP)).isNull();
     assertThat(resourcePools.getPoolForResource(OFFHEAP).getSize()).isEqualTo(1);
 
-    cache.set("test", 1, 1);
+    locaCache.set("test", 1, 1);
   }
 
   @Test

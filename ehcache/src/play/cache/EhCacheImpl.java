@@ -9,6 +9,7 @@ import static org.ehcache.config.units.MemoryUnit.MB;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.Properties;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,10 +63,14 @@ public class EhCacheImpl implements CacheImpl {
     this.cache = cacheManager.getCache(cacheName, String.class, ValueWrapper.class);
   }
 
-  public static EhCacheImpl getInstance() {
+  public EhCacheImpl instance(@Nonnull Properties playProperties) {
+    if (uniqueInstance == null) {
+      uniqueInstance = new EhCacheImpl();
+    }
     return uniqueInstance;
   }
 
+  /** Only used in tests */
   public static EhCacheImpl newInstance() {
     uniqueInstance = new EhCacheImpl();
     return uniqueInstance;
