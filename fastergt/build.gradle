@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':framework')
-  implementation('org.eclipse.jdt:ecj:3.37.0')
+  implementation(libs.ecj)
 
   // Groovy 4 can be found in org.apache.groovy
   api(libs.groovy)
