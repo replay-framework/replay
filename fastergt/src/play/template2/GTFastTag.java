@@ -10,26 +10,26 @@ import java.util.Map;
 
 public abstract class GTFastTag implements GTFastTagResolver {
 
-  // we need a default constructor so we can new() it when resolving tags..
+  // We need a default constructor so we can new() it when resolving tags.
   protected GTFastTag() {}
 
   @Override
   public String resolveFastTag(String tagName) {
 
-    // check this class is annotated with @TagNamespace
+    // Check this class is annotated with @TagNamespace
     TagNamespace tagNamespace = getClass().getAnnotation(TagNamespace.class);
     if (tagNamespace != null) {
       String namespace = tagNamespace.value();
-      // check if tagName starts with this namespace..
+      // Check if tagName starts with this namespace.
       if (!tagName.startsWith(namespace + ".")) {
-        // namespace does not match..
+        // Namespace does not match.
         return null;
       }
-      // remove namespace from tagName before we look for tag-method
+      // Remove namespace from tagName before we look for tag-method.
       tagName = tagName.substring(namespace.length() + 1);
     }
 
-    // Look for static methods in this class with the name "tag_tagName"
+    // Look for static methods in this class with the name "tag_tagName".
     try {
       Method m =
           getClass()
@@ -38,7 +38,7 @@ public abstract class GTFastTag implements GTFastTagResolver {
         throw new RuntimeException("A fast-tag method must be static: " + m);
       }
     } catch (NoSuchMethodException e) {
-      // not found
+      // Not found.
       return null;
     }
 

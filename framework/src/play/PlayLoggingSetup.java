@@ -11,12 +11,12 @@ public class PlayLoggingSetup {
     String log4jPath = Play.configuration.getProperty("application.log.path", "/log4j.xml");
     URL log4jConf = PlayLoggingSetup.class.getResource(log4jPath);
     if (log4jConf == null) {
-      // try log4j.properties from the "conf/" directory/classpath
+      // Try log4j.properties from the "conf/" directory/classpath
       log4jPath = "/conf/log4j.properties";
       log4jConf = PlayLoggingSetup.class.getResource(log4jPath);
     }
     if (log4jConf == null) {
-      // falling back to "/log4j.properties"
+      // Falling back to "/log4j.properties"
       log4jPath = "/log4j.properties";
       log4jConf = PlayLoggingSetup.class.getResource(log4jPath);
     }

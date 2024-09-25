@@ -17,11 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 /**
- * Memcached implementation (using http://code.google.com/p/spymemcached/)
+ * Memcached implementation.
  *
- * <p>expiration is specified in seconds
+ * <p>Based on: <a href="http://code.google.com/p/spymemcached/">spymemcached</a>).
+ *
+ * <p>NOTE: expiration is specified in seconds
  */
 public class MemcachedImpl implements CacheImpl {
+
   private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
   private final MemcachedClient client;
   private final String mdcParameterName;

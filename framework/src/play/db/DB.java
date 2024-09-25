@@ -198,7 +198,7 @@ public class DB {
     }
   }
 
-  /** Destroy all datasources */
+  /** Destroy all dataSources */
   public static void destroyAll() {
     Set<String> keySet = new HashSet<>(datasources.keySet());
     for (String name : keySet) {

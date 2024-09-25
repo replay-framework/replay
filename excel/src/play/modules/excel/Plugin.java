@@ -50,6 +50,7 @@ public class Plugin extends PlayPlugin {
   }
 
   private static final Pattern pIE678_ = Pattern.compile(".*MSIE\\s+[6|7|8]\\.0.*");
+
   /** Extend play format processing */
   @Override
   public void beforeActionInvocation(
@@ -74,9 +75,7 @@ public class Plugin extends PlayPlugin {
     }
   }
 
-  /*
-   * Set response header if needed
-   */
+  /** Set response header if needed */
   private static final URLCodec encoder = new URLCodec();
 
   @Override

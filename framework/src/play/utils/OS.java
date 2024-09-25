@@ -1,6 +1,6 @@
 package play.utils;
 
-/** Os detections */
+/** OS detections */
 public class OS {
 
   public static boolean isWindows() {

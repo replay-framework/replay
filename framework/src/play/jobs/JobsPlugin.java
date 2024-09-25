@@ -113,10 +113,10 @@ public class JobsPlugin extends PlayPlugin {
     for (Class<?> clazz : Play.classes.getAssignableClasses(Job.class)) {
       // @OnApplicationStart
       if (clazz.isAnnotationPresent(OnApplicationStart.class)) {
-        // check if we're going to run the job sync or async
+        // Check if we're going to run the job sync or async
         OnApplicationStart appStartAnnotation = clazz.getAnnotation(OnApplicationStart.class);
         if (!appStartAnnotation.async()) {
-          // run job sync
+          // Run job sync
           try {
             Job<?> job = createJob(clazz);
             job.run();
@@ -134,9 +134,9 @@ public class JobsPlugin extends PlayPlugin {
             throw new UnexpectedException(ex);
           }
         } else {
-          // run job async
+          // Run job async
           Job<?> job = createJob(clazz);
-          // start running job now in the background
+          // Start running job now in the background
           @SuppressWarnings("unchecked")
           Callable<Job> callable = (Callable<Job>) job;
           executor.submit(callable);
@@ -209,9 +209,8 @@ public class JobsPlugin extends PlayPlugin {
         return;
       }
       if (nextDate.equals(job.nextPlannedExecution)) {
-        // Bug #13: avoid running the job twice for the same time
-        // (happens when we end up running the job a few minutes before
-        // the planned time)
+        // Bug #13: avoid running the job twice for the same time (happens when we end up running
+        // the job a few minutes before the planned time)
         Date nextInvalid = cronExp.getNextInvalidTimeAfter(nextDate);
         nextDate = cronExp.getNextValidTimeAfter(nextInvalid);
       }

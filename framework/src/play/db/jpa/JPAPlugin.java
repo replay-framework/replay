@@ -93,7 +93,7 @@ public class JPAPlugin extends PlayPlugin {
                 || id.getValues().length == 0
                 || id.getFirstValue(null) == null
                 || id.getFirstValue(null).trim().length() <= 0) {
-              // We have no ids, it is a new entity
+              // We have no ids, it is a new entity.
               return GenericModel.create(request, session, rootParamNode, name, clazz, annotations);
             }
             query.setParameter(
@@ -110,7 +110,7 @@ public class JPAPlugin extends PlayPlugin {
           Object o = query.getSingleResult();
           return GenericModel.edit(request, session, rootParamNode, name, o, annotations);
         } catch (NoResultException e) {
-          // ok
+          // Ok
         } catch (Exception e) {
           throw new UnexpectedException(e);
         }

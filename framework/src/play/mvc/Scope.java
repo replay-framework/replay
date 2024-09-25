@@ -28,6 +28,7 @@ import play.utils.Utils;
 
 /** All application Scopes */
 public class Scope {
+
   private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
   public static final String COOKIE_PREFIX =
@@ -46,6 +47,7 @@ public class Scope {
 
   /** Flash scope */
   public static class Flash {
+
     final Set<String> used = new HashSet<>();
     final Map<String, String> data;
     final Map<String, String> out = new HashMap<>();
@@ -275,6 +277,7 @@ public class Scope {
 
   /** HTTP params */
   public static class Params {
+
     public Params(@Nonnull Http.Request request) {
       this.request = request;
     }

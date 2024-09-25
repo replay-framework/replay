@@ -14,9 +14,10 @@ import javax.sql.DataSource;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 /**
+ * Taken from <a
+ * href="https://vladmihalcea.com/2015/11/26/how-to-bootstrap-hibernate-without-the-persistence-xml-file/">here</a>.
+ *
  * @author Vlad Mihalcea
- *     <p>Taken from
- *     https://vladmihalcea.com/2015/11/26/how-to-bootstrap-hibernate-without-the-persistence-xml-file/
  */
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 

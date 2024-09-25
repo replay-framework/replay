@@ -99,10 +99,7 @@ public class JPA {
     get().remove(name);
   }
 
-  // ~~~~~~~~~~~
-  /*
-   * Retrieve the current entityManager
-   */
+  /** Retrieve the current entityManager */
   public static EntityManager em() {
     return em(DEFAULT);
   }
@@ -202,9 +199,9 @@ public class JPA {
       // For each existing persistence unit
 
       try {
-        // we are starting a transaction for all known persistent unit
-        // this is probably not the best, but there is no way we can know where to go from
-        // at this stage
+        // We are starting a transaction for each known persistent unit.
+        // This is probably not the best, but there is no way we can know where to go from
+        // at this stage.
         for (String name : emfs.keySet()) {
           EntityManager localEm = JPA.createEntityManager(name);
           JPA.bindForCurrentThread(name, localEm, readOnly);
@@ -217,13 +214,13 @@ public class JPA {
         T result = block.get();
 
         boolean rollbackAll = false;
-        // Get back our entity managers
-        // Because people might have mess up with the current entity managers
+        // Get back our entity managers.
+        // Because people might have mess up with the current entity managers.
         for (JPAContext jpaContext : get().values()) {
           EntityManager m = jpaContext.entityManager;
           EntityTransaction localTx = m.getTransaction();
-          // The resource transaction must be in progress in order to determine if it has been marked for
-          // rollback
+          // The resource transaction must be in progress in order to determine if it has been
+          // marked for rollback.
           if (localTx.isActive() && localTx.getRollbackOnly()) {
             rollbackAll = true;
           }
@@ -233,7 +230,7 @@ public class JPA {
           EntityManager m = jpaContext.entityManager;
           boolean ro = jpaContext.readonly;
           EntityTransaction localTx = m.getTransaction();
-          // transaction must be active to make some rollback or commit
+          // Transaction must be active to make some rollback or commit.
           if (localTx.isActive()) {
             if (rollbackAll || ro) {
               localTx.rollback();
@@ -250,7 +247,7 @@ public class JPA {
           EntityManager m = jpaContext.entityManager;
           EntityTransaction localTx = m.getTransaction();
           try {
-            // transaction must be active to make some rollback or commit
+            // Transaction must be active to make some rollback or commit.
             if (localTx.isActive()) {
               localTx.rollback();
             }
@@ -297,14 +294,14 @@ public class JPA {
     if (JPA.isInsideTransaction(name)) {
       EntityManager manager = em(name);
       try {
-        // Be sure to set the connection is non-autoCommit mode as some driver will complain about COMMIT
-        // statement
+        // Be sure to set the connection is non-autoCommit mode as some driver will complain about
+        // COMMIT statement.
         try {
           manager.unwrap(Session.class).doWork(con -> con.setAutoCommit(false));
         } catch (Exception e) {
           logger.error("Why the driver complains here?", e);
         }
-        // Commit the transaction
+        // Commit the transaction.
         if (manager.getTransaction().isActive()) {
           if (JPA.get().get(name).readonly || manager.getTransaction().getRollbackOnly()) {
             manager.getTransaction().rollback();
@@ -325,8 +322,8 @@ public class JPA {
     if (JPA.isInsideTransaction()) {
       EntityManager manager = em(name);
       try {
-        // Be sure to set the connection is non-autoCommit mode as some driver will complain about COMMIT
-        // statement
+        // Be sure to set the connection is non-autoCommit mode as some driver will complain about
+        // COMMIT statement.
         try {
           manager.unwrap(Session.class).doWork(con -> con.setAutoCommit(false));
         } catch (Exception e) {

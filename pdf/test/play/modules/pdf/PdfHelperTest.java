@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 public class PdfHelperTest {
+
   private final PdfHelper helper = new PdfHelper();
 
   @Test
@@ -41,17 +42,17 @@ public class PdfHelperTest {
             + "</html>\n"
             + "<script>$.migrateMute = false;</script>\n"
             + "<script src=\"/public/gen/main.js?16b1e5a0df\"></script>";
-    assertThat(helper.removeScripts(html))
-        .isEqualTo(
-            "<!DOCTYPE html>\n"
-                + "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-                + "  <head>\n"
-                + "<style type=\"text/css\">\n"
-                + "/*<![CDATA[*/"
-                + "</style>\n"
-                + "\n"
-                + "\n"
-                + "</head>\n"
-                + "</html>\n\n");
+    String html2 =
+        "<!DOCTYPE html>\n"
+            + "<html lang=\"ru\" class=\"\" xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+            + "  <head>\n"
+            + "<style type=\"text/css\">\n"
+            + "/*<![CDATA[*/"
+            + "</style>\n"
+            + "\n"
+            + "\n"
+            + "</head>\n"
+            + "</html>\n\n";
+    assertThat(helper.removeScripts(html)).isEqualTo(html2);
   }
 }

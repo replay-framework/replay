@@ -32,13 +32,14 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
   private Map<String, Object> orgArgs;
 
-  // if this tag uses #{extends}, then the templatePath we extends is stored here.
+  // If this tag uses #{extends}, then the templatePath we extend is stored here.
   protected GTTemplateLocationReal extendsTemplateLocation; // default is not to extend anything...
   protected GTJavaBase extendedTemplate;
-  protected GTJavaBase
-      extendingTemplate; // if someone is extending us, this is the ref to their rendered template - used when dumping their output
 
-  // When invoking a template as a tag, the content of the tag / body is stored here..
+  // If someone is extending us, this is the ref to their rendered template - used when dumping their output
+  protected GTJavaBase extendingTemplate;
+
+  // When invoking a template as a tag, the content of the tag / body is stored here.
   public GTContentRenderer contentRenderer;
 
   public GTTemplateRepo templateRepo;
@@ -58,8 +59,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
   @Override
   public void writeOutput(OutputStream ps, Charset encoding) {
-    // if we have extended another template, we must pass this on to this template-instance,
-    // because "it" has all the output
+    // If we have extended another template, we must pass it to the template-instance, because "it" has all the output.
     if (extendedTemplate != null) {
       extendedTemplate.writeOutput(ps, encoding);
       return;
@@ -78,25 +78,25 @@ public abstract class GTJavaBase extends GTRenderingResult {
   }
 
   protected void initNewOut() {
-    // must create new live out
+    // Must create new live out.
     out = new StringWriter();
     allOuts.add(out);
   }
 
   public void renderTemplate(Map<String, Object> args)
       throws GTTemplateNotFoundWithSourceInfo, GTRuntimeException {
-    // this is the main rendering start of the actual template
+    // This is the main rendering start of the actual template.
 
-    // init layout data which should be visible for all templates involved
+    // Init layout data which should be visible for all templates involved.
     layoutData.set(new HashMap<>());
 
-    // clear outputs in case this is a second rendering
+    // Clear outputs in case this is a second rendering.
     allOuts.clear();
     initNewOut();
 
     GTContentRendererFakeClosure.initRendering();
 
-    // clear extend-stuff
+    // Clear extend-stuff.
     extendsTemplateLocation = null;
     extendedTemplate = null;
     extendingTemplate = null;
@@ -110,8 +110,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
     internalRenderTemplate(args, null, startingNewRendering, callingTemplate);
   }
 
-  // args passed in orgArgs are passed along to include, extend, and tags
-  // tagArgs are not passed along
+  // Args passed in orgArgs are passed along to include, extend, and tags tagArgs are not passed along.
   public void internalRenderTemplate(
       Map<String, Object> orgArgs,
       Map<String, Object> tagArgs,
@@ -120,58 +119,57 @@ public abstract class GTJavaBase extends GTRenderingResult {
       throws GTTemplateNotFoundWithSourceInfo, GTRuntimeException {
 
     if (startingNewRendering) {
-      // start with fresh tag-stack
+      // Start with fresh tag-stack.
       GTTagContext.singleton.init();
     }
 
     try {
 
-      // must store a copy of args, so we can pass the same (unchnaged) args to an extending template.
+      // Must store a copy of args, so we can pass the same (unchanged) args to an extending template.
       this.orgArgs = new HashMap<>(orgArgs);
-      // Must create a new map to prevent script-generated variables to leak out
+      // Must create a new map to prevent script-generated variables to leak out.
       final HashMap<String, Object> bindingsMap = new HashMap<>(orgArgs);
       if (tagArgs != null) {
-        // make them available at scope, but not in orgArgs so they do not get passed along
+        // Make them available at scope, but not in orgArgs so they do not get passed along.
         bindingsMap.putAll(tagArgs);
       }
       this.binding = new Binding(bindingsMap);
       this.binding.setProperty("java_class", this);
-      // must init our groovy script
 
+      // Must init our Groovy script
       groovyScript = groovyClass.getDeclaredConstructor().newInstance();
       groovyScript.setBinding(binding);
 
-      // create a property in groovy so that groovy can find us (this)
+      // Create a property in Groovy so Groovy can find us (this).
 
-      // call _renderTemplate directly
+      // Call _renderTemplate directly
       _renderTemplate();
 
       // check if "we" have extended another template
       if (extendsTemplateLocation != null) {
 
         if (callingTemplate == null) {
-          // This is the out-most template using extends
-          // yes, we've extended another template
-          // Get the template we are extending
+          // This is the out-most template using extends.
+          // Get the template we are extending.
           extendedTemplate = templateRepo.getTemplateInstance(extendsTemplateLocation);
 
-          // tell it that "we" extended it..
+          // Tell it that "we" extended it.
           extendedTemplate.extendingTemplate = this;
 
-          // ok, render it with original args..
+          // Ok, render it with original args.
           extendedTemplate.internalRenderTemplate(bindingsMap, false, null);
         } else {
           // Extends have been specified somewhere when rendering this template/tag.
-          // Must pass the extends-info up the chain
+          // Must pass the extends-info up the chain.
           callingTemplate.extendsTemplateLocation = this.extendsTemplateLocation;
         }
       }
 
     } catch (GTCompilationException e) {
-      // just throw it
+      // Just throw it.
       throw e;
     } catch (Throwable e) {
-      // wrap it in a GTRuntimeException
+      // Wrap it in a GTRuntimeException
       throw templateRepo.fixException(e);
     }
   }
@@ -201,7 +199,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
   public abstract String escapeCsv(String s);
 
-  // We know that o is never null
+  // We know that `o` is never `null`.
   public String objectToString(Object o) {
     if (isRawData(o)) {
       return convertRawDataToString(o);
@@ -265,43 +263,42 @@ public abstract class GTJavaBase extends GTRenderingResult {
       throw new GTTemplateRuntimeException("Cannot find tag-file '" + tagFilePath + "'");
     }
     GTJavaBase tagTemplate = templateRepo.getTemplateInstance(tagTemplateLocation);
-    // must set contentRenderes so that when the tag/template calls doBody, we can inject the output of the content of this tag
+    // Must set `contentRenderers` so that when the tag/template calls `doBody`, we can inject the output of the content
+    // of this tag.
     tagTemplate.contentRenderer = contentRenderer;
-    // render the tag
-    // input should be all org args
+    // Render the tag, input should be all org args.
     Map<String, Object> completeTagArgs = new HashMap<>();
 
-    // and all scoped variables under _caller
+    // And all scoped variables under `_caller`.
     completeTagArgs.put("_caller", this.binding.getVariables());
 
-    // Add new arg named "body" which is a fake closure which can be used to get the text-output
-    // from the content of this tag..
-    // Used in selenium.html-template and by users (eg: Greenscript)
+    // Add new arg named "body" which is a fake closure which can be used to get the text-output.
+    // from the content of this tag.
+    // Used in selenium.html-template and by users (eg: Greenscript).
     completeTagArgs.put("_body", new GTContentRendererFakeClosure(this, contentRenderer));
 
     // TO DO: Must handle tag args like  _:_
 
-    // and of course the tag args:
-    // must prefix all tag args with '_'
+    // And of course the tag args: must prefix all tag args with '_'
     for (String key : tagArgs.keySet()) {
       completeTagArgs.put("_" + key, tagArgs.get(key));
     }
 
-    // Must also add all tag-args (the map) with original names as a new value named '_attrs'
+    // Must also add all tag-args (the map) with original names as a new value named '_attrs'.
     completeTagArgs.put("_attrs", tagArgs);
 
     tagTemplate.internalRenderTemplate(orgArgs, completeTagArgs, false, this);
-    //grab the output
+    // Grab the output
     insertOutput(tagTemplate);
   }
 
-  // must be overridden by play framework
+  // Must be overridden by RePlay `framework`.
   public abstract boolean validationHasErrors();
 
-  // must be overridden by play framework
+  // Must be overridden by RePlay `framework`.
   public abstract boolean validationHasError(String key);
 
-  // Implement this method to do the actual message-resolving
+  // Implement this method to do the actual message-resolving.
   protected abstract String resolveMessage(Object key, Object[] args);
 
   public void clearElseFlag() {
@@ -394,10 +391,7 @@ public abstract class GTJavaBase extends GTRenderingResult {
 
   /**
    * If name starts with './', then we look for the template/name in the same folder as this
-   * template. If not, we look for name/path in all template-places.
-   *
-   * @param name
-   * @return
+   * template. If not, we look for name/path in all template-places.*
    */
   public GTTemplateLocationReal resolveTemplateLocation(String name) {
     if (name.startsWith("./")) {

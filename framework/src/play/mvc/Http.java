@@ -172,26 +172,35 @@ public class Http {
     public Map<String, Header> headers;
     public Map<String, Cookie> cookies;
     public transient InputStream body;
+
     /** Additional HTTP params extracted from route */
     public Map<String, String> routeArgs = emptyMap();
+
     /** Format (html,xml,json,text) */
     public String format;
+
     /** Full action (ex: Application.index) */
     public String action;
 
     public Method invokedMethod;
     public Class<? extends PlayController> controllerClass;
     public PlayController controllerInstance;
+
     /** Free space to store your request specific data */
-    public final Map<String, Object> args = new HashMap<>(16);
+    @Nonnull public final Map<String, Object> args = new HashMap<>(16);
+
     /** When the request has been received */
     public final Date date = new Date();
+
     /** HTTP Basic User */
     public String user;
+
     /** HTTP Basic Password */
     public String password;
-    /** Request comes from loopback interface */
+
+    /** Request comes from loop-back interface */
     public boolean isLoopback;
+
     /** ActionInvoker.resolvedRoutes was called? */
     boolean resolved;
 

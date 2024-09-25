@@ -180,7 +180,7 @@ public class FastTags {
       enctype = "application/x-www-form-urlencoded";
     }
     if (actionDef.star) {
-      actionDef.method = "POST"; // prefer POST for form ....
+      actionDef.method = "POST"; // prefer POST for form submits.
     }
     if (args.containsKey("method")) {
       actionDef.method = args.get("method").toString();
@@ -255,7 +255,7 @@ public class FastTags {
       Object value = PropertyUtils.getProperty(obj, path);
       return Optional.of(value);
     } catch (Exception e) {
-      // if there is a problem reading the field we dont set any value
+      // If there is a problem reading the field we don't set any value
       return Optional.empty();
     }
   }
@@ -363,7 +363,7 @@ public class FastTags {
       if (test instanceof Boolean) {
         return (Boolean) test;
       } else if (test instanceof String) {
-        return ((String) test).length() > 0;
+        return !((String) test).isEmpty();
       } else if (test instanceof Number) {
         return ((Number) test).intValue() != 0;
       } else if (test instanceof Collection) {

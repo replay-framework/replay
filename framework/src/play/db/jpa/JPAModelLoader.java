@@ -247,12 +247,14 @@ public class JPAModelLoader implements Model.Factory {
       throw new UnexpectedException("Composite id has no properties: " + idClass.getName());
     }
     for (PropertyDescriptor idProperty : idProperties) {
-      // do we have a field for this?
+      // Do we have a field for this?
       String idPropertyName = idProperty.getName();
-      // skip the "class" property...
-      if (idPropertyName.equals("class")) continue;
+      // Skip the "class" property...
+      if (idPropertyName.equals("class")) {
+        continue;
+      }
       Model.Property modelProperty = this.properties.get(idPropertyName);
-      if (modelProperty == null)
+      if (modelProperty == null) {
         throw new UnexpectedException(
             "Composite id property missing: "
                 + clazz.getName()
@@ -261,30 +263,34 @@ public class JPAModelLoader implements Model.Factory {
                 + " (defined in IdClass "
                 + idClass.getName()
                 + ")");
-      // sanity check
+      }
+      // Sanity check
       Object value = modelProperty.field.get(model);
 
-      if (modelProperty.isMultiple)
+      if (modelProperty.isMultiple) {
         throw new UnexpectedException(
             "Composite id property cannot be multiple: " + clazz.getName() + "." + idPropertyName);
-      // now is this property a relation? if yes then we must use its ID
-      // in the key (as per specs)
+      }
+      // Now is this property a relation? if yes then we must use its ID in the key (as per specs).
       if (modelProperty.isRelation) {
-        // get its id
-        if (!Model.class.isAssignableFrom(modelProperty.type))
+        // Get its id.
+        if (!Model.class.isAssignableFrom(modelProperty.type)) {
           throw new UnexpectedException(
               "Composite id property entity has to be a subclass of Model: "
                   + clazz.getName()
                   + "."
                   + idPropertyName);
-        // we already checked that cast above
+        }
+        // We already checked that cast above
         @SuppressWarnings("unchecked")
         Model.Factory factory =
             Model.Manager.factoryFor((Class<? extends Model>) modelProperty.type);
-        // we already checked that cast above
-        if (value != null) value = factory.keyValue((Model) value);
+        // We already checked that cast above
+        if (value != null) {
+          value = factory.keyValue((Model) value);
+        }
       }
-      // now affect the composite id with this id
+      // Now affect the composite id with this id.
       PropertyUtils.setSimpleProperty(id, idPropertyName, value);
     }
     return id;
@@ -302,7 +308,7 @@ public class JPAModelLoader implements Model.Factory {
         return makeCompositeKey(m);
       }
 
-      // Is it a composite key? If yes we need to return the matching PK
+      // Is it a composite key? If yes we need to return the matching PK.
       Field[] fields = keyFields();
       Object[] values = new Object[fields.length];
       int i = 0;
@@ -313,7 +319,7 @@ public class JPAModelLoader implements Model.Factory {
         }
       }
 
-      // If we have only one id return it
+      // If we have only one id return it.
       if (values.length == 1) {
         return values[0];
       }

@@ -29,6 +29,7 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 
 public class FileService {
+
   private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
   public void serve(
@@ -171,6 +172,7 @@ public class FileService {
   }
 
   private static class FileServingListener implements ChannelFutureListener {
+
     private final String file;
     private final long startedAt;
 

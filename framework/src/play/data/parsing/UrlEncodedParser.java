@@ -52,8 +52,7 @@ public class UrlEncodedParser extends DataParser {
         return new HashMap<>(0);
       }
 
-      // data is o the form:
-      // a=b&b=c%12...
+      // Data is in the form of: a=b&b=c%12...
 
       // Let us parse in two phases - we wait until everything is parsed before
       // we decoded it - this makes it possible for use to look for the
@@ -62,12 +61,13 @@ public class UrlEncodedParser extends DataParser {
       // http://www.crazysquirrel.com/computing/general/form-encoding.jspx
       // https://bugzilla.mozilla.org/show_bug.cgi?id=18643
       //
-      // NB: _charset_ must always be used with accept-charset and it must have the same value
+      // NB: _charset_ must always be used with accept-charset, and it must have the same value.
 
       String[] keyValues = data.split("&");
 
-      // to prevent the Play-server from being vulnerable to POST hash collision DOS-attack (Denial of Service through hash table multi-collisions),
-      // we should by default not parse the params into HashMap if the count exceeds a maximum limit
+      // To prevent the Play-server from being vulnerable to POST hash collision DOS-attack (Denial of Service through
+      // hash table multi-collisions), we should by default not parse the params into HashMap if the count exceeds a
+      // maximum limit.
       if (maxParams != 0 && keyValues.length > maxParams) {
         logger.warn(
             "Number of request parameters {} is higher than maximum of {}, aborting. Can be configured using 'http.maxParams'",
@@ -100,13 +100,13 @@ public class UrlEncodedParser extends DataParser {
         // PS: When rendering the view/form, _charset_ and accept-charset must be given the
         // same value - since only Firefox and sometimes IE actually sets it when Posting
         String providedCharset = params.get("_charset_")[0];
-        // Must be sure the providedCharset is a valid encoding..
+        // Must be sure the providedCharset is a valid encoding.
         try {
           "test".getBytes(providedCharset);
-          charset = Charset.forName(providedCharset); // it works..
+          charset = Charset.forName(providedCharset); // it works
         } catch (Exception e) {
           logger.debug("Got invalid _charset_ in form: {}", providedCharset, e);
-          // lets just use the default one..
+          // Let's just use the default one.
         }
       }
 
@@ -117,27 +117,27 @@ public class UrlEncodedParser extends DataParser {
         try {
           key = URLDecoder.decode(e.getKey(), charset);
         } catch (Throwable z) {
-          // Nothing we can do about, ignore
+          // Nothing we can do about, ignore.
         }
         for (String value : e.getValue()) {
           try {
             Utils.Maps.mergeValueInMap(
                 decodedParams, key, (value == null ? null : URLDecoder.decode(value, charset)));
           } catch (Throwable z) {
-            // Nothing we can do about, lets fill in with the non decoded value
+            // Nothing we can do about, lets fill in with the non decoded value.
             Utils.Maps.mergeValueInMap(decodedParams, key, value);
           }
         }
       }
 
-      // add the complete body as a parameters
+      // Add the complete body as a parameters.
       if (!forQueryString) {
         decodedParams.put("body", new String[] {data});
       }
 
       return decodedParams;
     } catch (Status s) {
-      // just pass it along
+      // Just pass it along.
       throw s;
     } catch (Exception e) {
       throw new UnexpectedException(e);

@@ -24,13 +24,13 @@ public class WSSSLContext {
       KeyStore ks = KeyStore.getInstance("JKS");
       ks.load(kss, storePass);
 
-      // Keymanager
+      // KeyManager
       char[] certPwd = keyStorePass.toCharArray();
       KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
       kmf.init(ks, certPwd);
       KeyManager[] keyManagers = kmf.getKeyManagers();
 
-      // Trustmanager
+      // TrustManager
       TrustManager[] trustManagers;
       if (CAValidation) {
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");

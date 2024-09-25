@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
-/** like Properties, but with: encoding generic type helper */
+/** Like Java's Properties, but with: encoding generic type helper. */
 public class Properties extends HashMap<String, String> {
 
   private static final long serialVersionUID = 1L;

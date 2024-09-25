@@ -222,7 +222,7 @@ public class GenericModel extends JPABase {
                   Validation.addError(
                       fieldParamNode.getOriginalKey(), "validation.notFound", ids[0]);
                   // Remove only the key to prevent us from finding it again later
-                  // This how the old impl does it..
+                  // This how the old impl does it.
                   fieldParamNode.removeChild(keyName, removedNodesList);
                   if (fieldParamNode.getAllChildren().size() == 0) {
                     // remove the whole node..
@@ -248,7 +248,7 @@ public class GenericModel extends JPABase {
     } catch (Exception e) {
       throw new UnexpectedException(e);
     } finally {
-      // restoring changes to paramNode
+      // Restore changes to paramNode.
       ParamNode.restoreRemovedChildren(removedNodesList);
     }
   }

@@ -38,6 +38,7 @@ import play.utils.Utils;
 
 /** The router matches HTTP requests to action invocations */
 public class Router {
+
   private static final Logger logger = LoggerFactory.getLogger(Router.class);
 
   public static final Router instance = new Router(new CopyOnWriteArrayList<>());
@@ -381,7 +382,7 @@ public class Router {
           }
         }
       }
-      // do the hardcoded parameters in the route match?
+      // Do the hardcoded parameters in the route match?
       for (String staticKey : route.staticArgs.keySet()) {
         if (staticKey.equals("format")) {
           if (!requestFormat.equals(route.staticArgs.get("format"))) {
@@ -445,8 +446,7 @@ public class Router {
                 queryString.append(URLEncoder.encode(key, actualEncoding));
                 queryString.append("=");
                 String objStr = object.toString();
-                // Special case to handle jsAction
-                // tag
+                // Special case to handle `jsAction` tag
                 if (objStr.startsWith(":") && objStr.length() > 1) {
                   queryString.append(':');
                   objStr = objStr.substring(1);
@@ -519,22 +519,26 @@ public class Router {
   }
 
   public static class ActionDefinition {
+
     private static final Pattern HOST_REGEX =
         Pattern.compile("([-_a-z0-9A-Z]+([.][-_a-z0-9A-Z]+)?)$");
 
     /** The domain/host name. */
     public String host;
+
     /** The HTTP method, e.g. "GET". */
     public String method;
-    /** FIXME - what is this? does it include the domain? */
+
+    // FIXME - what is this? does it include the domain?
     public String url;
-    /** Whether the route contains an asterisks *. */
+
+    /** Whether the route contains an asterisks ("*"). */
     public boolean star;
-    /** FIXME - what is this? does it include the class and package? */
+
+    // FIXME - what is this? does it include the class and package?
     public String action;
-    /**
-     * FIXME - are these the required args in the routing file, or the query string in a request?
-     */
+
+    // FIXME - are these the required args in the routing file, or the query string in a request?
     public Map<String, Object> args;
 
     public ActionDefinition add(String key, Object value) {
@@ -586,6 +590,7 @@ public class Router {
   }
 
   public static class Route {
+
     public final String method;
     public final String path;
     public final String action;
@@ -725,6 +730,7 @@ public class Router {
     }
 
     static class Arg {
+
       final String name;
       final Pattern constraint;
 
@@ -746,6 +752,7 @@ public class Router {
   }
 
   public static class MatchingRoute {
+
     public final Route route;
     public final Map<String, String> args;
 
