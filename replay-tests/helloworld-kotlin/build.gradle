@@ -1,14 +1,11 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '2.0.20'
+  alias(libs.plugins.kotlinJvm)
 }
 dependencies {
-  implementation('com.google.guava:guava:33.3.0-jre') {transitive = false}
-  implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  implementation(libs.guava) {transitive = false}
+  implementation(libs.kotlinStdlib)
   implementation project(':pdf')
-  testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
-}
-repositories {
-  mavenCentral()
+  testImplementation(libs.pdfTest)
 }
 
 apply from: '../replay-tests.gradle'

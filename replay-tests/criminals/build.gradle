@@ -2,12 +2,12 @@ dependencies {
   implementation project(':fastergt')
   implementation project(':guice')
   implementation project(':pdf')
-  implementation("org.apache.httpcomponents:httpclient:$httpclientVersion")
-  implementation("org.apache.httpcomponents:fluent-hc:$httpclientVersion")
+  implementation(libs.httpClient)
+  implementation(libs.fluentHc)
 
-  testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
-  testImplementation('org.subethamail:subethasmtp:3.1.7') {transitive = false}
-  testImplementation('com.github.tomakehurst:wiremock:3.0.1') {
+  testImplementation(libs.pdfTest)
+  testImplementation(libs.subethasmtp) {transitive = false}
+  testImplementation(libs.wiremock) {
     exclude group: 'org.eclipse.jetty', module: 'jetty-client'
   }
 }

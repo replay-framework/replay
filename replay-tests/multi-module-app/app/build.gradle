@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':replay-tests:multi-module-app:core')
-  testImplementation("org.assertj:assertj-core:$assertjVersion")
+  testImplementation(libs.assertjCore)
 }
 
 apply from: '../../replay-tests.gradle'

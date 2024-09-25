@@ -1,12 +1,12 @@
 dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  implementation "org.apache.commons:commons-text:$commonsTextVersion"
+  implementation(libs.commonsText)
   
   // We use only few small jars from Netty project to parse http cookies
-  implementation("io.netty:netty-codec:$netty4Version") {transitive = false}
-  implementation("io.netty:netty-codec-http:$netty4Version") {transitive = false}
-  implementation("io.netty:netty-common:$netty4Version") {transitive = false}
+  implementation(libs.netty4Codec) {transitive = false}
+  implementation(libs.netty4CodecHttp) {transitive = false}
+  implementation(libs.netty4Common) {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

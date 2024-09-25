@@ -1,20 +1,16 @@
-ext {
-  poiVersion = '3.17'
-}
-
 dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
   
-  api('net.sf.jxls:jxls-core:1.0.6') {transitive = false}
-  api('net.sf.jxls:jxls-reader:1.0.6') {transitive = false}
-  implementation('org.apache.commons:commons-jexl:2.1.1') {transitive = false}
-  api("org.apache.poi:poi:$poiVersion") {transitive = false}
-  api("org.apache.poi:poi-ooxml:$poiVersion") {transitive = false}
-  api("org.apache.poi:poi-ooxml-schemas:$poiVersion") {transitive = false}
-  api('org.apache.xmlbeans:xmlbeans:5.2.1') {transitive = false}
-  implementation('commons-digester:commons-digester:2.1') {transitive = false}
-  implementation('org.apache.commons:commons-collections4:4.4') {transitive = false}
+  api(libs.jxlsCore) {transitive = false}
+  api(libs.jxlsReader) {transitive = false}
+  implementation(libs.commonsJexl) {transitive = false}
+  api(libs.poi) {transitive = false}
+  api(libs.poiOoxml) {transitive = false}
+  api(libs.poiOoxmlSchemas) {transitive = false}
+  api(libs.xmlBeans) {transitive = false}
+  implementation(libs.commonsDigester) {transitive = false}
+  implementation(libs.commonsCollections4) {transitive = false}
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
