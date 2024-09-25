@@ -2,15 +2,14 @@ package play.utils;
 
 public class Default {
 
-    Object o;
+  Object o;
 
-    public Default(Object o) {
-        this.o = o;
-    }
+  public Default(Object o) {
+    this.o = o;
+  }
 
-    @Override
-    public String toString() {
-        return o.toString();
-    }
-
+  @Override
+  public String toString() {
+    return o.toString();
+  }
 }

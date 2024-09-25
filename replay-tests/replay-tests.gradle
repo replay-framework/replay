@@ -32,12 +32,11 @@ dependencies {
   javanetTestClasspath project(':javanet')
 
   // Test dependencies:
-  testImplementation('com.codeborne:selenide:6.18.0') {
+  testImplementation(libs.selenide) {
     exclude group: 'io.netty'
     exclude group: 'io.opentelemetry'
     exclude group: 'org.asynchttpclient'
   }
-  testImplementation('org.seleniumhq.selenium:selenium-http-jdk-client:4.13.0')
 }
 
 test {
@@ -57,7 +56,7 @@ tasks.register('uitest-netty3', Test) {
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
-  exclude 'ui/hello/RenderStaticFilesSpec*' // TODO Need to clarify why `replay-netty4` doesn't render static files properly
+  exclude 'ui/hello/RenderStaticFilesSpec*' // TODO: clarify why `replay-netty4` fails on static files
   outputs.upToDateWhen {false}
   classpath = configurations.netty4TestClasspath + classpath
 }

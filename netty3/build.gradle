@@ -1,8 +1,8 @@
 dependencies {
-  implementation 'io.netty:netty:3.10.6.Final'
+  implementation(libs.netty3)
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
+  implementation(libs.commonsLang3)
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

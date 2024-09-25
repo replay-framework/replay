@@ -1,11 +1,11 @@
 package play.mvc;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Request.cleanupRemoteAddresses;
 import static play.mvc.Http.Request.validateXForwarded;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HttpTest {
   @Test
@@ -37,14 +37,17 @@ public class HttpTest {
   public void removesPotentiallyUnsafeAddresses_from_XForwardedForHeader() {
     assertThat(cleanupRemoteAddresses("")).isEqualTo("");
     assertThat(cleanupRemoteAddresses("192.168.224.0")).isEqualTo("192.168.224.0");
-    assertThat(cleanupRemoteAddresses("provided-by-hacker, provided-by-apache")).isEqualTo("provided-by-apache");
-    assertThat(cleanupRemoteAddresses("provided-by-hacker1, provided-by-hacker2, provided-by-apache")).isEqualTo("provided-by-apache");
+    assertThat(cleanupRemoteAddresses("provided-by-hacker, provided-by-apache"))
+        .isEqualTo("provided-by-apache");
+    assertThat(
+            cleanupRemoteAddresses("provided-by-hacker1, provided-by-hacker2, provided-by-apache"))
+        .isEqualTo("provided-by-apache");
   }
 
   private void assertInvalidHeader(String ip) {
     Assertions.assertThatThrownBy(() -> validateXForwarded(header(ip)))
-      .isInstanceOf(RuntimeException.class)
-      .hasMessage("Unacceptable X-Forwarded-For format: " + ip);
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Unacceptable X-Forwarded-For format: " + ip);
   }
 
   private Http.Header header(String ips) {

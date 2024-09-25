@@ -9,28 +9,27 @@ import java.util.Map;
 // This way we don't have to do it twice.
 public class CachedBoundActionMethodArgs {
 
-    private static final ThreadLocal<CachedBoundActionMethodArgs> current = new ThreadLocal<>();
+  private static final ThreadLocal<CachedBoundActionMethodArgs> current = new ThreadLocal<>();
 
-    private final Map<Method, Object[]> preBoundActionMethodArgs = new HashMap<>(1);
+  private final Map<Method, Object[]> preBoundActionMethodArgs = new HashMap<>(1);
 
-    public static void init() {
-        current.set( new CachedBoundActionMethodArgs());
-    }
+  public static void init() {
+    current.set(new CachedBoundActionMethodArgs());
+  }
 
-    public static void clear() {
-        current.remove();
-    }
+  public static void clear() {
+    current.remove();
+  }
 
-    public static CachedBoundActionMethodArgs current() {
-        return current.get();
-    }
+  public static CachedBoundActionMethodArgs current() {
+    return current.get();
+  }
 
-    public void storeActionMethodArgs( Method method, Object[] rArgs) {
-        preBoundActionMethodArgs.put(method, rArgs);
-    }
+  public void storeActionMethodArgs(Method method, Object[] rArgs) {
+    preBoundActionMethodArgs.put(method, rArgs);
+  }
 
-    public Object[] retrieveActionMethodArgs( Method method) {
-        return preBoundActionMethodArgs.get(method);
-    }
-
+  public Object[] retrieveActionMethodArgs(Method method) {
+    return preBoundActionMethodArgs.get(method);
+  }
 }

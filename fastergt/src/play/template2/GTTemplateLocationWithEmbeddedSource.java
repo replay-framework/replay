@@ -3,26 +3,26 @@ package play.template2;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GTTemplateLocationWithEmbeddedSource extends GTTemplateLocation {
-    private final String source;
-    private static final AtomicInteger nextKey = new AtomicInteger(1);
+  private final String source;
+  private static final AtomicInteger nextKey = new AtomicInteger(1);
 
-    public GTTemplateLocationWithEmbeddedSource(String relativePath, String source) {
-        super(relativePath);
-        this.source = source;
-    }
+  public GTTemplateLocationWithEmbeddedSource(String relativePath, String source) {
+    super(relativePath);
+    this.source = source;
+  }
 
-    public GTTemplateLocationWithEmbeddedSource( String source) {
-        super( generateKey() );
-        this.source = source;
-    }
+  public GTTemplateLocationWithEmbeddedSource(String source) {
+    super(generateKey());
+    this.source = source;
+  }
 
-    // returns a generated unique key
-    private static String generateKey() {
-        return "GTTemplateLocationWithEmbeddedSource_generated_key_"+nextKey.getAndIncrement();
-    }
+  // returns a generated unique key
+  private static String generateKey() {
+    return "GTTemplateLocationWithEmbeddedSource_generated_key_" + nextKey.getAndIncrement();
+  }
 
-    @Override
-    public String readSource() {
-        return source;
-    }
+  @Override
+  public String readSource() {
+    return source;
+  }
 }

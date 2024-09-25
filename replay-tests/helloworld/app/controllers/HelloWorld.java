@@ -30,13 +30,11 @@ public class HelloWorld extends Controller {
   }
 
   public PdfResult helloPdfFromPlainText() {
-    return new PdfResult("HelloWorld/hello.txt")
-      .with("who", "PDF from plain text");
+    return new PdfResult("HelloWorld/hello.txt").with("who", "PDF from plain text");
   }
 
   public PdfResult helloPdfUsingRequestFormat() {
     request.format = "txt";
-    return new PdfResult("@hello")
-      .with("who", "Request format");
+    return new PdfResult("@hello").with("who", "Request format");
   }
 }

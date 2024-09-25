@@ -1,10 +1,10 @@
 package play.mvc;
 
+import static java.util.Objects.requireNonNullElse;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-
-import static java.util.Objects.requireNonNullElse;
 
 @ParametersAreNonnullByDefault
 public class TemplateNameResolver {
@@ -13,7 +13,8 @@ public class TemplateNameResolver {
   @CheckReturnValue
   public String resolveTemplateName() {
     Http.Request request = Http.Request.current();
-    String templateName = request.action.replace(".", "/") + "." + requireNonNullElse(request.format, "html");
+    String templateName =
+        request.action.replace(".", "/") + "." + requireNonNullElse(request.format, "html");
     return resolveTemplateName(templateName);
   }
 
@@ -26,7 +27,8 @@ public class TemplateNameResolver {
       if (!templateName.contains(".")) {
         templateName = request.controller + "." + templateName;
       }
-      templateName = templateName.replace(".", "/") + "." + requireNonNullElse(request.format, "html");
+      templateName =
+          templateName.replace(".", "/") + "." + requireNonNullElse(request.format, "html");
     }
     return templateName;
   }

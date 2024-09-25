@@ -1,5 +1,7 @@
 package controllers;
 
+import jakarta.inject.Inject;
+import java.util.Map;
 import model.PetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +11,6 @@ import play.mvc.Controller;
 import play.mvc.results.Forbidden;
 import play.mvc.results.RenderJson;
 import play.mvc.results.Result;
-
-import javax.inject.Inject;
-import java.util.Map;
 
 public class PetApi extends Controller {
   private static final Logger log = LoggerFactory.getLogger(PetApi.class);
@@ -28,7 +27,7 @@ public class PetApi extends Controller {
       throw new Forbidden("env");
     }
   }
-  
+
   public Result resetAllPets() {
     int count = repository.deleteAllPets();
     log.info("Deleted {} pets", count);

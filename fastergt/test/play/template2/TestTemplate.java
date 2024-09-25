@@ -10,9 +10,9 @@ public class TestTemplate extends GTJavaBase1xImpl {
     binding = new Binding();
   }
 
-  @Override protected void _renderTemplate() {
-  }
+  @Override
+  protected void _renderTemplate() {}
 
-  @Override public void insertOutput(GTRenderingResult otherTemplate) {
-  }
+  @Override
+  public void insertOutput(GTRenderingResult otherTemplate) {}
 }

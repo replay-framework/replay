@@ -1,12 +1,11 @@
 package play.rebel;
 
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class RenderView extends View {
-  public RenderView() {
-  }
+  public RenderView() {}
 
   public RenderView(@Nonnull String templateName) {
     super(templateName);
@@ -16,8 +15,8 @@ public class RenderView extends View {
     super(templateName, arguments);
   }
 
-  @Override public RenderView with(@Nonnull String name, @Nullable Object value) {
+  @Override
+  public RenderView with(@Nonnull String name, @Nullable Object value) {
     return (RenderView) super.with(name, value);
   }
 }
-

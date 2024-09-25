@@ -1,14 +1,13 @@
 package play.cache;
 
-import net.spy.memcached.transcoders.SerializingTranscoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import javax.annotation.Nullable;
+import net.spy.memcached.transcoders.SerializingTranscoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class MemcachedTranscoder extends SerializingTranscoder {
   private static final Logger logger = LoggerFactory.getLogger(MemcachedTranscoder.class);
@@ -18,8 +17,7 @@ class MemcachedTranscoder extends SerializingTranscoder {
   protected Object deserialize(byte[] data) {
     try (ObjectInputStream in = new PlayObjectInputStream(data)) {
       return in.readObject();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       logger.error("Could not deserialize", e);
       return null;
     }
@@ -33,8 +31,7 @@ class MemcachedTranscoder extends SerializingTranscoder {
         oos.writeObject(object);
         return bos.toByteArray();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       logger.error("Could not serialize", e);
     }
     return null;

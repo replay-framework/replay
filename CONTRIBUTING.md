@@ -36,30 +36,66 @@ To run tests only on Javanet:
 
 ## How to release
 
-To make a release, you need to 
-1. have a write permission to `io.github.replay-framework` group in Maven central repository.
-2. have these lines in `~/.gradle/gradle.properties`:
-   > signing.keyId=2#####8
-   > signing.password=***********************
-   > signing.secretKeyRingFile=/Users/andrei/.gnupg/secring.gpg
-   > sonatypeUsername=*******
-   > sonatypePassword=********************
-   
-Steps to release version 2.4.0 (for example)
-1. Fill the CHANGELOG.md
-2. Replace previous version by "2.4.0" in build.gradle
-3. commit & push (CHANGELOG.md + build.gradle + maybe something else)
-4. run ./release.sh 2.4.0  // This uploads the `*.jar` files to https://oss.sonatype.org
-5. Login to https://oss.sonatype.org/#stagingRepositories
-   5.1. Click "Close", wait until "release" button gets enabled (~1-2 minutes)
-   5.2. Click "Release" (no need to fill description)
-   5.3. After ~5 minutes, the new jar will be available in Central Maven repo
-6. Open https://github.com/replay-framework/replay/milestones -> 2.4.0 -> "Edit milestone" -> "Close milestone"
-7. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
-   7.1. fill the release details (copy-paste from CHANGELOG.md)
-   7.2. click "Publish release"
-8. Replace version in build.gradle by "2.5.0-SNAPSHOT" and commit
-9. Create a new release on github: https://github.com/replay-framework/replay/releases
-10. Close milestone 2.4.0 and create a new milestone 2.5.0: https://github.com/replay-framework/replay/milestones
+To make a release, you need to:
+1. Have a write permission to `io.github.replay-framework` group in Maven central repository.
+2. Have these lines in `~/.gradle/gradle.properties`:
 
-This uploads the `*.jar` files to: https://s01.oss.sonatype.org/#stagingRepositories
+```
+signing.keyId=********
+signing.password=***********************
+signing.secretKeyRingFile=/home/username/.gnupg/secring.gpg
+sonatypeUsername=*******
+sonatypePassword=********************
+```
+
+If you have no GnuPG singing key yet, there is a guide for setting up GnuPG on [the Sonatype website](https://central.sonatype.org/publish/requirements/gpg).
+
+Once you have a signing key setup you need to fill in `signing.keyId` with the short key found after the encryption algorithm (or simply the last 8 characters of the long key format) shown with:
+
+```sh
+gpg --list-keys --keyid-format short
+```
+
+The `signing.password` should be set to the passphrase use to access GnuPG. You can test your passphrase with:
+
+```sh
+echo "1234" | gpg2 --batch --passphrase-fd 1 --local-user <SHORT KEY ID> -as - > /dev/null && echo "Passphrase correct"
+```
+
+The `signing.secretKeyRingFile` should point to *your* keyring file (in your `$HOME` folder).
+Since `gnupg` v2.1 it is not create by default, generate it with:
+
+```sh
+gpg --export-secret-keys -o /home/username/.gnupg/secring.gpg
+```
+
+And the Sonatype credentials `sonatypeUsername` and `sonatypePassword` need to contain the "user token".
+You need to generate this token by logging in to `s01.oss.sonatype.org` > click on your username in the top-right corner > click `Profile` > select `User Token` in the drop down.
+Important is that the account you are using has permissions for `io/github/replay-framework` (this needs to be granted by raising a support ticket with Sonatype).
+
+
+Steps to release version, for example, version `X.Y.Z`:
+
+1. Create a release branch, e.g. `release/X.Y.Z`
+2. Merge the branches that you want to be part of this release
+3. Fill/edit the `CHANGELOG.md`
+4. Replace previous version by "X.Y.Z" in `build.gradle`
+5. Commit & push (CHANGELOG.md + build.gradle + and all changes)
+6. Run `./release.sh X.Y.Z`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [s01.oss.sonatype.org](https://s01.oss.sonatype.org)
+7. Login to https://s01.oss.sonatype.org/#stagingRepositories and locate the staging repository...
+   * Wait until the "Close" button  gets enabled (~1 minute, "Refresh" may help)
+   * Click "Close" (no need to fill description)
+   * Wait until "Release" button gets enabled (~3 minutes, "Refresh" may help)
+   * Click "Release" (no need to fill description)
+   * After ~5-10 minutes, the new jar will be available in Central Maven repo (it may take up to 2 hours until it shows up in [search.maven.org](https://search.maven.org))
+   * In more detail this is explained here: https://central.sonatype.org/publish/release
+8. Merge the just created release branch into the `main` branch
+9. Open https://github.com/replay-framework/replay/milestones -> X.Y.Z -> "Edit milestone" -> "Close milestone"
+10. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
+   * Fill the release details (copy-paste from `CHANGELOG.md`)
+   * Click "Publish release"
+10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "A.B.C-SNAPSHOT", where A/B/C are the next in line of X/Y/Z) and commit
+11. Create a new release on github -- https://github.com/replay-framework/replay/releases -- and save as "Draft"
+12. Close milestone X.Y.Z and create a new milestone A.B.C: https://github.com/replay-framework/replay/milestones
+
+

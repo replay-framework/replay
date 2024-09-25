@@ -2,13 +2,9 @@ package ui.hello.kotlin
 
 import com.codeborne.selenide.Condition
 import com.codeborne.selenide.Selenide
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FileUtils.readFileToString
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.io.IOException
-import java.net.URISyntaxException
 
 class HelloWorldSpec : BaseSpec() {
   @Test

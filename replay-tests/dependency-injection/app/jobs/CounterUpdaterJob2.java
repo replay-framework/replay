@@ -1,15 +1,13 @@
 package jobs;
 
+import jakarta.inject.Inject;
 import play.jobs.OnApplicationStart;
 import play.jobs.SimpleJob;
 import services.Counter;
 
-import javax.inject.Inject;
-
 @OnApplicationStart
 public class CounterUpdaterJob2 extends SimpleJob {
-  @Inject
-  private Counter counter;
+  @Inject private Counter counter;
 
   @Override
   public void doJob() {

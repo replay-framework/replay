@@ -1,15 +1,14 @@
 package play.template2;
 
-import org.junit.jupiter.api.Test;
-import play.i18n.Messages;
-import play.template2.exceptions.GTTemplateRuntimeException;
-
-import java.util.Iterator;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.util.Iterator;
+import org.junit.jupiter.api.Test;
+import play.i18n.Messages;
+import play.template2.exceptions.GTTemplateRuntimeException;
 
 public class GTJavaBaseTest {
   @Test
@@ -17,8 +16,8 @@ public class GTJavaBaseTest {
     GTJavaBase template = new TestTemplate("/app/views/home.html") {};
 
     assertThatThrownBy(() -> template.handleMessageTag(emptyList()))
-      .isInstanceOf(GTTemplateRuntimeException.class)
-      .hasMessage("It looks like you don't have anything in your Message tag");
+        .isInstanceOf(GTTemplateRuntimeException.class)
+        .hasMessage("It looks like you don't have anything in your Message tag");
   }
 
   @Test
@@ -34,8 +33,10 @@ public class GTJavaBaseTest {
     Messages.defaults.setProperty("payment.status.unknown", "Unknown status: %s");
     GTJavaBase template = new TestTemplate("/app/views/home.html") {};
 
-    assertThat(template.handleMessageTag(asList("payment.status.unknown", "<script>alert('angry hack')</script>")))
-      .isEqualTo("Unknown status: &lt;script&gt;alert('angry hack')&lt;/script&gt;");
+    assertThat(
+            template.handleMessageTag(
+                asList("payment.status.unknown", "<script>alert('angry hack')</script>")))
+        .isEqualTo("Unknown status: &lt;script&gt;alert('angry hack')&lt;/script&gt;");
   }
 
   @Test
@@ -59,5 +60,8 @@ public class GTJavaBaseTest {
     assertThat(it.hasNext()).isFalse();
   }
 
-  private enum Gender {MALE, FEMALE}
+  private enum Gender {
+    MALE,
+    FEMALE
+  }
 }

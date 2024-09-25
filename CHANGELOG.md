@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.6.2 (released 09.09.2024)
+* Bump Hibernate to 6.6
+
+## 2.6.0 (released 05.09.2024)
+* #358 Upgrade to Hibernate 6.4
+* #393 Deprecate jpa.Model
+
+## 2.5.0 (released 09.08.2024) - see https://github.com/replay-framework/replay/milestone/16?closed=1
+* #386 Replace `javax.inject` with `jakarta.inject` (#389) @cies
+* #65 move all Groovy-related code from "framework" to "fastergt" (#316) @asolntsev
+* #360 Update PluginCollection (#361) @cies
+* #362 Improve performance, add test, small cleanups (#364) @cies
+* Downgrade and pin `jakarta.persistence:persistence-api:3.0.0` (#385) @cies
+* Bump liquibase from 4.26.0 to 4.29.1
+* Bump h2 from 2.2.224 to 2.3.230
+* Bumps hibernate-commons-annotations from 6.0.6.Final to 7.0.1.Final (#400)
+* Bump netty4 from 4.1.108.Final to 4.1.112.Final
+* Bump FlyingSaucer from 9.7.1 to 9.9.0
+* Bump groovy from 3.0.21 to 3.0.22
+* Bump slf4j from 2.0.12 to 2.0.15
+* Bump jackson from 2.17.0 to 2.17.2
+* Bump gson from 2.10.1 to 2.11.0
+* Bump xmlbeans from 5.2.0 to 5.2.1 (#390)
+* Bump commons-lang3 from 3.14.0 to 3.16.0
+* Bump commons-io from 2.15.1 to 2.16.1
+* Bump commons-logging from 1.3.0 to 1.3.3
+* Bump commons-text from 1.11.0 to 1.12.0
+* Bump commons-codec from 1.16.1 to 1.17.1
+* Bump guava from 33.1.0-jre to 33.2.1-jre
+* Bump classgraph from 4.8.168 to 4.8.174
+
 ## 2.4.0 (released 22.03.2024) - see https://github.com/replay-framework/replay/milestone/15?closed=1
 * Upgrade to Java 17 (#356)
 * #198 #290 Multi module app (#291)

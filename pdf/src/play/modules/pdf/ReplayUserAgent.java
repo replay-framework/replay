@@ -1,17 +1,7 @@
 package play.modules.pdf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xhtmlrenderer.pdf.ITextOutputDevice;
-import org.xhtmlrenderer.pdf.ITextUserAgent;
-import play.Play;
+import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +9,17 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
-
-import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xhtmlrenderer.pdf.ITextOutputDevice;
+import org.xhtmlrenderer.pdf.ITextUserAgent;
+import play.Play;
 
 @ParametersAreNonnullByDefault
 public class ReplayUserAgent extends ITextUserAgent {
@@ -44,18 +43,18 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   private void trustCertsIfNeeded() {
-    if ("true".equals(Play.configuration.getProperty("play.pdf.ssl.acceptUnknownCertificate", "false"))) {
+    if ("true"
+        .equals(Play.configuration.getProperty("play.pdf.ssl.acceptUnknownCertificate", "false"))) {
       try {
         trustCerts();
-      }
-      catch (NoSuchAlgorithmException | KeyManagementException e) {
+      } catch (NoSuchAlgorithmException | KeyManagementException e) {
         logger.error("Failed to trust all SSL certs", e);
       }
     }
   }
 
   private void trustCerts() throws NoSuchAlgorithmException, KeyManagementException {
-    TrustManager[] trustAllCerts = new TrustManager[]{new LoyalTrustManager()};
+    TrustManager[] trustAllCerts = new TrustManager[] {new LoyalTrustManager()};
 
     // Install the all-trusting trust manager
     SSLContext sc = SSLContext.getInstance("SSL");
@@ -88,8 +87,7 @@ public class ReplayUserAgent extends ITextUserAgent {
   private String toAbsoluteUrl(File file) {
     try {
       return file.getCanonicalFile().toURI().toURL().toExternalForm();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("Failed to convert to URL: " + file, e);
     }
   }

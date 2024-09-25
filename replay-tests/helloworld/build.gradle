@@ -1,13 +1,13 @@
 dependencies {
-  implementation('com.google.guava:guava:33.1.0-jre') {transitive = false}
+  implementation(libs.guava) {transitive = false}
   implementation project(':pdf')
-  testImplementation("org.assertj:assertj-core:$assertjVersion")
-  testImplementation "com.codeborne:pdf-test:$pdfTestVersion"
-  testImplementation("io.rest-assured:rest-assured:$restAssuredVersion") {
+  testImplementation(libs.assertjCore)
+  testImplementation(libs.pdfTest)
+  testImplementation(libs.restAssured) {
     exclude group: 'org.apache.groovy'
   }
-  testImplementation "io.rest-assured:json-schema-validator:$restAssuredVersion"
-  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.17.0") {
+  testImplementation(libs.jsonSchemaValidator)
+  testImplementation(libs.jacksonDatabind) {
     because 'used by rest-assured'
   }
 }

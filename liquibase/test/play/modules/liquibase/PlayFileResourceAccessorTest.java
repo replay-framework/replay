@@ -1,8 +1,8 @@
 package play.modules.liquibase;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class PlayFileResourceAccessorTest {
   private final PlayFileResourceAccessor accessor = new PlayFileResourceAccessor();

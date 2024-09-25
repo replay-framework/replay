@@ -1,7 +1,7 @@
 package play.exceptions;
 
 public class CacheException extends PlayException {
-    public CacheException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public CacheException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

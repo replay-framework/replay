@@ -1,13 +1,12 @@
 package play.server.netty3;
 
-import org.jboss.netty.handler.stream.ChunkedInput;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
+import org.jboss.netty.handler.stream.ChunkedInput;
 
 class LazyChunkedInput implements ChunkedInput {
 
@@ -48,15 +47,14 @@ class LazyChunkedInput implements ChunkedInput {
     byte[] bytes;
     if (chunk instanceof byte[]) {
       bytes = (byte[]) chunk;
-    }
-    else {
+    } else {
       String message = chunk == null ? "" : chunk.toString();
       bytes = message.getBytes(encoding);
     }
 
     try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
       byteStream.write(Integer.toHexString(bytes.length).getBytes(UTF_8));
-      byte[] crlf = new byte[]{(byte) '\r', (byte) '\n'};
+      byte[] crlf = new byte[] {(byte) '\r', (byte) '\n'};
       byteStream.write(crlf);
       byteStream.write(bytes);
       byteStream.write(crlf);

@@ -1,15 +1,12 @@
 package controllers;
 
+import static java.util.Objects.requireNonNullElse;
+
+import java.util.Map;
 import play.mvc.Controller;
 import play.mvc.results.RenderJson;
 
-import java.util.Map;
-
-import static java.util.Objects.requireNonNullElse;
-
-/**
- * Used by LargePostBodySpec#exerciseFileChannelBufferWithLargePostBody()
- */
+/** Used by LargePostBodySpec#exerciseFileChannelBufferWithLargePostBody() */
 public class AcceptPost extends Controller {
 
   public RenderJson respondWithSameObject() {
@@ -17,9 +14,11 @@ public class AcceptPost extends Controller {
     // This triggers the log warning from TextParser.resetBodyInputStreamIfPossible
     String requestBody = requireNonNullElse(request.params.get("body"), "");
 
-    return new RenderJson(Map.of(
-      "content-length", request.headers.get("content-length").value(),
-      "origin", requestBody
-    ));
+    return new RenderJson(
+        Map.of(
+            "content-length",
+            request.headers.get("content-length").value(),
+            "origin",
+            requestBody));
   }
 }

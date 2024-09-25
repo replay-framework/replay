@@ -9,7 +9,7 @@ public class LiquiBaseApp {
     System.out.println("Try: http://localhost:" + port);
     System.out.println();
   }
-  
+
   public static int run(String playId) {
     GuiceBeanSource guice = new GuiceBeanSource(new PetModule());
     return Starter.start(playId, guice);

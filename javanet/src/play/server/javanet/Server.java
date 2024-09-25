@@ -1,25 +1,24 @@
 package play.server.javanet;
 
+import static java.lang.Integer.parseInt;
+
 import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import static java.lang.Integer.parseInt;
-
 @ParametersAreNonnullByDefault
 public class Server {
+
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-  @Deprecated
-  public static int httpPort;
+  @Deprecated public static int httpPort;
   private final Play play;
   private int port;
 
@@ -33,8 +32,8 @@ public class Server {
     httpPort = port;
   }
 
-  /*
-   * Inspired by https://dzone.com/articles/simple-http-server-in-java
+  /**
+   * Inspired by <a href="https://dzone.com/articles/simple-http-server-in-java">this article</a>.
    */
   public int start() {
     System.setProperty("file.encoding", "utf-8");
@@ -42,7 +41,8 @@ public class Server {
     String address = address();
     try {
       HttpServer server = HttpServer.create(new InetSocketAddress(address, port), 0);
-      ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10); // TODO
+      ThreadPoolExecutor threadPoolExecutor =
+          (ThreadPoolExecutor) Executors.newFixedThreadPool(10); // TODO
 
       server.createContext("/", new PlayHandler(Play.invoker, play.getActionInvoker()));
       server.setExecutor(threadPoolExecutor);
@@ -52,8 +52,7 @@ public class Server {
       String modeSuffix = Play.mode == Mode.DEV ? " (Waiting a first request to start)" : "";
       logger.info("Listening for HTTP at http://{}:{}{} ...", address, port, modeSuffix);
       return port;
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("Failed to start server on " + address + ':' + port, e);
     }
   }
@@ -75,7 +74,7 @@ public class Server {
       return System.getProperty("http.address");
     }
 
-    return "localhost";
+    return "0.0.0.0";
   }
 
   public int port() {

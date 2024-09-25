@@ -1,9 +1,9 @@
 package play.plugins;
 
+import static java.util.Objects.hash;
+
 import java.net.URL;
 import java.util.Objects;
-
-import static java.util.Objects.hash;
 
 public class PluginDescriptor implements Comparable<PluginDescriptor> {
   public final String name;
@@ -35,10 +35,8 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
     PluginDescriptor that = (PluginDescriptor) o;
     return Objects.equals(index, that.index) && Objects.equals(name, that.name);

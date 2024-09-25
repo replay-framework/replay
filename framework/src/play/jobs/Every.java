@@ -5,12 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Run a job at specified interval
- * Example, @Every("1h")
- */
+/** Run a job at specified interval Example, @Every("1h") */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Every {
-    String value();
+  String value();
 }

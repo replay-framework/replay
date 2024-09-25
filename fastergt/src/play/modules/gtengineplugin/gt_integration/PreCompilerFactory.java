@@ -5,8 +5,8 @@ import play.template2.compile.GTPreCompiler;
 import play.template2.compile.GTPreCompilerFactory;
 
 public class PreCompilerFactory implements GTPreCompilerFactory {
-    @Override 
-    public GTPreCompiler createCompiler(GTTemplateRepo templateRepo) {
-        return new GTPreCompiler1xImpl(templateRepo);
-    }
+  @Override
+  public GTPreCompiler createCompiler(GTTemplateRepo templateRepo) {
+    return new GTPreCompiler1xImpl(templateRepo);
+  }
 }

@@ -1,17 +1,16 @@
 package play.mvc;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Test;
-import play.Play;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.google.common.collect.ImmutableMap;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import org.junit.jupiter.api.Test;
+import play.Play;
 
 public class UrlTest {
 
@@ -19,7 +18,7 @@ public class UrlTest {
   public void plainUrl() {
     assertThat(new Url("/domain/path").toString()).isEqualTo("/domain/path");
   }
-  
+
   @Test
   public void toUrlWithParams_empty() {
     String actual = new Url("/foo/bar", emptyMap()).toString();
@@ -80,7 +79,8 @@ public class UrlTest {
 
   @Test
   public void toUrlWithParams_urlWithDateParam_defaultFormat() {
-    Date date = Date.from(LocalDate.of(2000, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Date date =
+        Date.from(LocalDate.of(2000, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
     String actual = new Url("/foo/bar", singletonMap("date", date)).toString();
 
@@ -90,7 +90,8 @@ public class UrlTest {
   @Test
   public void toUrlWithParams_urlWithDateParam_formatFromConfig() {
     Play.configuration.setProperty("date.format", "yyyy.MM.dd");
-    Date date = Date.from(LocalDate.of(2000, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Date date =
+        Date.from(LocalDate.of(2000, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
     String actual = new Url("/foo/bar", singletonMap("date", date)).toString();
 
@@ -120,16 +121,20 @@ public class UrlTest {
 
   @Test
   public void toUrlWith4Params() {
-    String actual = new Url("/url", "name", "value", "name2", 1, "name3", true, "name4", 4L).toString();
+    String actual =
+        new Url("/url", "name", "value", "name2", 1, "name3", true, "name4", 4L).toString();
 
     assertThat(actual).isEqualTo("/url?name=value&name2=1&name3=true&name4=4");
   }
 
   @Test
   public void toUrlWith5Params() {
-    Date date = Date.from(LocalDate.of(2000, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Date date =
+        Date.from(LocalDate.of(2000, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-    String actual = new Url("/url", "name", "value", "name2", 1, "name3", true, "name4", 4L, "date", date).toString();
+    String actual =
+        new Url("/url", "name", "value", "name2", 1, "name3", true, "name4", 4L, "date", date)
+            .toString();
 
     assertThat(actual).isEqualTo("/url?name=value&name2=1&name3=true&name4=4&date=01.01.2000");
   }

@@ -1,10 +1,15 @@
 dependencies {
   implementation project(':framework')
-  implementation('org.eclipse.jdt:ecj:3.37.0')
-  implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
-  implementation "org.apache.commons:commons-text:$commonsTextVersion"
+  implementation(libs.ecj)
+
+  // Groovy 4 can be found in org.apache.groovy
+  api(libs.groovy)
+  api(libs.groovyXml)
+
+  implementation(libs.commonsLang3)
+  implementation(libs.commonsText)
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  testImplementation("org.assertj:assertj-core:$assertjVersion")
+  testImplementation(libs.assertjCore)
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

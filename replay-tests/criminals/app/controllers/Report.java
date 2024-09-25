@@ -1,9 +1,9 @@
 package controllers;
 
+import static java.util.Objects.requireNonNullElse;
+
 import play.modules.pdf.PdfResult;
 import play.mvc.Controller;
-
-import static java.util.Objects.requireNonNullElse;
 
 public class Report extends Controller {
   public PdfResult pdf(int days) {

@@ -1,5 +1,6 @@
 package play.mvc;
 
+import java.util.Objects;
 import play.data.validation.Validation;
 import play.mvc.results.BadRequest;
 import play.mvc.results.Forbidden;
@@ -28,7 +29,7 @@ public class Controller implements PlayContextController {
 
   protected void checkAuthenticity() {
     if (params.get("authenticityToken") == null
-      || !params.get("authenticityToken").equals(session.getAuthenticityToken())) {
+        || !Objects.equals(params.get("authenticityToken"), session.getAuthenticityToken())) {
       throw new Forbidden("Bad authenticity token");
     }
   }
@@ -36,8 +37,8 @@ public class Controller implements PlayContextController {
   /**
    * This "Play1-style" method throws {@link play.mvc.results.Forbidden} exception.
    *
-   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your code clear and testable.
-   *   Use method {@link #forbiddenResult()}.
+   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your
+   *     code clear and testable. Use method {@link #forbiddenResult()}.
    */
   @Deprecated
   protected static void forbidden() {
@@ -47,8 +48,8 @@ public class Controller implements PlayContextController {
   /**
    * This "Play1-style" method throws {@link play.mvc.results.Forbidden} exception.
    *
-   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your code clear and testable.
-   * Use method {@link #forbiddenResult()}.
+   * @deprecated instead if throwing an exception we recommend to RETURN the result. It makes your
+   *     code clear and testable. Use method {@link #forbiddenResult()}.
    */
   @Deprecated
   protected static void forbidden(String reason) {

@@ -1,12 +1,12 @@
 package play.server.netty3;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static java.util.Objects.requireNonNull;
 
 public class ResettableFileInputStream extends InputStream {
   private final File file;

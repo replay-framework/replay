@@ -1,5 +1,8 @@
 package play.plugins.security;
 
+import java.lang.reflect.Method;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import play.PlayPlugin;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -9,13 +12,17 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Forbidden;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Method;
-
 public class AuthenticityTokenPlugin extends PlayPlugin {
+
+  @ParametersAreNonnullByDefault
   @Override
-  public void beforeActionInvocation(Request request, Response response, Session session, RenderArgs renderArgs,
-                                     Flash flash, Method actionMethod) {
+  public void beforeActionInvocation(
+      Request request,
+      Response response,
+      Session session,
+      RenderArgs renderArgs,
+      Flash flash,
+      Method actionMethod) {
     if (!"POST".equalsIgnoreCase(request.method)) return;
     if (request.invokedMethod.isAnnotationPresent(NoAuthenticityToken.class)) return;
 

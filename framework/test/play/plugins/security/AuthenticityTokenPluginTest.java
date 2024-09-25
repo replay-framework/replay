@@ -1,5 +1,7 @@
 package play.plugins.security;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.Play;
@@ -7,8 +9,6 @@ import play.mvc.Http;
 import play.mvc.NoAuthenticityToken;
 import play.mvc.Scope;
 import play.mvc.results.Forbidden;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AuthenticityTokenPluginTest {
 
@@ -56,7 +56,8 @@ public class AuthenticityTokenPluginTest {
   }
 
   @Test
-  public void checkForAuthenticityTokenCanBeSuppressedWithAnnotation() throws NoSuchMethodException {
+  public void checkForAuthenticityTokenCanBeSuppressedWithAnnotation()
+      throws NoSuchMethodException {
     Http.Request request = new Http.Request();
     request.method = "POST";
     request.invokedMethod = SomeController.class.getMethod("noAuthenticityTokenAction");
@@ -69,9 +70,11 @@ public class AuthenticityTokenPluginTest {
     request.method = "POST";
     request.invokedMethod = SomeController.class.getMethod("withAuthenticityTokenAction");
 
-    assertThatThrownBy(() -> plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
-      .isInstanceOf(Forbidden.class)
-      .hasMessage("No authenticity token");
+    assertThatThrownBy(
+            () ->
+                plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
+        .isInstanceOf(Forbidden.class)
+        .hasMessage("No authenticity token");
   }
 
   @Test
@@ -82,9 +85,11 @@ public class AuthenticityTokenPluginTest {
     request.params.put("authenticityToken", "giga-unique-uuid");
     session.put("___AT", "mega-unique-uuid");
 
-    assertThatThrownBy(() -> plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
-      .isInstanceOf(Forbidden.class)
-      .hasMessage("Bad authenticity token");
+    assertThatThrownBy(
+            () ->
+                plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
+        .isInstanceOf(Forbidden.class)
+        .hasMessage("Bad authenticity token");
   }
 
   @Test
@@ -94,20 +99,19 @@ public class AuthenticityTokenPluginTest {
     request.params.put("authenticityToken", new String[] {"uuid1", "uuid1", "uuid2"});
     request.invokedMethod = SomeController.class.getMethod("withAuthenticityTokenAction");
 
-    assertThatThrownBy(() -> plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
-      .isInstanceOf(Forbidden.class)
-      .hasMessage("Multiple authenticity tokens");
+    assertThatThrownBy(
+            () ->
+                plugin.beforeActionInvocation(request, response, session, renderArgs, flash, null))
+        .isInstanceOf(Forbidden.class)
+        .hasMessage("Multiple authenticity tokens");
   }
 
   private static class SomeController {
-    public static void getAction() {
-    }
+    public static void getAction() {}
 
     @NoAuthenticityToken
-    public static void noAuthenticityTokenAction() {
-    }
+    public static void noAuthenticityTokenAction() {}
 
-    public static void withAuthenticityTokenAction() {
-    }
+    public static void withAuthenticityTokenAction() {}
   }
 }

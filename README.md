@@ -1,23 +1,25 @@
-# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://mvnrepository.com/artifact/io.github.replay-framework/framework)
+# The RePlay Framework &nbsp; [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.replay-framework/framework/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/io.github.replay-framework/framework/versions) [![Contributors](https://img.shields.io/github/contributors/replay-framework/replay)](https://github.com/replay-framework/replay/graphs/contributors) [![Repository size](https://img.shields.io/github/repo-size/replay-framework/replay.svg?logo=git)](https://github.com/replay-framework/replay)
 ```
-    ______  ______                 _            _
-   /     / /     /  _ __ ___ _ __ | | __ _ _  _| |
-  /     / /     /  | '_ / -_) '_ \| |/ _' | || |_|
- /     / /     /   |_/  \___|  __/|_|\____|\__ (_)
-/_____/ /_____/             |_|            |__/
-                   RePlay Framework, https://github.com/replay-framework/replay
+    _____ _____  ___      ___  _             
+   /    //    / |   \ ___|   \| | ___ _  _   
+  /    //    /  | ' // -_) '_/| |/ _ | \| |  
+ /    //    /   |_|_\\___|_|  |_|\___|\_  /  
+/____//____/                           /_/ 
+                RePlay Framework, https://github.com/replay-framework/replay
 ```
 
-RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, was created and maintained by [Codeborne](https://codeborne.com) in 2017..2023.
+RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, created by [Codeborne](https://codeborne.com) in 2017.
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
-Compared to Play1, RePlay is a simpler and more standard/modern framework with greatly improved developer ergonomics.
+RePlay is a simplification of the the Play1 codebase that aims to improve developer ergonomics.
 The main differences between Play1 and RePlay are outlined below.
 
-RePlay originally forked Play v1.5.0. Improvements made in the Play1 project since, are regularly ported to RePlay when applicable.
+RePlay originally forked Play v1.5.0. Any Play1 improvements that were made since then are ported to RePlay when applicable.
 [Version 2 of the Play Framework](https://github.com/playframework/playframework) (Play2) is significantly different from Play1.
 It caters for Scala web application projects, and uses Scala internally. 
 Porting a Play1 application to Play2 is really hard and has [questionable benefits](https://groups.google.com/g/play-framework/c/AcZs8GXNWUc).
 RePlay aims to provide a more sensible upgrade path for Play1 applications.
+
+We use Gitter to discuss RePlay development, feel free to join [the channel](https://app.gitter.im/#/room/#codeborne_replay:gitter.im) to ask questions or just say hi.
 
 
 #### How is RePlay different from Play1?
@@ -27,11 +29,10 @@ RePlay aims to provide a more sensible upgrade path for Play1 applications.
   * no [dependecies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
   * no dependency on [Ivy](https://ant.apache.org/ivy) (an outdated dependency resolver),
   * no Python scripts (with RePlay one simply uses Gradle or [Maven](https://maven.apache.org)),
-  * no "modules" folder which was a custom dependency management mechanism,
-  * no `VirtualFile` (from RePlay 2.4.0, all resources are just loaded from classpath).
+  * no "modules" folder (which was a custom dependency management mechanism),
 * Removes most built-in Play modules (console, docviewer, grizzly, secure, testrunner) and the ability to serve WebSockets.
 These were not used by RePlay's users (could be reintroduced if needed).
-* The `pdf` and `excel` Play1 contrib modules are part (a plugin) of the RePlay project.
+* The `pdf` and `excel` Play1 contrib modules are part of the RePlay project (they are plugins).
 * Does not require [patches](https://github.com/playframework/play1/tree/master/framework/patches) to Hibernate, Javaflow, etc.
 * It does not use [JBoss Javassist](https://www.javassist.org) for bytecode manipulating "enhancers", resulting in:
   * shorter application startup times (seriously improves development cycles),
@@ -39,14 +40,16 @@ These were not used by RePlay's users (could be reintroduced if needed).
 * Less "magic", like: the before mentioned "enhancers" and creative use of exceptions for redirecting/responding/returning in controller methods.
 * No overuse of `static` fields/methods throughout your application code; RePlay follows generally accepted OO best practices.
 * More actively maintained.
+* More up to date dependencies (e.g. Hibernate).
 * Promotes [dependency injection](/replay-framework/replay/tree/main/replay-tests/dependency-injection) for decoupling concerns
 (using Google's [Guice](https://github.com/google/guice) as a DI provider like Play2).
 * Where possible functionality has been refactored into plugins (more on that below) to increase modularity.
+* Removed the `VirtualFile` class (since RePlay 2.4.0), all resources are simply loaded from the classpath.
 
 
 #### Requirements
 
-JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions beyond 17).
+RePlay requires JDK 17 to be built; it is the lower limit of serveral of our dependencies: ECJ (for rendering GroovyTemplates), FlyingSaucer (PDF generation) and Selenide (UI tests). Your project should use a JDK version equal to or greater than 17 that's also supported by Hibernate 6.6 (the version RePlay currently depends on), which are [JDK 17 and 21](https://hibernate.org/orm/releases/6.6).
 
 
 ## Getting started
@@ -54,15 +57,15 @@ JDK 17 (as we are stuck at Hibernate 5.6 which does not support JDK versions bey
 You need to add RePlay dependencies to your build.gradle (or pom.xml):
 ```groovy
 dependencies {
-  implementation 'io.github.replay-framework:framework:2.4.0'
-  implementation 'io.github.replay-framework:javanet:2.4.0'  // you can replay "javanet" by "netty3" or "netty4"
+  implementation 'io.github.replay-framework:framework:2.5.0'
+  implementation 'io.github.replay-framework:javanet:2.5.0'  // you can replace "javanet" by "netty3" or "netty4"
   
   // Optionally:
-  implementation 'io.github.replay-framework:guice:2.4.0'
-  implementation 'io.github.replay-framework:fastergt:2.4.0'
-  implementation 'io.github.replay-framework:liquibase:2.4.0'
-  implementation 'io.github.replay-framework:pdf:2.4.0'
-  implementation 'io.github.replay-framework:excel:2.4.0'
+  implementation 'io.github.replay-framework:guice:2.5.0'
+  implementation 'io.github.replay-framework:fastergt:2.5.0'
+  implementation 'io.github.replay-framework:liquibase:2.5.0'
+  implementation 'io.github.replay-framework:pdf:2.5.0'
+  implementation 'io.github.replay-framework:excel:2.5.0'
 }
 ```
 
@@ -70,7 +73,10 @@ RePlay does not come with the `play` command line tool (written in Python 2.7) t
 Hence, the `play new` scaffolding generator is not available in RePlay.
 To start a new RePlay application make a copy of [demo application](https://github.com/replay-framework/replay/tree/main/replay-tests/criminals) and work your way up from there.
 
-Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase, Kotlin and dependency injection with Guice).
+Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase and
+Hibernate backed applications (in `liquibase-app`), Kotlin (in `helloworld-kotlin`), some more advanced controller
+techniques (in `criminals`) a multi module application (in `multi-module-app`)
+and dependency injection with Guice (in `dependency-injection`)).
 
 Documentation for RePlay is found in (or referred to from) this README.
 
@@ -217,7 +223,12 @@ The following list breaks down the porting effort into tasks:
 * Port the dependency specification from `conf/dependencies.yml` (Ivy2 format) to `build.gradle` (Gradle format).
 * Ensure that `app/play.plugins` file (or the file where the `play.plugins.descriptor` configuration property is pointing) is on the classpath (e.g. `sourceSets.main.resources { srcDir 'app' }`) and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
-[RePlay example project](replay-tests/criminals/) and [multi-module-app test](replay-tests/multi-module-app/) for inspiration).
+[RePlay example project](/replay-framework/replay/tree/main/replay-tests/criminals) and
+[multi-module-app test](/replay-framework/replay/tree/main/replay-tests/multi-module-app) for inspiration).
+[RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration).
+* Play1 recommends to subclass from `db.Model`, which is deprecated in RePlay. Instead implement a base model as part of
+your project as seen in `replay-test/liquibase-app`. This give you more flexibility in configuring Hibernate handling of
+the `id` column.
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.
   * This enhancer reduces the boilerplate needed to make classes adhere to the "Java Bean" standard.
   In short: a *bean* is a Java class that (1) implements `java.io.Serializable`, (2) implements public getter/setter methods for accessing the state, and
@@ -241,8 +252,8 @@ The following list breaks down the porting effort into tasks:
   run `Refactor -> Encapsulate Fields...` on your own class (only generate the getter!),
   finally remove your class and string replace the imports back to what they were.
 * Play1's `JPAEnhancer` was removed.
-  * In RePlay, classes that extend `Model` have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
-    * **TIP**: Reimplementing these methods using the methods found in RePlay's `play.db.jpa.JPARepository`.
+  * In RePlay, entity classes (they in Play1 extend `Model`) have to implement `create`, `count`, `find*`, `all` and `delete*` methods themselves.
+    * **TIP**: Reimplement these methods using the methods found in RePlay's `play.db.jpa.JPARepository`.
   * **TIP**: By adding the following lines to `conf/application.conf` of a Play1 project,
   the work required can be performed on the Play1 based version of the application.
 
@@ -373,7 +384,11 @@ needs an additional `return new Ok()` with RePlay.
 * While porting the controllers you will find some changes to the views (templates) are required too:
   * In some cases the full package path needs to be provided, e.g.: `Play.configuration.getProperty("key")` becomes `play.Play.configuration.getProperty("key")`.
 * Due to changed encrypting/signing of `CookieSessionStore` all active sessions are logged out when migrating from Play1 to RePlay.
-This means that running the Play1 version of the app side-by-side with the RePlay version is not possible (all users get logged out all the time). 
+This means that running the Play1 version of the app side-by-side with the RePlay version is not possible (all users get logged out all the time).
+* As of September 2024, Play1 brings Hibernate 5.6 while RePlay upgraded to 6.4. This may result in some problems:
+  * Hibernate 6.4 is stricter when it comes to mapping columns to properties. This results in a `NonUniqueDiscoveredSqlAliasException`
+  thrown when a column name occurs twice (e.g. the `id` column) when mapping the result of a query with joins to an entity.
+  * Hibernate changed the "generation strategy" for MySQL, hence you may want to implement `jpa.Model` yourself which is fully supported in RePlay.
 
   
 ## Licence

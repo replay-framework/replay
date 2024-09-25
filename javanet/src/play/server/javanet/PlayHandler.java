@@ -1,5 +1,25 @@
 package play.server.javanet;
 
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.COOKIE;
+import static com.google.common.net.HttpHeaders.ETAG;
+import static com.google.common.net.HttpHeaders.HOST;
+import static com.google.common.net.HttpHeaders.IF_MODIFIED_SINCE;
+import static com.google.common.net.HttpHeaders.IF_NONE_MATCH;
+import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
+import static com.google.common.net.HttpHeaders.SET_COOKIE;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNullElse;
+import static org.apache.commons.lang3.StringUtils.defaultString;
+import static play.mvc.Http.Methods.GET;
+import static play.mvc.Http.Methods.HEAD;
+import static play.mvc.Http.StatusCode.BAD_REQUEST;
+import static play.mvc.Http.StatusCode.INTERNAL_ERROR;
+import static play.mvc.Http.StatusCode.NOT_FOUND;
+import static play.mvc.Http.StatusCode.NOT_MODIFIED;
+import static play.utils.Utils.formatMemorySize;
+
 import com.google.common.net.HttpHeaders;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -7,6 +27,22 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,45 +64,8 @@ import play.mvc.results.RenderStatic;
 import play.server.IpParser;
 import play.server.ServerAddress;
 import play.server.ServerHelper;
-import play.templates.JavaExtensions;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
-import static com.google.common.net.HttpHeaders.COOKIE;
-import static com.google.common.net.HttpHeaders.ETAG;
-import static com.google.common.net.HttpHeaders.HOST;
-import static com.google.common.net.HttpHeaders.IF_MODIFIED_SINCE;
-import static com.google.common.net.HttpHeaders.IF_NONE_MATCH;
-import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
-import static com.google.common.net.HttpHeaders.SET_COOKIE;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static play.mvc.Http.Methods.GET;
-import static play.mvc.Http.Methods.HEAD;
-import static play.mvc.Http.StatusCode.BAD_REQUEST;
-import static play.mvc.Http.StatusCode.INTERNAL_ERROR;
-import static play.mvc.Http.StatusCode.NOT_FOUND;
-import static play.mvc.Http.StatusCode.NOT_MODIFIED;
 
 @ParametersAreNonnullByDefault
 public class PlayHandler implements HttpHandler {
@@ -101,26 +100,26 @@ public class PlayHandler implements HttpHandler {
       response.out = new ByteArrayOutputStream();
       response.direct = null;
 
-      boolean raw = Play.pluginCollection.rawInvocation(request, response, null, Scope.RenderArgs.current(), null);
+      boolean raw =
+          Play.pluginCollection.rawInvocation(
+              request, response, null, Scope.RenderArgs.current(), null);
       if (raw) {
         copyResponse(exchange, request, response);
-      }
-      else {
+      } else {
         // Delegate to Play framework
         invoker.invoke(new JavaNetInvocation(request, response, exchange));
       }
 
-    }
-    catch (IllegalArgumentException ex) {
+    } catch (IllegalArgumentException ex) {
       logger.warn("Exception on request. serving 400 back", ex);
       serve400(ex, exchange);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       serve500(ex, exchange, request, response);
     }
   }
 
-  private void copyResponse(HttpExchange exchange, Http.Request request, Http.Response response) throws Exception {
+  private void copyResponse(HttpExchange exchange, Http.Request request, Http.Response response)
+      throws Exception {
     logger.trace("copyResponse: begin");
 
     sendContentType(exchange, response);
@@ -136,23 +135,19 @@ public class PlayHandler implements HttpHandler {
         if (!keepAlive) {
           // TODO Close the connection when the whole content is written out.
         }
-      }
-      else {
+      } else {
         fileService.serve(file, exchange, request, response, keepAlive);
       }
-    }
-    else if (is != null) {
+    } else if (is != null) {
       if (!exchange.getRequestMethod().equals(HEAD) && exchange.getResponseCode() != NOT_MODIFIED) {
         // writeFuture = ctx.getChannel().write(new ChunkedStream(is));
-      }
-      else {
+      } else {
         is.close();
       }
       if (!keepAlive) {
         // writeFuture.addListener(ChannelFutureListener.CLOSE);
       }
-    }
-    else {
+    } else {
       writeResponse(exchange, response);
     }
     logger.trace("copyResponse: end");
@@ -178,7 +173,7 @@ public class PlayHandler implements HttpHandler {
         error.append(":");
         String size;
         try {
-          size = JavaExtensions.formatSize(Long.parseLong(length));
+          size = formatMemorySize(Long.parseLong(length));
         } catch (Exception e) {
           size = length + " bytes";
         }
@@ -189,10 +184,15 @@ public class PlayHandler implements HttpHandler {
         Http.Cookie cookieErrors = request.cookies.get(Scope.COOKIE_PREFIX + "_ERRORS");
         if (cookieErrors != null && cookieErrors.value != null && !cookieErrors.value.isEmpty()) {
           try {
-            String decryptErrors = errorsCookieCrypter.decrypt(URLDecoder.decode(cookieErrors.value, UTF_8));
+            String decryptErrors =
+                errorsCookieCrypter.decrypt(URLDecoder.decode(cookieErrors.value, UTF_8));
             error.append(decryptErrors);
           } catch (RuntimeException e) {
-            securityLogger.error("Failed to decrypt cookie {}: {}", Scope.COOKIE_PREFIX + "_ERRORS", cookieErrors.value, e);
+            securityLogger.error(
+                "Failed to decrypt cookie {}: {}",
+                Scope.COOKIE_PREFIX + "_ERRORS",
+                cookieErrors.value,
+                e);
           }
         }
         String errorData = URLEncoder.encode(errorsCookieCrypter.encrypt(error.toString()), UTF_8);
@@ -222,7 +222,9 @@ public class PlayHandler implements HttpHandler {
   }
 
   private void addDateToResponse(HttpExchange exchange) {
-    exchange.getResponseHeaders().set(HttpHeaders.DATE, Utils.getHttpDateFormatter().format(new Date()));
+    exchange
+        .getResponseHeaders()
+        .set(HttpHeaders.DATE, Utils.getHttpDateFormatter().format(new Date()));
   }
 
   private void flushCookies(HttpExchange exchange, Http.Response response) {
@@ -236,7 +238,9 @@ public class PlayHandler implements HttpHandler {
 
   private void addCookiesToResponse(HttpExchange exchange, Map<String, Http.Cookie> cookies) {
     for (Http.Cookie cookie : cookies.values()) {
-      exchange.getResponseHeaders().add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(toNettyCookie(cookie)));
+      exchange
+          .getResponseHeaders()
+          .add(SET_COOKIE, ServerCookieEncoder.STRICT.encode(toNettyCookie(cookie)));
     }
   }
 
@@ -256,7 +260,9 @@ public class PlayHandler implements HttpHandler {
   }
 
   private void addCacheControlToResponse(HttpExchange exchange, Http.Response response) {
-    if (!response.headers.containsKey(HttpHeaders.CACHE_CONTROL) && !response.headers.containsKey(HttpHeaders.EXPIRES) && !(response.direct instanceof File)) {
+    if (!response.headers.containsKey(HttpHeaders.CACHE_CONTROL)
+        && !response.headers.containsKey(HttpHeaders.EXPIRES)
+        && !(response.direct instanceof File)) {
       exchange.getResponseHeaders().set(HttpHeaders.CACHE_CONTROL, "no-cache");
     }
   }
@@ -265,7 +271,8 @@ public class PlayHandler implements HttpHandler {
     logger.trace("writeResponse: begin");
 
     boolean keepAlive = isKeepAlive(exchange);
-    byte[] content = exchange.getRequestMethod().equals(HEAD) ? new byte[0] : response.out.toByteArray();
+    byte[] content =
+        exchange.getRequestMethod().equals(HEAD) ? new byte[0] : response.out.toByteArray();
 
     logger.trace("writeResponse: content length [{}]", content.length);
     if (response.contentType != null) {
@@ -282,15 +289,13 @@ public class PlayHandler implements HttpHandler {
   private void addEtag(HttpExchange exchange, File file) throws IOException {
     if (Play.mode == Play.Mode.DEV) {
       exchange.getResponseHeaders().set(HttpHeaders.CACHE_CONTROL, "no-cache");
-    }
-    else {
+    } else {
       // Check if Cache-Control header is not set
       if (exchange.getResponseHeaders().get(HttpHeaders.CACHE_CONTROL) == null) {
         String maxAge = Play.configuration.getProperty("http.cacheControl", "3600");
         if ("0".equals(maxAge)) {
           exchange.getResponseHeaders().set(HttpHeaders.CACHE_CONTROL, "no-cache");
-        }
-        else {
+        } else {
           exchange.getResponseHeaders().set(HttpHeaders.CACHE_CONTROL, "max-age=" + maxAge);
         }
       }
@@ -305,9 +310,10 @@ public class PlayHandler implements HttpHandler {
       if (exchange.getRequestMethod().equals(GET)) {
         exchange.sendResponseHeaders(NOT_MODIFIED, -1);
       }
-    }
-    else {
-      exchange.getResponseHeaders().set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
+    } else {
+      exchange
+          .getResponseHeaders()
+          .set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
       if (useEtag) {
         exchange.getResponseHeaders().set(ETAG, etag);
       }
@@ -322,9 +328,7 @@ public class PlayHandler implements HttpHandler {
 
   private boolean isKeepAlive(HttpExchange message) {
     return serverHelper.isKeepAlive(
-      message.getProtocol(),
-      message.getRequestHeaders().getFirst(HttpHeaders.CONNECTION)
-    );
+        message.getProtocol(), message.getRequestHeaders().getFirst(HttpHeaders.CONNECTION));
   }
 
   private class JavaNetInvocation extends Invocation {
@@ -352,7 +356,8 @@ public class PlayHandler implements HttpHandler {
           Router.detectChanges();
         }
         if (Play.mode == Play.Mode.PROD
-            && staticPathsCache.containsKey(request.domain + " " + request.method + " " + request.path)) {
+            && staticPathsCache.containsKey(
+                request.domain + " " + request.method + " " + request.path)) {
           RenderStatic rs;
           synchronized (staticPathsCache) {
             rs = staticPathsCache.get(request.domain + " " + request.method + " " + request.path);
@@ -363,13 +368,11 @@ public class PlayHandler implements HttpHandler {
         }
         Router.instance.routeOnlyStatic(request);
         super.init();
-      }
-      catch (NotFound nf) {
+      } catch (NotFound nf) {
         serve404(nf, exchange, request);
         logger.trace("init: end false");
         return false;
-      }
-      catch (RenderStatic rs) {
+      } catch (RenderStatic rs) {
         if (Play.mode == Play.Mode.PROD) {
           synchronized (staticPathsCache) {
             staticPathsCache.put(request.domain + " " + request.method + " " + request.path, rs);
@@ -387,8 +390,10 @@ public class PlayHandler implements HttpHandler {
     @Override
     public InvocationContext getInvocationContext() {
       ActionInvoker.resolve(request);
-      return new InvocationContext(Http.invocationType, request.invokedMethod.getAnnotations(),
-        request.invokedMethod.getDeclaringClass().getAnnotations());
+      return new InvocationContext(
+          Http.invocationType,
+          request.invokedMethod.getAnnotations(),
+          request.invokedMethod.getDeclaringClass().getAnnotations());
     }
 
     @Override
@@ -399,26 +404,23 @@ public class PlayHandler implements HttpHandler {
           preInit();
           if (init()) {
             before();
-            JPA.withinFilter(() -> {
-              execute();
-              return null;
-            });
+            JPA.withinFilter(
+                () -> {
+                  execute();
+                  return null;
+                });
             after();
             onSuccess();
           }
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
           onActionInvocationException(request, response, e);
-        }
-        finally {
+        } finally {
           Play.pluginCollection.onActionInvocationFinally(request, response);
           InvocationContext.current.remove();
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         serve500(e, exchange, request, response);
-      }
-      finally {
+      } finally {
         exchange.close();
       }
       logger.trace("run: end");
@@ -456,7 +458,9 @@ public class PlayHandler implements HttpHandler {
     // int max = Integer.parseInt(Play.configuration.getProperty("play.netty.maxContentLength", "-1"));
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    IOUtils.copy(exchange.getRequestBody(), out); // TODO What if upload is too big? Avoid loading the entire array to memory (?)
+    IOUtils.copy(
+        exchange.getRequestBody(),
+        out); // TODO What if upload is too big? Avoid loading the entire array to memory (?)
     byte[] n = out.toByteArray();
     InputStream body = new ByteArrayInputStream(n);
 
@@ -464,9 +468,21 @@ public class PlayHandler implements HttpHandler {
     boolean isLoopback = ipParser.isLoopback(host, exchange.getRemoteAddress());
     ServerAddress serverAddress = ipParser.parseHost(host);
 
-    Http.Request request = Http.Request.createRequest(remoteAddress, method, path, querystring, contentType, body, relativeUrl,
-      serverAddress.host, isLoopback, serverAddress.port, serverAddress.domain,
-        getHeaders(exchange), getCookies(exchange));
+    Http.Request request =
+        Http.Request.createRequest(
+            remoteAddress,
+            method,
+            path,
+            querystring,
+            contentType,
+            body,
+            relativeUrl,
+            serverAddress.host,
+            isLoopback,
+            serverAddress.port,
+            serverAddress.domain,
+            getHeaders(exchange),
+            getCookies(exchange));
 
     logger.trace("parseRequest: end");
     return request;
@@ -512,7 +528,8 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serve400: end");
   }
 
-  private void serve404(NotFound e, HttpExchange exchange, Http.Request request) throws IOException {
+  private void serve404(NotFound e, HttpExchange exchange, Http.Request request)
+      throws IOException {
     logger.trace("serve404: begin");
     String format = defaultString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
@@ -521,7 +538,9 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serve404: end");
   }
 
-  private void printResponse(HttpExchange exchange, int httpStatus, String contentType, String errorHtml) throws IOException {
+  private void printResponse(
+      HttpExchange exchange, int httpStatus, String contentType, String errorHtml)
+      throws IOException {
     byte[] bytes = errorHtml.getBytes(Play.defaultWebEncoding);
     exchange.getResponseHeaders().set(CONTENT_TYPE, contentType);
     exchange.sendResponseHeaders(httpStatus, bytes.length);
@@ -530,7 +549,8 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  private void serve500(Exception e, HttpExchange exchange, Http.Request request, Http.Response response) {
+  private void serve500(
+      Exception e, HttpExchange exchange, Http.Request request, Http.Response response) {
     logger.trace("serve500: begin");
 
     try {
@@ -542,37 +562,48 @@ public class PlayHandler implements HttpHandler {
       try {
         String errorHtml = serverHelper.generateErrorResponse(request, format, e);
         printResponse(exchange, INTERNAL_ERROR, contentType, errorHtml);
-        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
-      }
-      catch (Throwable ex) {
-        logger.error("Internal Server Error (500) for {} {} ({})", request.method, request.url, e.getClass().getSimpleName(), e);
+        logger.error(
+            "Internal Server Error (500) for {} {} ({})",
+            request.method,
+            request.url,
+            e.getClass().getSimpleName(),
+            e);
+      } catch (Throwable ex) {
+        logger.error(
+            "Internal Server Error (500) for {} {} ({})",
+            request.method,
+            request.url,
+            e.getClass().getSimpleName(),
+            e);
         logger.error("Error during the 500 response generation", ex);
         sendServerError(exchange, request);
       }
-    }
-    catch (RuntimeException exxx) {
+    } catch (RuntimeException exxx) {
       logger.error("Error during the 500 response generation", exxx);
       try {
         sendServerError(exchange, request);
-      }
-      catch (Exception fex) {
+      } catch (Exception fex) {
         logger.error("(encoding ?)", fex);
       }
       throw exxx;
-    }
-    finally {
+    } finally {
       exchange.close();
     }
     logger.trace("serve500: end");
   }
 
-  private void serveStatic(RenderStatic renderStatic, HttpExchange exchange, Http.Request request, Http.Response response) {
+  private void serveStatic(
+      RenderStatic renderStatic,
+      HttpExchange exchange,
+      Http.Request request,
+      Http.Response response) {
     logger.trace("serveStatic: begin");
 
     try {
       File file = serverHelper.findFile(renderStatic.file);
       if ((file == null || !file.exists())) {
-        serve404(new NotFound("The file " + renderStatic.file + " does not exist"), exchange, request);
+        serve404(
+            new NotFound("The file " + renderStatic.file + " does not exist"), exchange, request);
       } else {
         serveLocalFile(file, request, response, exchange);
       }
@@ -591,8 +622,9 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  private void serveLocalFile(File localFile, Http.Request request, Http.Response response,
-                              HttpExchange exchange) throws IOException {
+  private void serveLocalFile(
+      File localFile, Http.Request request, Http.Response response, HttpExchange exchange)
+      throws IOException {
 
     boolean keepAlive = isKeepAlive(exchange);
     addEtag(exchange, localFile);
@@ -602,4 +634,3 @@ public class PlayHandler implements HttpHandler {
     }
   }
 }
-

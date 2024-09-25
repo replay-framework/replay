@@ -5,24 +5,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Mark this method as @After interceptor
- */
+/** Mark this method as @After interceptor */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface After {
 
-    /**
-     * Does not intercept these actions
-     * 
-     * @return List of actions not to intercept
-     */
-    String[] unless() default {};
+  /**
+   * Does not intercept these actions
+   *
+   * @return Array of actions not to intercept
+   */
+  String[] unless() default {};
 
-    /**
-     * Only intercept these actions
-     * 
-     * @return List of actions to intercept
-     */
-    String[] only() default {};
+  /**
+   * Only intercept these actions
+   *
+   * @return Array of actions to intercept
+   */
+  String[] only() default {};
 }

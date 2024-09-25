@@ -1,20 +1,19 @@
 package model;
 
+import static jakarta.persistence.EnumType.STRING;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import java.time.LocalDateTime;
 import play.data.binding.NoBinding;
 import play.data.validation.Max;
 import play.data.validation.Min;
 import play.data.validation.MinSize;
 import play.data.validation.Required;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import java.time.LocalDateTime;
-
-import static jakarta.persistence.EnumType.STRING;
-
 @Entity
-public class Pet extends play.db.jpa.Model {
+public class Pet extends IdModel {
   @Enumerated(STRING)
   @Required
   public Kind kind;
@@ -36,7 +35,8 @@ public class Pet extends play.db.jpa.Model {
   @NoBinding
   public LocalDateTime updatedAt;
 
-  public Pet(long id, Kind kind, String name, int age, LocalDateTime createdAt, LocalDateTime updatedAt) {
+  public Pet(
+      long id, Kind kind, String name, int age, LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.id = id;
     this.kind = kind;
     this.name = name;
