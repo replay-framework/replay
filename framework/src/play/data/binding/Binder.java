@@ -332,7 +332,7 @@ public abstract class Binder {
     }
 
     if (invalidItemsCount > 0) {
-      // must remove some elements from the end..
+      // Must remove some elements from the end
       int newSize = size - invalidItemsCount;
       Object newArray = Array.newInstance(componentType, newSize);
       for (int i = 0; i < newSize; i++) {
@@ -558,7 +558,7 @@ public abstract class Binder {
           logBindingNormalFailure(paramNode, e); // TODO debug or error?
         }
       }
-      if (hasMissing && l.size() == 0) {
+      if (hasMissing && l.isEmpty()) {
         return MISSING;
       }
       return l;
@@ -785,8 +785,8 @@ public abstract class Binder {
       }
 
       if ("1".equals(value)
-          || "on".equals(value.toLowerCase())
-          || "yes".equals(value.toLowerCase())) {
+          || "on".equalsIgnoreCase(value)
+          || "yes".equalsIgnoreCase(value)) {
         return true;
       }
 

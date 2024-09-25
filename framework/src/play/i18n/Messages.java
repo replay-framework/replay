@@ -78,9 +78,10 @@ public class Messages {
       }
     }
     // Build the result
-    for (Object key : all.keySet()) {
+    for (Map.Entry<Object, Object> entry : all.entrySet()) {
+      Object key = entry.getKey();
       if (keys.contains(key)) {
-        result.put(key, all.get(key));
+        result.put(key, entry.getValue());
       }
     }
     return result;
@@ -95,7 +96,8 @@ public class Messages {
       @Nonnull Function<Object, String> defaultMessage,
       @Nullable Object key,
       Object... args) {
-    // Check if there is a plugin that handles translation
+
+    // Allow a plugin to handle translation
     Optional<String> message = Play.pluginCollection.getMessage(locale, key, args);
     if (message.isPresent()) {
       return message.get();
@@ -109,10 +111,7 @@ public class Messages {
       if (locales.containsKey(locale)) {
         value = locales.get(locale).getProperty(key.toString());
       }
-      if (value == null
-          && locale != null
-          && locale.length() == 5
-          && locales.containsKey(locale.substring(0, 2))) {
+      if (value == null && locale.length() == 5 && locales.containsKey(locale.substring(0, 2))) {
         value = locales.get(locale.substring(0, 2)).getProperty(key.toString());
       }
     }
@@ -161,7 +160,7 @@ public class Messages {
     int incrementalPosition = 1;
     while (matcher.find()) {
       String conversion = matcher.group(6);
-      Integer position;
+      int position;
       if (matcher.group(2) == null) {
         position = incrementalPosition++;
       } else {
@@ -222,7 +221,7 @@ public class Messages {
    * @return messages as a {@link Properties java.util.Properties}
    */
   public static Properties all(String locale) {
-    if (locale == null || "".equals(locale)) {
+    if (locale == null || locale.isEmpty()) {
       return defaults;
     }
     Properties mergedMessages = new Properties();

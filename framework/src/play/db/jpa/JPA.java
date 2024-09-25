@@ -195,8 +195,6 @@ public class JPA {
   public static <T> T withTransaction(
       String dbName, boolean readOnly, SupplierWithException<T> block) throws Exception {
     if (isEnabled()) {
-      boolean closeEm = true;
-      // For each existing persistence unit
 
       try {
         // We are starting a transaction for each known persistent unit.
@@ -206,7 +204,7 @@ public class JPA {
           EntityManager localEm = JPA.createEntityManager(name);
           JPA.bindForCurrentThread(name, localEm, readOnly);
 
-          if (!readOnly) {
+          if (!readOnly && localEm != null) {
             localEm.getTransaction().begin();
           }
         }
@@ -258,17 +256,15 @@ public class JPA {
 
         throw t;
       } finally {
-        if (closeEm) {
-          for (JPAContext jpaContext : get().values()) {
-            EntityManager localEm = jpaContext.entityManager;
-            if (localEm.isOpen()) {
-              localEm.close();
-            }
-            JPA.clearContext(jpaContext.dbName);
+        for (JPAContext jpaContext : get().values()) {
+          EntityManager localEm = jpaContext.entityManager;
+          if (localEm.isOpen()) {
+            localEm.close();
           }
-          for (String name : emfs.keySet()) {
-            JPA.unbindForCurrentThread(name);
-          }
+          JPA.clearContext(jpaContext.dbName);
+        }
+        for (String name : emfs.keySet()) {
+          JPA.unbindForCurrentThread(name);
         }
       }
     } else {

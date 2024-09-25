@@ -191,7 +191,7 @@ public class FileService {
     private final String filePath;
     private final long startedAt;
 
-    public FileServingListener(String filePath, long startedAt) {
+    private FileServingListener(String filePath, long startedAt) {
       this.filePath = filePath;
       this.startedAt = startedAt;
     }

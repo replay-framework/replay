@@ -9,13 +9,16 @@ import static play.mvc.Http.Methods.POST;
 import static play.mvc.Http.Methods.PUT;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 class RoutePattern {
   private static final Set<String> methodPattern =
       Set.of(GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, "WS", "*");
 
+  private static final Pattern WORD_PATTERN = Pattern.compile("\\s+");
+
   RouteLine matcher(String line) {
-    return new RouteLine(line.split("\\s+"));
+    return new RouteLine(WORD_PATTERN.split(line));
   }
 
   static class RouteLine {

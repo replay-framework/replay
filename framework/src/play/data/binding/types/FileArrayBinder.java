@@ -26,26 +26,23 @@ public class FileArrayBinder implements TypeBinder<File[]> {
       String value,
       Class actualClass,
       Type genericType) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
-    if (request.args != null) {
-      List<File> fileArray = new ArrayList<>();
-      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-      if (uploads != null) {
-        for (Upload upload : uploads) {
-          if (upload.getFieldName().equals(value)) {
-            if (upload.getSize() > 0) {
-              File file = upload.asFile();
-              if (file.length() > 0) {
-                fileArray.add(file);
-              }
+    List<File> fileArray = new ArrayList<>();
+    List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+    if (uploads != null) {
+      for (Upload upload : uploads) {
+        if (upload.getFieldName().equals(value)) {
+          if (upload.getSize() > 0) {
+            File file = upload.asFile();
+            if (file.length() > 0) {
+              fileArray.add(file);
             }
           }
         }
       }
-      return fileArray.toArray(new File[fileArray.size()]);
     }
-    return null;
+    return fileArray.toArray(new File[fileArray.size()]);
   }
 }

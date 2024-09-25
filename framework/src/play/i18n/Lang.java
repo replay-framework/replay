@@ -58,7 +58,7 @@ public class Lang {
    * @return false if the language is not supported by the application
    */
   public static boolean set(String locale) {
-    if (locale.equals("") || Play.langs.contains(locale)) {
+    if (locale.isEmpty() || Play.langs.contains(locale)) {
       current.set(locale);
       return true;
     } else {
@@ -121,7 +121,7 @@ public class Lang {
    */
   private static String findClosestMatch(Collection<String> desiredLocales) {
     ArrayList<String> cleanLocales = new ArrayList<>(desiredLocales.size());
-    //look for an exact match
+    // Look for an exact match
     for (String a : desiredLocales) {
       a = a.replace("-", "_");
       cleanLocales.add(a);
@@ -133,13 +133,13 @@ public class Lang {
     }
     // Exact match not found, try language-only match.
     for (String a : cleanLocales) {
-      int splitPos = a.indexOf("_");
+      int splitPos = a.indexOf('_');
       if (splitPos > 0) {
         a = a.substring(0, splitPos);
       }
       for (String locale : Play.langs) {
         String langOnlyLocale;
-        int localeSplitPos = locale.indexOf("_");
+        int localeSplitPos = locale.indexOf('_');
         if (localeSplitPos > 0) {
           langOnlyLocale = locale.substring(0, localeSplitPos);
         } else {
@@ -174,12 +174,12 @@ public class Lang {
     String cn = Play.configuration.getProperty("application.lang.cookie", "PLAY_LANG");
     if (request.cookies.containsKey(cn)) {
       String localeFromCookie = request.cookies.get(cn).value;
-      if (localeFromCookie != null && localeFromCookie.trim().length() > 0) {
+      if (localeFromCookie != null && !localeFromCookie.trim().isEmpty()) {
         if (set(localeFromCookie)) {
-          // we're using locale from cookie
+          // We're using locale from cookie
           return;
         }
-        // could not use locale from cookie - clear the locale-cookie
+        // Could not use locale from cookie; clear the locale-cookie.
         response.setCookie(cn, "", null, "/", null, Scope.COOKIE_SECURE);
       }
     }
@@ -187,7 +187,7 @@ public class Lang {
     if (closestLocaleMatch != null) {
       set(closestLocaleMatch);
     } else {
-      // Did not find anything - use default
+      // Did not find anything; use the default.
       setDefaultLocale();
     }
   }

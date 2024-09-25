@@ -25,21 +25,18 @@ public class ByteArrayArrayBinder implements TypeBinder<byte[][]> {
       String value,
       Class actualClass,
       Type genericType) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
-    if (request.args != null) {
-      List<byte[]> byteList = new ArrayList<>();
-      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-      if (uploads != null) {
-        for (Upload upload : uploads) {
-          if (upload.getFieldName().equals(value)) {
-            byteList.add(upload.asBytes());
-          }
+    List<byte[]> byteList = new ArrayList<>();
+    List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+    if (uploads != null) {
+      for (Upload upload : uploads) {
+        if (upload.getFieldName().equals(value)) {
+          byteList.add(upload.asBytes());
         }
       }
-      return byteList.toArray(new byte[byteList.size()][]);
     }
-    return null;
+    return byteList.toArray(new byte[byteList.size()][]);
   }
 }

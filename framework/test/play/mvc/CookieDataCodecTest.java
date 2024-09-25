@@ -6,6 +6,8 @@ import static play.mvc.CookieDataCodec.encode;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -65,7 +67,7 @@ public class CookieDataCodecTest {
     String data = encode(inMap);
     Map<String, String> outMap = new HashMap<>(1);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isTrue();
   }
 
   @Test
@@ -84,7 +86,7 @@ public class CookieDataCodecTest {
   public void specifically_exclude_control_chars() throws UnsupportedEncodingException {
     for (int i = 0; i < 32; ++i) {
       Map<String, String> inMap = new HashMap<>(1);
-      String s = Character.toChars(i).toString();
+      String s = Arrays.toString(Character.toChars(i));
       inMap.put("a", s);
       String data = encode(inMap);
       assertThat(data).doesNotContain(s);
@@ -113,15 +115,15 @@ public class CookieDataCodecTest {
 
   private String oldEncoder(Map<String, String> out) throws UnsupportedEncodingException {
     StringBuilder flash = new StringBuilder();
-    for (String key : out.keySet()) {
-      if (out.get(key) == null) continue;
+    for (Map.Entry<String, String> entry : out.entrySet()) {
+      if (entry.getValue() == null) continue;
       flash.append("\u0000");
-      flash.append(key);
+      flash.append(entry.getKey());
       flash.append(":");
-      flash.append(out.get(key));
+      flash.append(entry.getValue());
       flash.append("\u0000");
     }
-    return URLEncoder.encode(flash.toString(), "utf-8");
+    return URLEncoder.encode(flash.toString(), StandardCharsets.UTF_8);
   }
 
   @Test
@@ -133,7 +135,7 @@ public class CookieDataCodecTest {
     String data = oldEncoder(inMap);
     Map<String, String> outMap = new HashMap<>(0);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isFalse();
   }
 
   @Test
@@ -144,7 +146,7 @@ public class CookieDataCodecTest {
     String data = oldEncoder(inMap);
     Map<String, String> outMap = new HashMap<>(0);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isFalse();
   }
 
   @Test
@@ -152,7 +154,7 @@ public class CookieDataCodecTest {
     String data = "asfjdlkasjdflk";
     Map<String, String> outMap = new HashMap<>(1);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isTrue();
   }
 
   @Test
@@ -160,7 +162,7 @@ public class CookieDataCodecTest {
     String data = "%00$Name= %3Avalue%00";
     Map<String, String> outMap = new HashMap<>(1);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isFalse();
   }
 
   @Test
@@ -168,6 +170,6 @@ public class CookieDataCodecTest {
     String data = "$Name: value";
     Map<String, String> outMap = new HashMap<>(1);
     decode(outMap, data);
-    assertThat(outMap.isEmpty());
+    assertThat(outMap.isEmpty()).isTrue();
   }
 }

@@ -10,7 +10,7 @@ public class EmailCheck extends AbstractAnnotationCheck<Email> {
   static final String mes = "validation.email";
   private static final Pattern emailPattern =
       Pattern.compile(
-          "[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[a-zA-Z0-9](?:[\\w-]*[\\w])?");
+          "[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:\\w(?:[\\w-]*\\w)?\\.)+[a-zA-Z0-9](?:[\\w-]*\\w)?");
 
   @Override
   public void configure(Email email) {

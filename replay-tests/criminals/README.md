@@ -9,7 +9,7 @@ It also serves as a means to test RePlay.
 
 ## Running
 
-Since all all projects in the `replay-test` folder are parameterized over the server backends (e.g.: `netty3`, `netty4` or `javanet`) you need to
+Since all projects in the `replay-test` folder are parameterized over the server backends (e.g.: `netty3`, `netty4` or `javanet`) you need to
 uncomment the `implementation` line in `replay-tests/replay-tests.gradle`:
 
 ```java

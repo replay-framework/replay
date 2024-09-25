@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 public class Promise<V> implements Future<V>, Consumer<V> {
 
@@ -36,7 +37,7 @@ public class Promise<V> implements Future<V>, Consumer<V> {
   }
 
   @Override
-  public V get(long timeout, TimeUnit unit)
+  public V get(long timeout, @Nonnull TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
     if (!taskLock.await(timeout, unit)) {
       throw new TimeoutException(String.format("Promise didn't redeem in %s %s", timeout, unit));

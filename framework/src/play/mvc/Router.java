@@ -283,7 +283,7 @@ public class Router {
         if (!staticDir.startsWith("/")) {
           staticDir = "/" + staticDir;
         }
-        if (!staticDir.equals("/") && !staticDir.endsWith("/")) {
+        if (!staticDir.endsWith("/")) {
           staticDir = staticDir + "/";
         }
         if (path.startsWith(staticDir)) {
@@ -382,8 +382,9 @@ public class Router {
           }
         }
       }
-      // Do the hardcoded parameters in the route match?
-      for (String staticKey : route.staticArgs.keySet()) {
+      // do the hardcoded parameters in the route match?
+      for (Entry<String, String> entry : route.staticArgs.entrySet()) {
+        String staticKey = entry.getKey();
         if (staticKey.equals("format")) {
           if (!requestFormat.equals(route.staticArgs.get("format"))) {
             allRequiredArgsAreHere = false;
@@ -393,7 +394,7 @@ public class Router {
         }
         if (!args.containsKey(staticKey)
             || (args.get(staticKey) == null)
-            || !args.get(staticKey).toString().equals(route.staticArgs.get(staticKey))) {
+            || !args.get(staticKey).toString().equals(entry.getValue())) {
           allRequiredArgsAreHere = false;
           break;
         }
@@ -413,12 +414,12 @@ public class Router {
               @SuppressWarnings("unchecked")
               List<Object> values = (List<Object>) value;
               path =
-                  path.replaceAll("\\{(<[^>]+>)?" + key + "\\}", values.get(0).toString())
+                  path.replaceAll("\\{(<[^>]+>)?" + key + "}", values.get(0).toString())
                       .replace("$", "\\$");
             } else {
               path =
                   path.replaceAll(
-                      "\\{(<[^>]+>)?" + key + "\\}",
+                      "\\{(<[^>]+>)?" + key + "}",
                       URLEncoder.encode(value.toString(), actualEncoding)
                           .replace("$", "\\$")
                           .replace("%3A", ":")
@@ -426,7 +427,7 @@ public class Router {
                           .replace("+", "%20"));
               host =
                   host.replaceAll(
-                      "\\{(<[^>]+>)?" + key + "\\}",
+                      "\\{(<[^>]+>)?" + key + "}",
                       URLEncoder.encode(value.toString(), actualEncoding)
                           .replace("$", "\\$")
                           .replace("%3A", ":")
@@ -434,10 +435,9 @@ public class Router {
                           .replace("+", "%20"));
             }
           } else if (route.staticArgs.containsKey(key)) {
-            // Do nothing -> The key is static
+            // Do nothing -> The key is static.
           } else if (!argsBackup.containsKey(key)) {
-            // Do nothing -> The key is provided in
-            // RouteArgs and not used (see #447)
+            // Do nothing -> The key is provided in RouteArgs and not used (see #447).
           } else if (value != null) {
             if (List.class.isAssignableFrom(value.getClass())) {
               @SuppressWarnings("unchecked")
@@ -451,7 +451,7 @@ public class Router {
                   queryString.append(':');
                   objStr = objStr.substring(1);
                 }
-                queryString.append(URLEncoder.encode(objStr + "", actualEncoding));
+                queryString.append(URLEncoder.encode(objStr, actualEncoding));
                 queryString.append("&");
               }
             } else if (value.getClass().equals(Default.class)) {
@@ -465,7 +465,7 @@ public class Router {
                 queryString.append(':');
                 objStr = objStr.substring(1);
               }
-              queryString.append(URLEncoder.encode(objStr + "", actualEncoding));
+              queryString.append(URLEncoder.encode(objStr, actualEncoding));
               queryString.append("&");
             }
           }
@@ -606,7 +606,8 @@ public class Router {
 
     private static final Pattern customRegexPattern =
         Pattern.compile("\\{([a-zA-Z_][a-zA-Z_0-9]*)}");
-    private static final Pattern argsPattern = Pattern.compile("\\{<([^>]+)>([a-zA-Z_0-9]+)}");
+    private static final Pattern argsPattern =
+        Pattern.compile("\\{<([^>]+)>([a-zA-Z_0-9]+)}");
 
     public Route(
         String method, String path, String action, ClasspathResource sourceFile, int line) {
@@ -638,7 +639,7 @@ public class Router {
       } else {
         this.staticDir = null;
         this.staticFile = false;
-        final String pathArguments = customRegexPattern.matcher(path).replaceAll("\\{<[^/]+>$1\\}");
+        final String pathArguments = customRegexPattern.matcher(path).replaceAll("{<[^/]+>$1}");
         final Matcher matcher = argsPattern.matcher(pathArguments);
         while (matcher.find()) {
           args.add(new Arg(matcher.group(2), Pattern.compile(matcher.group(1))));
@@ -715,7 +716,9 @@ public class Router {
 
             Map<String, String> localArgs = new HashMap<>(args.size() + staticArgs.size());
             for (Arg arg : args) {
-              localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
+              if (matcher != null) {
+                localArgs.put(arg.name, Utils.urlDecodePath(matcher.group(arg.name)));
+              }
             }
             localArgs.putAll(staticArgs);
             return localArgs;

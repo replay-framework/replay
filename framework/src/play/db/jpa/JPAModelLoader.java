@@ -85,7 +85,7 @@ public class JPAModelLoader implements Model.Factory {
     StringBuilder q = new StringBuilder("from ").append(this.clazz.getName());
     if (keywords != null && !keywords.isEmpty()) {
       String searchQuery = this.getSearchQuery(searchFields);
-      if (!searchQuery.equals("")) {
+      if (!searchQuery.isEmpty()) {
         q.append(" where (").append(searchQuery).append(")");
       }
       q.append((where != null ? " and " + where : ""));
@@ -104,7 +104,7 @@ public class JPAModelLoader implements Model.Factory {
     q.append(" order by ").append(orderBy).append(" ").append(order);
     String jpql = q.toString();
     Query query = JPA.em(this.dbName).createQuery(jpql);
-    if (keywords != null && !keywords.equals("") && jpql.contains("?1")) {
+    if (keywords != null && !keywords.isEmpty() && jpql.contains("?1")) {
       query.setParameter(1, "%" + keywords.toLowerCase() + "%");
     }
     query.setFirstResult(offset);
@@ -115,9 +115,9 @@ public class JPAModelLoader implements Model.Factory {
   @Override
   public Long count(List<String> searchFields, String keywords, String where) {
     String q = "select count(*) from " + this.clazz.getName() + " e";
-    if (keywords != null && !keywords.equals("")) {
+    if (keywords != null && !keywords.isEmpty()) {
       String searchQuery = getSearchQuery(searchFields);
-      if (!searchQuery.equals("")) {
+      if (!searchQuery.isEmpty()) {
         q += " where (" + searchQuery + ")";
       }
       q += (where != null ? " and " + where : "");
@@ -125,7 +125,7 @@ public class JPAModelLoader implements Model.Factory {
       q += (where != null ? " where " + where : "");
     }
     Query query = JPA.em(this.dbName).createQuery(q);
-    if (keywords != null && !keywords.equals("") && q.contains("?1")) {
+    if (keywords != null && !keywords.isEmpty() && q.contains("?1")) {
       query.setParameter(1, "%" + keywords.toLowerCase() + "%");
     }
     return Long.decode(query.getSingleResult().toString());
@@ -139,7 +139,7 @@ public class JPAModelLoader implements Model.Factory {
   /** List of all properties */
   @Override
   public List<Model.Property> listProperties() {
-    List<Model.Property> properties = new ArrayList<>();
+    List<Model.Property> localProperties = new ArrayList<>();
     Set<Field> fields = new LinkedHashSet<>();
     Class<?> tclazz = this.clazz;
     while (!tclazz.equals(Object.class)) {
@@ -163,10 +163,10 @@ public class JPAModelLoader implements Model.Factory {
       }
       Model.Property mp = buildProperty(f);
       if (mp != null) {
-        properties.add(mp);
+        localProperties.add(mp);
       }
     }
-    return properties;
+    return localProperties;
   }
 
   @Override
@@ -206,7 +206,9 @@ public class JPAModelLoader implements Model.Factory {
       if (tclazz.isAnnotationPresent(Entity.class)
           || tclazz.isAnnotationPresent(MappedSuperclass.class)) {
         IdClass idClass = tclazz.getAnnotation(IdClass.class);
-        if (idClass != null) return idClass.value();
+        if (idClass != null) {
+          return idClass.value();
+        }
       }
       tclazz = tclazz.getSuperclass();
     }
@@ -214,7 +216,6 @@ public class JPAModelLoader implements Model.Factory {
         "Invalid mapping for class " + clazz + ": multiple IDs with no @IdClass annotation");
   }
 
-  /** */
   private void initProperties() {
     synchronized (this) {
       if (this.properties != null) {
@@ -336,8 +337,9 @@ public class JPAModelLoader implements Model.Factory {
     while (!tclazz.equals(Object.class)) {
       // Only add fields for mapped types
       if (tclazz.isAnnotationPresent(Entity.class)
-          || tclazz.isAnnotationPresent(MappedSuperclass.class))
+          || tclazz.isAnnotationPresent(MappedSuperclass.class)) {
         Collections.addAll(fields, tclazz.getDeclaredFields());
+      }
       tclazz = tclazz.getSuperclass();
     }
     return fields;
@@ -393,7 +395,7 @@ public class JPAModelLoader implements Model.Factory {
           && (searchFields == null
               || searchFields.isEmpty()
               || searchFields.contains(property.name))) {
-        if (q.length() > 0) {
+        if (!q.isEmpty()) {
           q.append(" or ");
         }
         q.append("lower(").append(property.name).append(") like ?1");
@@ -409,7 +411,7 @@ public class JPAModelLoader implements Model.Factory {
 
     if (Model.class.isAssignableFrom(field.getType())) {
       if (field.isAnnotationPresent(OneToOne.class)) {
-        if (field.getAnnotation(OneToOne.class).mappedBy().equals("")) {
+        if (field.getAnnotation(OneToOne.class).mappedBy().isEmpty()) {
           modelProperty.isRelation = true;
           modelProperty.relationType = field.getType();
           final String modelDbName = JPA.getDBName(modelProperty.relationType);
@@ -435,7 +437,7 @@ public class JPAModelLoader implements Model.Factory {
       final Class<?> fieldType =
           (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
       if (field.isAnnotationPresent(OneToMany.class)) {
-        if (field.getAnnotation(OneToMany.class).mappedBy().equals("")) {
+        if (field.getAnnotation(OneToMany.class).mappedBy().isEmpty()) {
           modelProperty.isRelation = true;
           modelProperty.isMultiple = true;
           modelProperty.relationType = fieldType;
@@ -445,7 +447,7 @@ public class JPAModelLoader implements Model.Factory {
         }
       }
       if (field.isAnnotationPresent(ManyToMany.class)) {
-        if (field.getAnnotation(ManyToMany.class).mappedBy().equals("")) {
+        if (field.getAnnotation(ManyToMany.class).mappedBy().isEmpty()) {
           modelProperty.isRelation = true;
           modelProperty.isMultiple = true;
           modelProperty.relationType = fieldType;

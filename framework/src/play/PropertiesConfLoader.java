@@ -12,9 +12,15 @@ import org.slf4j.LoggerFactory;
 import play.utils.OrderSafeProperties;
 
 public class PropertiesConfLoader implements ConfLoader {
+
   private static final Logger logger = LoggerFactory.getLogger(PropertiesConfLoader.class);
-  private final Pattern overrideKeyPattern = Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
-  private final Pattern envVarInterpolationPattern = Pattern.compile("\\$\\{([^}]+)}");
+
+  private static final Pattern BACKSPACE =
+      Pattern.compile("\\\\");
+  private static final Pattern OVERRIDE_KEY_PATTERN = Pattern.compile(
+      "^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
+  private static final Pattern ENV_VAR_INTERPOLATION_PATTERN =
+      Pattern.compile("\\$\\{([^}]+)}");
 
   public static Properties read(String playId) {
     return new PropertiesConfLoader().readConfiguration(playId);
@@ -60,7 +66,7 @@ public class PropertiesConfLoader implements ConfLoader {
   void resolveEnvironmentVariables(Properties propsFromFile, ClasspathResource conf) {
     for (Object key : propsFromFile.keySet()) {
       String value = propsFromFile.getProperty(key.toString());
-      Matcher matcher = envVarInterpolationPattern.matcher(value);
+      Matcher matcher = ENV_VAR_INTERPOLATION_PATTERN.matcher(value);
       StringBuilder newValue = new StringBuilder(100);
       while (matcher.find()) {
         String envVarKey = matcher.group(1);
@@ -74,7 +80,7 @@ public class PropertiesConfLoader implements ConfLoader {
               value);
           continue;
         }
-        matcher.appendReplacement(newValue, envVarValue.replaceAll("\\\\", "\\\\\\\\"));
+        matcher.appendReplacement(newValue, BACKSPACE.matcher(envVarValue).replaceAll("\\\\\\\\"));
       }
       matcher.appendTail(newValue);
       propsFromFile.setProperty(key.toString(), newValue.toString());
@@ -91,7 +97,7 @@ public class PropertiesConfLoader implements ConfLoader {
     Properties newConfiguration = new OrderSafeProperties();
 
     for (String name : propsFromFile.stringPropertyNames()) {
-      Matcher matcher = overrideKeyPattern.matcher(name);
+      Matcher matcher = OVERRIDE_KEY_PATTERN.matcher(name);
       if (!matcher.matches()) {
         newConfiguration.setProperty(name, propsFromFile.getProperty(name).trim());
       }
@@ -105,7 +111,7 @@ public class PropertiesConfLoader implements ConfLoader {
   private void overrideMatching(
       String playId, String inheritedId, Properties propsFromFile, Properties newConfiguration) {
     for (String name : propsFromFile.stringPropertyNames()) {
-      Matcher matcher = overrideKeyPattern.matcher(name);
+      Matcher matcher = OVERRIDE_KEY_PATTERN.matcher(name);
       if (matcher.matches()) {
         String instance = matcher.group(1);
         if (instance.equals(playId) || instance.equals(inheritedId)) {

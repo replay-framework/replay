@@ -38,12 +38,10 @@ public class ServerHelper {
 
   @CheckReturnValue
   public boolean isKeepAlive(String protocol, String connectionHeader) {
-    switch (protocol) {
-      case "HTTP/1.0":
-        return KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
-      default:
-        return !CLOSE.equalsIgnoreCase(connectionHeader);
-    }
+    return switch (protocol) {
+      case "HTTP/1.0" -> KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
+      default -> !CLOSE.equalsIgnoreCase(connectionHeader);
+    };
   }
 
   @CheckReturnValue

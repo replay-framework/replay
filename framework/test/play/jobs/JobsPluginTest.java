@@ -15,12 +15,12 @@ public class JobsPluginTest {
   @Test
   public void runScheduledJobOnceNow() {
     Job<?> job = mock(Job.class);
-    plugin.executor = mock(ScheduledThreadPoolExecutor.class);
+    JobsPlugin.executor = mock(ScheduledThreadPoolExecutor.class);
 
-    plugin.runScheduledJobOnceNow(job);
+    JobsPlugin.runScheduledJobOnceNow(job);
 
     assertThat(job.runOnce).isTrue();
-    verify(plugin.executor).submit((Callable<?>) job);
+    verify(JobsPlugin.executor).submit((Callable<?>) job);
   }
 
   @Test

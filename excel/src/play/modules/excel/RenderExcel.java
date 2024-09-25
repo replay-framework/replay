@@ -55,7 +55,7 @@ public class RenderExcel extends Result {
   private static String fileName_(String path) {
     if (RenderArgs.current().data.containsKey(RA_FILENAME))
       return RenderArgs.current().get(RA_FILENAME, String.class);
-    int i = path.lastIndexOf("/");
+    int i = path.lastIndexOf('/');
     if (-1 == i) return path;
     return path.substring(++i);
   }

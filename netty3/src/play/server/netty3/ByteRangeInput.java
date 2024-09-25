@@ -145,14 +145,14 @@ public class ByteRangeInput implements ChunkedInput {
         }
       }
       long[][] reducedRanges = reduceRanges(ranges.toArray(new long[0][]));
-      ByteRange[] byteRanges = new ByteRange[reducedRanges.length];
+      ByteRange[] localByteRanges = new ByteRange[reducedRanges.length];
       for (int i = 0; i < reducedRanges.length; i++) {
         long[] range = reducedRanges[i];
-        byteRanges[i] =
+        localByteRanges[i] =
             new ByteRange(
                 file, raf, range[0], range[1], fileLength, contentType, reducedRanges.length > 1);
       }
-      this.byteRanges = byteRanges;
+      this.byteRanges = localByteRanges;
       if (this.byteRanges.length == 0) {
         unsatisfiable = true;
       }
@@ -167,7 +167,7 @@ public class ByteRangeInput implements ChunkedInput {
   }
 
   private static long[] mergeRanges(long[] r1, long[] r2) {
-    return new long[] {r1[0] < r2[0] ? r1[0] : r2[0], r1[1] > r2[1] ? r1[1] : r2[1]};
+    return new long[] {Math.min(r1[0], r2[0]), Math.max(r1[1], r2[1])};
   }
 
   private static long[][] reduceRanges(long[]... chunks) {

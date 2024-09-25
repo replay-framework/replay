@@ -26,20 +26,18 @@ public class UploadArrayBinder implements TypeBinder<Model.BinaryField[]> {
       String value,
       Class actualClass,
       Type genericType) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
-    if (request.args != null) {
-      List<Upload> uploadArray = new ArrayList<>();
-      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-      if (uploads != null) {
-        for (Upload upload : uploads) {
-          if (upload.getFieldName().equals(value)) {
-            uploadArray.add(upload);
-          }
+    List<Upload> uploadArray = new ArrayList<>();
+    List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+    if (uploads != null) {
+      for (Upload upload : uploads) {
+        if (upload.getFieldName().equals(value)) {
+          uploadArray.add(upload);
         }
-        return uploadArray.toArray(new Upload[uploadArray.size()]);
       }
+      return uploadArray.toArray(new Upload[uploadArray.size()]);
     }
     return null;
   }

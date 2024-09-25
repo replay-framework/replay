@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import play.Play;
 import play.exceptions.NoRouteFoundException;
 import play.mvc.Http.Request;
+import play.mvc.Router.Route;
 import play.mvc.results.NotFound;
 import play.mvc.results.RenderStatic;
 
@@ -151,7 +153,7 @@ public class RouterTest {
 
   @Test
   public void actionToUrl_usesFirstArgumentFromList() {
-    assertThat(actionToUrl("cards.Requisites.showPopup", Map.of("cardId", asList("987654321"))))
+    assertThat(actionToUrl("cards.Requisites.showPopup", Map.of("cardId", List.of("987654321"))))
         .isEqualTo("/cards/987654321/requisites");
   }
 
@@ -188,9 +190,7 @@ public class RouterTest {
   public void actionToUrl_catchAllRoute() {
     Router router =
         new Router(
-            asList(
-                new Router.Route(
-                    "GET", "/{controller}/{action}", "{controller}.{action}", null, 0)));
+            List.of(new Route("GET", "/{controller}/{action}", "{controller}.{action}", null, 0)));
 
     assertThat(router.actionToUrl("MyController.myAction", emptyMap(), (String) null, null).url)
         .isEqualTo("/mycontroller/myaction");

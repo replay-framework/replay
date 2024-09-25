@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -19,6 +20,8 @@ import play.Play;
 
 @ParametersAreNonnullByDefault
 public class Utils {
+
+  private static final Pattern PLUS_PATTERN = Pattern.compile("\\+");
 
   public static <T> String join(T[] values, String separator) {
     if (values.length == 0) {
@@ -89,10 +92,10 @@ public class Utils {
     }
 
     public Date parse(String source) throws ParseException {
-      for (SimpleDateFormat dateFormat : formats) {
-        if (source.length() == dateFormat.toPattern().replace("'", "").length()) {
+      for (SimpleDateFormat format : formats) {
+        if (source.length() == format.toPattern().replace("'", "").length()) {
           try {
-            return dateFormat.parse(source);
+            return format.parse(source);
           } catch (ParseException ignore) {
           }
         }
@@ -100,11 +103,11 @@ public class Utils {
       throw new ParseException("Date format not understood: " + source, 0);
     }
 
-    private static final ThreadLocal<AlternativeDateFormat> dateformat = new ThreadLocal<>();
+    private static final ThreadLocal<AlternativeDateFormat> dateFormat = new ThreadLocal<>();
 
     public static AlternativeDateFormat getDefaultFormatter() {
-      if (dateformat.get() == null) {
-        dateformat.set(
+      if (dateFormat.get() == null) {
+        dateFormat.set(
             new AlternativeDateFormat(
                 Locale.US,
                 "yyyy-MM-dd'T'HH:mm:ss'Z'", // ISO8601 + timezone
@@ -121,14 +124,14 @@ public class Utils {
                 "ddMMyyyy HHmmss",
                 "ddMMyyyy"));
       }
-      return dateformat.get();
+      return dateFormat.get();
     }
   }
 
   public static String urlDecodePath(@Nullable String enc) {
     return enc == null
         ? null
-        : URLDecoder.decode(enc.replaceAll("\\+", "%2B"), Play.defaultWebEncoding);
+        : URLDecoder.decode(PLUS_PATTERN.matcher(enc).replaceAll("%2B"), Play.defaultWebEncoding);
   }
 
   public static String urlEncodePath(String plain) {

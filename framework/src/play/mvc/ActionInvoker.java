@@ -68,7 +68,7 @@ public class ActionInvoker {
     try {
       Object[] ca = getActionMethod(request.action);
       Method actionMethod = (Method) ca[1];
-      request.controller = ((Class) ca[0]).getName().substring(12).replace("$", "");
+      request.controller = ((Class<?>) ca[0]).getName().substring(12).replace("$", "");
       request.controllerClass = ((Class) ca[0]);
       request.actionMethod = actionMethod.getName();
       request.action = request.controller + "." + request.actionMethod;
@@ -484,8 +484,13 @@ public class ActionInvoker {
 
   public static Object[] getActionMethodArgs(Http.Request request, Session session, Method method) {
     String[] paramsNames = Java.parameterNames(method);
-    if (paramsNames == null && method.getParameterTypes().length > 0) {
-      throw new UnexpectedException("Parameter names not found for method " + method);
+
+    // Help newcomers understand what went wrong when their arguments are not mapped.
+    if (paramsNames.length > 0 && paramsNames[0].length() > 3) {
+      char firstArgNumDigit = paramsNames[0].charAt(3);
+      if (paramsNames[0].startsWith("arg") && firstArgNumDigit <='9' && firstArgNumDigit >= '0') {
+        logger.warn("It seems you did not compile with the '-parameters' flag.");
+      }
     }
 
     // Check if we have already performed the bind operation

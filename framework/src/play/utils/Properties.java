@@ -7,12 +7,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serial;
 import java.util.HashMap;
 
 /** Like Java's Properties, but with: encoding generic type helper. */
 public class Properties extends HashMap<String, String> {
 
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public synchronized void load(InputStream is) throws IOException {
     load(is, "utf-8");
@@ -66,7 +67,7 @@ public class Properties extends HashMap<String, String> {
     }
     BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(out, encoding));
     for (String key : keySet()) {
-      if (key.length() > 0) {
+      if (!key.isEmpty()) {
         wr.write(key + "=" + get(key) + System.getProperties().getProperty("line.separator"));
       }
     }

@@ -3,6 +3,7 @@ package play.data.validation;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.FieldContext;
@@ -15,8 +16,9 @@ import play.exceptions.UnexpectedException;
 /** Check which proof if one or a set of properties is unique. */
 public class UniqueCheck extends AbstractAnnotationCheck<Unique> {
 
-  static final String mes = "validation.unique";
   private String uniqueKeyContext = null;
+  static final String mes = "validation.unique";
+  private static final Pattern PROPERTY_DIVIDER = Pattern.compile("[,;\\s]\\s*");
 
   @Override
   public void configure(Unique constraintAnnotation) {
@@ -33,12 +35,12 @@ public class UniqueCheck extends AbstractAnnotationCheck<Unique> {
 
   private String[] getPropertyNames(String uniqueKey) {
     String completeUniqueKey;
-    if (uniqueKeyContext.length() > 0) {
+    if (!uniqueKeyContext.isEmpty()) {
       completeUniqueKey = uniqueKeyContext + ";" + uniqueKey;
     } else {
       completeUniqueKey = uniqueKey;
     }
-    return completeUniqueKey.split("[,;\\s][\\s]*");
+    return PROPERTY_DIVIDER.split(completeUniqueKey);
   }
 
   /** {@inheritDoc} */
@@ -76,7 +78,7 @@ public class UniqueCheck extends AbstractAnnotationCheck<Unique> {
       jpql.append("o.")
           .append(propertyNames[i])
           .append(" = ?")
-          .append(String.valueOf(index++))
+          .append(index++)
           .append(" ");
     }
     if (isUpdate) {
@@ -84,7 +86,7 @@ public class UniqueCheck extends AbstractAnnotationCheck<Unique> {
       jpql.append(" and o.")
           .append(keyProperty)
           .append(" <>  ?")
-          .append(String.valueOf(index++))
+          .append(index++)
           .append(" ");
     }
     return JPQL.instance.count(entityName, jpql.toString(), values) == 0L;

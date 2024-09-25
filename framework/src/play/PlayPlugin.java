@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import play.data.binding.RootParamNode;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -19,7 +18,6 @@ import play.mvc.results.Result;
 import play.templates.Template;
 
 /** A framework plugin */
-@ParametersAreNonnullByDefault
 public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
   /** Plugin priority (0 for highest priority) */
@@ -203,7 +201,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
     // If indices are equal in both plugins: sort on class type to get consistent order
     res = this.getClass().getName().compareTo(o.getClass().getName());
     if (res != 0) {
-      // class names where different
+      // Class names where different, return here.
       return res;
     }
 

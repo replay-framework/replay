@@ -3,6 +3,7 @@ package play.db;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.annotation.Nonnull;
 
 public class SQLSplitter implements Iterable<CharSequence> {
 
@@ -169,8 +170,9 @@ public class SQLSplitter implements Iterable<CharSequence> {
   }
 
   @Override
+  @Nonnull
   public Iterator<CharSequence> iterator() {
-    return new Iterator<CharSequence>() {
+    return new Iterator<>() {
       int i = 0, prev = 0;
 
       @Override
@@ -183,7 +185,8 @@ public class SQLSplitter implements Iterable<CharSequence> {
         while (i < sql.length()) {
           if (sql.charAt(i) == ';') {
             ++i;
-            // check "double semicolon" -> used to escape a semicolon and avoid splitting
+            // Check for a "double semicolon" as it is sometimes used to escape a semicolon and
+            // avoid splitting
             if ((i < sql.length() && sql.charAt(i) == ';')) {
               ++i;
             } else {

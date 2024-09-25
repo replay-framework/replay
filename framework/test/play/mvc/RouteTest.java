@@ -1,10 +1,10 @@
 package play.mvc;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import play.mvc.Router.Route;
@@ -61,7 +61,7 @@ public class RouteTest {
     assertThat(route.pattern.matcher("/news/index").matches()).isTrue();
     assertThat(route.pattern.matcher("/news/foo/bar").matches()).isFalse();
 
-    assertThat(route.actionArgs).isEqualTo(asList("method"));
+    assertThat(route.actionArgs).isEqualTo(List.of("method"));
     assertThat(route.actionPattern.toString()).isEqualTo("News[.](?<method>[^/]+)");
     assertThat(route.actionPattern.matcher("news.foo").matches()).isTrue();
     assertThat(route.actionPattern.matcher("News.foo/").matches()).isFalse();

@@ -12,7 +12,6 @@ import play.exceptions.UnexpectedException;
 import play.libs.I18N;
 import play.utils.Utils.AlternativeDateFormat;
 
-@SuppressWarnings("serial")
 public class InFutureCheck extends AbstractAnnotationCheck<InFuture> {
 
   static final String mes = "validation.future";
@@ -22,14 +21,13 @@ public class InFutureCheck extends AbstractAnnotationCheck<InFuture> {
   @Override
   public void configure(InFuture future) {
     try {
-      this.reference =
-          future.value().equals("")
-              ? new Date()
-              : AlternativeDateFormat.getDefaultFormatter().parse(future.value());
+      this.reference = future.value().isEmpty()
+          ? new Date()
+          : AlternativeDateFormat.getDefaultFormatter().parse(future.value());
     } catch (ParseException ex) {
       throw new UnexpectedException("Cannot parse date " + future.value(), ex);
     }
-    if (!future.value().equals("") && future.message().equals(mes)) {
+    if (!future.value().isEmpty() && future.message().equals(mes)) {
       setMessage("validation.after");
     } else {
       setMessage(future.message());

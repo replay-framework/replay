@@ -22,6 +22,7 @@ import play.exceptions.DatabaseException;
 
 /** Database connection utilities. */
 public class DB {
+
   private static final Logger logger = LoggerFactory.getLogger(DB.class);
 
   /**
@@ -29,45 +30,45 @@ public class DB {
    *
    * @see ExtendedDatasource
    */
-  protected static final Map<String, ExtendedDatasource> datasources = new ConcurrentHashMap<>();
+  protected static final Map<String, ExtendedDatasource> dataSources = new ConcurrentHashMap<>();
 
   public static class ExtendedDatasource {
 
     /** Connection to the physical data source */
-    private final DataSource datasource;
+    private final DataSource internalDataSource;
 
     /** The method used to destroy the data source */
-    private final String destroyMethod;
+    private final String internalDestroyMethod;
 
     public ExtendedDatasource(DataSource ds, String destroyMethod) {
-      this.datasource = ds;
-      this.destroyMethod = destroyMethod;
+      this.internalDataSource = ds;
+      this.internalDestroyMethod = destroyMethod;
     }
 
     public String getDestroyMethod() {
-      return destroyMethod;
+      return internalDestroyMethod;
     }
 
     public DataSource getDataSource() {
-      return datasource;
+      return internalDataSource;
     }
   }
 
   /**
-   * @deprecated Use datasources instead
-   * @since 1.3.0
-   * @see #datasources
+   * @see #dataSources
    * @see ExtendedDatasource
+   * @since 1.3.0
+   * @deprecated Use dataSources instead
    */
-  @Deprecated public static DataSource datasource = null;
+  @Deprecated public static DataSource dataSource = null;
 
   /**
    * The method used to destroy the datasource
    *
-   * @deprecated Use datasources instead
-   * @since 1.3.0
-   * @see #datasources
+   * @see #dataSources
    * @see ExtendedDatasource
+   * @since 1.3.0
+   * @deprecated Use dataSources instead
    */
   @Deprecated public static String destroyMethod = "";
 
@@ -77,8 +78,8 @@ public class DB {
 
   @Nullable
   public static DataSource getDataSource(@Nonnull String name) {
-    if (datasources.get(name) != null) {
-      return datasources.get(name).getDataSource();
+    if (dataSources.get(name) != null) {
+      return dataSources.get(name).getDataSource();
     }
     return null;
   }
@@ -91,7 +92,7 @@ public class DB {
 
   @Nonnull
   public static Map<String, DataSource> getDataSources() {
-    return datasources
+    return dataSources
         .entrySet()
         .stream()
         .collect(toMap(e -> e.getKey(), e -> e.getValue().getDataSource()));
@@ -132,7 +133,7 @@ public class DB {
   }
 
   /**
-   * Close an given open connections for the current thread
+   * Close a given open connections for the current thread
    *
    * @param name Name of the DB
    */
@@ -177,19 +178,16 @@ public class DB {
    */
   public static void destroy(String name) {
     try {
-      ExtendedDatasource extDatasource = datasources.get(name);
+      ExtendedDatasource extDatasource = dataSources.get(name);
       if (extDatasource != null && extDatasource.getDestroyMethod() != null) {
         Method close =
-            extDatasource
-                .datasource
+            extDatasource.internalDataSource
                 .getClass()
-                .getMethod(extDatasource.getDestroyMethod(), new Class[] {});
-        if (close != null) {
-          close.invoke(extDatasource.getDataSource(), new Object[] {});
-          datasources.remove(name);
-          DB.datasource = null;
-          logger.trace("Datasource destroyed");
-        }
+                .getMethod(extDatasource.getDestroyMethod());
+        close.invoke(extDatasource.getDataSource());
+        dataSources.remove(name);
+        DB.dataSource = null;
+        logger.trace("Datasource destroyed");
       }
     } catch (NoSuchMethodException t) {
       logger.debug("Couldn't destroy the datasource: {}", t.toString());
@@ -200,7 +198,7 @@ public class DB {
 
   /** Destroy all dataSources */
   public static void destroyAll() {
-    Set<String> keySet = new HashSet<>(datasources.keySet());
+    Set<String> keySet = new HashSet<>(dataSources.keySet());
     for (String name : keySet) {
       destroy(name);
     }

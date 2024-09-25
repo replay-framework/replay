@@ -7,7 +7,6 @@ import net.sf.oval.context.OValContext;
 import play.db.Model.BinaryField;
 import play.exceptions.UnexpectedException;
 
-@SuppressWarnings("serial")
 public class RequiredCheck extends AbstractAnnotationCheck<Required> {
 
   static final String mes = "validation.required";
@@ -19,10 +18,10 @@ public class RequiredCheck extends AbstractAnnotationCheck<Required> {
       return false;
     }
     if (value instanceof String) {
-      return value.toString().trim().length() > 0;
+      return !value.toString().trim().isEmpty();
     }
     if (value instanceof Collection<?>) {
-      return ((Collection<?>) value).size() > 0;
+      return !((Collection<?>) value).isEmpty();
     }
     if (value instanceof BinaryField) {
       return ((BinaryField) value).exists();

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
@@ -117,6 +118,7 @@ public class ValidationPlugin extends PlayPlugin {
   }
 
   static class Validator extends Guard {
+
     public List<ConstraintViolation> validateAction(
         Http.Request request, Session session, Method actionMethod) {
       Object[] rArgs = ActionInvoker.getActionMethodArgs(request, session, actionMethod);
@@ -172,7 +174,7 @@ public class ValidationPlugin extends PlayPlugin {
     }
   }
 
-  void save(Request request, Response response) {
+  void save(Request request, @Nullable Response response) {
     if (response == null) {
       // Some request like WebSocket don't have any response
       return;

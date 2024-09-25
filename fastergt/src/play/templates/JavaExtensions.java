@@ -147,10 +147,10 @@ public class JavaExtensions {
     if (condition instanceof Boolean && !(Boolean) condition) {
       return false;
     }
-    if (condition instanceof Collection && ((Collection) condition).size() == 0) {
+    if (condition instanceof Collection && ((Collection) condition).isEmpty()) {
       return false;
     }
-    return !(condition instanceof String) || !condition.toString().equals("");
+    return !(condition instanceof String) || !condition.toString().isEmpty();
   }
 
   public static String escapeXml(String str) {
@@ -284,7 +284,7 @@ public class JavaExtensions {
 
   public static String capFirst(Object o) {
     String string = o.toString();
-    if (string.length() == 0) {
+    if (string.isEmpty()) {
       return string;
     }
     return ("" + string.charAt(0)).toUpperCase() + string.substring(1);

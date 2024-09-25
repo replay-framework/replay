@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,9 @@ public class Validation {
   @SuppressWarnings({"unused"})
   public static List<Error> errors() {
     Validation validation = current.get();
-    if (validation == null) return emptyList();
+    if (validation == null) {
+      return emptyList();
+    }
 
     return new ArrayList<Error>(validation.errors) {
 
@@ -91,15 +92,11 @@ public class Validation {
   public static void removeErrors(String field, String message) {
     Validation validation = current.get();
     if (validation != null) {
-      Iterator<Error> it = validation.errors.iterator();
-      while (it.hasNext()) {
-        Error error = it.next();
-        if (error.getKey() != null
-            && error.getKey().equals(field)
-            && error.getMessageKey().equals(message)) {
-          it.remove();
-        }
-      }
+      validation.errors.removeIf(
+          error ->
+              error.getKey() != null
+                  && error.getKey().equals(field)
+                  && error.getMessageKey().equals(message));
     }
   }
 
@@ -135,7 +132,9 @@ public class Validation {
    */
   public static Error error(String field) {
     Validation validation = current.get();
-    if (validation == null) return null;
+    if (validation == null) {
+      return null;
+    }
 
     for (Error error : validation.errors) {
       if (error.getKey() != null && error.getKey().equals(field)) {
@@ -151,7 +150,9 @@ public class Validation {
    */
   public static List<Error> errors(String field) {
     Validation validation = current.get();
-    if (validation == null) return emptyList();
+    if (validation == null) {
+      return emptyList();
+    }
 
     List<Error> errors = new ArrayList<>();
     for (Error error : validation.errors) {
@@ -182,7 +183,6 @@ public class Validation {
     }
   }
 
-  // ~~~~ Integration helper
   public static Map<String, List<Validator>> getValidators(Class<?> clazz, String name) {
     Map<String, List<Validator>> result = new HashMap<>();
     searchValidator(clazz, name, result);
@@ -259,6 +259,7 @@ public class Validation {
   }
 
   public static class ValidationResult {
+
     public boolean ok;
     public Error error;
 

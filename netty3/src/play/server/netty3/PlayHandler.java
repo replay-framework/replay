@@ -3,7 +3,6 @@ package play.server.netty3;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
@@ -34,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -120,9 +120,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     Object msg = messageEvent.getMessage();
 
     // Http request
-    if (msg instanceof HttpRequest) {
+    if (msg instanceof HttpRequest nettyRequest) {
 
-      HttpRequest nettyRequest = (HttpRequest) msg;
       Request request = new Request();
       Response response = new Response();
 
@@ -544,8 +543,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
   @CheckReturnValue
   private InputStream readBody(HttpRequest nettyRequest) throws IOException {
     ChannelBuffer b = nettyRequest.getContent();
-    if (b instanceof FileChannelBuffer) {
-      FileChannelBuffer buffer = (FileChannelBuffer) b;
+    if (b instanceof FileChannelBuffer buffer) {
       InputStream body = buffer.getInputStream();
       return maxContentLength == -1 || body.available() < maxContentLength
           ? body
@@ -614,7 +612,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
   private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
     logger.trace("serve404: begin");
-    String format = defaultString(request.format, "txt");
+    String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
 
     HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
@@ -767,10 +765,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
   }
 
-  private boolean isModified(String etag, long last, HttpRequest nettyRequest) {
+  private boolean isModified(String eTag, long last, HttpRequest nettyRequest) {
     String ifNoneMatch = nettyRequest.headers().get(IF_NONE_MATCH);
     String ifModifiedSince = nettyRequest.headers().get(IF_MODIFIED_SINCE);
-    return serverHelper.isModified(etag, last, ifNoneMatch, ifModifiedSince);
+    return serverHelper.isModified(eTag, last, ifNoneMatch, ifModifiedSince);
   }
 
   private void addEtag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {

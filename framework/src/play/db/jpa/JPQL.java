@@ -4,12 +4,17 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import play.db.Configuration;
 import play.db.jpa.GenericModel.JPAQuery;
 
 public class JPQL {
+
+  private static final Pattern BY_PATTERN = Pattern.compile("^by[A-Z].*$");
+  private static final Pattern ORDER_BY_PATTERN = Pattern.compile("OrderBy");
+  private static final Pattern AND_PATTERN = Pattern.compile("And");
 
   @Nonnull
   private EntityManager em(String dbName) {
@@ -69,7 +74,7 @@ public class JPQL {
     if (query == null || query.trim().isEmpty()) {
       return "from " + entityName;
     }
-    if (query.matches("^by[A-Z].*$")) {
+    if (BY_PATTERN.matcher(query).matches()) {
       return "from " + entityName + " where " + findByToJPQL(dbName, query);
     }
     if (query.trim().toLowerCase().startsWith("select ")) {
@@ -122,7 +127,7 @@ public class JPQL {
     if (query.trim().toLowerCase().startsWith("select ")) {
       return query;
     }
-    if (query.matches("^by[A-Z].*$")) {
+    if (BY_PATTERN.matcher(query).matches()) {
       return "select count(*) from " + entityName + " where " + findByToJPQL(dbName, query);
     }
     if (query.trim().toLowerCase().startsWith("from ")) {
@@ -140,7 +145,7 @@ public class JPQL {
     if (query.trim().indexOf(' ') == -1 && query.trim().indexOf('=') == -1 && params == null) {
       query += " = null";
     }
-    if (query.trim().length() == 0) {
+    if (query.trim().isEmpty()) {
       return "select count(*) from " + entityName;
     }
     return "select count(*) from " + entityName + " e where " + query;
@@ -166,8 +171,8 @@ public class JPQL {
     if (params == null) {
       return q;
     }
-    for (String key : params.keySet()) {
-      q.setParameter(key, params.get(key));
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
+      q.setParameter(entry.getKey(), entry.getValue());
     }
     return q;
   }
@@ -177,9 +182,9 @@ public class JPQL {
     findBy = findBy.substring(2);
     StringBuilder jpql = new StringBuilder();
     String subRequest;
-    if (findBy.contains("OrderBy")) subRequest = findBy.split("OrderBy")[0];
+    if (findBy.contains("OrderBy")) subRequest = ORDER_BY_PATTERN.split(findBy)[0];
     else subRequest = findBy;
-    String[] parts = subRequest.split("And");
+    String[] parts = AND_PATTERN.split(subRequest);
     int index = 1;
     for (int i = 0; i < parts.length; i++) {
       String part = parts[i];

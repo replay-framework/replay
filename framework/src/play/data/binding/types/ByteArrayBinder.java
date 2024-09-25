@@ -21,16 +21,14 @@ public class ByteArrayBinder implements TypeBinder<byte[]> {
       String value,
       Class actualClass,
       Type genericType) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
-    if (request.args != null) {
-      List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
-      if (uploads != null) {
-        for (Upload upload : uploads) {
-          if (upload.getFieldName().equals(value)) {
-            return upload.asBytes();
-          }
+    List<Upload> uploads = (List<Upload>) request.args.get("__UPLOADS");
+    if (uploads != null) {
+      for (Upload upload : uploads) {
+        if (upload.getFieldName().equals(value)) {
+          return upload.asBytes();
         }
       }
     }

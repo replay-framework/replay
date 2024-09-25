@@ -6,10 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 public class SQLSplitterTest {
+
+  private static final Pattern TRIPLE_EQUALS = Pattern.compile("===");
 
   @Test
   public void verifyConsumeLine() {
@@ -115,11 +118,11 @@ public class SQLSplitterTest {
     CharSequence[] srcArr = new CharSequence[(int) srcArrList.size()];
     srcArr = srcArrList.toArray(srcArr);
 
-    assertThat(srcArr).isEqualTo(readFile("/play/db/test.out.sql").split("==="));
+    assertThat(srcArr).isEqualTo(TRIPLE_EQUALS.split(readFile("/play/db/test.out.sql")));
 
     srcArrList = SQLSplitter.splitSQL(readFile("/play/db/test2.sql"));
     srcArr = new CharSequence[(int) srcArrList.size()];
     srcArr = srcArrList.toArray(srcArr);
-    assertThat(srcArr).isEqualTo(readFile("/play/db/test2.out.sql").split("==="));
+    assertThat(srcArr).isEqualTo(TRIPLE_EQUALS.split(readFile("/play/db/test2.out.sql")));
   }
 }

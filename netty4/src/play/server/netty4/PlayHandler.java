@@ -21,7 +21,6 @@ import static java.lang.Long.parseLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static play.utils.Utils.formatMemorySize;
 
 import io.netty.buffer.ByteBuf;
@@ -66,6 +65,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -488,7 +488,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     String contentType = nettyRequest.headers().get(CONTENT_TYPE);
     URI uri = new URI(nettyRequest.uri());
     String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getQuery());
-    boolean isLoopback =
+    boolean isLoopBack =
         ipParser.isLoopback(host, (InetSocketAddress) ctx.channel().remoteAddress());
     ServerAddress serverAddress = ipParser.parseHost(host);
     InputStream body = readBody(nettyRequest);
@@ -503,7 +503,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             body,
             relativeUrl,
             serverAddress.host,
-            isLoopback,
+            isLoopBack,
             serverAddress.port,
             serverAddress.domain,
             getHeaders(nettyRequest),
@@ -587,7 +587,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
   private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
     logger.trace("serve404: begin");
-    String format = defaultString(request.format, "txt");
+    String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
 
     FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);

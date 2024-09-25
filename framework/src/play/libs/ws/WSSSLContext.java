@@ -15,7 +15,7 @@ import javax.net.ssl.X509TrustManager;
 public class WSSSLContext {
   public static SSLContext getSslContext(
       String keyStore, String keyStorePass, Boolean CAValidation) {
-    SSLContext sslCTX;
+    SSLContext sslCtx;
 
     try {
       // Keystore
@@ -57,11 +57,11 @@ public class WSSSLContext {
       SecureRandom secureRandom = new SecureRandom();
 
       // SSL context
-      sslCTX = SSLContext.getInstance("TLS");
-      sslCTX.init(keyManagers, trustManagers, secureRandom);
+      sslCtx = SSLContext.getInstance("TLS");
+      sslCtx.init(keyManagers, trustManagers, secureRandom);
     } catch (Exception e) {
       throw new RuntimeException("Error setting SSL context " + e.toString());
     }
-    return sslCTX;
+    return sslCtx;
   }
 }
