@@ -79,7 +79,7 @@ public abstract class Cache {
     } catch (ClassNotFoundException e) {
       // Do nothing, leaving cacheImplClass null on purpose.
     }
-    
+
     Class<?> ehCacheImplClass = null;
     try {
       ehCacheImplClass = Class.forName("play.cache.EhCacheImpl");
@@ -103,8 +103,7 @@ public abstract class Cache {
         logger.warn("Fallback to dummy cache (no caching)");
         cacheImpl = DummyCacheImpl.instance(new Properties());
       }
-    }
-    if (cacheImplClass == null) {
+    } else {
       cacheImpl = DummyCacheImpl.instance(new Properties());
     }
   }
