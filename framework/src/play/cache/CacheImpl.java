@@ -1,5 +1,6 @@
 package play.cache;
 
+import org.apache.commons.lang3.NotImplementedException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -11,7 +12,9 @@ import java.util.Properties;
  * @see play.cache.Cache
  */
 public interface CacheImpl {
-  CacheImpl instance(@Nonnull Properties playProperties) throws IOException;
+  static CacheImpl instance(@Nonnull Properties playProperties) throws IOException {
+    throw new NotImplementedException();
+  }
 
   void set(@Nonnull String key, Object value, int expiration);
 

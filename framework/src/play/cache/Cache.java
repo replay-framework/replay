@@ -4,6 +4,8 @@ import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Properties;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -13,7 +15,11 @@ import play.exceptions.CacheException;
 import play.libs.Time;
 
 /**
- * The Cache. Mainly an interface to memcached or EhCache.
+ * The Cache. Mainly an interface to Memcached or EhCache.
+ *
+ * Choose cache implementation by having your project depend on either one of these RePlay
+ * packages: `memcached` or `ehcache`. Without one of these packages the fall-back "dummy" cache
+ * is used, which does not do any caching.
  *
  * <p>Note: When specifying expiration == "0s" (zero seconds) the actual expiration-time may vary
  * between different cache implementations
@@ -66,25 +72,30 @@ public abstract class Cache {
 
   /** Initialize the cache system. */
   public static void init() {
-    CacheImpl cache;
+    Class<?> cacheImplClass = null;
     try {
-      Class<?> klass = Class.forName("play.cache.CacheImpl");
-      Constructor<?> constructor = klass.getDeclaredConstructor();
-      constructor.setAccessible(true);
-      cache = (CacheImpl) constructor.newInstance();
-    } catch (ClassNotFoundException
-             | NoSuchMethodException
-             | InvocationTargetException
-             | InstantiationException
-             | IllegalAccessException e) {
-      cache = new DummyCacheImpl();
+      cacheImplClass = Class.forName("play.cache.MemcachedImpl");
+    } catch (ClassNotFoundException e) {
+      // Do nothing, leaving cacheImplClass null on purpose.
     }
     try {
-      cacheImpl = cache.instance(Play.configuration);
-    } catch (Exception e) {
-      logger.error("Error while instantiating cache", e);
-      logger.warn("Fallback to dummy cache (no caching)");
-      cacheImpl = (new DummyCacheImpl()).instance(Play.configuration);
+      cacheImplClass = Class.forName("play.cache.EhCacheImpl");
+    } catch (ClassNotFoundException e) {
+      // Do nothing, leaving cacheImplClass null on purpose.
+    }
+    if (cacheImplClass != null) {
+      try {
+        // Since it implements the `CacheImpl` interface, it should have a static `instance` method.
+        Method method = cacheImplClass.getDeclaredMethod("instance", Properties.class);
+        cacheImpl = (CacheImpl) method.invoke(null, Play.configuration);
+      } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        logger.error("Error while instantiating cache", e);
+        logger.warn("Fallback to dummy cache (no caching)");
+        cacheImpl = DummyCacheImpl.instance(new Properties());
+      }
+    }
+    if (cacheImplClass == null) {
+      cacheImpl = DummyCacheImpl.instance(new Properties());
     }
   }
 

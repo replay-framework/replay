@@ -19,7 +19,7 @@ public class EhCacheImplTest {
   @BeforeEach
   public void setUp() {
     Play.configuration.setProperty("ehcache.heapSizeInEntries", "100");
-    cache = EhCacheImpl.newInstance();
+    cache = EhCacheImpl.testInstance();
   }
 
   @AfterEach
@@ -63,7 +63,7 @@ public class EhCacheImplTest {
       fail("must throw exception");
     } catch (IllegalStateException ignored) {
     } finally {
-      EhCacheImpl.newInstance();
+      EhCacheImpl.testInstance();
     }
   }
 
@@ -73,7 +73,7 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "2");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "3");
 
-    EhCacheImpl newCache = EhCacheImpl.newInstance();
+    EhCacheImpl newCache = EhCacheImpl.testInstance();
     ResourcePools resourcePools =
         newCache
             .cacheManager
@@ -92,7 +92,7 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
-    EhCacheImpl newCache = EhCacheImpl.newInstance();
+    EhCacheImpl newCache = EhCacheImpl.testInstance();
     ResourcePools resourcePools =
         newCache
             .cacheManager
@@ -110,7 +110,7 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "10");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
-    assertThatThrownBy(EhCacheImpl::newInstance)
+    assertThatThrownBy(EhCacheImpl::testInstance)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("configuration already contains");
   }
@@ -121,7 +121,7 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "1");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
-    EhCacheImpl newCache = EhCacheImpl.newInstance();
+    EhCacheImpl newCache = EhCacheImpl.testInstance();
     ResourcePools resourcePools =
         newCache
             .cacheManager
@@ -142,9 +142,9 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "1");
 
-    EhCacheImpl locaCache = EhCacheImpl.newInstance();
+    EhCacheImpl localCache = EhCacheImpl.testInstance();
     ResourcePools resourcePools =
-        locaCache
+        localCache
             .cacheManager
             .getRuntimeConfiguration()
             .getCacheConfigurations()
@@ -154,7 +154,7 @@ public class EhCacheImplTest {
     assertThat(resourcePools.getPoolForResource(HEAP)).isNull();
     assertThat(resourcePools.getPoolForResource(OFFHEAP).getSize()).isEqualTo(1);
 
-    locaCache.set("test", 1, 1);
+    localCache.set("test", 1, 1);
   }
 
   @Test
@@ -163,7 +163,7 @@ public class EhCacheImplTest {
     Play.configuration.setProperty("ehcache.heapSizeInMb", "0");
     Play.configuration.setProperty("ehcache.offHeapSizeInMb", "0");
 
-    assertThatThrownBy(() -> EhCacheImpl.newInstance())
+    assertThatThrownBy(() -> EhCacheImpl.testInstance())
         .isInstanceOf(InvalidConfigurationException.class)
         .hasMessageStartingWith("Must specify nonzero");
   }

@@ -23,6 +23,7 @@ import org.slf4j.MDC;
  *
  * <p>NOTE: expiration is specified in seconds
  */
+@SuppressWarnings("unused") // Used through reflection
 public class MemcachedImpl implements CacheImpl {
 
   private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
@@ -31,22 +32,23 @@ public class MemcachedImpl implements CacheImpl {
   private final String mdcParameterName;
   private final MemcachedTranscoder tc = new MemcachedTranscoder();
 
-  public MemcachedImpl(Properties configuration) throws IOException {
+  private MemcachedImpl(Properties configuration) throws IOException {
     System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.SLF4JLogger");
     client = new MemcachedClientBuilder().build(configuration);
     mdcParameterName = configuration.getProperty("memcached.mdc.parameter", "");
   }
 
+  @SuppressWarnings("unused") // May be used by implementations
   public MemcachedClient getClient() {
     return client;
   }
 
-  @Override
-  public CacheImpl instance(@Nonnull Properties playProperties) throws IOException {
+  @SuppressWarnings("unused") // Used through reflection
+  public static MemcachedImpl instance(@Nonnull Properties playProperties) throws IOException {
     if (uniqueInstance == null) {
       uniqueInstance = new MemcachedImpl(playProperties);
     }
-    return null;
+    return uniqueInstance;
   }
 
   @Override
