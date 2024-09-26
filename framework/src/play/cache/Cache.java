@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.exceptions.CacheException;
+import play.exceptions.ConfigurationException;
 import play.libs.Time;
 
 /**
@@ -72,17 +73,26 @@ public abstract class Cache {
 
   /** Initialize the cache system. */
   public static void init() {
-    Class<?> cacheImplClass = null;
+    Class<?> memcacheImplClass = null;
     try {
-      cacheImplClass = Class.forName("play.cache.MemcachedImpl");
+      memcacheImplClass = Class.forName("play.cache.MemcachedImpl");
     } catch (ClassNotFoundException e) {
       // Do nothing, leaving cacheImplClass null on purpose.
     }
+    
+    Class<?> ehCacheImplClass = null;
     try {
-      cacheImplClass = Class.forName("play.cache.EhCacheImpl");
+      ehCacheImplClass = Class.forName("play.cache.EhCacheImpl");
     } catch (ClassNotFoundException e) {
       // Do nothing, leaving cacheImplClass null on purpose.
     }
+
+    if (memcacheImplClass != null && ehCacheImplClass != null) {
+      throw new ConfigurationException(
+          "Please remove either RePlay's `memcached` or `ehcache` package from the classpath");
+    }
+
+    Class<?> cacheImplClass = memcacheImplClass == null ? ehCacheImplClass : memcacheImplClass;
     if (cacheImplClass != null) {
       try {
         // Since it implements the `CacheImpl` interface, it should have a static `instance` method.
