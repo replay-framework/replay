@@ -49,7 +49,10 @@ These were not used by RePlay's users (could be reintroduced if needed).
 
 #### Requirements
 
-RePlay requires JDK 17 to be built; it is the lower limit of serveral of our dependencies: ECJ (for rendering GroovyTemplates), FlyingSaucer (PDF generation) and Selenide (UI tests). Your project should use a JDK version equal to or greater than 17 that's also supported by Hibernate 6.6 (the version RePlay currently depends on), which are [JDK 17 and 21](https://hibernate.org/orm/releases/6.6).
+RePlay requires JDK 17 to be built; it is the lower limit of several of RePlay's dependencies:
+ECJ (for rendering GroovyTemplates), FlyingSaucer (PDF generation) and Selenide (UI tests).
+Your project should use a JDK version equal to or greater than 17 that's *also* supported by Hibernate 6.6
+(the version RePlay currently depends on), which are [JDK 17, 21, 22 and 23](https://hibernate.org/orm/releases/6.6).
 
 
 ## Getting started
@@ -57,16 +60,16 @@ RePlay requires JDK 17 to be built; it is the lower limit of serveral of our dep
 You need to add RePlay dependencies to your build.gradle (or pom.xml):
 ```groovy
 dependencies {
-  implementation 'io.github.replay-framework:framework:2.5.0'
-  implementation 'io.github.replay-framework:javanet:2.5.0'  // you can replace "javanet" by "netty3" or "netty4"
-  implementation 'io.github.replay-framework:ehcache:2.5.0'  // or `memcached`, or don't specify a cache package to disable caching
+  implementation("io.github.replay-framework:framework:2.5.0")
+  implementation("io.github.replay-framework:javanet:2.5.0") // you can replace "javanet" by "netty3" or "netty4"
   
   // Optionally:
-  implementation 'io.github.replay-framework:guice:2.5.0'
-  implementation 'io.github.replay-framework:fastergt:2.5.0'
-  implementation 'io.github.replay-framework:liquibase:2.5.0'
-  implementation 'io.github.replay-framework:pdf:2.5.0'
-  implementation 'io.github.replay-framework:excel:2.5.0'
+  implementation("io.github.replay-framework:guice:2.5.0")
+  implementation("io.github.replay-framework:fastergt:2.5.0")
+  implementation("io.github.replay-framework:liquibase:2.5.0")
+  implementation("io.github.replay-framework:pdf:2.5.0")
+  implementation("io.github.replay-framework:excel:2.5.0")
+  implementation("io.github.replay-framework:ehcache:2.5.0") // or `memcached`, or disable caching by not specifying a caching package
 }
 ```
 
