@@ -100,8 +100,7 @@ public abstract class Cache {
         cacheImpl = (CacheImpl) method.invoke(null, Play.configuration);
       } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
         logger.error("Error while instantiating cache", e);
-        logger.warn("Fallback to dummy cache (no caching)");
-        cacheImpl = DummyCacheImpl.instance(new Properties());
+        throw new ConfigurationException("Failed to start the caching system");
       }
     } else {
       cacheImpl = DummyCacheImpl.instance(new Properties());
