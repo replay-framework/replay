@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import play.Play;
 
 public class EhCacheImplTest {
+
   private EhCacheImpl cache;
 
   @BeforeEach
@@ -62,8 +63,6 @@ public class EhCacheImplTest {
       cache.set("stop", 1, 1);
       fail("must throw exception");
     } catch (IllegalStateException ignored) {
-    } finally {
-      EhCacheImpl.testInstance();
     }
   }
 
