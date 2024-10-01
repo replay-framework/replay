@@ -69,7 +69,7 @@ dependencies {
   implementation("io.github.replay-framework:liquibase:2.5.0")
   implementation("io.github.replay-framework:pdf:2.5.0")
   implementation("io.github.replay-framework:excel:2.5.0")
-  implementation("io.github.replay-framework:ehcache:2.5.0") // or `memcached`, or disable caching by not specifying a caching package
+  implementation("io.github.replay-framework:ehcache:2.5.0") // or `memcached`, or disable caching by not specifying a caching package. Earlier `memcached=true` setting won't be checked anymore!
 }
 ```
 
