@@ -48,6 +48,8 @@ sonatypeUsername=*******
 sonatypePassword=********************
 ```
 
+Here's what to fill in for each field:
+
 If you have no GnuPG singing key yet, there is a guide for setting up GnuPG on [the Sonatype website](https://central.sonatype.org/publish/requirements/gpg).
 
 Once you have a signing key setup you need to fill in `signing.keyId` with the short key found after the encryption algorithm (or simply the last 8 characters of the long key format) shown with:
