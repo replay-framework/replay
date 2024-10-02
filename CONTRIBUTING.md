@@ -79,7 +79,7 @@ Steps to release version, for example, version `X.Y.Z`:
 1. Create a release branch, e.g. `release/X.Y.Z`
 2. Merge the branches that you want to be part of this release
 3. Fill/edit the `CHANGELOG.md`
-4. Replace previous version by "X.Y.Z" in `build.gradle`
+4. Replace version string with "X.Y.Z" in `build.gradle` (usually this means just removing the `-SNAPSHOT` suffix)
 5. Commit & push (CHANGELOG.md + build.gradle + and all changes)
 6. Run `./release.sh X.Y.Z`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [s01.oss.sonatype.org](https://s01.oss.sonatype.org)
 7. Login to https://s01.oss.sonatype.org/#stagingRepositories and locate the staging repository...
