@@ -1,7 +1,32 @@
 # Changelog
 
+## 2.6.3 (released 02.10.2024)
+* Made caching optional (selectable by adding a package to your project)
+* Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs 
+* Apply IntelliJ hints and small easy refactors
+* Fix (doc)comments
+* Replace wildcard imports with individual imports
+* Add and run formatter (`google-java-format`), add EditorConfig
+* Remove unused imports
+* Extract dependency specs to TOML catalog
+* Bump netty4Version to 4.1.114.Final
+* Bump Gradle to 8.10.2
+* Bump FlyingSaucer to 9.9.5
+* Bump org.mockito:mockito-core to 5.14.1
+* Bump com.fasterxml.jackson.core:jackson-databind to 2.18.0
+* Bump com.codeborne:selenide to 7.5.1
+* Bump junitVersion to 5.11.1
+* Bump com.codeborne:pdf-test to 1.9.1
+* Bump com.google.guava:guava to 33.3.1-jre
+* Bump com.zaxxer:HikariCP to 6.0.0
+* Bump org.xhtmlrenderer:flying-saucer-pdf to 9.9.4
+* Bump commons-io:commons-io to 2.17.0
+* Bump io.github.classgraph:classgraph to 4.8.176
+* Bump org.hibernate:hibernate-jcache to 6.6.1.Final
+* Bump org.hibernate:hibernate-core to 6.6.1.Final
+
 ## 2.6.2 (released 09.09.2024)
-* Bump Hibernate to 6.6
+* Bump Hibernate to 6.6.0
 
 ## 2.6.0 (released 05.09.2024)
 * #358 Upgrade to Hibernate 6.4
