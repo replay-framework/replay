@@ -139,3 +139,5 @@ liquibaseCore = { group = "org.liquibase", name ="liquibase-core", version = "4.
 [plugins]
 
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
+googleJavaFormat = { id = "com.github.sherter.google-java-format", version = "0.9" }
+

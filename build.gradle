@@ -1,6 +1,6 @@
 plugins {
   // To enforce Google's Java CodyStyle from the `googleJavaFormat` Gradle task
-  id 'com.github.sherter.google-java-format' version '0.9'
+  alias(libs.plugins.googleJavaFormat)
 }
 
 repositories {
@@ -12,7 +12,7 @@ defaultTasks 'clean', 'check', 'publishToMavenLocal'
 subprojects {
 
   group='io.github.replay-framework'
-  version=project.properties['revision'] ?: '2.6.3-SNAPSHOT'
+  version=project.properties['revision'] ?: '2.6.3'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
