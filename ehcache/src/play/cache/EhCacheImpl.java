@@ -64,6 +64,7 @@ public class EhCacheImpl implements CacheImpl {
     this.cache = cacheManager.getCache(cacheName, String.class, ValueWrapper.class);
   }
 
+  @SuppressWarnings("unused") // Used through reflection
   public static EhCacheImpl instance(@SuppressWarnings("unused") Properties playProperties) {
     if (uniqueInstance == null) {
       uniqueInstance = new EhCacheImpl();
@@ -71,9 +72,8 @@ public class EhCacheImpl implements CacheImpl {
     return uniqueInstance;
   }
 
-  /** Should only be used in tests */
   @VisibleForTesting
-  public static EhCacheImpl testInstance() {
+  static EhCacheImpl testInstance() {
     return new EhCacheImpl();
   }
 

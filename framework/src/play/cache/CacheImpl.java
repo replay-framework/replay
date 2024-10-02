@@ -1,20 +1,22 @@
 package play.cache;
 
-import org.apache.commons.lang3.NotImplementedException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
- * A cache implementation. expiration is specified in seconds
+ * A cache implementation. expiration is specified in seconds.
+ * <p>
+ * When implementing this interface make sure to provide a static method with this signature:
  *
- * @see play.cache.Cache
+ * <pre>{@code
+ * static CacheImpl instance(@Nonnull Properties playProperties) throws IOException
+ * }</pre>
+ *
+ * This method is used by RePlay's {@link play.cache.Cache} class to load the implementation.
+ *
+ * @see play.cache.Cache and RePlay's 'memcached' and 'ehcache' packages.
  */
 public interface CacheImpl {
-  static CacheImpl instance(@Nonnull Properties playProperties) throws IOException {
-    throw new NotImplementedException();
-  }
 
   void set(@Nonnull String key, Object value, int expiration);
 

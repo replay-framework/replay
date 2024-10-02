@@ -14,5 +14,6 @@ public class EhCacheIntegrationTest {
     Cache.set("no-dummy", 1, "10s");
     assertThat((int) Cache.get("no-dummy")).isEqualTo(1);
     assertThat(Cache.cacheImpl).isInstanceOf(EhCacheImpl.class);
+    Cache.clear();
   }
 }
