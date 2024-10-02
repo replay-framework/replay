@@ -1,14 +1,14 @@
 sourceSets {
   main {
-    java {srcDir "app"}
-    resources {srcDir "app"}
+    java { srcDir "app" }
+    resources { srcDir "app" }
     resources {
       srcDir 'conf'
       include '**/*'
     }
   }
   test {
-    java {srcDir "test"}
+    java { srcDir "test" }
   }
 }
 
@@ -50,28 +50,29 @@ tasks.register('uitest') {
 
 tasks.register('uitest-netty3', Test) {
   include 'ui/**/*'
-  outputs.upToDateWhen {false}
+  outputs.upToDateWhen { false }
   classpath = configurations.netty3TestClasspath + classpath
 }
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
-  exclude 'ui/hello/RenderStaticFilesSpec*' // TODO: clarify why `replay-netty4` fails on static files
-  outputs.upToDateWhen {false}
+  exclude 'ui/hello/RenderStaticFilesSpec*'
+  // TODO: clarify why `replay-netty4` fails on static files
+  outputs.upToDateWhen { false }
   classpath = configurations.netty4TestClasspath + classpath
 }
 
 tasks.register('uitest-javanet', Test) {
   include 'ui/**/*'
-  outputs.upToDateWhen {false}
+  outputs.upToDateWhen { false }
   classpath = configurations.javanetTestClasspath + classpath
 }
 
 tasks.withType(Test).configureEach {
   System.properties.stringPropertyNames()
-    .findAll { it.startsWith("selenide.") }
-    .forEach {
-      println " set ${it} to ${System.getProperty(it)}"
-      systemProperties[it] = System.getProperty(it)
-    }
+      .findAll { it.startsWith("selenide.") }
+      .forEach {
+        println " set ${it} to ${System.getProperty(it)}"
+        systemProperties[it] = System.getProperty(it)
+      }
 }

@@ -2,7 +2,7 @@ plugins {
   alias(libs.plugins.kotlinJvm)
 }
 dependencies {
-  implementation(libs.guava) {transitive = false}
+  implementation(libs.guava) { transitive = false }
   implementation(libs.kotlinStdlib)
   implementation project(':pdf')
   testImplementation(libs.pdfTest)

@@ -1,5 +1,5 @@
 dependencies {
-  implementation(libs.guava) {transitive = false}
+  implementation(libs.guava) { transitive = false }
   implementation project(':pdf')
   testImplementation(libs.assertjCore)
   testImplementation(libs.pdfTest)

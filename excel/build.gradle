@@ -1,16 +1,16 @@
 dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
-  
-  api(libs.jxlsCore) {transitive = false}
-  api(libs.jxlsReader) {transitive = false}
-  implementation(libs.commonsJexl) {transitive = false}
-  api(libs.poi) {transitive = false}
-  api(libs.poiOoxml) {transitive = false}
-  api(libs.poiOoxmlSchemas) {transitive = false}
-  api(libs.xmlBeans) {transitive = false}
-  implementation(libs.commonsDigester) {transitive = false}
-  implementation(libs.commonsCollections4) {transitive = false}
+
+  api(libs.jxlsCore) { transitive = false }
+  api(libs.jxlsReader) { transitive = false }
+  implementation(libs.commonsJexl) { transitive = false }
+  api(libs.poi) { transitive = false }
+  api(libs.poiOoxml) { transitive = false }
+  api(libs.poiOoxmlSchemas) { transitive = false }
+  api(libs.xmlBeans) { transitive = false }
+  implementation(libs.commonsDigester) { transitive = false }
+  implementation(libs.commonsCollections4) { transitive = false }
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

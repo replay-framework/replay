@@ -11,8 +11,8 @@ defaultTasks 'clean', 'check', 'publishToMavenLocal'
 
 subprojects {
 
-  group='io.github.replay-framework'
-  version=project.properties['revision'] ?: '2.6.3'
+  group = 'io.github.replay-framework'
+  version = project.properties['revision'] ?: '2.6.3'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
@@ -72,7 +72,7 @@ subprojects {
     testTask.systemProperties['file.encoding'] = 'UTF-8'
     testTask.systemProperties['user.country'] = 'TR'
     testTask.systemProperties['user.language'] = 'tr'
-    testTask.testLogging {exceptionFormat = 'full'}
+    testTask.testLogging { exceptionFormat = 'full' }
     testTask.outputs.upToDateWhen { false }
   }
 
@@ -86,5 +86,13 @@ subprojects {
 }
 
 googleJavaFormat {
-  toolVersion = '1.1'
+  toolVersion = '1.8'
+  exclude '.gradle/**/*.java'
+}
+
+// Needed to allow the googleJavaFormat Gradle plugin to select the right variant of Guava
+configurations.configureEach {
+  attributes {
+    attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+  }
 }

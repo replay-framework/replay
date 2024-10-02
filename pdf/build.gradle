@@ -17,8 +17,8 @@ dependencies {
   implementation(libs.flyingSaucerPdf)
 
   implementation(libs.shaniParser)
-  api(libs.yahp) {transitive = false}
-  thirdParty(libs.yahpInternal) {transitive = false}
+  api(libs.yahp) { transitive = false }
+  thirdParty(libs.yahpInternal) { transitive = false }
 }
 
 task extractThirdPartyJars(type: Sync) {
