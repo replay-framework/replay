@@ -9,9 +9,11 @@ import static org.ehcache.config.units.MemoryUnit.MB;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.Properties;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.annotations.VisibleForTesting;
 import net.sf.oval.exception.InvalidConfigurationException;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -62,13 +64,17 @@ public class EhCacheImpl implements CacheImpl {
     this.cache = cacheManager.getCache(cacheName, String.class, ValueWrapper.class);
   }
 
-  public static EhCacheImpl getInstance() {
+  @SuppressWarnings("unused") // Used through reflection
+  public static EhCacheImpl instance(@SuppressWarnings("unused") Properties playProperties) {
+    if (uniqueInstance == null) {
+      uniqueInstance = new EhCacheImpl();
+    }
     return uniqueInstance;
   }
 
-  public static EhCacheImpl newInstance() {
-    uniqueInstance = new EhCacheImpl();
-    return uniqueInstance;
+  @VisibleForTesting
+  static EhCacheImpl testInstance() {
+    return new EhCacheImpl();
   }
 
   @Override
