@@ -19,7 +19,6 @@ dependencies {
   api(libs.javaxMail)
   api(libs.jakartaInject)
   implementation(libs.reload4j)
-  implementation(libs.ehcache)
   api(libs.oval)
   api(libs.hibernateCore)
   // Hibernate 6.2-6.5 are only compatible with Jakarta Persistence 3.1
@@ -29,7 +28,6 @@ dependencies {
   api(libs.slf4j)
   api(libs.slf4jReload4j)
   api(libs.julToSlf4j)
-  api(libs.spymemcached)
 }
 
 task generateReplayVersion(type: Exec) {
