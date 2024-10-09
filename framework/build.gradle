@@ -1,33 +1,33 @@
 dependencies {
   api(libs.findbugsJsr305)
-  implementation(libs.classGraph)
-  api(libs.hikariCp)
   api(libs.gson)
-  implementation(libs.asyncHttpClient) {
-    exclude group: 'io.netty'
-  }
   api(libs.guava) { transitive = false }
+  api(libs.hibernateCommonsAnnotations)
+  api(libs.hibernateCore)
+  api(libs.hikariCp)
   api(libs.commonsBeanutils) { transitive = false }
   api(libs.commonsCodec) { transitive = false }
   api(libs.commonsEmail) { transitive = false }
   api(libs.commonsFileUpload)
   api(libs.commonsIo)
-  implementation(libs.commonsLang3)
-  implementation(libs.commonsText)
-  implementation(libs.ulidCreator)
   api(libs.commonsLogging)
-  api(libs.javaxMail)
   api(libs.jakartaInject)
-  implementation(libs.reload4j)
-  api(libs.oval)
-  api(libs.hibernateCore)
-  // Hibernate 6.2-6.5 are only compatible with Jakarta Persistence 3.1
   api(libs.jakartaPersistence)
-  api(libs.hibernateCommonsAnnotations)
-  implementation(libs.hibernateJCache) { transitive = false }
+  api(libs.javaxMail)
+  api(libs.julToSlf4j)
+  api(libs.oval)
   api(libs.slf4j)
   api(libs.slf4jReload4j)
-  api(libs.julToSlf4j)
+
+  implementation(libs.asyncHttpClient) {
+    exclude group: 'io.netty'
+  }
+  implementation(libs.classGraph)
+  implementation(libs.commonsLang3)
+  implementation(libs.commonsText)
+  implementation(libs.hibernateJCache) { transitive = false }
+  implementation(libs.ulidCreator)
+  implementation(libs.reload4j)
 }
 
 task generateReplayVersion(type: Exec) {
