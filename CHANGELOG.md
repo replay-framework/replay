@@ -1,5 +1,7 @@
 # Changelog
 
+**NOTE**: Only describe functional changes that affect users.
+
 ## 2.6.3 (released 02.10.2024)
 * Made caching optional (selectable by adding a package to your project)
 * Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs 
@@ -40,7 +42,7 @@
 * Downgrade and pin `jakarta.persistence:persistence-api:3.0.0` (#385) @cies
 * Bump liquibase from 4.26.0 to 4.29.1
 * Bump h2 from 2.2.224 to 2.3.230
-* Bumps hibernate-commons-annotations from 6.0.6.Final to 7.0.1.Final (#400)
+* Bump hibernate-commons-annotations from 6.0.6.Final to 7.0.1.Final (#400)
 * Bump netty4 from 4.1.108.Final to 4.1.112.Final
 * Bump FlyingSaucer from 9.7.1 to 9.9.0
 * Bump groovy from 3.0.21 to 3.0.22
@@ -60,7 +62,7 @@
 * Upgrade to Java 17 (#356)
 * #198 #290 Multi module app (#291)
 * #327 remove Jamon dependency (#328)
-* fix ClassCastException in RequestLogPlugin (#317)
+* Fix ClassCastException in RequestLogPlugin (#317)
 * Bump netty from 4.1.104.Final to 4.1.108.Final
 * Bump liquibase from 4.25.1 to 4.26.0 (#339)
 * Bump groovy from 3.0.19 to 3.0.21
@@ -91,7 +93,7 @@
 * Bump liquibase from 4.23.2 to 4.25.0
 * Bump netty4 from 4.1.99.Final to 4.1.104.Final
 * Bump com.zaxxer:HikariCP from 5.0.1 to 5.1.0
-* Bump FLYING_SOURCER_VERSION from 9.2.2 to 9.3.1
+* Bump `FLYING_SOURCER_VERSION` from 9.2.2 to 9.3.1
 * Bump Jackson from 2.15.2 to 2.16.0
 
 ## 2.2.0 (released 30.09.2023) - see https://github.com/replay-framework/replay/milestone/12?closed=1
@@ -109,7 +111,7 @@
 * Bump com.h2database:h2 from 2.1.214 to 2.2.224
 * Bump com.fasterxml.jackson.core:jackson-databind from 2.15.1 to 2.15.2 (#179)
 * Bump org.jetbrains.kotlin.jvm from 1.8.21 to 1.9.10
-* Bump FLYING_SOURCER_VERSION from 9.1.22 to 9.2.1 (#242) (#243)
+* Bump `FLYING_SOURCER_VERSION` from 9.1.22 to 9.2.1 (#242) (#243)
 
 ## 2.1.0 (released 30.05.2023) - see https://github.com/replay-framework/replay/milestone/11?closed=1
 * Less logging and 400 response on URI parsing error  --  thanks to Cies Breijs for PR #178
