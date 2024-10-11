@@ -50,6 +50,9 @@ public class Scope {
     final Map<String, String> data;
     final Map<String, String> out = new HashMap<>();
 
+    public final String ERROR = "error";
+    public final String SUCCESS = "success";
+
     public Flash() {
       this(new HashMap<>(2));
     }
@@ -96,11 +99,11 @@ public class Scope {
     }
 
     public void error(@Nonnull String value, Object... args) {
-      put("error", Messages.get(value, args));
+      put(ERROR, Messages.get(value, args));
     }
 
     public void success(@Nonnull String value, Object... args) {
-      put("success", Messages.get(value, args));
+      put(SUCCESS, Messages.get(value, args));
     }
 
     public void discard(@Nonnull String key) {
@@ -210,7 +213,7 @@ public class Scope {
     public void put(@Nonnull String key, @Nullable Object value) {
       change();
       if (value == null) {
-        put(key, (String) null);
+        put(key, null);
       } else {
         put(key, value.toString());
       }
@@ -292,10 +295,8 @@ public class Scope {
       __mergeWith(request.routeArgs);
 
       if (request.querystring != null) {
-        _mergeWith(
-            UrlEncodedParser.parseQueryString(
-                new ByteArrayInputStream(request.querystring.getBytes(request.encoding)),
-                request.encoding));
+        var inputStream = new ByteArrayInputStream(request.querystring.getBytes(request.encoding));
+        _mergeWith(UrlEncodedParser.parseQueryString(inputStream, request.encoding));
       }
       String contentType = request.contentType;
       if (contentType != null) {
@@ -310,21 +311,21 @@ public class Scope {
     public void put(@Nonnull String key, @Nullable String value) {
       checkAndParse();
       data.put(key, new String[] {value});
-      // make sure rootsParamsNode is regenerated if needed
+      // To ensure rootsParamsNode is regenerated if needed
       rootParamsNodeIsGenerated = false;
     }
 
     public void put(@Nonnull String key, @Nonnull String[] values) {
       checkAndParse();
       data.put(key, values);
-      // make sure rootsParamsNode is regenerated if needed
+      // To ensure rootsParamsNode is regenerated if needed
       rootParamsNodeIsGenerated = false;
     }
 
     public void remove(@Nonnull String key) {
       checkAndParse();
       data.remove(key);
-      // make sure rootsParamsNode is regenerated if needed
+      // To ensure rootsParamsNode is regenerated if needed
       rootParamsNodeIsGenerated = false;
     }
 
@@ -447,7 +448,7 @@ public class Scope {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T get(String key, Class<T> clazz) {
+    public <T> T get(String key, @SuppressWarnings("unused") Class<T> clazz) {
       return (T) this.get(key);
     }
 
