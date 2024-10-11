@@ -2,6 +2,7 @@ package play.mvc;
 
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
+import static play.Play.configPropWithDefaultEqualsTo;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -31,17 +32,13 @@ public class Scope {
 
   private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
+  public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
   public static final String COOKIE_PREFIX =
       Play.configuration.getProperty("application.session.cookie", "PLAY");
   public static final boolean COOKIE_SECURE =
-      "true"
-          .equalsIgnoreCase(
-              Play.configuration.getProperty("application.session.secure", "false"));
-  public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
+      configPropWithDefaultEqualsTo("application.session.secure", "false", "true");
   public static final boolean SESSION_HTTPONLY =
-      "true"
-          .equalsIgnoreCase(
-              Play.configuration.getProperty("application.session.httpOnly", "false"));
+      configPropWithDefaultEqualsTo("application.session.httpOnly", "false", "true");
 
   /** Flash scope */
   public static class Flash {

@@ -1,6 +1,7 @@
 package play.modules.pdf;
 
 import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
+import static play.Play.configPropWithDefaultEqualsTo;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +44,7 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   private void trustCertsIfNeeded() {
-    if ("true"
-        .equals(Play.configuration.getProperty("play.pdf.ssl.acceptUnknownCertificate", "false"))) {
+    if (configPropWithDefaultEqualsTo("play.pdf.ssl.acceptUnknownCertificate", "false", "true")) {
       try {
         trustCerts();
       } catch (NoSuchAlgorithmException | KeyManagementException e) {

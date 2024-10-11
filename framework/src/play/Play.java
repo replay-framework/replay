@@ -375,4 +375,12 @@ public class Play {
   public static String relativePath(File file) {
     return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "");
   }
+
+  /** Helper method of an often recurring type of check on Play's configuration properties. */
+  public static boolean configPropWithDefaultEqualsTo(
+      final String key,
+      final String defaultValue,
+      final String equalsTo) {
+    return equalsTo.equalsIgnoreCase(Play.configuration.getProperty(key, defaultValue));
+  }
 }
