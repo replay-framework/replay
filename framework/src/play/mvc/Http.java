@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static play.Play.configPropWithDefaultEqualsTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -272,7 +273,7 @@ public class Http {
       String _host = this.host;
       if (Play.configuration.containsKey("XForwardedSupport")
           && headers.get("x-forwarded-for") != null) {
-        if (!"ALL".equalsIgnoreCase(Play.configuration.getProperty("XForwardedSupport"))
+        if (!configPropWithDefaultEqualsTo("XForwardedSupport", "not-all", "all")
             && !asList(
                     X_FWD_REGEX.split(
                         Play.configuration.getProperty("XForwardedSupport", "127.0.0.1")))
@@ -291,9 +292,7 @@ public class Http {
         }
       }
 
-      if ("true"
-              .equalsIgnoreCase(
-                  Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false"))
+      if (configPropWithDefaultEqualsTo("XForwardedOverwriteDomainAndPort", "false", "true")
           && this.host != null
           && !this.host.equals(_host)) {
         if (this.host.contains(":")) {
