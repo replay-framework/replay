@@ -94,7 +94,7 @@ commonsJexl = { group = "org.apache.commons", name = "commons-jexl", version = "
 poi = { group = "org.apache.poi", name = "poi", version.ref = "poiVersion" }
 poiOoxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poiVersion" }
 poiOoxmlSchemas = { group = "org.apache.poi", name = "poi-ooxml-schemas", version.ref = "poiVersion" }
-xmlBeans = { group = "org.apache.xmlbeans", name = "xmlbeans", version = "5.2.1" }
+xmlBeans = { group = "org.apache.xmlbeans", name = "xmlbeans", version = "5.2.2" }
 commonsDigester = { group = "commons-digester", name = "commons-digester", version = "2.1" }
 commonsCollections4 = { group = "org.apache.commons", name = "commons-collections4", version = "4.4" }
 
