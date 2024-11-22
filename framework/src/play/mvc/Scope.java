@@ -50,8 +50,8 @@ public class Scope {
     final Map<String, String> data;
     final Map<String, String> out = new HashMap<>();
 
-    public final String ERROR = "error";
-    public final String SUCCESS = "success";
+    private final String ERROR = "error";
+    private final String SUCCESS = "success";
 
     public Flash() {
       this(new HashMap<>(2));
@@ -102,8 +102,24 @@ public class Scope {
       put(ERROR, Messages.get(value, args));
     }
 
+    public String getErrorMessage() {
+      return get(ERROR);
+    }
+
+    public boolean containsError() {
+      return contains(ERROR);
+    }
+
     public void success(@Nonnull String value, Object... args) {
       put(SUCCESS, Messages.get(value, args));
+    }
+
+    public String getSuccessMessage() {
+      return get(SUCCESS);
+    }
+
+    public boolean containsSuccess() {
+      return contains(SUCCESS);
     }
 
     public void discard(@Nonnull String key) {
