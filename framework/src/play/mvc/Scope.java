@@ -2,7 +2,6 @@ package play.mvc;
 
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
-import static play.Play.configPropWithDefaultEqualsTo;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -36,9 +35,9 @@ public class Scope {
   public static final String COOKIE_PREFIX =
       Play.configuration.getProperty("application.session.cookie", "PLAY");
   public static final boolean COOKIE_SECURE =
-      configPropWithDefaultEqualsTo("application.session.secure", "false", "true");
+      Play.configuration.propWithDefaultEqualsTo("application.session.secure", "false", "true");
   public static final boolean SESSION_HTTPONLY =
-      configPropWithDefaultEqualsTo("application.session.httpOnly", "false", "true");
+      Play.configuration.propWithDefaultEqualsTo("application.session.httpOnly", "false", "true");
 
   /** Flash scope */
   public static class Flash {

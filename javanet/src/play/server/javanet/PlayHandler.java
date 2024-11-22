@@ -11,8 +11,6 @@ import static com.google.common.net.HttpHeaders.SET_COOKIE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static play.Play.configPropWithDefaultEqualsTo;
 import static play.mvc.Http.Methods.GET;
 import static play.mvc.Http.Methods.HEAD;
 import static play.mvc.Http.StatusCode.BAD_REQUEST;
@@ -302,7 +300,7 @@ public class PlayHandler implements HttpHandler {
         }
       }
     }
-    boolean useETag = configPropWithDefaultEqualsTo("http.useETag", "true", "true");
+    boolean useETag = Play.configuration.propWithDefaultEqualsTo("http.useETag", "true", "true");
     long last = file.lastModified();
     String eTag = "\"" + last + "-" + file.hashCode() + "\"";
     if (!isModified(eTag, last, exchange)) {

@@ -2,7 +2,6 @@ package play.libs.ws;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static play.Play.configPropWithDefaultEqualsTo;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -46,7 +45,7 @@ public class WSAsync implements WSClient {
     String keyStore = Play.configuration.getProperty("ssl.keyStore", System.getProperty("javax.net.ssl.keyStore"));
     String keyStorePass =
         Play.configuration.getProperty("ssl.keyStorePassword", System.getProperty("javax.net.ssl.keyStorePassword"));
-    Boolean CAValidation = configPropWithDefaultEqualsTo("ssl.cavalidation", "true", "true");
+    Boolean CAValidation = Play.configuration.propWithDefaultEqualsTo("ssl.cavalidation", "true", "true");
 
     Builder confBuilder = new AsyncHttpClientConfig.Builder();
 

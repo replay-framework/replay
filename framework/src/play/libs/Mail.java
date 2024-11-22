@@ -19,8 +19,6 @@ import play.libs.mail.test.LegacyMockMailSystem;
 import play.utils.Utils.Maps;
 import play.utils.YesSSLSocketFactory;
 
-import static play.Play.configPropWithDefaultEqualsTo;
-
 public class Mail {
   private static final Logger logger = LoggerFactory.getLogger(Mail.class);
 
@@ -169,7 +167,7 @@ public class Mail {
         }
       }
 
-      if (configPropWithDefaultEqualsTo("mail.debug", "false", "true")) {
+      if (Play.configuration.propWithDefaultEqualsTo("mail.debug", "false", "true")) {
         session.setDebug(true);
       }
     }

@@ -21,7 +21,6 @@ import static java.lang.Long.parseLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
-import static play.Play.configPropWithDefaultEqualsTo;
 import static play.utils.Utils.formatMemorySize;
 
 import io.netty.buffer.ByteBuf;
@@ -765,10 +764,10 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
       }
     }
-    boolean useETag = configPropWithDefaultEqualsTo("http.useETag", "true", "true");
+    boolean useETag = Play.configuration.propWithDefaultEqualsTo("http.useETag", "true", "true");
     long last = file.lastModified();
-    String etag = "\"" + last + "-" + file.hashCode() + "\"";
-    if (!isModified(etag, last, nettyRequest)) {
+    String eTag = "\"" + last + "-" + file.hashCode() + "\"";
+    if (!isModified(eTag, last, nettyRequest)) {
       if (nettyRequest.method().equals(HttpMethod.GET)) {
         httpResponse.setStatus(NOT_MODIFIED);
       }
@@ -778,7 +777,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
           .set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
     }
     if (useETag) {
-      httpResponse.headers().set(ETAG, etag);
+      httpResponse.headers().set(ETAG, eTag);
     }
   }
 

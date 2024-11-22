@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static play.Play.configPropWithDefaultEqualsTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -273,7 +272,7 @@ public class Http {
       String _host = this.host;
       if (Play.configuration.containsKey("XForwardedSupport")
           && headers.get("x-forwarded-for") != null) {
-        if (!configPropWithDefaultEqualsTo("XForwardedSupport", "not-all", "all")
+        if (!Play.configuration.propWithDefaultEqualsTo("XForwardedSupport", "not-all", "all")
             && !asList(
                     X_FWD_REGEX.split(
                         Play.configuration.getProperty("XForwardedSupport", "127.0.0.1")))
@@ -292,7 +291,7 @@ public class Http {
         }
       }
 
-      if (configPropWithDefaultEqualsTo("XForwardedOverwriteDomainAndPort", "false", "true")
+      if (Play.configuration.propWithDefaultEqualsTo("XForwardedOverwriteDomainAndPort", "false", "true")
           && this.host != null
           && !this.host.equals(_host)) {
         if (this.host.contains(":")) {
@@ -483,10 +482,10 @@ public class Http {
       return result;
     }
 
-    public boolean isModified(String etag, long last) {
+    public boolean isModified(String eTag, long last) {
       if (headers.containsKey("if-none-match") && headers.containsKey("if-modified-since")) {
-        String browserEtag = headers.get("if-none-match").value();
-        if (browserEtag.equals(etag)) {
+        String browserETag = headers.get("if-none-match").value();
+        if (browserETag.equals(eTag)) {
           try {
             Date browserDate =
                 Utils.getHttpDateFormatter().parse(headers.get("if-modified-since").value());
@@ -639,15 +638,15 @@ public class Http {
     /**
      * Add cache-control headers
      *
-     * @param etag the Etag value
+     * @param eTag the Etag value
      * @param duration the cache duration (Ex: 3h)
      * @param lastModified The last modified date
      */
-    public void cacheFor(String etag, String duration, long lastModified) {
+    public void cacheFor(String eTag, String duration, long lastModified) {
       int maxAge = Time.parseDuration(duration);
       setHeader("Cache-Control", "max-age=" + maxAge);
       setHeader("Last-Modified", Utils.getHttpDateFormatter().format(new Date(lastModified)));
-      setHeader("Etag", etag);
+      setHeader("Etag", eTag);
     }
 
     /**

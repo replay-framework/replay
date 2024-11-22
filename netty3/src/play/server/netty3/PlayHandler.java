@@ -14,7 +14,6 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_S
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
-import static play.Play.configPropWithDefaultEqualsTo;
 import static play.server.ServerHelper.maxContentLength;
 import static play.utils.Utils.formatMemorySize;
 
@@ -786,7 +785,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
       }
     }
-    boolean useETag = configPropWithDefaultEqualsTo("http.useETag", "true", "true");
+    boolean useETag = Play.configuration.propWithDefaultEqualsTo("http.useETag", "true", "true");
     long last = file.lastModified();
     String eTag = "\"" + last + "-" + file.hashCode() + "\"";
     if (!isModified(eTag, last, nettyRequest)) {
