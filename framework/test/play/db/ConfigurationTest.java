@@ -10,13 +10,14 @@ import java.util.Properties;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import play.ConfProperties;
 import play.Play;
 
 public class ConfigurationTest {
 
   @BeforeEach
   public void setUp() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
   }
 
   @Test
@@ -86,7 +87,7 @@ public class ConfigurationTest {
 
   @Test
   public void dbNameResolverMySQLWithPoolTest() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.configuration.put("db.url", "jdbc:mysql://127.0.0.1/testPlay");
     Play.configuration.put("db.driver", "com.mysql.jdbc.Driver");
     Play.configuration.put("db.user", "root");
@@ -113,7 +114,7 @@ public class ConfigurationTest {
 
   @Test
   public void dbNameResolverMySQLWithPoolAndDBConflictTest() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     Play.configuration.put("db.url", "jdbc:mysql://127.0.0.1/testPlay");
     Play.configuration.put("db.driver", "com.mysql.jdbc.Driver");
@@ -132,7 +133,7 @@ public class ConfigurationTest {
 
   @Test
   public void dbNameResolverMySQLWithPoolAndDBTest() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     Play.configuration.put("db.url", "jdbc:mysql://127.0.0.1/testPlay");
     Play.configuration.put("db.driver", "com.mysql.jdbc.Driver");
@@ -175,7 +176,7 @@ public class ConfigurationTest {
 
   @Test
   public void dbNameResolverMySQLWithPoolAndDBTest2() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     Play.configuration.put("db.test.url", "jdbc:mysql://127.0.0.1/testPlay");
     Play.configuration.put("db.test.driver", "com.mysql.jdbc.Driver");
@@ -219,7 +220,7 @@ public class ConfigurationTest {
 
   @Test
   public void convertToMultiDBTest() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     Play.configuration.put("db.url", "jdbc:mysql://127.0.0.1/testPlay");
     Play.configuration.put("db.driver", "com.mysql.jdbc.Driver");

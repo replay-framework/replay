@@ -11,7 +11,6 @@ import static com.google.common.net.HttpHeaders.SET_COOKIE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static play.mvc.Http.Methods.GET;
 import static play.mvc.Http.Methods.HEAD;
 import static play.mvc.Http.StatusCode.BAD_REQUEST;
@@ -40,6 +39,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -130,7 +130,7 @@ public class PlayHandler implements HttpHandler {
 
     boolean keepAlive = isKeepAlive(exchange);
     if (file != null && file.isFile()) {
-      addEtag(exchange, file);
+      addETag(exchange, file);
       if (response.status == NOT_MODIFIED) {
         if (!keepAlive) {
           // TODO Close the connection when the whole content is written out.
@@ -286,7 +286,7 @@ public class PlayHandler implements HttpHandler {
     logger.trace("writeResponse: end");
   }
 
-  private void addEtag(HttpExchange exchange, File file) throws IOException {
+  private void addETag(HttpExchange exchange, File file) throws IOException {
     if (Play.mode == Play.Mode.DEV) {
       exchange.getResponseHeaders().set(HttpHeaders.CACHE_CONTROL, "no-cache");
     } else {
@@ -300,12 +300,12 @@ public class PlayHandler implements HttpHandler {
         }
       }
     }
-    boolean useEtag = "true".equals(Play.configuration.getProperty("http.useETag", "true"));
+    boolean useETag = Play.configuration.propWithDefaultEqualsTo("http.useETag", "true", "true");
     long last = file.lastModified();
-    String etag = "\"" + last + "-" + file.hashCode() + "\"";
-    if (!isModified(etag, last, exchange)) {
-      if (useEtag) {
-        exchange.getResponseHeaders().set(ETAG, etag);
+    String eTag = "\"" + last + "-" + file.hashCode() + "\"";
+    if (!isModified(eTag, last, exchange)) {
+      if (useETag) {
+        exchange.getResponseHeaders().set(ETAG, eTag);
       }
       if (exchange.getRequestMethod().equals(GET)) {
         exchange.sendResponseHeaders(NOT_MODIFIED, -1);
@@ -314,16 +314,16 @@ public class PlayHandler implements HttpHandler {
       exchange
           .getResponseHeaders()
           .set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
-      if (useEtag) {
-        exchange.getResponseHeaders().set(ETAG, etag);
+      if (useETag) {
+        exchange.getResponseHeaders().set(ETAG, eTag);
       }
     }
   }
 
-  private boolean isModified(String etag, long last, HttpExchange exchange) {
+  private boolean isModified(String eTag, long last, HttpExchange exchange) {
     String ifNoneMatch = exchange.getRequestHeaders().getFirst(IF_NONE_MATCH);
     String ifModifiedSince = exchange.getRequestHeaders().getFirst(IF_MODIFIED_SINCE);
-    return serverHelper.isModified(etag, last, ifNoneMatch, ifModifiedSince);
+    return serverHelper.isModified(eTag, last, ifNoneMatch, ifModifiedSince);
   }
 
   private boolean isKeepAlive(HttpExchange message) {
@@ -531,7 +531,7 @@ public class PlayHandler implements HttpHandler {
   private void serve404(NotFound e, HttpExchange exchange, Http.Request request)
       throws IOException {
     logger.trace("serve404: begin");
-    String format = defaultString(request.format, "txt");
+    String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
     String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
     printResponse(exchange, NOT_FOUND, contentType, errorHtml);
@@ -627,7 +627,7 @@ public class PlayHandler implements HttpHandler {
       throws IOException {
 
     boolean keepAlive = isKeepAlive(exchange);
-    addEtag(exchange, localFile);
+    addETag(exchange, localFile);
 
     if (exchange.getResponseCode() != NOT_MODIFIED) {
       fileService.serve(localFile, exchange, request, response, keepAlive);

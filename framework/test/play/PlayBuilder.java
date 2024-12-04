@@ -17,7 +17,7 @@ import play.mvc.Scope.RenderArgs;
 public class PlayBuilder {
 
   public void build() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.appRoot = new File(".");
   }
 
