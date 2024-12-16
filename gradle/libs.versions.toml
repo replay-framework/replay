@@ -60,7 +60,7 @@ commonsLogging = { group = "commons-logging", name = "commons-logging", version 
 ulidCreator = { group = "com.github.f4b6a3", name = "ulid-creator", version = "5.2.3" }
 javaxMail = { group = "javax.mail", name = "mail", version = "1.4.7" }
 jakartaInject = { group = "jakarta.inject", name = "jakarta.inject-api", version = "2.0.1" }
-reload4j = { group = "ch.qos.reload4j", name = "reload4j", version = "1.2.25" }
+reload4j = { group = "ch.qos.reload4j", name = "reload4j", version = "1.2.26" }
 ehcache = { group = "org.ehcache", name = "ehcache", version = "3.10.8" }
 oval = { group = "net.sf.oval", name = "oval", version = "3.2.1" }
 hibernateCore = { group = "org.hibernate", name = "hibernate-core", version.ref = "hibernateVersion" }
