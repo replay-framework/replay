@@ -14,7 +14,7 @@
 
 # [PINNED] = Pinned, do not upgrade this dependency (a comment should be added to explain why).
 
-assertjVersion = "3.27.0"
+assertjVersion = "3.27.1"
 commonsLangVersion = "3.17.0"
 commonsTextVersion = "1.13.0"
 flyingSaucerPdfVersion = "9.11.2"
