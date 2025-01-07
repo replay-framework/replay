@@ -394,7 +394,22 @@ This means that running the Play1 version of the app side-by-side with the RePla
   thrown when a column name occurs twice (e.g. the `id` column) when mapping the result of a query with joins to an entity.
   * Hibernate changed the "generation strategy" for MySQL, hence you may want to implement `jpa.Model` yourself which is fully supported in RePlay.
 
-  
+### Multi-module applications
+
+RePlay doesn't support using other RePlay applications as modules, like Play1 (see issue #290)!
+To mimic that feature, a new `application.conf` property `play.classes.scanJars` was introduced.
+
+Just define your RePlay modules as a dependencies, and put their jar names in `application.conf` as comma separated:
+
+```property
+play.classes.scanJars=my-fancy-dependency*.jar,my-other-dep-*.jar
+```
+
+The `*` wildcard is only for easy matching the versioned jar names.
+
+
+For more details, see the [`multi-module-app`](/replay-tests/multi-module-app) example!
+
 ## Licence
 
 The RePlay Framework is distributed under [MIT license](https://github.com/replay-framework/replay/blob/main/LICENSE).
