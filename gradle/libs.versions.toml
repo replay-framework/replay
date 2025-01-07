@@ -50,7 +50,7 @@ gson = { group = "com.google.code.gson", name = "gson", version = "2.11.0" }
 asyncHttpClient = { group = "com.ning", name = "async-http-client", version = "1.9.40" }
 guava = { group = "com.google.guava", name = "guava", version = "33.4.0-jre" }
 commonsBeanutils = { group = "commons-beanutils", name = "commons-beanutils", version = "1.9.4" }
-commonsCodec = { group = "commons-codec", name = "commons-codec", version = "1.17.1" }
+commonsCodec = { group = "commons-codec", name = "commons-codec", version = "1.17.2" }
 commonsEmail = { group = "org.apache.commons", name = "commons-email", version = "1.6.0" }
 commonsFileUpload = { group = "commons-fileupload", name = "commons-fileupload", version = "1.5.0.redhat-00001" }
 commonsIo = { group = "commons-io", name = "commons-io", version = "2.18.0" }
