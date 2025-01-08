@@ -1,1 +1,2 @@
 GET    /                   HelloWorld.hello
+GET    /img/               staticDir:public/images
