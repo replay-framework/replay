@@ -76,7 +76,7 @@ public class ClasspathResource {
     }
   }
 
-  String getJarFilePath() {
+  public String getJarFilePath() {
     return RE_JAR_FILE_NAME.matcher(url.getPath()).replaceFirst("$1");
   }
 
