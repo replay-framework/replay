@@ -4,7 +4,7 @@
 
 ## 2.6.3 (released 02.10.2024)
 * Made caching optional (selectable by adding a package to your project)
-* Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs 
+* Improve `play.conf.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs 
 * Apply IntelliJ hints and small easy refactors
 * Fix (doc)comments
 * Replace wildcard imports with individual imports

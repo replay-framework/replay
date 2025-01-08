@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -69,7 +68,7 @@ public class Play {
   public static ClasspathResource routes;
 
   /** The app configuration (already resolved from the framework id) */
-  public static Properties configuration = new Properties();
+  public static ConfProperties configuration = new ConfProperties();
 
   /** The last time than the application has started */
   public static long startedAt;
@@ -96,7 +95,7 @@ public class Play {
    */
   public static BeanSource beanSource;
 
-  private final ConfLoader confLoader;
+  private final ConfPropertiesLoader confLoader;
 
   private final ActionInvoker actionInvoker;
 
@@ -105,10 +104,10 @@ public class Play {
   }
 
   public Play(BeanSource beanSource) {
-    this(new PropertiesConfLoader(), beanSource, new CookieSessionStore());
+    this(new DefaultConfPropertiesLoader(), beanSource, new CookieSessionStore());
   }
 
-  public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
+  public Play(ConfPropertiesLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
     Play.beanSource = beanSource;
     this.confLoader = confLoader;
     this.actionInvoker = new ActionInvoker(sessionStore);

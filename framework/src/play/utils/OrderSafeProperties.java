@@ -1,5 +1,7 @@
 package play.utils;
 
+import play.ConfProperties;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.readLines;
@@ -20,7 +22,7 @@ import javax.annotation.Nonnull;
  * Custom impl of java.util.properties that preserves the key-order from the file and that reads the
  * properties-file in utf-8
  */
-public class OrderSafeProperties extends java.util.Properties {
+public class OrderSafeProperties extends ConfProperties {
 
   private static final Pattern ESCAPED_DOUBLE_QUOTE = Pattern.compile("\\\\\"");
   private static final Pattern ESCAPED_SINGLE_QUOTE = Pattern.compile("(^|[^\\\\])(\\\\')");

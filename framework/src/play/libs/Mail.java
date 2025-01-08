@@ -167,7 +167,7 @@ public class Mail {
         }
       }
 
-      if (Boolean.parseBoolean(Play.configuration.getProperty("mail.debug", "false"))) {
+      if (Play.configuration.propWithDefaultEqualsTo("mail.debug", "false", "true")) {
         session.setDebug(true);
       }
     }
