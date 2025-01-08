@@ -1,5 +1,6 @@
 dependencies {
   implementation project(':replay-tests:multi-module-app:core')
+  runtimeOnly project(':javanet')
   testImplementation(libs.assertjCore)
 }
 
