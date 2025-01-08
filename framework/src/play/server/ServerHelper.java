@@ -3,11 +3,13 @@ package play.server;
 import static com.google.common.net.HttpHeaders.KEEP_ALIVE;
 import static java.lang.Integer.parseInt;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.io.FileUtils.copyURLToFile;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static play.mvc.Http.Headers.Values.CLOSE;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.ClasspathResource;
 import play.Play;
 import play.data.validation.Validation;
 import play.mvc.Http;
@@ -118,6 +121,26 @@ public class ServerHelper {
       File index = new File(file, "index.html");
       if (index.exists()) {
         return index;
+      }
+    }
+    if (file == null) {
+      try {
+        if (resource.startsWith("/") && resource.length() > 1) {
+          resource = resource.substring(1);
+        }
+        ClasspathResource cf = ClasspathResource.file(resource);
+
+        file = new File(Play.tmpDir, resource);
+        try {
+          synchronized (ServerHelper.class) {
+            copyURLToFile(cf.url(), file);
+          }
+          logger.trace("Found {} in {} {}", resource, cf.url().getProtocol(), cf.getJarFilePath());
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      } catch (Exception ignored) {
+        logger.trace("File {} not found on classpath", resource);
       }
     }
     return file;
