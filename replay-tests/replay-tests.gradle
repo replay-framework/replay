@@ -19,8 +19,12 @@ configurations {
 }
 
 dependencies {
-  // To run the app locally:
-  // implementation project(':netty3')
+  runtimeOnly project(':netty3')
+  // or:
+  // runtimeOnly project(':netty4')
+  // or:
+  // runtimeOnly project(':javanet')
+
 
   // RePlay dependencies:
   implementation project(':framework')
