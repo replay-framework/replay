@@ -31,6 +31,7 @@ import play.utils.Utils;
 
 @ParametersAreNonnullByDefault
 public class ServerHelper {
+  public static final String SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX = "serverhelperfindfilesclasspathfiles/";
   private static final Logger logger = LoggerFactory.getLogger(ServerHelper.class);
 
   @CheckReturnValue
@@ -115,7 +116,7 @@ public class ServerHelper {
 
   @Nullable
   @CheckReturnValue
-  public File findFile(String resource) {
+  public static File findFile(String resource) {
     File file = Play.file(resource);
     if (file != null && file.exists() && file.isDirectory()) {
       File index = new File(file, "index.html");
@@ -124,13 +125,16 @@ public class ServerHelper {
       }
     }
     if (file == null) {
+      final String pr = SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource;
+      file = new File(Play.tmpDir, SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource);
+      if (file.exists())
+          return file;
       try {
         if (resource.startsWith("/") && resource.length() > 1) {
           resource = resource.substring(1);
         }
         ClasspathResource cf = ClasspathResource.file(resource);
 
-        file = new File(Play.tmpDir, resource);
         try {
           copyURLToFile(cf.url(), file);
           logger.trace("Found {} in jar {}", resource, cf.getJarFilePath());

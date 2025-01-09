@@ -39,7 +39,7 @@ public abstract class GTJavaBase1xImpl extends GTJavaBase {
   }
 
   public static String __reverseWithCheck(String action, boolean absolute) {
-    return Router.reverseWithCheck(action, Play.file(action), absolute);
+    return Router.reverseWithCheck(action, play.server.ServerHelper.findFile(action), absolute);
   }
 
   @Override
