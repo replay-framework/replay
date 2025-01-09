@@ -92,7 +92,7 @@ public class TemplateLoader {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return TemplateLoader.load(Play.file("tmp/" + path));
+    return TemplateLoader.load(templateFile);
   }
 
   /**
