@@ -1,3 +1,4 @@
 GET    /                   HelloWorld.hello
+GET    /{action}\.{format} HelloWorld.{action}
 GET    /public/            staticDir:public
 GET    /img/               staticDir:public/images

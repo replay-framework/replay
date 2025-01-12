@@ -8,6 +8,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jobs.AppJob;
+import jobs.CoreJob;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import java.io.File;
@@ -35,5 +37,13 @@ public class HelloWorldSpec extends BaseSpec {
 
     assertThat(helloFile).content().containsIgnoringWhitespaces(IOUtils.toString(
         requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("views/meta.html")), UTF_8));
+  }
+
+  @Test
+  public void openStatusPage() throws URISyntaxException {
+    File statusFile = download("/status.txt", 4000);
+
+    assertThat(statusFile).content().contains(AppJob.class.getName() + " run at application start. (last run at");
+    assertThat(statusFile).content().contains(CoreJob.class.getName() + " run at application start. (last run at");
   }
 }
