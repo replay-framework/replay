@@ -19,6 +19,8 @@ import play.exceptions.TemplateNotFoundException;
 
 public class TemplateLoader {
 
+  public static final String CLASSPATH_LOADED_TEMPLATE_TMP_PATH_PREFIX = "classpathtemplates/";
+
   private static final Logger logger = LoggerFactory.getLogger(TemplateLoader.class);
 
   private static final Map<String, BaseTemplate> templates = new HashMap<>();
@@ -86,13 +88,13 @@ public class TemplateLoader {
   }
 
   private static Template loadTemplateFromClasspath(String path, URL resource) {
-    File templateFile = new File(Play.tmpDir, path);
+    File templateFile = new File(Play.tmpDir, CLASSPATH_LOADED_TEMPLATE_TMP_PATH_PREFIX + path);
     try {
       copyURLToFile(resource, templateFile);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return TemplateLoader.load(Play.file("tmp/" + path));
+    return TemplateLoader.load(templateFile);
   }
 
   /**

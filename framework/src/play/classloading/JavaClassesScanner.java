@@ -1,13 +1,21 @@
 package play.classloading;
 
+import static java.lang.System.nanoTime;
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.Play;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JavaClassesScanner {
+
+  private static final Logger logger = LoggerFactory.getLogger(JavaClassesScanner.class);
   public List<Class<?>> allClassesInProject() {
     List<Class<?>> result = new ArrayList<>();
 
@@ -21,6 +29,26 @@ public class JavaClassesScanner {
       }
     }
 
+    if (Play.configuration.containsKey("play.classes.scanJars")) {
+      String scanJars = Play.configuration.getProperty("play.classes.scanJars");
+      if (!scanJars.isEmpty()) {
+        logger.trace("{} is not empty, lets scan it: {}", "play.classes.scanJars", scanJars);
+        long start = nanoTime();
+        try (ScanResult scanResult =  new ClassGraph()
+            .enableClassInfo()
+            .disableDirScanning()
+            .acceptJars(scanJars.split(","))
+            .scan()
+        ) {
+          logger.info("Scanning classpath files took {} ms.",
+              NANOSECONDS.toMillis(nanoTime() - start));
+          logger.trace("classpath size is {} for {}", classpath.size(), classpath);
+          result.addAll(scanResult.getAllClasses().loadClasses());
+        }
+      }
+    }
+
+    logger.trace("All classes in project are: {}", result);
     return result;
   }
 
