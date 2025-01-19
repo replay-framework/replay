@@ -13,6 +13,7 @@ import jobs.CoreJob;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import play.Play;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -47,5 +48,15 @@ public class HelloWorldSpec extends BaseSpec {
 
     assertThat(statusFile).content().contains(AppJob.class.getName() + " run at application start. (last run at");
     assertThat(statusFile).content().contains(CoreJob.class.getName() + " run at application start. (last run at");
+  }
+
+  @Test
+  public void checkIncludedConfValueFromLocal() {
+    assertThat(Play.configuration.getProperty("application.app.included")).isEqualTo("app.conf included!");
+  }
+
+  @Test
+  public void checkIncludedConfValueFromClasspath() {
+    assertThat(Play.configuration.getProperty("application.core.included")).isEqualTo("core.conf included!");
   }
 }
