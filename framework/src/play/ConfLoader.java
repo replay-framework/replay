@@ -1,5 +1,5 @@
 package play;
 
-public interface ConfPropertiesLoader {
+public interface ConfLoader {
   ConfProperties readConfiguration(String playId);
 }

@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.utils.OrderSafeProperties;
 
-public class DefaultConfPropertiesLoader implements ConfPropertiesLoader {
+public class PropertiesConfLoader implements ConfLoader {
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultConfPropertiesLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(PropertiesConfLoader.class);
 
   private static final Pattern BACKSPACE =
       Pattern.compile("\\\\");
@@ -24,18 +24,18 @@ public class DefaultConfPropertiesLoader implements ConfPropertiesLoader {
 
   private String filePrefix = "";
 
-  public DefaultConfPropertiesLoader() {
+  public PropertiesConfLoader() {
     this("");
   }
 
-  public DefaultConfPropertiesLoader(String filePrefix) {
+  public PropertiesConfLoader(String filePrefix) {
     if (filePrefix != null) {
       this.filePrefix = filePrefix;
     }
   }
 
   public static ConfProperties read(String playId) {
-    return new DefaultConfPropertiesLoader().readConfiguration(playId);
+    return new PropertiesConfLoader().readConfiguration(playId);
   }
 
   @Override

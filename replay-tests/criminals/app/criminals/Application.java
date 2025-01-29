@@ -1,6 +1,6 @@
 package criminals;
 
-import static play.DefaultConfPropertiesLoader.read;
+import static play.PropertiesConfLoader.read;
 
 import java.util.Properties;
 import javax.annotation.Nullable;

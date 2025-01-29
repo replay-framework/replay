@@ -35,9 +35,9 @@ public class Scope {
   public static final String COOKIE_PREFIX =
       Play.configuration.getProperty("application.session.cookie", "PLAY");
   public static final boolean COOKIE_SECURE =
-      Play.configuration.propWithDefaultEqualsTo("application.session.secure", "false", "true");
+      Play.configuration.property("application.session.secure", "false").hasValue("true");
   public static final boolean SESSION_HTTPONLY =
-      Play.configuration.propWithDefaultEqualsTo("application.session.httpOnly", "false", "true");
+      Play.configuration.property("application.session.httpOnly", "false").hasValue("true");
 
   /** Flash scope */
   public static class Flash {

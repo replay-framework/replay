@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import play.libs.IO;
 import play.utils.OrderSafeProperties;
 
-public class DefaultConfPropertiesLoaderTest {
-  private final DefaultConfPropertiesLoader loader = spy(new DefaultConfPropertiesLoader());
+public class PropertiesConfLoaderTest {
+  private final PropertiesConfLoader loader = spy(new PropertiesConfLoader());
 
   @BeforeEach
   @AfterEach

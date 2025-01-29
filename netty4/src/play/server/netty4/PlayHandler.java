@@ -764,7 +764,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
       }
     }
-    boolean useETag = Play.configuration.propWithDefaultEqualsTo("http.useETag", "true", "true");
+    boolean useETag = Play.configuration.property("http.useETag", "true").hasValue("true");
     long last = file.lastModified();
     String eTag = "\"" + last + "-" + file.hashCode() + "\"";
     if (!isModified(eTag, last, nettyRequest)) {

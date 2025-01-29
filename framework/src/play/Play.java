@@ -95,7 +95,7 @@ public class Play {
    */
   public static BeanSource beanSource;
 
-  private final ConfPropertiesLoader confLoader;
+  private final ConfLoader confLoader;
 
   private final ActionInvoker actionInvoker;
 
@@ -104,10 +104,10 @@ public class Play {
   }
 
   public Play(BeanSource beanSource) {
-    this(new DefaultConfPropertiesLoader(), beanSource, new CookieSessionStore());
+    this(new PropertiesConfLoader(), beanSource, new CookieSessionStore());
   }
 
-  public Play(ConfPropertiesLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
+  public Play(ConfLoader confLoader, BeanSource beanSource, SessionStore sessionStore) {
     Play.beanSource = beanSource;
     this.confLoader = confLoader;
     this.actionInvoker = new ActionInvoker(sessionStore);
