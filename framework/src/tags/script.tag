@@ -16,7 +16,7 @@
     }
     _src = (_path ? _path : "/public/javascripts/") + _src
     try {
-        _abs = play.mvc.Router.reverseWithCheck(_src, play.Play.getVirtualFile(_src), false);
+        _abs = play.mvc.Router.reverseWithCheck(_src, play.Play.file(_src), false);
     } catch (Exception ex) {
         throw new play.exceptions.TagInternalException("File not found: " + _src, ex);
     }
