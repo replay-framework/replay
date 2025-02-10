@@ -1,3 +1,4 @@
 GET    /                   HelloWorld.hello
+GET    /status\.{format}   HelloWorld.status
 GET    /img/               staticDir:public/images
 GET    /public/            staticDir:public
