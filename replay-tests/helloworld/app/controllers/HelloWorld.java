@@ -37,4 +37,8 @@ public class HelloWorld extends Controller {
     request.format = "txt";
     return new PdfResult("@hello").with("who", "Request format");
   }
+
+  public View empty() {
+    return new View();
+  }
 }
