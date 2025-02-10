@@ -4,6 +4,7 @@ GET    /epic-fail          HelloWorld.epicFail
 GET    /pdf                HelloWorld.helloPdf
 GET    /pdf/text           HelloWorld.helloPdfFromPlainText
 GET    /pdf/text2          HelloWorld.helloPdfUsingRequestFormat
+GET    /empty              HelloWorld.empty
 POST   /post               AcceptPost.respondWithSameObject
 
 GET     /public/           staticDir:app/public
