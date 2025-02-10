@@ -8,4 +8,8 @@ public class HelloWorld extends Controller {
   public View hello() {
     return new View("hello.html", ImmutableMap.of("who", "world"));
   }
+
+  public View status() {
+    return new View();
+  }
 }
