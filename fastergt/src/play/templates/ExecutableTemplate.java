@@ -130,18 +130,6 @@ public abstract class ExecutableTemplate extends Script {
     }
   }
 
-  public String __reverseWithCheck_absolute_true(String action) {
-    return __reverseWithCheck(action, true);
-  }
-
-  public String __reverseWithCheck_absolute_false(String action) {
-    return __reverseWithCheck(action, false);
-  }
-
-  private String __reverseWithCheck(String action, boolean absolute) {
-    return Router.reverseWithCheck(action, Play.file(action), absolute);
-  }
-
   public String __safe(Object val, String stringValue) {
     if (val instanceof BaseTemplate.RawData) {
       return ((BaseTemplate.RawData) val).data;

@@ -40,7 +40,7 @@ public class GTPreCompiler1xImpl extends GTPreCompiler {
     if (m.find()) {
       // This is an action/link to a static file.
       action = m.group(1); // without ''
-      code = " out.append(__reverseWithCheck(\"" + action + "\", " + absolute + "));\n";
+      code = " out.append(__reverseWithCheck_absolute_" + absolute + "(\"" + action + "\"));\n";
     } else {
       if (!action.endsWith(")")) {
         action = action + "()";
