@@ -6,7 +6,10 @@
   #{include './meta.html'/}
 </head>
 <body>
-<h1>Hello, ${who}!</h1>
+<h1 id="fasttag_hello_app">#{app.hello name: who /}</h1>
+<h1 id="gt_hello_app">#{appGT.hello name: who /}</h1>
+<h1 id="fasttag_hello_core">#{core.hello name: who /}</h1>
+<h1 id="gt_hello_core">#{coreGT.hello name: who /}</h1>
 #{include './core.html'/}
 
 </body>
