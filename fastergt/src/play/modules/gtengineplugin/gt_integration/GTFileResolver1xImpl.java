@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.ClasspathResource;
 import play.Play;
 import play.template2.GTFileResolver;
@@ -13,6 +15,7 @@ import play.template2.GTTemplateLocationReal;
 import play.templates.TemplateLoader;
 
 public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
+  private static final Logger logger = LoggerFactory.getLogger(GTFileResolver1xImpl.class);
   private final List<File> templateFolders;
 
   public GTFileResolver1xImpl(List<File> templatesPaths) {
@@ -87,7 +90,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
     URL url = null;
     if (vf == null) {
       try {
-        final String classloadedPrefix = "/" + Play.tmpDir.getName() + "/" + TemplateLoader.CLASSPATH_LOADED_TEMPLATE_TMP_PATH_PREFIX;
+        final String classloadedPrefix = "/" + (Play.tmpDir == null ? "" : Play.tmpDir.getName() + "/") + TemplateLoader.CLASSPATH_LOADED_TEMPLATE_TMP_PATH_PREFIX;
         if (relativePath.startsWith(classloadedPrefix)) {
           relativePath = relativePath.split(classloadedPrefix, 2) [1];
         }
@@ -101,6 +104,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
         }
         url = cf.url();
       } catch (Exception e) {
+        logger.trace("Ignoring exception while resolving {}", relativePath, e);
         return null;
       }
     }

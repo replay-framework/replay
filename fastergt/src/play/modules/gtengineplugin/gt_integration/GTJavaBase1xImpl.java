@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Play;
 import play.cache.Cache;
 import play.data.validation.Validation;
 import play.i18n.Lang;
@@ -39,7 +38,7 @@ public abstract class GTJavaBase1xImpl extends GTJavaBase {
   }
 
   private static String __reverseWithCheck(String action, boolean absolute) {
-    return Router.reverseWithCheck(action, Play.file(action), absolute);
+    return Router.reverseWithCheck(action, play.server.ServerHelper.findFile(action), absolute);
   }
 
   @Override
