@@ -91,6 +91,10 @@ public class TemplateLoader {
   }
 
   private static Template getTemplateFromClasspath(String path, URL resource) {
+    if ("file".equals(resource.getProtocol())) {
+      return TemplateLoader.load(new File(resource.getFile()));
+    }
+
     File templateFile = new File(Play.tmpDir, path);
     if (!canBeReused(templateFile)) {
       loadTemplateFromClasspath(templateFile, resource);
