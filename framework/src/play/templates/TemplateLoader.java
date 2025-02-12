@@ -1,5 +1,6 @@
 package play.templates;
 
+import static java.lang.System.currentTimeMillis;
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.apache.commons.io.FileUtils.copyURLToFile;
@@ -7,6 +8,7 @@ import static org.apache.commons.io.FileUtils.copyURLToFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +25,9 @@ public class TemplateLoader {
 
   private static final Map<String, BaseTemplate> templates = new HashMap<>();
   private static final Pattern CURLEY_WRAPPED = Pattern.compile("\\{(.*)}");
+  private static final long TEMPLATE_CACHE_TIMEOUT_MS = Duration.ofHours(1).toMillis();
+  private static final int TEMPLATE_CONNECT_TIMEOUT_MS = 3_000;
+  private static final int TEMPLATE_READ_TIMEOUT_MS = 5_000;
 
   /**
    * Load a template from a file
@@ -74,25 +79,39 @@ public class TemplateLoader {
 
     URL fromClasspath = Thread.currentThread().getContextClassLoader().getResource("views/" + path);
     if (fromClasspath != null) {
-      return loadTemplateFromClasspath(path, fromClasspath);
+      return getTemplateFromClasspath(path, fromClasspath);
     }
 
     URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
     if (resource != null) {
-      return loadTemplateFromClasspath(path, resource);
+      return getTemplateFromClasspath(path, resource);
     }
 
     throw new TemplateNotFoundException(path);
   }
 
-  private static Template loadTemplateFromClasspath(String path, URL resource) {
+  private static Template getTemplateFromClasspath(String path, URL resource) {
     File templateFile = new File(Play.tmpDir, path);
+    if (!canBeReused(templateFile)) {
+      loadTemplateFromClasspath(templateFile, resource);
+    }
+    return TemplateLoader.load(templateFile);
+  }
+
+  private static boolean canBeReused(File templateFile) {
+    return templateFile.exists() &&
+        currentTimeMillis() - templateFile.lastModified() < TEMPLATE_CACHE_TIMEOUT_MS;
+  }
+
+  private static synchronized void loadTemplateFromClasspath(File templateFile, URL resource) {
+    if (canBeReused(templateFile)) return;
+
+    logger.info("Loading template to {} from {}", templateFile, resource);
     try {
-      copyURLToFile(resource, templateFile);
+      copyURLToFile(resource, templateFile, TEMPLATE_CONNECT_TIMEOUT_MS, TEMPLATE_READ_TIMEOUT_MS);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return TemplateLoader.load(Play.file("tmp/" + path));
   }
 
   /**
