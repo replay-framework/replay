@@ -5,6 +5,7 @@ dependencies {
   testImplementation(libs.pdfTest)
   testImplementation(libs.restAssured) {
     exclude group: 'org.apache.groovy'
+    exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
   testImplementation(libs.jsonSchemaValidator)
   testImplementation(libs.jacksonDatabind) {
