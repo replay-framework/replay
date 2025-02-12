@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ import play.utils.Utils;
 
 @ParametersAreNonnullByDefault
 public class ServerHelper {
+  public static final String SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX = "serverhelperfindfilesclasspathfiles/";
   private static final Logger logger = LoggerFactory.getLogger(ServerHelper.class);
 
   @CheckReturnValue
@@ -115,7 +117,7 @@ public class ServerHelper {
 
   @Nullable
   @CheckReturnValue
-  public File findFile(String resource) {
+  public static File findFile(String resource) {
     File file = Play.file(resource);
     if (file != null && file.exists() && file.isDirectory()) {
       File index = new File(file, "index.html");
@@ -124,13 +126,15 @@ public class ServerHelper {
       }
     }
     if (file == null) {
+      file = new File(Optional.ofNullable(Play.tmpDir).orElse(Play.appRoot), SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource);
+      if (file.exists())
+          return file;
       try {
         if (resource.startsWith("/") && resource.length() > 1) {
           resource = resource.substring(1);
         }
         ClasspathResource cf = ClasspathResource.file(resource);
 
-        file = new File(Play.tmpDir, resource);
         try {
           synchronized (ServerHelper.class) {
             copyURLToFile(cf.url(), file);
