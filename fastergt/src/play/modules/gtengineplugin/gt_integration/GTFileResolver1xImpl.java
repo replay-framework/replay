@@ -6,9 +6,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import play.ClasspathResource;
 import play.Play;
 import play.template2.GTFileResolver;
 import play.template2.GTTemplateLocationReal;
+import play.templates.TemplateLoader;
 
 public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
   private final List<File> templateFolders;
@@ -78,12 +80,32 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
 
     // TODO find in classpath?
     File vf = Play.file(relativePath);
-    if (vf == null || !vf.exists() || vf.isDirectory()) {
+    if (vf != null && vf.isDirectory()) {
       return null;
     }
 
+    URL url = null;
+    if (vf == null) {
+      try {
+        final String classloadedPrefix = "/" + Play.tmpDir.getName() + "/";
+        if (relativePath.startsWith(classloadedPrefix)) {
+          relativePath = relativePath.split(classloadedPrefix, 2) [1];
+        }
+        ClasspathResource cf = null;
+        // do the search as the TemplateLoader.loadTemplateFromClasspath()'s usage:
+        // first with "views/" prefix
+        try {
+          cf = ClasspathResource.file("views/" + relativePath);
+        } catch (Exception ignored) {
+          cf = ClasspathResource.file(relativePath);
+        }
+        url = cf.url();
+      } catch (Exception e) {
+        return null;
+      }
+    }
     try {
-      return new GTTemplateLocationReal(relativePath, vf.toURI().toURL());
+      return new GTTemplateLocationReal(relativePath, url == null ? vf.toURI().toURL() : url);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Failed to read template from " + vf.getAbsolutePath(), e);
     }

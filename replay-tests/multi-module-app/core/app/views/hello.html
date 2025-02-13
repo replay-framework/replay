@@ -1,12 +1,13 @@
 <html lang="en">
 <head>
   <title>Hello, multi-module RePlay app</title>
-<!--  TODO Including files from classpath is not implemented yet -->
+  <!-- Including files and templates from classpath is now implemented -->
   #{include 'icons/favicon.html'/}
   #{include './meta.html'/}
 </head>
 <body>
 <h1>Hello, ${who}!</h1>
+#{include './core.html'/}
 
 </body>
 </html>
