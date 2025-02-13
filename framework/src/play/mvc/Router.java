@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
@@ -71,7 +72,7 @@ public class Router {
     // This automatically added route is needed to serve the static files extracted from classpath.
     // The "public" postfix (!) on the end is to prevent unwanted leakage of classpath resource files!
     // TODO: automatically expose routes (e.g. with "staticDir:" parsing or with application.conf settings from dependencies instead of hardcoded "public"
-    addRoute("GET", "/public/", "staticDir:" + Play.tmpDir.getName() + "/" + SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + "public");
+    addRoute("GET", "/public/", "staticDir:" + Optional.ofNullable(Play.tmpDir).orElse(new File("")).getName() + "/" + SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + "public");
     lastLoading = System.currentTimeMillis();
   }
 

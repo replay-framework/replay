@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -125,8 +126,7 @@ public class ServerHelper {
       }
     }
     if (file == null) {
-      final String pr = SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource;
-      file = new File(Play.tmpDir, SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource);
+      file = new File(Optional.ofNullable(Play.tmpDir).orElse(Play.appRoot), SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + resource);
       if (file.exists())
           return file;
       try {
