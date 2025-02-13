@@ -60,11 +60,12 @@ tasks.register('uitest-netty3', Test) {
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
+  // TODO: clarify why `replay-netty4` fails on static files
+  //       see https://github.com/replay-framework/replay/issues/157
   exclude 'ui/hello/RenderStaticFilesSpec*'
   exclude 'ui/hello/LinksInHtmlSpec*'
   exclude 'ui/hello/TagsInvolvesStaticFilesSpec*'
-  // TODO: clarify why `replay-netty4` fails on static files
-  //       see https://github.com/replay-framework/replay/issues/157
+  exclude 'ui/hello/MultiModuleAppGotRenderStatic*'
   outputs.upToDateWhen { false }
   classpath = configurations.netty4TestClasspath + classpath
 }
