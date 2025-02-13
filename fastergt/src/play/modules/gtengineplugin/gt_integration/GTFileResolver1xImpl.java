@@ -87,7 +87,7 @@ public class GTFileResolver1xImpl implements GTFileResolver.Resolver {
     URL url = null;
     if (vf == null) {
       try {
-        final String classloadedPrefix = "/" + Play.tmpDir.getName() + "/";
+        final String classloadedPrefix = "/" + Play.tmpDir.getName() + "/" + TemplateLoader.CLASSPATH_LOADED_TEMPLATE_TMP_PATH_PREFIX;
         if (relativePath.startsWith(classloadedPrefix)) {
           relativePath = relativePath.split(classloadedPrefix, 2) [1];
         }
