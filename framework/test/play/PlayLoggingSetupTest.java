@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PlayLoggingSetupTest {
-  private static Properties playConfig;
+  private static ConfProperties playConfig;
   private static File applicationPath;
   private static String id;
   private static final PlayLoggingSetup loggingSetup = new PlayLoggingSetup();
@@ -36,7 +36,7 @@ public class PlayLoggingSetupTest {
 
   @BeforeEach
   public void setUp() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.appRoot = new File(".");
     Play.id = "test";
   }
