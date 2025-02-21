@@ -22,6 +22,7 @@ groovyVersion = "3.0.23"
 hibernateVersion = "6.6.8.Final"
 httpclientVersion = "4.5.14"
 junitVersion = "5.12.0"
+junitPlatformVersion = "1.12.0"
 jxlsVersion = "1.0.6"
 kotlinVersion = "2.1.10"
 mockitoVersion = "5.15.2"
@@ -38,6 +39,7 @@ yahpVersion = "1.3"
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitVersion" }
 junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitVersion" }
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitVersion" }
+junitPlatformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitPlatformVersion" }
 mockitoCore = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoVersion" }
 assertjCore = { group = "org.assertj", name = "assertj-core", version.ref = "assertjVersion" }
 
