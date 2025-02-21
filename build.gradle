@@ -80,6 +80,7 @@ subprojects {
     testImplementation(libs.junitApi)
     testImplementation(libs.junitParams)
     testRuntimeOnly(libs.junitEngine)
+    testRuntimeOnly(libs.junitPlatformLauncher)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.assertjCore)
   }
