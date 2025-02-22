@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="multi module app" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="hello.HelloWorldApp" />
+    <module name="replay.replay-tests.multi-module-app.app.main" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/replay-tests/multi-module-app/app" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
