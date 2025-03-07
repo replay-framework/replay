@@ -9,7 +9,9 @@ import play.server.Starter;
 
 public class HelloWorldApp {
   public int start(String playId) {
-    Play play = new Play(new PropertiesConfLoader("conf/"), new DefaultBeanSource(), new CookieSessionStore());
+    PropertiesConfLoader cl = new PropertiesConfLoader("conf/");
+    Play play = new Play(cl, new DefaultBeanSource(), new CookieSessionStore());
+    Play.configuration = cl.readConfiguration(playId);
     play.minimalInit(playId);
     Play.routes = ClasspathResource.file("conf/routes");
     Play.pluginCollection.loadPlugins();
