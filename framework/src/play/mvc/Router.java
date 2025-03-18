@@ -3,6 +3,7 @@ package play.mvc;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static play.server.ServerHelper.SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,6 +68,10 @@ public class Router {
    */
   private static void loadRoutesFromFile() {
     instance.setRoutes(new RoutesParser().parse(Play.routes));
+    // This automatically added route is needed to serve the static files extracted from classpath.
+    // The "public" postfix (!) on the end is to prevent unwanted leakage of classpath resource files!
+    // TODO: automatically expose routes (e.g. with "staticDir:" parsing or with application.conf settings from dependencies instead of hardcoded "public"
+    addRoute("GET", "/public/", "staticDir:" + (Play.tmpDir == null ? "" : Play.tmpDir.getName() + "/") + SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX + "public");
     lastLoading = System.currentTimeMillis();
   }
 
@@ -275,6 +280,7 @@ public class Router {
     if (file == null || !file.exists()) {
       throw new NoRouteFoundException("File not found (" + file + ")");
     }
+    logger.trace("Getting reverse route for file {}", file);
     String path = Play.relativePath(file);
     path = path.substring(path.indexOf('}') + 1);
     for (Route route : routes) {

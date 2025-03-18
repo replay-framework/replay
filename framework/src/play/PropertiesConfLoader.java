@@ -138,7 +138,8 @@ public class PropertiesConfLoader implements ConfLoader {
     for (Map.Entry<Object, Object> e : propsFromFile.entrySet()) {
       if (e.getKey().toString().startsWith("@include.")) {
         try {
-          String filenameToInclude = e.getValue().toString();
+          String value = e.getValue().toString();
+          String filenameToInclude = !value.startsWith("/") ? filePrefix + value : value;
           propsFromFile.putAll(
               readOneConfigurationFile(filenameToInclude, playId, inheritedId, confs));
         } catch (Exception ex) {
