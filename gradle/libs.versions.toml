@@ -83,6 +83,7 @@ netty4 = { group = "io.netty", name = "netty-all", version.ref = "netty4Version"
 
 # :javanet
 netty4Codec = { group = "io.netty", name = "netty-codec", version.ref = "netty4Version" }
+netty4CodecBase = { group = "io.netty", name = "netty-codec-base", version.ref = "netty4Version" }
 netty4CodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty4Version" }
 netty4Common = { group = "io.netty", name = "netty-common", version.ref = "netty4Version" }
 

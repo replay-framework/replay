@@ -5,6 +5,7 @@ dependencies {
 
   // We use only few small jars from Netty project to parse http cookies
   implementation(libs.netty4Codec) { transitive = false }
+  implementation(libs.netty4CodecBase) { transitive = false }
   implementation(libs.netty4CodecHttp) { transitive = false }
   implementation(libs.netty4Common) { transitive = false }
 }
