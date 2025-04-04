@@ -19,14 +19,12 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
       - name: Run unit-tests
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: clean test --info --rerun-tasks
+        run: ./gradlew clean test --info --rerun-tasks
+      - uses: gradle/actions/setup-gradle@v4
       - name: Run integration tests on ${{ matrix.server }}
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: uitest-${{ matrix.server }} -Dselenide.headless=true
+        run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
