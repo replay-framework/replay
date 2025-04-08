@@ -785,17 +785,13 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
       }
     }
-    boolean useEtag = "true".equals(Play.configuration.getProperty("http.useETag", "true"));
+    boolean useEtag = Play.configuration.property("http.useETag", "true").hasValue("true");
     long last = file.lastModified();
     String etag = "\"" + last + "-" + file.hashCode() + "\"";
     if (!isModified(etag, last, nettyRequest)) {
       if (nettyRequest.getMethod().equals(HttpMethod.GET)) {
         httpResponse.setStatus(HttpResponseStatus.NOT_MODIFIED);
       }
-      if (useEtag) {
-        httpResponse.headers().set(ETAG, etag);
-      }
-
     } else {
       httpResponse
           .headers()

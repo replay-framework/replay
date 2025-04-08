@@ -3,9 +3,9 @@ package play.data.validation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
-import java.util.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import play.ConfProperties;
 import play.Play;
 import play.i18n.Messages;
 import play.i18n.MessagesBuilder;
@@ -20,7 +20,7 @@ public class ValidationTest {
   public void setUp() {
     new MessagesBuilder().build();
     Validation.current.set(new Validation());
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.secretKey = "secret-secret-secret-secret";
   }
 

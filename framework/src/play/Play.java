@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -69,7 +68,7 @@ public class Play {
   public static ClasspathResource routes;
 
   /** The app configuration (already resolved from the framework id) */
-  public static Properties configuration = new Properties();
+  public static ConfProperties configuration = new ConfProperties();
 
   /** The last time than the application has started */
   public static long startedAt;

@@ -34,20 +34,20 @@ public class PropertiesConfLoader implements ConfLoader {
     }
   }
 
-  public static Properties read(String playId) {
+  public static ConfProperties read(String playId) {
     return new PropertiesConfLoader().readConfiguration(playId);
   }
 
   @Override
-  public Properties readConfiguration(String playId) {
+  public ConfProperties readConfiguration(String playId) {
     return readOneConfigurationFile(playId, filePrefix + "application.conf");
   }
 
-  public Properties readOneConfigurationFile(String playId, String filename) {
+  public ConfProperties readOneConfigurationFile(String playId, String filename) {
     return readOneConfigurationFile(filename, playId, null, new HashSet<>());
   }
 
-  private Properties readOneConfigurationFile(
+  private ConfProperties readOneConfigurationFile(
       String filename, String playId, String inheritedId, Set<String> confs) {
     ClasspathResource conf = ClasspathResource.file(filename);
     if (confs.contains(conf.url().toExternalForm())) {
@@ -56,7 +56,7 @@ public class PropertiesConfLoader implements ConfLoader {
     }
 
     confs.add(conf.url().toExternalForm());
-    Properties propsFromFile = conf.toProperties();
+    ConfProperties propsFromFile = (ConfProperties) conf.toProperties();
 
     if (inheritedId == null) {
       inheritedId = propsFromFile.getProperty("%" + playId);
@@ -105,8 +105,8 @@ public class PropertiesConfLoader implements ConfLoader {
   }
 
   @VisibleForTesting
-  Properties resolvePlayIdOverrides(Properties propsFromFile, String playId, String inheritedId) {
-    Properties newConfiguration = new OrderSafeProperties();
+  ConfProperties resolvePlayIdOverrides(Properties propsFromFile, String playId, String inheritedId) {
+    ConfProperties newConfiguration = new OrderSafeProperties();
 
     for (String name : propsFromFile.stringPropertyNames()) {
       Matcher matcher = OVERRIDE_KEY_PATTERN.matcher(name);

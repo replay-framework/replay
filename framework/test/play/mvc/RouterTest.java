@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import play.ConfProperties;
 import play.Play;
 import play.exceptions.NoRouteFoundException;
 import play.mvc.Http.Request;
@@ -29,7 +29,7 @@ public class RouterTest {
   @Test
   public void test_getBaseUrl() {
 
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     // test with currentRequest
     Http.Request request =
@@ -53,7 +53,7 @@ public class RouterTest {
   @Test
   public void test_staticDir() {
 
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
 
     // we add a static route for a specific domain only
     Router.addRoute("GET", "/pics/", "staticDir:/public/images");

@@ -3,7 +3,6 @@ package play;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PlayLoggingSetupTest {
-  private static Properties playConfig;
+  private static ConfProperties playConfig;
   private static File applicationPath;
   private static String id;
   private static final PlayLoggingSetup loggingSetup = new PlayLoggingSetup();
@@ -36,7 +35,7 @@ public class PlayLoggingSetupTest {
 
   @BeforeEach
   public void setUp() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.appRoot = new File(".");
     Play.id = "test";
   }

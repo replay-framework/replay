@@ -272,7 +272,7 @@ public class Http {
       String _host = this.host;
       if (Play.configuration.containsKey("XForwardedSupport")
           && headers.get("x-forwarded-for") != null) {
-        if (!"ALL".equalsIgnoreCase(Play.configuration.getProperty("XForwardedSupport"))
+        if (!Play.configuration.property("XForwardedSupport", "not-all").hasValue("all")
             && !asList(
                     X_FWD_REGEX.split(
                         Play.configuration.getProperty("XForwardedSupport", "127.0.0.1")))
@@ -291,9 +291,7 @@ public class Http {
         }
       }
 
-      if ("true"
-              .equalsIgnoreCase(
-                  Play.configuration.getProperty("XForwardedOverwriteDomainAndPort", "false"))
+      if (Play.configuration.property("XForwardedOverwriteDomainAndPort", "false").hasValue("true")
           && this.host != null
           && !this.host.equals(_host)) {
         if (this.host.contains(":")) {

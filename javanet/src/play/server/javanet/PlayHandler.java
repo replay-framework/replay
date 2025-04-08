@@ -300,7 +300,7 @@ public class PlayHandler implements HttpHandler {
         }
       }
     }
-    boolean useEtag = "true".equals(Play.configuration.getProperty("http.useETag", "true"));
+    boolean useEtag = Play.configuration.property("http.useETag", "true").hasValue("true");
     long last = file.lastModified();
     String etag = "\"" + last + "-" + file.hashCode() + "\"";
     if (!isModified(etag, last, exchange)) {

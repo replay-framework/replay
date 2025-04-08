@@ -3,7 +3,6 @@ package play;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Properties;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
@@ -17,7 +16,7 @@ import play.mvc.Scope.RenderArgs;
 public class PlayBuilder {
 
   public void build() {
-    Play.configuration = new Properties();
+    Play.configuration = new ConfProperties();
     Play.appRoot = new File(".");
   }
 

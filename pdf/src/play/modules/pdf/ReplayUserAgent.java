@@ -43,8 +43,8 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   private void trustCertsIfNeeded() {
-    if ("true"
-        .equals(Play.configuration.getProperty("play.pdf.ssl.acceptUnknownCertificate", "false"))) {
+    if (Play.configuration.property("play.pdf.ssl.acceptUnknownCertificate", "false")
+        .hasValue("true")) {
       try {
         trustCerts();
       } catch (NoSuchAlgorithmException | KeyManagementException e) {

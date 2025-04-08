@@ -48,8 +48,7 @@ public class WSAsync implements WSClient {
     String keyStorePass =
         Play.configuration.getProperty(
             "ssl.keyStorePassword", System.getProperty("javax.net.ssl.keyStorePassword"));
-    Boolean CAValidation =
-        Boolean.parseBoolean(Play.configuration.getProperty("ssl.cavalidation", "true"));
+    Boolean CAValidation = Play.configuration.property("ssl.cavalidation", "true").hasValue("true");
 
     Builder confBuilder = new AsyncHttpClientConfig.Builder();
 

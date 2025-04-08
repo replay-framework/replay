@@ -1,7 +1,5 @@
 package play;
 
-import java.util.Properties;
-
 public interface ConfLoader {
-  Properties readConfiguration(String playId);
+  ConfProperties readConfiguration(String playId);
 }
