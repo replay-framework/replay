@@ -36,6 +36,7 @@ import play.utils.HTTP.ContentTypeWithEncoding;
 import play.utils.Utils;
 
 public class Http {
+
   private static final Logger logger = LoggerFactory.getLogger(Http.class);
 
   public static final String invocationType = "HttpRequest";
@@ -75,6 +76,7 @@ public class Http {
   }
 
   public static class Methods {
+
     public static final String GET = "GET";
     public static final String PATCH = "PATCH";
     public static final String POST = "POST";
@@ -86,12 +88,15 @@ public class Http {
   }
 
   public static class Headers {
+
     public static final class Values {
+
       public static final String CLOSE = "close";
     }
   }
 
   public static class Header implements Serializable {
+
     public final String name;
     public final List<String> values;
 
@@ -121,14 +126,19 @@ public class Http {
   }
 
   public static class Cookie implements Serializable {
+
     public final String name;
     public String domain;
     public String path = "/";
     public boolean secure;
     public String value;
-    /** Cookie max-age in seconds */
+    /**
+     * Cookie max-age in seconds
+     */
     public Integer maxAge;
-    /** Don't use */
+    /**
+     * Don't use
+     */
     public boolean sendOnError;
 
     public boolean httpOnly;
@@ -142,6 +152,7 @@ public class Http {
   private static final ThreadLocal<Request> currentRequest = new ThreadLocal<>();
 
   public static class Request {
+
     private static final Pattern IP_REGEX = Pattern.compile("[\\s,\\d.:/a-fA-F]*");
     private static final Pattern X_FWD_REGEX = Pattern.compile("[\\s,]+");
 
@@ -151,8 +162,8 @@ public class Http {
     /**
      * URL path (excluding scheme, host and port), starting with '/'<br>
      * <b>Example:</b><br>
-     * With this full URL {@code http://localhost:9000/path0/path1?foo=bar} <br>
-     * =&gt; <b>url</b> will be {@code /path0/path1?foo=bar}
+     * With this full URL {@code http://localhost:9000/path0/path1?foo=bar} <br> =&gt; <b>url</b>
+     * will be {@code /path0/path1?foo=bar}
      */
     public String url;
 
@@ -173,38 +184,58 @@ public class Http {
     public Map<String, Cookie> cookies;
     public transient InputStream body;
 
-    /** Additional HTTP params extracted from route */
+    /**
+     * Additional HTTP params extracted from route
+     */
     public Map<String, String> routeArgs = emptyMap();
 
-    /** Format (html,xml,json,text) */
+    /**
+     * Format (html,xml,json,text)
+     */
     public String format;
 
-    /** Full action (ex: Application.index) */
+    /**
+     * Full action (ex: Application.index)
+     */
     public String action;
 
     public Method invokedMethod;
     public Class<? extends PlayController> controllerClass;
     public PlayController controllerInstance;
 
-    /** Free space to store your request specific data */
-    @Nonnull public final Map<String, Object> args = new HashMap<>(16);
+    /**
+     * Free space to store your request specific data
+     */
+    @Nonnull
+    public final Map<String, Object> args = new HashMap<>(16);
 
-    /** When the request has been received */
+    /**
+     * When the request has been received
+     */
     public final Date date = new Date();
 
-    /** HTTP Basic User */
+    /**
+     * HTTP Basic User
+     */
     public String user;
 
-    /** HTTP Basic Password */
+    /**
+     * HTTP Basic Password
+     */
     public String password;
 
-    /** Request comes from loop-back interface */
+    /**
+     * Request comes from loop-back interface
+     */
     public boolean isLoopback;
 
-    /** ActionInvoker.resolvedRoutes was called? */
+    /**
+     * ActionInvoker.resolvedRoutes was called?
+     */
     boolean resolved;
 
-    @Nonnull public final Params params = new Params(this);
+    @Nonnull
+    public final Params params = new Params(this);
 
     public Boolean cachedIsSecure = null;
 
@@ -260,7 +291,9 @@ public class Http {
     }
 
     static void validateXForwarded(Header xForwardedFor) {
-      if (xForwardedFor == null) return;
+      if (xForwardedFor == null) {
+        return;
+      }
 
       if (!IP_REGEX.matcher(xForwardedFor.value()).matches()) {
         throw new IllegalArgumentException(
@@ -274,9 +307,9 @@ public class Http {
           && headers.get("x-forwarded-for") != null) {
         if (!Play.configuration.property("XForwardedSupport", "not-all").hasValue("all")
             && !asList(
-                    X_FWD_REGEX.split(
-                        Play.configuration.getProperty("XForwardedSupport", "127.0.0.1")))
-                .contains(remoteAddress)) {
+            X_FWD_REGEX.split(
+                Play.configuration.getProperty("XForwardedSupport", "127.0.0.1")))
+            .contains(remoteAddress)) {
           throw new RuntimeException("This proxy request is not authorized: " + remoteAddress);
         } else {
           if (Play.configuration.containsKey("XForwardedHost")) {
@@ -312,7 +345,9 @@ public class Http {
     }
 
     public boolean isSecure() {
-      if (cachedIsSecure != null) return cachedIsSecure;
+      if (cachedIsSecure != null) {
+        return cachedIsSecure;
+      }
       Header xForwardedProtoHeader = headers.get("x-forwarded-proto");
       Header xForwardedSslHeader = headers.get("x-forwarded-ssl");
       // Check the less common "front-end-https" header, used apparently only by
@@ -324,7 +359,7 @@ public class Http {
               || (xForwardedProtoHeader != null && "https".equals(xForwardedProtoHeader.value()))
               || (xForwardedSslHeader != null && "on".equals(xForwardedSslHeader.value()))
               || (frontEndHttpsHeader != null
-                  && "on".equalsIgnoreCase(frontEndHttpsHeader.value())));
+              && "on".equalsIgnoreCase(frontEndHttpsHeader.value())));
       cachedIsSecure = result;
       return result;
     }
@@ -339,7 +374,9 @@ public class Http {
         String decoded = new String(Codec.decodeBASE64(data), UTF_8);
         // splitting on ONLY first ':' allows user's password to contain a ':'
         int indexOf = decoded.indexOf(':');
-        if (indexOf < 0) return;
+        if (indexOf < 0) {
+          return;
+        }
 
         String username = decoded.substring(0, indexOf);
         String thePasswd = decoded.substring(indexOf + 1);
@@ -482,14 +519,16 @@ public class Http {
       return result;
     }
 
-    public boolean isModified(String etag, long last) {
+    public boolean isModified(String eTag, long last) {
       if (headers.containsKey("if-none-match") && headers.containsKey("if-modified-since")) {
-        String browserEtag = headers.get("if-none-match").value();
-        if (browserEtag.equals(etag)) {
+        String browserETag = headers.get("if-none-match").value();
+        if (browserETag.equals(eTag)) {
           try {
             Date browserDate =
                 Utils.getHttpDateFormatter().parse(headers.get("if-modified-since").value());
-            if (browserDate.getTime() >= last) return false;
+            if (browserDate.getTime() >= last) {
+              return false;
+            }
           } catch (ParseException ex) {
             logger.error("Can't parse date", ex);
           }
@@ -519,6 +558,7 @@ public class Http {
   private static final ThreadLocal<Response> currentResponse = new ThreadLocal<>();
 
   public static class Response {
+
     public int status = StatusCode.OK;
     public String contentType;
     public final Map<String, Http.Header> headers = new HashMap<>(16);
@@ -606,7 +646,7 @@ public class Http {
       if (cookies.containsKey(name)
           && cookies.get(name).path.equals(path)
           && ((cookies.get(name).domain == null && domain == null)
-              || (cookies.get(name).domain.equals(domain)))) {
+          || (cookies.get(name).domain.equals(domain)))) {
         cookies.get(name).value = value;
         cookies.get(name).maxAge = maxAge;
         cookies.get(name).secure = secure;
@@ -638,15 +678,15 @@ public class Http {
     /**
      * Add cache-control headers
      *
-     * @param etag the Etag value
-     * @param duration the cache duration (Ex: 3h)
+     * @param eTag         the Etag value
+     * @param duration     the cache duration (Ex: 3h)
      * @param lastModified The last modified date
      */
-    public void cacheFor(String etag, String duration, long lastModified) {
+    public void cacheFor(String eTag, String duration, long lastModified) {
       int maxAge = Time.parseDuration(duration);
       setHeader("Cache-Control", "max-age=" + maxAge);
       setHeader("Last-Modified", Utils.getHttpDateFormatter().format(new Date(lastModified)));
-      setHeader("Etag", etag);
+      setHeader("Etag", eTag);
     }
 
     /**
@@ -655,7 +695,7 @@ public class Http {
      * versions support them.
      *
      * @param allowOrigin a comma separated list of domains allowed to perform the x-domain call, or
-     *     "*" for all.
+     *                    "*" for all.
      */
     public void accessControl(String allowOrigin) {
       accessControl(allowOrigin, null, false);
@@ -666,10 +706,10 @@ public class Http {
      * features and will ignore the headers. Refer to the browsers' documentation to know what
      * versions support them.
      *
-     * @param allowOrigin a comma separated list of domains allowed to perform the x-domain call, or
-     *     "*" for all.
+     * @param allowOrigin      a comma separated list of domains allowed to perform the x-domain
+     *                         call, or "*" for all.
      * @param allowCredentials Let the browser send the cookies when doing an x-domain request. Only
-     *     respected by the browser if allowOrigin != "*"
+     *                         respected by the browser if allowOrigin != "*"
      */
     public void accessControl(String allowOrigin, boolean allowCredentials) {
       accessControl(allowOrigin, null, allowCredentials);
@@ -680,11 +720,11 @@ public class Http {
      * features and will ignore the headers. Refer to the browsers' documentation to know what
      * versions support them.
      *
-     * @param allowOrigin a comma separated list of domains allowed to perform the x-domain call, or
-     *     "*" for all.
-     * @param allowMethods a comma separated list of HTTP methods allowed, or null for all.
+     * @param allowOrigin      a comma separated list of domains allowed to perform the x-domain
+     *                         call, or "*" for all.
+     * @param allowMethods     a comma separated list of HTTP methods allowed, or null for all.
      * @param allowCredentials Let the browser send the cookies when doing an x-domain request. Only
-     *     respected by the browser if allowOrigin != "*"
+     *                         respected by the browser if allowOrigin != "*"
      */
     public void accessControl(String allowOrigin, String allowMethods, boolean allowCredentials) {
       setHeader("Access-Control-Allow-Origin", allowOrigin);

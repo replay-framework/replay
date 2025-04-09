@@ -42,12 +42,9 @@ public class WSAsync implements WSClient {
 
   public WSAsync() {
     String userAgent = Play.configuration.getProperty("http.userAgent");
-    String keyStore =
-        Play.configuration.getProperty(
-            "ssl.keyStore", System.getProperty("javax.net.ssl.keyStore"));
+    String keyStore = Play.configuration.getProperty("ssl.keyStore", System.getProperty("javax.net.ssl.keyStore"));
     String keyStorePass =
-        Play.configuration.getProperty(
-            "ssl.keyStorePassword", System.getProperty("javax.net.ssl.keyStorePassword"));
+        Play.configuration.getProperty("ssl.keyStorePassword", System.getProperty("javax.net.ssl.keyStorePassword"));
     Boolean CAValidation = Play.configuration.property("ssl.cavalidation", "true").hasValue("true");
 
     Builder confBuilder = new AsyncHttpClientConfig.Builder();
@@ -75,8 +72,7 @@ public class WSAsync implements WSClient {
   }
 
   private Optional<ProxyServer> buildProxy() {
-    String proxyHost =
-        Play.configuration.getProperty("http.proxyHost", System.getProperty("http.proxyHost"));
+    String proxyHost = Play.configuration.getProperty("http.proxyHost", System.getProperty("http.proxyHost"));
     if (isEmpty(proxyHost)) return Optional.empty();
 
     String proxyPort =
@@ -84,14 +80,11 @@ public class WSAsync implements WSClient {
     String proxyUser =
         Play.configuration.getProperty("http.proxyUser", System.getProperty("http.proxyUser"));
     String proxyPassword =
-        Play.configuration.getProperty(
-            "http.proxyPassword", System.getProperty("http.proxyPassword"));
+        Play.configuration.getProperty("http.proxyPassword", System.getProperty("http.proxyPassword"));
     String nonProxyHosts =
-        Play.configuration.getProperty(
-            "http.nonProxyHosts", System.getProperty("http.nonProxyHosts"));
+        Play.configuration.getProperty("http.nonProxyHosts", System.getProperty("http.nonProxyHosts"));
 
-    ProxyServer proxy =
-        new ProxyServer(proxyHost, parseProxyPort(proxyPort), proxyUser, proxyPassword);
+    ProxyServer proxy = new ProxyServer(proxyHost, parseProxyPort(proxyPort), proxyUser, proxyPassword);
     if (isNotEmpty(nonProxyHosts)) {
       for (String url : nonProxyHosts.split("\\|")) {
         proxy.addNonProxyHost(url);

@@ -23,6 +23,7 @@ import play.Play;
 
 @ParametersAreNonnullByDefault
 public class ReplayUserAgent extends ITextUserAgent {
+
   private static final Logger logger = LoggerFactory.getLogger(ReplayUserAgent.class);
   private static final Pattern REGEX_URL_QUERY = Pattern.compile("\\?.*");
   private final FileSearcher fileSearcher;
@@ -54,7 +55,7 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   private void trustCerts() throws NoSuchAlgorithmException, KeyManagementException {
-    TrustManager[] trustAllCerts = new TrustManager[] {new LoyalTrustManager()};
+    TrustManager[] trustAllCerts = new TrustManager[]{new LoyalTrustManager()};
 
     // Install the all-trusting trust manager
     SSLContext sc = SSLContext.getInstance("SSL");

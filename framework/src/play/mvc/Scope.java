@@ -31,11 +31,11 @@ public class Scope {
 
   private static final Logger logger = LoggerFactory.getLogger(Scope.class);
 
+  public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
   public static final String COOKIE_PREFIX =
       Play.configuration.getProperty("application.session.cookie", "PLAY");
   public static final boolean COOKIE_SECURE =
       Play.configuration.property("application.session.secure", "false").hasValue("true");
-  public static final String COOKIE_EXPIRATION_SETTING = "application.session.maxAge";
   public static final boolean SESSION_HTTPONLY =
       Play.configuration.property("application.session.httpOnly", "false").hasValue("true");
 

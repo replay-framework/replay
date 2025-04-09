@@ -434,7 +434,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     boolean keepAlive = isKeepAlive(nettyRequest);
     if (file != null && file.isFile()) {
-      addEtag(nettyRequest, nettyResponse, file);
+      addETag(nettyRequest, nettyResponse, file);
       if (nettyResponse.status().equals(NOT_MODIFIED)) {
 
         Channel ch = ctx.channel();
@@ -731,7 +731,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       HttpResponse nettyResponse)
       throws FileNotFoundException {
     boolean keepAlive = isKeepAlive(nettyRequest);
-    addEtag(nettyRequest, nettyResponse, localFile);
+    addETag(nettyRequest, nettyResponse, localFile);
     Channel ch = ctx.channel();
     if (nettyResponse.status().equals(NOT_MODIFIED)) {
       ChannelFuture writeFuture = ch.writeAndFlush(nettyResponse);
@@ -743,13 +743,13 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
   }
 
-  private boolean isModified(String etag, long last, FullHttpRequest nettyRequest) {
+  private boolean isModified(String eTag, long last, FullHttpRequest nettyRequest) {
     String ifNoneMatch = nettyRequest.headers().get(IF_NONE_MATCH);
     String ifModifiedSince = nettyRequest.headers().get(IF_MODIFIED_SINCE);
-    return serverHelper.isModified(etag, last, ifNoneMatch, ifModifiedSince);
+    return serverHelper.isModified(eTag, last, ifNoneMatch, ifModifiedSince);
   }
 
-  private <T extends HttpResponse> void addEtag(
+  private <T extends HttpResponse> void addETag(
       FullHttpRequest nettyRequest, T httpResponse, File file) {
     if (Play.mode == Play.Mode.DEV) {
       httpResponse.headers().set(CACHE_CONTROL, "no-cache");
@@ -764,24 +764,20 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
       }
     }
-    boolean useEtag = Play.configuration.property("http.useETag", "true").hasValue("true");
+    boolean useETag = Play.configuration.property("http.useETag", "true").hasValue("true");
     long last = file.lastModified();
-    String etag = "\"" + last + "-" + file.hashCode() + "\"";
-    if (!isModified(etag, last, nettyRequest)) {
+    String eTag = "\"" + last + "-" + file.hashCode() + "\"";
+    if (!isModified(eTag, last, nettyRequest)) {
       if (nettyRequest.method().equals(HttpMethod.GET)) {
         httpResponse.setStatus(NOT_MODIFIED);
       }
-      if (useEtag) {
-        httpResponse.headers().set(ETAG, etag);
-      }
-
     } else {
       httpResponse
           .headers()
           .set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
-      if (useEtag) {
-        httpResponse.headers().set(ETAG, etag);
-      }
+    }
+    if (useETag) {
+      httpResponse.headers().set(ETAG, eTag);
     }
   }
 

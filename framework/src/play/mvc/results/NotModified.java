@@ -10,26 +10,26 @@ import play.mvc.Scope.Session;
 /** 304 Not Modified */
 public class NotModified extends Result {
 
-  private String etag;
+  private String eTag;
 
   public NotModified() {
     super("NotModified");
   }
 
-  public NotModified(String etag) {
-    this.etag = etag;
+  public NotModified(String eTag) {
+    this.eTag = eTag;
   }
 
   @Override
   public void apply(
       Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
     response.status = Http.StatusCode.NOT_MODIFIED;
-    if (etag != null) {
-      response.setHeader("Etag", etag);
+    if (eTag != null) {
+      response.setHeader("Etag", eTag);
     }
   }
 
-  public String getEtag() {
-    return etag;
+  public String getETag() {
+    return eTag;
   }
 }

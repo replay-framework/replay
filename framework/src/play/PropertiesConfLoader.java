@@ -17,8 +17,8 @@ public class PropertiesConfLoader implements ConfLoader {
 
   private static final Pattern BACKSPACE =
       Pattern.compile("\\\\");
-  private static final Pattern OVERRIDE_KEY_PATTERN = Pattern.compile(
-      "^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
+  private static final Pattern OVERRIDE_KEY_PATTERN =
+      Pattern.compile("^%([a-zA-Z0-9_\\-]+)\\.(.*)$");
   private static final Pattern ENV_VAR_INTERPOLATION_PATTERN =
       Pattern.compile("\\$\\{([^}]+)}");
 

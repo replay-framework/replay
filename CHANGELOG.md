@@ -4,7 +4,7 @@
 
 ## 2.6.3 (released 02.10.2024)
 * Made caching optional (selectable by adding a package to your project)
-* Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs 
+* Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs
 * Apply IntelliJ hints and small easy refactors
 * Fix (doc)comments
 * Replace wildcard imports with individual imports
@@ -178,7 +178,7 @@ The Hibernate upgrade exposes `jakarta.validation.*` instead of `javax.validatio
 * #41 fix "IOException: mark/reset not supported" when parsing http parameters
 
 ## 1.9.3 (released 03.02.2022)
-* upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc. 
+* upgrade to guice guice:5.1.0, hibernate-core:5.6.5.Final, commons-beanutils:1.9.4 etc.
 
 ## 1.9.2 (released 18.01.2022)
 * replace log4j:1.2.17 -> reload4j:1.2.18.0
@@ -194,7 +194,7 @@ The Hibernate upgrade exposes `jakarta.validation.*` instead of `javax.validatio
 * add support for MySql 8 driver  --  thanks Cies Breijs for PR #32
 * #29 replace environment variables in `${...}` in application.conf  --  thanks Cies Breijs for PR #31
 * improve readme file  --  thanks Cies Breijs for PR #30
-* Deprecate Play1-style static methods `Controller.forbidden` 
+* Deprecate Play1-style static methods `Controller.forbidden`
 
 ## 1.8.8 (released 30.06.2021)
 * upgrade dependencies: Eclipse compiler 3.26.0, Groovy 3.0.8, hibernate 5.5.2, Hikari CP 4.0.3 etc.

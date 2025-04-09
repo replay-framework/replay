@@ -242,8 +242,7 @@ public class Router {
 
   @Nonnull
   public static String getConfiguredBaseUrl() {
-    String appBaseUrl =
-        Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
+    String appBaseUrl = Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
     if (appBaseUrl.endsWith("/")) {
       // remove the trailing slash
       appBaseUrl = appBaseUrl.substring(0, appBaseUrl.length() - 1);

@@ -51,9 +51,9 @@ public class ServerHelper {
 
   @CheckReturnValue
   public boolean isModified(
-      String etag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
+      String eTag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
     if (ifNoneMatch != null) {
-      return !ifNoneMatch.equals(etag);
+      return !ifNoneMatch.equals(eTag);
     }
 
     if (ifModifiedSince != null) {

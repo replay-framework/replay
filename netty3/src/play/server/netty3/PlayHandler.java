@@ -454,7 +454,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     boolean keepAlive = isKeepAlive(nettyRequest);
     if (file != null && file.isFile()) {
-      addEtag(nettyRequest, nettyResponse, file);
+      addETag(nettyRequest, nettyResponse, file);
       if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
 
         Channel ch = ctx.getChannel();
@@ -751,7 +751,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       HttpResponse nettyResponse)
       throws FileNotFoundException {
     boolean keepAlive = isKeepAlive(nettyRequest);
-    addEtag(nettyRequest, nettyResponse, localFile);
+    addETag(nettyRequest, nettyResponse, localFile);
 
     if (nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
       Channel ch = e.getChannel();
@@ -771,7 +771,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     return serverHelper.isModified(eTag, last, ifNoneMatch, ifModifiedSince);
   }
 
-  private void addEtag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {
+  private void addETag(HttpRequest nettyRequest, HttpResponse httpResponse, File file) {
     if (Play.mode == Play.Mode.DEV) {
       httpResponse.headers().set(CACHE_CONTROL, "no-cache");
     } else {
@@ -785,10 +785,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         }
       }
     }
-    boolean useEtag = Play.configuration.property("http.useETag", "true").hasValue("true");
+    boolean useETag = Play.configuration.property("http.useETag", "true").hasValue("true");
     long last = file.lastModified();
-    String etag = "\"" + last + "-" + file.hashCode() + "\"";
-    if (!isModified(etag, last, nettyRequest)) {
+    String eTag = "\"" + last + "-" + file.hashCode() + "\"";
+    if (!isModified(eTag, last, nettyRequest)) {
       if (nettyRequest.getMethod().equals(HttpMethod.GET)) {
         httpResponse.setStatus(HttpResponseStatus.NOT_MODIFIED);
       }
@@ -796,9 +796,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       httpResponse
           .headers()
           .set(LAST_MODIFIED, Utils.getHttpDateFormatter().format(new Date(last)));
-      if (useEtag) {
-        httpResponse.headers().set(ETAG, etag);
-      }
+    }
+    if (useETag) {
+      httpResponse.headers().set(ETAG, eTag);
     }
   }
 
