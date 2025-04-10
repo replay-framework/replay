@@ -76,7 +76,7 @@ julToSlf4j = { group = "org.slf4j", name = "jul-to-slf4j", version.ref = "slf4jV
 spymemcached = { group = "net.spy", name = "spymemcached", version = "2.12.3" }
 
 # :netty3
-netty3 = { group = "io.netty", name = "netty", version = "3.10.6.Final" }
+netty3 = { group = "io.netty", name = "netty", version = "3.10.6.Final-redhat-00001" }
 
 # :netty4
 netty4 = { group = "io.netty", name = "netty-all", version.ref = "netty4Version" }
