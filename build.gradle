@@ -30,8 +30,16 @@ subprojects {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-      url "https://maven.repository.redhat.com/ga/"
+
+    exclusiveContent {
+      forRepository {
+        maven {
+          url 'https://maven.repository.redhat.com/ga/'
+        }
+      }
+      filter {
+        includeModule "commons-fileupload", "commons-fileupload"
+      }
     }
   }
 
