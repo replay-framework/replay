@@ -50,7 +50,7 @@ hikariCp = { group = "com.zaxxer", name = "HikariCP", version = "6.3.0" }
 gson = { group = "com.google.code.gson", name = "gson", version = "2.13.0" }
 # Cannot upgrade to org.asynchttpclient:async-http-client as that requires Netty4 and we use Netty3
 asyncHttpClient = { group = "com.ning", name = "async-http-client", version = "1.9.40" }
-guava = { group = "com.google.guava", name = "guava", version = "33.4.7-jre" }
+guava = { group = "com.google.guava", name = "guava", version = "33.4.8-jre" }
 commonsBeanutils = { group = "commons-beanutils", name = "commons-beanutils", version = "1.10.1" }
 commonsCodec = { group = "commons-codec", name = "commons-codec", version = "1.18.0" }
 commonsEmail = { group = "org.apache.commons", name = "commons-email", version = "1.6.0" }
