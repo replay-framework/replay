@@ -28,7 +28,7 @@ kotlinVersion = "2.1.21"
 mockitoVersion = "5.18.0"
 netty4Version = "4.2.1.Final"
 poiVersion = "3.17"
-restAssuredVersion = "5.5.2"
+restAssuredVersion = "5.5.5"
 slf4jVersion = "2.0.17"
 yahpVersion = "1.3"
 
