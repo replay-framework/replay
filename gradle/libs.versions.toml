@@ -54,7 +54,7 @@ guava = { group = "com.google.guava", name = "guava", version = "33.4.8-jre" }
 commonsBeanutils = { group = "commons-beanutils", name = "commons-beanutils", version = "1.11.0" }
 commonsCodec = { group = "commons-codec", name = "commons-codec", version = "1.18.0" }
 commonsEmail = { group = "org.apache.commons", name = "commons-email", version = "1.6.0" }
-commonsFileUpload = { group = "commons-fileupload", name = "commons-fileupload", version = "1.5" }
+commonsFileUpload = { group = "commons-fileupload", name = "commons-fileupload", version = "1.6.0" }
 commonsIo = { group = "commons-io", name = "commons-io", version = "2.19.0" }
 commonsLang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commonsLangVersion" }
 commonsText = { group = "org.apache.commons", name = "commons-text", version.ref = "commonsTextVersion" }
