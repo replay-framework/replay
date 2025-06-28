@@ -15,6 +15,7 @@ dependencies {
 
   implementation(libs.commonsLang3)
   implementation(libs.flyingSaucerPdf)
+  implementation(libs.xercesParser)
 
   implementation(libs.shaniParser)
   api(libs.yahp) { transitive = false }
