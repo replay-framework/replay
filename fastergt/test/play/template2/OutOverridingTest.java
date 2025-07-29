@@ -16,7 +16,7 @@ public class OutOverridingTest {
     args.put("myData", "xxx");
 
     assertThat(sr.renderSrc("a%{ print 'b' }%c", args)).isEqualTo("abc");
-    assertThat(sr.renderSrc("a%{ println('b') }%c", args)).isEqualTo("ab\nc");
+    assertThat(sr.renderSrc("a%{ println('b') }%c", args)).isEqualTo("ab%nc".formatted());
     assertThat(sr.renderSrc("a%{ printf('%d',1) }%c", args)).isEqualTo("a1c");
   }
 }

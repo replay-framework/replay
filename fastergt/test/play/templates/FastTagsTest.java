@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Map;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import play.mvc.Http;
@@ -22,8 +21,8 @@ import play.mvc.Scope.Session;
 import play.utils.DummyUuidGenerator;
 
 public class FastTagsTest {
+
   private final StringWriter out = new StringWriter();
-  private final String backupSystemLineBreak = System.getProperty("line.separator");
   private final ExecutableTemplate template =
       new ExecutableTemplate() {
         @Override
@@ -41,7 +40,6 @@ public class FastTagsTest {
     // take into account that your tests will fail on other platforms
     // force line.separator be the same on any platform
     // or use String.format in expected code with the placeholder '%n' for any expected line separation.
-    System.setProperty("line.separator", "\n");
     Http.Response.setCurrent(new Http.Response());
     Http.Response.current().encoding = UTF_8;
     template.setProperty("session", sessionWithAuthenticityToken("1234"));
@@ -53,12 +51,6 @@ public class FastTagsTest {
     return session;
   }
 
-  @AfterEach
-  public void tearDown() {
-    // restore line.separator
-    System.setProperty("line.separator", backupSystemLineBreak);
-  }
-
   @Test
   public void _form_simple() {
     final Router.ActionDefinition actionDefinition = new Router.ActionDefinition();
@@ -68,11 +60,9 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="get" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        </form>""");
   }
 
   @Test
@@ -85,11 +75,12 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" name=\"my-form\">\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="get"
+         accept-charset="UTF-8" enctype="application/x-www-form-urlencoded"
+         name="my-form">
+        </form>
+        """);
   }
 
   @Test
@@ -101,13 +92,12 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
-                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        <input type="hidden" name="authenticityToken" value="1234"/>
+        <input type="hidden" name="___form_id" value="form:some-uuid"/>
+        </form>
+        """);
   }
 
   @Test
@@ -119,13 +109,12 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
-                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        <input type="hidden" name="authenticityToken" value="1234"/>
+        <input type="hidden" name="___form_id" value="form:some-uuid"/>
+        </form>
+        """);
   }
 
   @Test
@@ -138,13 +127,12 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
-                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        <input type="hidden" name="authenticityToken" value="1234"/>
+        <input type="hidden" name="___form_id" value="form:some-uuid"/>
+        </form>
+        """);
   }
 
   @Test
@@ -157,11 +145,10 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" data-customer=\"12\" >\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="get" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" data-customer="12" >
+        </form>
+        """);
   }
 
   @Test
@@ -173,11 +160,10 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="get" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        </form>
+        """);
   }
 
   @Test
@@ -190,11 +176,10 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"get\" accept-charset=\"UTF-8\" enctype=\"xyz\" >\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="get" accept-charset="UTF-8" enctype="xyz" >
+        </form>
+        """);
   }
 
   @Test
@@ -203,13 +188,12 @@ public class FastTagsTest {
 
     tags._form(args, mock(Closure.class), new PrintWriter(out), template, 0);
 
-    assertThat(out.toString())
-        .isEqualTo(
-            "<form action=\"/foo/bar\" method=\"post\" accept-charset=\"UTF-8\" enctype=\"application/x-www-form-urlencoded\" >\n"
-                + "<input type=\"hidden\" name=\"authenticityToken\" value=\"1234\"/>\n"
-                + "<input type=\"hidden\" name=\"___form_id\" value=\"form:some-uuid\"/>\n"
-                + "\n"
-                + "</form>");
+    assertThat(out.toString()).isEqualToIgnoringNewLines("""
+        <form action="/foo/bar" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" >
+        <input type="hidden" name="authenticityToken" value="1234"/>
+        <input type="hidden" name="___form_id" value="form:some-uuid"/>
+        </form>
+        """);
   }
 
   @Test
@@ -259,6 +243,7 @@ public class FastTagsTest {
   }
 
   public static final class Payment {
+
     private final BigDecimal amount;
 
     private Payment(BigDecimal amount) {
