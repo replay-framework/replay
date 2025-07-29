@@ -32,10 +32,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: replay-test-report-${{ matrix.server }}
+          name: replay-linux-uitest-${{ matrix.server }}
           path: |
             **/build/reports
             **/build/test-results
+            **/precompiled
+            **/tmp
 
   build-on-windows:
     runs-on: windows-latest
@@ -54,15 +56,19 @@ jobs:
       - name: Run unit-tests
         run: .\gradlew.bat clean test --info --rerun-tasks
       - uses: gradle/actions/setup-gradle@v4
+      - name: Precompile templates
+        run: ./gradlew classes precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: .\gradlew.bat "-Dselenide.headless=true" uitest-${{ matrix.server }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: replay-test-report-windows-${{ matrix.server }}
+          name: replay-windows-uitest-${{ matrix.server }}
           path: |
             **/build/reports
             **/build/test-results
+            **/precompiled
+            **/tmp
 
   build-on-mac:
     runs-on: macos-latest
@@ -81,12 +87,16 @@ jobs:
       - name: Run unit-tests
         run: ./gradlew clean test --info --rerun-tasks
       - uses: gradle/actions/setup-gradle@v4
+      - name: Precompile templates
+        run: ./gradlew classes precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: replay-test-report-macos-${{ matrix.server }}
+          name: replay-macos-uitest-${{ matrix.server }}
           path: |
             **/build/reports
             **/build/test-results
+            **/precompiled
+            **/tmp

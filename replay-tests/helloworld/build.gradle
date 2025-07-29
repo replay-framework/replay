@@ -14,3 +14,10 @@ dependencies {
 }
 
 apply from: '../replay-tests.gradle'
+
+task(precompileTemplates, type: JavaExec) {
+  jvmArgs '-Xmx128m'
+  mainClass = 'play.modules.gtengineplugin.PrecompileTemplates'
+  classpath = project.sourceSets.main.runtimeClasspath
+  systemProperty 'file.encoding', 'UTF-8'
+}
