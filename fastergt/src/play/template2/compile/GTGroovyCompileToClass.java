@@ -78,7 +78,7 @@ public class GTGroovyCompileToClass {
         compilationUnit.compile();
       } catch (MultipleCompilationErrorsException e) {
         if (e.getErrorCollector().getErrorCount() == 0) {
-          throw new GTCompilationException("Error compiling groovy", e);
+          throw new GTCompilationException("Error compiling groovy: '%s'".formatted(groovySource), e);
         }
 
         Message errorMessage = e.getErrorCollector().getError(0);
@@ -88,7 +88,7 @@ public class GTGroovyCompileToClass {
               se.getOriginalMessage(), templateLocation, lineMapper.translateLineNo(se.getLine()));
         }
 
-        throw new GTCompilationException("Error compiling groovy", e);
+        throw new GTCompilationException("Error compiling groovy: '%s'".formatted(groovySource), e);
       }
 
       GTJavaCompileToClass.CompiledClass[] result =

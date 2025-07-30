@@ -198,18 +198,16 @@ public class GTJavaCompileToClass {
 
           private NameEnvironmentAnswer findType(final String name) {
             String resourceName = name.replace(".", "/") + ".class";
-            InputStream is = parentClassLoader.getResourceAsStream(resourceName);
-            if (is == null) {
-              return null;
-            }
-
             byte[] bytes;
-            try {
+            try (InputStream is = parentClassLoader.getResourceAsStream(resourceName)) {
+              if (is == null) {
+                return null;
+              }
+
               bytes = IOUtils.toByteArray(is);
             } catch (IOException e) {
-              throw new GTCompilationException(e);
-            } finally {
-              closeQuietly(is);
+              throw new GTCompilationException(
+                  "Failed to read %s from classpath".formatted(resourceName), e);
             }
             try {
               ClassFileReader classFileReader =

@@ -317,7 +317,7 @@ public class GTTemplateRepo {
       throw e;
     } catch (Exception e) {
       // Must only store it if no error occurs
-      throw new GTCompilationException(e);
+      throw new GTCompilationException("Failed to compile " + templateLocation, e);
     }
     return ti;
   }
