@@ -371,7 +371,18 @@ public class Play {
     return "mock".equals(configuration.getProperty("mail.smtp", "")) && mode == Mode.DEV;
   }
 
+  /**
+   * This logic was implemented in {@link play.vfs.VirtualFile till v2.3.1} and
+   * got refactored to {@code Play.relativePath} in v2.4.0.
+   *
+   * In versions 2.4.0 - 2.6.3, it didn't work properly on Windows. :)
+   *
+   * Does not support special characters like spaces and backslashes in the path.
+   *
+   * @param file any local file in the application
+   * @return path to the file starting from application root (with slashes)
+   */
   public static String relativePath(File file) {
-    return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "");
+    return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "").replace('\\', '/');
   }
 }

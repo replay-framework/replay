@@ -26,7 +26,7 @@ public class SpecialTests {
     }
 
     assertThat(e).isNotNull();
-    assertThat(e.getMessage()).isEqualTo("Cannot find template missing.txt");
+    assertThat(e.getMessage()).startsWith("Cannot find template missing.txt included in GTTemplateLocation{relativePath='GTTemplateLocationWithEmbeddedSource_generated_key_");
     assertThat(e.templateLocation.relativePath)
         .contains("_generated_key_"); // generated source without filename
 
@@ -38,7 +38,7 @@ public class SpecialTests {
     }
 
     assertThat(e).isNotNull();
-    assertThat(e.getMessage()).isEqualTo("Cannot find template missing.txt");
+    assertThat(e.getMessage()).startsWith("Cannot find template missing.txt included in GTTemplateLocation{relativePath='GTTemplateLocationWithEmbeddedSource_generated_key_");
     assertThat(e.templateLocation.relativePath)
         .contains("_generated_key_"); // generated source without filename
   }
