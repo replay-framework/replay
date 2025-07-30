@@ -174,7 +174,7 @@ public class GTPreCompiler {
         "  super("
             + templateClassNameGroovy
             + ".class, new play.template2.GTTemplateLocation(\""
-            + templateLocation.relativePath
+            + templateLocation.relativePath.replace('\\', '/')
             + "\"));");
     sc.jprintln(" }");
 
