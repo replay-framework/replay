@@ -372,6 +372,6 @@ public class Play {
   }
 
   public static String relativePath(File file) {
-    return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "");
+    return file.getAbsolutePath().replace(appRoot.getAbsolutePath(), "").replace('\\', '/');
   }
 }
