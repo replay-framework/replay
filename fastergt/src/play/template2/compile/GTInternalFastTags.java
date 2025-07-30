@@ -116,7 +116,7 @@ public class GTInternalFastTags extends GTFastTag {
     GTTemplateLocationReal templateLocation = template.resolveTemplateLocation(name);
 
     if (templateLocation == null) {
-      throw new GTTemplateRuntimeException("Cannot find template " + name);
+      throw new GTTemplateRuntimeException("Cannot find template %s included in %s".formatted(name, template.templateLocation));
     }
 
     GTJavaBase newTemplate = template.templateRepo.getTemplateInstance(templateLocation);
