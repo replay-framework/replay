@@ -24,7 +24,7 @@ public class ExtendsTest {
 
     Map<String, Object> args = new HashMap<>();
 
-    GTJavaBase t = tr.getTemplateInstance(new GTTemplateLocation("templateUsingExtendsAndTag.txt"));
+    GTJavaBase t = tr.getTemplateInstance(new GTTemplateLocation("folder/subfolder/templateUsingExtendsAndTag.txt"));
     t.renderTemplate(args);
     assertThat(t.getAsString()).isEqualTo("maintemplateUsingExtends2%n[from tag: x]".formatted());
 

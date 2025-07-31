@@ -543,7 +543,7 @@ public class GTPreCompiler {
           tagExpressionEtcStartLine = sc.currentLineNo;
           tagExpressionEtcStartOffset = m.start();
         } else {
-          throw new GTCompilationException("Strange parser error..");
+          throw new GTCompilationException("Strange parser error in %s, currentLine: %s".formatted(sc, currentLine));
         }
 
       } else {

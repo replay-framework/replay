@@ -399,7 +399,11 @@ public abstract class GTJavaBase extends GTRenderingResult {
       if (ct.matches("^/lib/[^/]+/app/views/.*")) {
         ct = ct.substring(ct.indexOf('/', 5));
       }
-      ct = ct.substring(0, ct.lastIndexOf('/'));
+      int lastIndex = ct.lastIndexOf('/');
+      if (lastIndex < 0) {
+        throw new GTCompilationException("Cannot resolve template '%s': %s doesn't contain slash".formatted(name, this.templateLocation.relativePath));
+      }
+      ct = ct.substring(0, lastIndex);
       name = ct + name.substring(1);
       return GTFileResolver.impl.getTemplateLocationFromRelativePath(name);
     } else {
