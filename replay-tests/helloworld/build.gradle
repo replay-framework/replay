@@ -15,7 +15,7 @@ dependencies {
 
 apply from: '../replay-tests.gradle'
 
-task(precompileTemplates, type: JavaExec) {
+tasks.register('precompileTemplates', JavaExec) {
   jvmArgs '-Xmx128m'
   mainClass = 'play.modules.gtengineplugin.PrecompileTemplates'
   classpath = project.sourceSets.main.runtimeClasspath
