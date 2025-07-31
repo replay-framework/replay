@@ -39,13 +39,13 @@ public class GTPreCompiler {
     public final GTTemplateLocation templateLocation;
     // generated java code
     // generated groovy code
-    public StringBuilder _out = new StringBuilder();
-    public StringBuilder _gout = new StringBuilder();
-    public String[] lines;
-    public int currentLineNo;
-    public int lineOffset;
+    private final StringBuilder _out = new StringBuilder();
+    private final StringBuilder _gout = new StringBuilder();
+    private String[] lines;
+    private int currentLineNo;
+    private int lineOffset;
     public int nextMethodIndex;
-    public int curlyBracketLevel; // Used to keep track of {} usage inside tags
+    private int curlyBracketLevel; // Used to keep track of {} usage inside tags
 
     public SourceContext(GTTemplateLocation templateLocation) {
       this.templateLocation = templateLocation;
@@ -128,14 +128,12 @@ public class GTPreCompiler {
     return compile(src, templateLocation);
   }
 
-  public Output compile(final String src, final GTTemplateLocation templateLocation) {
-
-    String[] lines = src.split("\\n");
-
+  private Output compile(final String src, final GTTemplateLocation templateLocation) {
+    String[] lines = src.lines().toArray(String[]::new);
     return internalCompile(lines, templateLocation);
   }
 
-  protected Output internalCompile(
+  private Output internalCompile(
       final String[] lines, final GTTemplateLocation templateLocation) {
 
     expression2GroovyMethodLookup = new HashMap<>();
