@@ -28,6 +28,8 @@ jobs:
         run: ./gradlew clean test --info --rerun-tasks
       - name: Run integration tests on ${{ matrix.server }}
         run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
+      - name: Precompile templates
+        run: ./gradlew precompileTemplates
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -55,7 +57,7 @@ jobs:
       - name: Run unit-tests
         run: .\gradlew.bat clean test --info --rerun-tasks
       - name: Precompile templates
-        run: ./gradlew classes precompileTemplates
+        run: ./gradlew precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: .\gradlew.bat "-Dselenide.headless=true" uitest-${{ matrix.server }}
       - uses: actions/upload-artifact@v4
@@ -85,7 +87,7 @@ jobs:
       - name: Run unit-tests
         run: ./gradlew clean test --info --rerun-tasks
       - name: Precompile templates
-        run: ./gradlew classes precompileTemplates
+        run: ./gradlew precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
       - uses: actions/upload-artifact@v4
