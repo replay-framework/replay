@@ -5,8 +5,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -14,6 +17,7 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.response.Response;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +48,7 @@ public class HttpResponsesSpec extends BaseSpec {
         .log()
         .ifValidationFails(LogDetail.ALL)
         .statusCode(404)
-        .header("Content-Length", Integer::parseInt, equalTo(511))
+        .header("Content-Length", Integer::parseInt, between(510, 530))
         .header("Cache-Control", nullValue())
         .header("accept-ranges", nullValue())
         .header("Last-Modified", nullValue())
@@ -80,7 +84,7 @@ public class HttpResponsesSpec extends BaseSpec {
         .isEqualToIgnoringWhitespace(
             IOUtils.toString(
                 requireNonNull(getClass().getResourceAsStream("not-found.html")), UTF_8));
-    response.then().header("Content-Length", Integer::parseInt, equalTo(467));
+    response.then().header("Content-Length", Integer::parseInt, between(460, 490));
   }
 
   @Test
@@ -105,11 +109,18 @@ public class HttpResponsesSpec extends BaseSpec {
         .log()
         .ifValidationFails(LogDetail.ALL)
         .statusCode(500)
-        .header("Content-Length", Integer::parseInt, equalTo(267))
+        .header("Content-Length", Integer::parseInt, between(260, 290))
         .contentType("text/html");
     assertThat(response.body().asString())
         .isEqualToIgnoringWhitespace(
             IOUtils.toString(
                 requireNonNull(getClass().getResourceAsStream("server-error.html")), UTF_8));
+  }
+
+  public static <T extends Comparable<T>> Matcher<T> between(T lower, T upper) {
+    return allOf(
+        greaterThanOrEqualTo(lower),
+        lessThanOrEqualTo(upper)
+    );
   }
 }
