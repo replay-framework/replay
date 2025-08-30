@@ -16,6 +16,10 @@ public class HelloWorld extends Controller {
     return new View("hello.html", ImmutableMap.of("who", requireNonNullElse(greeting, "world")));
   }
 
+  public View images(String greeting) {
+    return new View("images.html", ImmutableMap.of("who", requireNonNullElse(greeting, "world")));
+  }
+
   public View epicFail() {
     return new View("epic-fail.html", ImmutableMap.of("who", "world"));
   }
