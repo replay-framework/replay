@@ -1,4 +1,5 @@
 GET    /                   HelloWorld.hello
+GET    /images             HelloWorld.images
 GET    /repeat             HelloWorld.repeat
 GET    /epic-fail          HelloWorld.epicFail
 GET    /pdf                HelloWorld.helloPdf

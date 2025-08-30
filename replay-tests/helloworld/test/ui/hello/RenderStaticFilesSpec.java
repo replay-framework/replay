@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class RenderStaticFilesSpec extends BaseSpec {
   @Test
   public void loadsBigImages() {
-    open("/");
+    open("/images");
     $("h1").shouldHave(text("Hello, world!"));
     $("#img1").shouldBe(image);
     $("#img2").shouldBe(image);
