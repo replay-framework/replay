@@ -19,9 +19,10 @@ configurations {
 }
 
 dependencies {
-  runtimeOnly project(':netty3')
+  // To run the app locally:
+  // runtimeOnly project(':netty3')
   // or:
-  // runtimeOnly project(':netty4')
+  runtimeOnly project(':netty4')
   // or:
   // runtimeOnly project(':javanet')
 
@@ -60,12 +61,6 @@ tasks.register('uitest-netty3', Test) {
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
-  // TODO: clarify why `replay-netty4` fails on static files
-  //       see https://github.com/replay-framework/replay/issues/157
-  exclude 'ui/hello/RenderStaticFilesSpec*'
-  exclude 'ui/hello/LinksInHtmlSpec*'
-  exclude 'ui/hello/TagsInvolvesStaticFilesSpec*'
-  exclude 'ui/hello/MultiModuleAppGotRenderStatic*'
   outputs.upToDateWhen { false }
   classpath = configurations.netty4TestClasspath + classpath
 }

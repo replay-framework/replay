@@ -3,10 +3,10 @@ package play.server.netty4;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_RANGES;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 import static java.lang.System.nanoTime;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -125,7 +125,7 @@ public class FileService {
       if (channel.isOpen()) {
         channel.write(nettyResponse);
         sendFileFuture = channel.write(chunkedInput, channel.newProgressivePromise());
-        lastContentFuture = channel.writeAndFlush(Unpooled.EMPTY_BUFFER);
+        lastContentFuture = channel.writeAndFlush(EMPTY_LAST_CONTENT);
       } else {
         logger.debug(
             "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
@@ -147,9 +147,9 @@ public class FileService {
 
     if (sendFileFuture != null) {
       sendFileFuture.addListener(new FileServingListener(filePath, startedAt));
-      if (!isKeepAlive) {
-        lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-      }
+    }
+    if (!isKeepAlive) {
+      lastContentFuture.addListener(ChannelFutureListener.CLOSE);
     }
   }
 
