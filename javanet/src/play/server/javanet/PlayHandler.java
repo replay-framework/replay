@@ -447,9 +447,9 @@ public class PlayHandler implements HttpHandler {
     logger.trace("parseRequest: begin, URI = {}", exchange.getRequestURI());
 
     URI uri = exchange.getRequestURI();
-    String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getQuery());
+    String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getRawQuery());
     String contentType = exchange.getRequestHeaders().getFirst(CONTENT_TYPE);
-    String querystring = uri.getQuery();
+    String querystring = uri.getRawQuery();
     String path = uri.getPath();
     String remoteAddress = getRemoteIPAddress(exchange);
     String method = exchange.getRequestMethod();

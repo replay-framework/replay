@@ -1,31 +1,37 @@
 package play.server.netty4;
 
-import static io.netty.buffer.ByteBufAllocator.DEFAULT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import play.mvc.Http;
 
-public class PlayHandlerTest {
+import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 
+import static io.netty.buffer.ByteBufAllocator.DEFAULT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class PlayHandlerTest {
+  private final ChannelHandlerContext ctx = mock();
+  private final FullHttpRequest nettyRequest = mock();
+  private final HttpHeaders headers = mock();
   private final PlayHandler playHandler = new PlayHandler(null, null);
 
-  @Test
-  public void parseRequest() throws URISyntaxException {
-    ChannelHandlerContext ctx = mock();
-    FullHttpRequest nettyRequest = mock();
-    HttpHeaders headers = mock();
-    when(nettyRequest.uri()).thenReturn("/login/to/shop?user=bob&pwd=secret");
+  @ParameterizedTest
+  @CsvSource({
+    "World, World",
+    "Good+morning, Good morning",
+    "Good%2Bmorning, Good+morning",
+  })
+  public void parseRequest(String encodedParameterValue, String parameterValue) throws URISyntaxException {
+    when(nettyRequest.uri()).thenReturn("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue);
     when(nettyRequest.method()).thenReturn(HttpMethod.GET);
     when(nettyRequest.headers()).thenReturn(headers);
     when(headers.get("Host")).thenReturn("site.eu:8080");
@@ -38,11 +44,16 @@ public class PlayHandlerTest {
     Http.Request request = playHandler.parseRequest(ctx, nettyRequest);
 
     assertThat(request.host).isEqualTo("site.eu:8080");
-    assertThat(request.url).isEqualTo("/login/to/shop?user=bob&pwd=secret");
+    assertThat(request.url).isEqualTo("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue);
     assertThat(request.method).isEqualTo("GET");
     assertThat(request.domain).isEqualTo("site.eu");
     assertThat(request.path).isEqualTo("/login/to/shop");
-    assertThat(request.querystring).isEqualTo("user=bob&pwd=secret");
+    assertThat(request.querystring).isEqualTo("user=bob&pwd=secret&greeting=" + encodedParameterValue);
+    assertThat(request.params.all()).hasSize(4);
+    assertThat(request.params.get("user")).isEqualTo("bob");
+    assertThat(request.params.get("pwd")).isEqualTo("secret");
+    assertThat(request.params.get("greeting")).isEqualTo(parameterValue);
+    assertThat(request.params.get("body")).isEqualTo("");
     assertThat(request.remoteAddress).isEqualTo("192.168.0.10");
     assertThat(request.contentType).isEqualTo("text/json");
     assertThat(request.port).isEqualTo(8080);
