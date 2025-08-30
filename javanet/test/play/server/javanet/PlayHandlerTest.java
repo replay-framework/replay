@@ -13,17 +13,24 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import play.mvc.Http;
 
 public class PlayHandlerTest {
 
+  private final HttpExchange exchange = mock();
+  private final Headers headers = mock();
   private final PlayHandler playHandler = new PlayHandler(null, null);
 
-  @Test
-  public void parseRequest() throws URISyntaxException, IOException {
-    HttpExchange exchange = mock();
-    Headers headers = mock();
-    when(exchange.getRequestURI()).thenReturn(new URI("/login/to/shop?user=bob&pwd=secret"));
+  @ParameterizedTest
+  @CsvSource({
+      "World, World",
+      "Good+morning, Good morning",
+      "Good%2Bmorning, Good+morning",
+  })
+  public void parseRequest(String encodedParameterValue, String parameterValue) throws URISyntaxException, IOException {
+    when(exchange.getRequestURI()).thenReturn(new URI("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue));
     when(exchange.getRequestMethod()).thenReturn("GET");
     when(exchange.getRequestHeaders()).thenReturn(headers);
     when(headers.getFirst("Host")).thenReturn("site.eu:8080");
@@ -35,11 +42,16 @@ public class PlayHandlerTest {
     Http.Request request = playHandler.parseRequest(exchange);
 
     assertThat(request.host).isEqualTo("site.eu:8080");
-    assertThat(request.url).isEqualTo("/login/to/shop?user=bob&pwd=secret");
+    assertThat(request.url).isEqualTo("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue);
     assertThat(request.method).isEqualTo("GET");
     assertThat(request.domain).isEqualTo("site.eu");
     assertThat(request.path).isEqualTo("/login/to/shop");
-    assertThat(request.querystring).isEqualTo("user=bob&pwd=secret");
+    assertThat(request.querystring).isEqualTo("user=bob&pwd=secret&greeting=" + encodedParameterValue);
+    assertThat(request.params.all()).hasSize(4);
+    assertThat(request.params.get("user")).isEqualTo("bob");
+    assertThat(request.params.get("pwd")).isEqualTo("secret");
+    assertThat(request.params.get("greeting")).isEqualTo(parameterValue);
+    assertThat(request.params.get("body")).isEqualTo("I am request body");
     assertThat(request.remoteAddress).isEqualTo("192.168.0.10");
     assertThat(request.contentType).isEqualTo("text/json");
     assertThat(request.port).isEqualTo(8080);
