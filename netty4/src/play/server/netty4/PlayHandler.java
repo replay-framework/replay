@@ -693,8 +693,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       FullHttpRequest nettyRequest) {
     logger.trace("serveStatic: begin");
 
-    HttpResponse nettyResponse =
-        createByteHttpResponse(HttpResponseStatus.valueOf(playResponse.status));
     try {
       File file = serverHelper.findFile(renderStatic.file);
 
@@ -702,6 +700,8 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         serve404(
             new NotFound("The file " + renderStatic.file + " does not exist"), ctx, playRequest);
       } else {
+        HttpResponse nettyResponse =
+          createByteHttpResponse(HttpResponseStatus.valueOf(playResponse.status));
         serveLocalFile(file, playRequest, playResponse, ctx, nettyRequest, nettyResponse);
       }
     } catch (Throwable ez) {
@@ -711,7 +711,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             new DefaultFullHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
         byte[] bytes = "Internal Error".getBytes(playResponse.encoding);
         ByteBuf buf = Unpooled.copiedBuffer(bytes);
-        setContentLength(nettyResponse, bytes.length);
+        setContentLength(errorResponse, bytes.length);
         errorResponse = errorResponse.replace(buf);
         ChannelFuture future = ctx.channel().writeAndFlush(errorResponse);
         future.addListener(ChannelFutureListener.CLOSE);
