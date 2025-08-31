@@ -25,12 +25,13 @@ public class PlayHandlerTest {
 
   @ParameterizedTest
   @CsvSource({
-      "World, World",
-      "Good+morning, Good morning",
-      "Good%2Bmorning, Good+morning",
+      "/login/to/shop, World, World",
+      "/login/to/Hyper%20Mall, World, World",
+      "/login/to/shop, Good+morning, Good morning",
+      "/login/to/shop, Good%2Bmorning, Good+morning",
   })
-  public void parseRequest(String encodedParameterValue, String parameterValue) throws URISyntaxException, IOException {
-    when(exchange.getRequestURI()).thenReturn(new URI("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue));
+  public void parseRequest(String path, String encodedParameterValue, String parameterValue) throws URISyntaxException, IOException {
+    when(exchange.getRequestURI()).thenReturn(new URI("%s?user=bob&pwd=secret&greeting=%s".formatted(path, encodedParameterValue)));
     when(exchange.getRequestMethod()).thenReturn("GET");
     when(exchange.getRequestHeaders()).thenReturn(headers);
     when(headers.getFirst("Host")).thenReturn("site.eu:8080");
@@ -42,10 +43,10 @@ public class PlayHandlerTest {
     Http.Request request = playHandler.parseRequest(exchange);
 
     assertThat(request.host).isEqualTo("site.eu:8080");
-    assertThat(request.url).isEqualTo("/login/to/shop?user=bob&pwd=secret&greeting=" + encodedParameterValue);
+    assertThat(request.url).isEqualTo(path + "?user=bob&pwd=secret&greeting=" + encodedParameterValue);
     assertThat(request.method).isEqualTo("GET");
     assertThat(request.domain).isEqualTo("site.eu");
-    assertThat(request.path).isEqualTo("/login/to/shop");
+    assertThat(request.path).isEqualTo(path);
     assertThat(request.querystring).isEqualTo("user=bob&pwd=secret&greeting=" + encodedParameterValue);
     assertThat(request.params.all()).hasSize(4);
     assertThat(request.params.get("user")).isEqualTo("bob");

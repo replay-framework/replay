@@ -11,7 +11,7 @@ public class BaseSpec {
   private static final AtomicBoolean appStarted = new AtomicBoolean(false);
 
   @BeforeEach
-  public void setUp() {
+  final void setUp() {
     System.setProperty("webdriver.http.factory", "jdk-http-client");
     if (appStarted.get()) return;
     startApp();

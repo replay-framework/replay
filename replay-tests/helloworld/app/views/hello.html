@@ -7,29 +7,53 @@
 <body>
 <h1>Hello, ${who}!</h1>
 
-<label for="role">Choose your role</label>
-<select id="role" size="2" style="width: 400px; height: 200px;">
-  <option value="user">User</option>
-  <option value="admin">Admin</option>
-</select>
-
-<label for="car">Choose your car</label>
-<select id="car">
-  <optgroup label="Japanese">
-    <option value="toyota">Toyota</option>
-    <option value="subaru">Subaru</option>
-  </optgroup>
-  <optgroup label="German">
-    <option value="volkswagen">Volkswagen</option>
-    <option value="audi">Audi</option>
-  </optgroup>
-</select>
+<div>
+  <label for="role">Choose your role</label>
+  <select id="role">
+    <option value="user">User</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
 
 <div>
-  <a id="repeat" href="@{controllers.HelloWorld.repeat(666)}">Repeat 666 times</a>
-  <a id="link-to-static-file" href="@{'/app/public/img/banksy-kyiv-7.jpeg'}">Link to image</a>
-  <a id="link-with-space" href="@{HelloWorld.hello('Tere morning')}">Tere morning</a>
-  <a id="link-with-plus" href="@{HelloWorld.hello('You+me')}">You+me</a>
+  <label for="car">Choose your car</label>
+  <select id="car">
+    <optgroup label="Japanese">
+      <option value="toyota">Toyota</option>
+      <option value="subaru">Subaru</option>
+    </optgroup>
+    <optgroup label="German">
+      <option value="volkswagen">Volkswagen</option>
+      <option value="audi">Audi</option>
+    </optgroup>
+  </select>
+</div>
+
+<div>
+  <h5>Links:</h5>
+  <ul>
+    <li>
+      <a id="repeat" href="@{controllers.HelloWorld.repeat(666)}">Repeat 666 times</a>
+    </li>
+    <li>
+      <a id="link-to-static-file" href="@{'/app/public/img/banksy-kyiv-7.jpeg'}">Link to image</a>
+    </li>
+    <li>
+      <a id="link-with-space" href="@{HelloWorld.hello('Tere morning')}">Tere morning</a>
+    </li>
+    <li>
+      <a id="link-with-plus" href="@{HelloWorld.hello('You+me')}">You+me</a>
+    </li>
+    <li>
+      <a id="link-with-spaces-in-path"
+           href="@{HelloWorld.hola('The Talented Mr. Ripley!')}">
+        The Talented Mr. Ripley!</a>
+    </li>
+    <li>
+      <a id="link-with-pluses-in-path"
+         href="@{HelloWorld.hola('Me+Myself+Irene/2000 (Farrelly brothers)')}">Me+Myself+Irene/2000 (Farrelly brothers)</a>
+    </li>
+  </ul>
 </div>
 
 </body>

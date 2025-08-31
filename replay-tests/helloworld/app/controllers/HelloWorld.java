@@ -1,5 +1,7 @@
 package controllers;
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.google.common.collect.ImmutableMap;
 import play.data.validation.Min;
 import play.data.validation.Valid;
@@ -9,11 +11,13 @@ import play.mvc.Controller;
 import play.mvc.results.BadRequest;
 import play.rebel.View;
 
-import static java.util.Objects.requireNonNullElse;
-
 public class HelloWorld extends Controller {
   public View hello(String greeting) {
     return new View("hello.html", ImmutableMap.of("who", requireNonNullElse(greeting, "world")));
+  }
+
+  public View hola(String greeting) {
+    return hello(greeting);
   }
 
   public View images(String greeting) {
