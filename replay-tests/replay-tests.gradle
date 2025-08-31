@@ -22,7 +22,7 @@ dependencies {
   // To run the app locally:
   // runtimeOnly project(':netty3')
   // or:
-  runtimeOnly project(':netty4')
+  //runtimeOnly project(':netty4')
   // or:
   // runtimeOnly project(':javanet')
 

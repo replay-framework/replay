@@ -487,7 +487,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     String host = nettyRequest.headers().get(HOST);
     String contentType = nettyRequest.headers().get(CONTENT_TYPE);
     URI uri = new URI(nettyRequest.uri());
-    String relativeUrl = serverHelper.relativeUrl(uri.getPath(), uri.getRawQuery());
+    String relativeUrl = serverHelper.relativeUrl(uri.getRawPath(), uri.getRawQuery());
     boolean isLoopBack =
         ipParser.isLoopback(host, (InetSocketAddress) ctx.channel().remoteAddress());
     ServerAddress serverAddress = ipParser.parseHost(host);
@@ -497,7 +497,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         Request.createRequest(
             getRemoteIPAddress(ctx.channel()),
             nettyRequest.method().name(),
-            uri.getPath(),
+            uri.getRawPath(),
             uri.getRawQuery(),
             contentType,
             body,
