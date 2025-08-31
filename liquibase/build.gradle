@@ -2,12 +2,7 @@ dependencies {
   implementation project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  implementation(libs.liquibaseCore) {
-    exclude(group: 'com.opencsv')
-    exclude(group: 'org.apache.commons')
-    exclude(group: 'commons-io')
-    exclude(group: 'javax.xml.bind')
-  }
+  implementation(libs.liquibaseCore) { transitive = false }
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
