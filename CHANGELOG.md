@@ -2,6 +2,24 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.7.0 (released 31.08.2025)
+* #624 #623 fix RePlay on Windows (#632)
+* fix leftover `Play.getVirtualFile()` usage in tags (#522) / by Szabolcs Hubai @xabolcs
+* add methods to get error/success messages from flash (#468) / by Cies Breijs
+* Add helper to Properties class +cleanups (#469) / by Cies Breijs
+* fix concurrency issue in TemplateLoader / by Andrei Solntsev
+* optimize loading templates from "file://" classpath / by Andrei Solntsev
+* implement loading templates and static files from classpath (#506) / by Szabolcs Hubai
+  * To allow the Framework find your project files in your dependencies, use the "play.classes.scanJars" property in application.conf
+* #556 add missing Netty4 library for "replay-javanet" implementation
+* #157 fix serving static files in `replay-netty4` (#650)
+* #633 fix decoding query params containing plus (#649)
+* support SVG images in PDF templates (#606)
+  * bump FlyingSaucer from 9.9.5 to 9.13.3
+* Bump LiquiBase from 4.29.2 to 4.33.0 (disable LiquiBase analytics, remove SnakeYml dependency)
+* Bump Hibernate from 6.6.1.Final to 6.6.15.Final
+* Bump HikariCP from 6.0.0 to 7.0.2
+
 ## 2.6.3 (released 02.10.2024)
 * Made caching optional (selectable by adding a package to your project)
 * Improve `play.PropertiesConfLoader` to ease `conf/` directory usage @xabolcs
@@ -35,11 +53,11 @@
 * #393 Deprecate jpa.Model
 
 ## 2.5.0 (released 09.08.2024) - see https://github.com/replay-framework/replay/milestone/16?closed=1
-* #386 Replace `javax.inject` with `jakarta.inject` (#389) @cies
+* #386 Replace `javax.inject` with `jakarta.inject` (#389)
 * #65 move all Groovy-related code from "framework" to "fastergt" (#316) @asolntsev
-* #360 Update PluginCollection (#361) @cies
-* #362 Improve performance, add test, small cleanups (#364) @cies
-* Downgrade and pin `jakarta.persistence:persistence-api:3.0.0` (#385) @cies
+* #360 Update PluginCollection (#361)
+* #362 Improve performance, add test, small cleanups (#364)
+* Downgrade and pin `jakarta.persistence:persistence-api:3.0.0` (#385)
 * Bump liquibase from 4.26.0 to 4.29.1
 * Bump h2 from 2.2.224 to 2.3.230
 * Bump hibernate-commons-annotations from 6.0.6.Final to 7.0.1.Final (#400)
