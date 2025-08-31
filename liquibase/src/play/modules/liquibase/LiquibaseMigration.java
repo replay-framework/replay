@@ -70,6 +70,8 @@ public final class LiquibaseMigration {
       return;
     }
 
+    disableAnalytics();
+
     long start = nanoTime();
 
     try (Connection cnx = getConnection()) {
@@ -103,6 +105,11 @@ public final class LiquibaseMigration {
     } finally {
       close(database);
     }
+  }
+
+  private void disableAnalytics() {
+    String analyticsEnabled = Play.configuration.getProperty("liquibase.analytics.enabled", "false");
+    System.setProperty("liquibase.analytics.enabled", analyticsEnabled);
   }
 
   private boolean isH2() {

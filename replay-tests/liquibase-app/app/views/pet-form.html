@@ -16,7 +16,7 @@
 
 <form action="/pet/registration" method="post">
   <div class="form-item">
-    <label for="kind">Name</label>
+    <label for="kind">Kind</label>
     #{select 'pet.kind', id: 'kind', items: model.Kind.values(), labelProperty: 'name', valueProperty: 'name', value: pet.kind}
       <option value=""></option>
     #{/select}
