@@ -46,7 +46,7 @@ public class FileService {
       Response response,
       Channel channel)
       throws FileNotFoundException {
-    logger.trace("FileService.serve: begin");
+    logger.trace("FileService.serve: begin :{}:{}", request.method, request.path);
     long startedAt = nanoTime();
     String filePath = localFile.getAbsolutePath();
     RandomAccessFile raf = new RandomAccessFile(localFile, "r");
@@ -58,15 +58,15 @@ public class FileService {
       String fileContentType = MimeTypes.getContentType(localFile.getName(), "text/plain");
       String contentType = response.contentType != null ? response.contentType : fileContentType;
 
-      if (logger.isTraceEnabled()) {
-        logger.trace(
-            "serving {}, keepAlive:{}, contentType:{}, fileLength:{}, request.path:{}",
-            filePath,
-            isKeepAlive,
-            contentType,
-            fileLength,
-            request.path);
-      }
+      logger.trace(
+          "serving {}, keepAlive:{}, contentType:{}, fileLength:{} :{}:{}",
+          filePath,
+          isKeepAlive,
+          contentType,
+          fileLength,
+          request.method,
+          request.path
+      );
 
       setHeaders(nettyResponse, fileLength, contentType);
       writeFileContent(
@@ -78,31 +78,32 @@ public class FileService {
           isKeepAlive,
           fileContentType,
           startedAt);
-      logger.trace("FileService.serve: end");
+      logger.trace("FileService.serve: end :{}:{}", request.method, request.path);
     } catch (Throwable e) {
-      logger.error("Failed to serve {} in {} ms", filePath, formatNanos(nanoTime() - startedAt), e);
-      closeSafely(localFile, raf, request.path);
-      closeSafely(ctx, request.path);
+      logger.error("Failed to serve {} in {} ms :{}:{}", filePath,
+          formatNanos(nanoTime() - startedAt), request.method, request.path, e);
+      closeSafely(localFile, raf, request);
+      closeSafely(ctx, request);
     }
   }
 
-  private void closeSafely(File localFile, Closeable closeable, String path) {
+  private void closeSafely(File localFile, Closeable closeable, Request request) {
     try {
       if (closeable != null) {
         closeable.close();
       }
     } catch (IOException e) {
-      logger.warn("Failed to close {}, request.path:{}", localFile.getAbsolutePath(), path, e);
+      logger.warn("Failed to close {} :{}:{}", localFile.getAbsolutePath(), request.method, request.path, e);
     }
   }
 
-  private void closeSafely(ChannelHandlerContext ctx, String path) {
+  private void closeSafely(ChannelHandlerContext ctx, Request request) {
     try {
       if (ctx.channel().isOpen()) {
         ctx.channel().close();
       }
     } catch (Throwable ex) {
-      logger.warn("Failed to close channel, request.path:{}", path, ex);
+      logger.warn("Failed to close channel :{}:{}", request.method, request.path, ex);
     }
   }
 
@@ -128,25 +129,30 @@ public class FileService {
         lastContentFuture = channel.writeAndFlush(EMPTY_LAST_CONTENT);
       } else {
         logger.debug(
-            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
+            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection :{}:{}",
             filePath,
-            isKeepAlive);
+            isKeepAlive,
+            nettyRequest.method(), nettyRequest.uri()
+        );
       }
     } else {
       if (channel.isOpen()) {
         lastContentFuture = channel.writeAndFlush(nettyResponse);
       } else {
         logger.debug(
-            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
+            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection :{}:{}",
             filePath,
-            isKeepAlive);
+            isKeepAlive,
+            nettyRequest.method(), nettyRequest.uri()
+        );
       }
       raf.close();
-      logger.trace("HEAD served {} in {} ms", filePath, formatNanos(nanoTime() - startedAt));
+      logger.trace("HEAD served {} in {} ms :{}:{}", filePath,
+          formatNanos(nanoTime() - startedAt), nettyRequest.method(), nettyRequest.uri());
     }
 
     if (sendFileFuture != null) {
-      sendFileFuture.addListener(new FileServingListener(filePath, startedAt));
+      sendFileFuture.addListener(new FileServingListener(filePath, startedAt, nettyRequest));
     }
     if (!isKeepAlive) {
       lastContentFuture.addListener(ChannelFutureListener.CLOSE);
@@ -171,12 +177,12 @@ public class FileService {
       HttpResponse nettyResponse)
       throws IOException {
     if (ByteRangeInput.accepts(nettyRequest)) {
-      logger.trace("getChunkedInput: serving range");
+      logger.trace("getChunkedInput: serving range :{}:{}", nettyRequest.method(), nettyRequest.uri());
       ByteRangeInput server = new ByteRangeInput(filePath, raf, contentType, nettyRequest);
       server.prepareNettyResponse(nettyResponse);
       return server;
     } else {
-      logger.trace("getChunkedInput: serving chunkedfile");
+      logger.trace("getChunkedInput: serving chunked file :{}:{}", nettyRequest.method(), nettyRequest.uri());
       return new ChunkedFile(raf);
     }
   }
@@ -190,32 +196,39 @@ public class FileService {
   private static class FileServingListener implements ChannelProgressiveFutureListener {
     private final String filePath;
     private final long startedAt;
+    private final HttpRequest request;
 
-    private FileServingListener(String filePath, long startedAt) {
+    private FileServingListener(String filePath, long startedAt, HttpRequest request) {
       this.filePath = filePath;
       this.startedAt = startedAt;
+      this.request = request;
     }
 
     @Override
     public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
       logger.trace(
-          "{} Transfer progress: {}/{} (success: {})",
+          "{} Transfer progress: {}/{} (success: {}) :{}:{}",
           future.channel(),
           progress,
           total < 0 ? "?" : total,
-          future.isSuccess());
+          future.isSuccess(),
+          request.method(), request.uri()
+      );
     }
 
     @Override
     public void operationComplete(ChannelProgressiveFuture future) {
       if (future.isSuccess()) {
-        logger.trace("served {} in {} ms", filePath, formatNanos(nanoTime() - startedAt));
+        logger.trace("served {} in {} ms :{}:{}", filePath,
+            formatNanos(nanoTime() - startedAt), request.method(), request.uri());
       } else {
         logger.error(
-            "failed to serve {} in {} ms",
+            "failed to serve {} in {} ms :{}:{}",
             filePath,
             formatNanos(nanoTime() - startedAt),
-            future.cause());
+            request.method(), request.uri(),
+            future.cause()
+        );
       }
     }
   }

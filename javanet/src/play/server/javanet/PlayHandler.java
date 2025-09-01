@@ -57,6 +57,8 @@ import play.i18n.Messages;
 import play.libs.MimeTypes;
 import play.mvc.ActionInvoker;
 import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.mvc.Http.Response;
 import play.mvc.Router;
 import play.mvc.Scope;
 import play.mvc.results.NotFound;
@@ -111,7 +113,6 @@ public class PlayHandler implements HttpHandler {
       }
 
     } catch (IllegalArgumentException ex) {
-      logger.warn("Exception on request. serving 400 back", ex);
       serve400(ex, exchange);
     } catch (Exception ex) {
       serve500(ex, exchange, request, response);
@@ -120,7 +121,7 @@ public class PlayHandler implements HttpHandler {
 
   private void copyResponse(HttpExchange exchange, Http.Request request, Http.Response response)
       throws Exception {
-    logger.trace("copyResponse: begin");
+    logger.trace("copyResponse: begin :{}:{}", request.method, request.path);
 
     sendContentType(exchange, response);
     addToResponse(exchange, response);
@@ -148,9 +149,9 @@ public class PlayHandler implements HttpHandler {
         // writeFuture.addListener(ChannelFutureListener.CLOSE);
       }
     } else {
-      writeResponse(exchange, response);
+      writeResponse(exchange, request, response);
     }
-    logger.trace("copyResponse: end");
+    logger.trace("copyResponse: end :{}:{}", request.method, request.path);
   }
 
   private void sendContentType(HttpExchange exchange, Http.Response response) {
@@ -164,7 +165,7 @@ public class PlayHandler implements HttpHandler {
     String warning = exchange.getRequestHeaders().getFirst(HttpHeaders.WARNING);
     String length = exchange.getRequestHeaders().getFirst(HttpHeaders.CONTENT_LENGTH);
     if (warning != null) {
-      logger.trace("saveExceededSizeError: begin");
+      logger.trace("saveExceededSizeError: begin :{}:{}", request.method, request.path);
 
       try {
         StringBuilder error = new StringBuilder();
@@ -189,18 +190,19 @@ public class PlayHandler implements HttpHandler {
             error.append(decryptErrors);
           } catch (RuntimeException e) {
             securityLogger.error(
-                "Failed to decrypt cookie {}: {}",
+                "Failed to decrypt cookie {}: {} :{}:{}",
                 Scope.COOKIE_PREFIX + "_ERRORS",
                 cookieErrors.value,
+                request.method, request.path,
                 e);
           }
         }
         String errorData = URLEncoder.encode(errorsCookieCrypter.encrypt(error.toString()), UTF_8);
         Http.Cookie cookie = new Http.Cookie(Scope.COOKIE_PREFIX + "_ERRORS", errorData);
         request.cookies.put(Scope.COOKIE_PREFIX + "_ERRORS", cookie);
-        logger.trace("saveExceededSizeError: end");
+        logger.trace("saveExceededSizeError: end :{}:{}", request.method, request.path);
       } catch (RuntimeException e) {
-        throw new UnexpectedException("Error serialization problem", e);
+        throw new UnexpectedException("Error serialization problem :%s:%s".formatted(request.method, request.path), e);
       }
     }
   }
@@ -227,12 +229,12 @@ public class PlayHandler implements HttpHandler {
         .set(HttpHeaders.DATE, Utils.getHttpDateFormatter().format(new Date()));
   }
 
-  private void flushCookies(HttpExchange exchange, Http.Response response) {
+  private void flushCookies(Request request, HttpExchange exchange, Response response) {
     try {
       addCookiesToResponse(exchange, response.cookies);
 
     } catch (Exception e) {
-      logger.error("Failed to flush cookies", e);
+      logger.error("Failed to flush cookies :{}:{}", request.method, request.path, e);
     }
   }
 
@@ -267,14 +269,14 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  private void writeResponse(HttpExchange exchange, Http.Response response) throws IOException {
-    logger.trace("writeResponse: begin");
+  private void writeResponse(HttpExchange exchange, Request request, Response response) throws IOException {
+    logger.trace("writeResponse: begin :{}:{}", request.method, request.path);
 
     boolean keepAlive = isKeepAlive(exchange);
     byte[] content =
         exchange.getRequestMethod().equals(HEAD) ? new byte[0] : response.out.toByteArray();
 
-    logger.trace("writeResponse: content length [{}]", content.length);
+    logger.trace("writeResponse: content length [{}] :{}:{}", content.length, request.method, request.path);
     if (response.contentType != null) {
       exchange.getResponseHeaders().set("Content-Type", response.contentType);
     }
@@ -283,7 +285,7 @@ public class PlayHandler implements HttpHandler {
       responseBody.write(content);
     }
 
-    logger.trace("writeResponse: end");
+    logger.trace("writeResponse: end :{}:{}", request.method, request.path);
   }
 
   private void addETag(HttpExchange exchange, File file) throws IOException {
@@ -344,7 +346,7 @@ public class PlayHandler implements HttpHandler {
 
     @Override
     public boolean init() throws IOException {
-      logger.trace("init: begin");
+      logger.trace("init: begin :{}:{}", request.method, request.path);
 
       Http.Request.setCurrent(request);
       Http.Response.setCurrent(response);
@@ -363,14 +365,14 @@ public class PlayHandler implements HttpHandler {
             rs = staticPathsCache.get(request.domain + " " + request.method + " " + request.path);
           }
           serveStatic(rs, exchange, request, response);
-          logger.trace("init: end false");
+          logger.trace("init: end false :{}:{}", request.method, request.path);
           return false;
         }
         Router.instance.routeOnlyStatic(request);
         super.init();
       } catch (NotFound nf) {
         serve404(nf, exchange, request);
-        logger.trace("init: end false");
+        logger.trace("init: end false :{}:{}", request.method, request.path);
         return false;
       } catch (RenderStatic rs) {
         if (Play.mode == Play.Mode.PROD) {
@@ -379,11 +381,11 @@ public class PlayHandler implements HttpHandler {
           }
         }
         serveStatic(rs, exchange, request, response);
-        logger.trace("init: end false");
+        logger.trace("init: end false :{}:{}", request.method, request.path);
         return false;
       }
 
-      logger.trace("init: end true");
+      logger.trace("init: end true :{}:{}", request.method, request.path);
       return true;
     }
 
@@ -399,7 +401,7 @@ public class PlayHandler implements HttpHandler {
     @Override
     public void run() {
       try {
-        logger.trace("run: begin");
+        logger.trace("run: begin :{}:{}", request.method, request.path);
         try {
           preInit();
           if (init()) {
@@ -423,7 +425,7 @@ public class PlayHandler implements HttpHandler {
       } finally {
         exchange.close();
       }
-      logger.trace("run: end");
+      logger.trace("run: end :{}:{}", request.method, request.path);
     }
 
     @Override
@@ -437,14 +439,14 @@ public class PlayHandler implements HttpHandler {
     @Override
     public void onSuccess() throws Exception {
       super.onSuccess();
-      logger.trace("onSuccess: begin");
+      logger.trace("onSuccess: begin :{}:{}", request.method, request.path);
       copyResponse(exchange, request, response);
-      logger.trace("onSuccess: end");
+      logger.trace("onSuccess: end :{}:{}", request.method, request.path);
     }
   }
 
   Http.Request parseRequest(HttpExchange exchange) throws IOException {
-    logger.trace("parseRequest: begin, URI = {}", exchange.getRequestURI());
+    logger.trace("parseRequest: begin :{}:{}", exchange.getRequestMethod(), exchange.getRequestURI());
 
     URI uri = exchange.getRequestURI();
     String relativeUrl = serverHelper.relativeUrl(uri.getRawPath(), uri.getRawQuery());
@@ -484,7 +486,7 @@ public class PlayHandler implements HttpHandler {
             getHeaders(exchange),
             getCookies(exchange));
 
-    logger.trace("parseRequest: end");
+    logger.trace("parseRequest: end :{}:{}", exchange.getRequestMethod(), exchange.getRequestURI());
     return request;
   }
 
@@ -523,19 +525,19 @@ public class PlayHandler implements HttpHandler {
   }
 
   private void serve400(Exception e, HttpExchange exchange) throws IOException {
-    logger.trace("serve400: begin");
+    logger.trace("serve400: begin :{}:{}", exchange.getRequestMethod(), exchange.getRequestURI());
     printResponse(exchange, BAD_REQUEST, "text/plain", e.getMessage() + '\n');
-    logger.trace("serve400: end");
+    logger.trace("serve400: end :{}:{}", exchange.getRequestMethod(), exchange.getRequestURI());
   }
 
   private void serve404(NotFound e, HttpExchange exchange, Http.Request request)
       throws IOException {
-    logger.trace("serve404: begin");
+    logger.trace("serve404: begin :{}:{}", request.method, request.url);
     String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
     String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
     printResponse(exchange, NOT_FOUND, contentType, errorHtml);
-    logger.trace("serve404: end");
+    logger.trace("serve404: end :{}:{}", request.method, request.url);
   }
 
   private void printResponse(
@@ -551,10 +553,10 @@ public class PlayHandler implements HttpHandler {
 
   private void serve500(
       Exception e, HttpExchange exchange, Http.Request request, Http.Response response) {
-    logger.trace("serve500: begin");
+    logger.trace("serve500: begin :{}:{}", request.method, request.url);
 
     try {
-      flushCookies(exchange, response);
+      flushCookies(request, exchange, response);
 
       String format = requireNonNullElse(request.format, "txt");
       String contentType = MimeTypes.getContentType("500." + format, "text/plain");
@@ -563,33 +565,31 @@ public class PlayHandler implements HttpHandler {
         String errorHtml = serverHelper.generateErrorResponse(request, format, e);
         printResponse(exchange, INTERNAL_ERROR, contentType, errorHtml);
         logger.error(
-            "Internal Server Error (500) for {} {} ({})",
-            request.method,
-            request.url,
+            "Internal Server Error (500) ({}) :{}:{}",
             e.getClass().getSimpleName(),
+            request.method, request.url,
             e);
       } catch (Throwable ex) {
         logger.error(
-            "Internal Server Error (500) for {} {} ({})",
-            request.method,
-            request.url,
+            "Internal Server Error (500) ({}) :{}:{}",
             e.getClass().getSimpleName(),
+            request.method, request.url,
             e);
-        logger.error("Error during the 500 response generation", ex);
+        logger.error("Error during the 500 response generation :{}:{}", request.method, request.url, ex);
         sendServerError(exchange, request);
       }
     } catch (RuntimeException exxx) {
-      logger.error("Error during the 500 response generation", exxx);
+      logger.error("Error during the 500 response generation :{}:{}", request.method, request.url, exxx);
       try {
         sendServerError(exchange, request);
       } catch (Exception fex) {
-        logger.error("(encoding ?)", fex);
+        logger.error("Problem with encoding :{}:{}", request.method, request.url, fex);
       }
       throw exxx;
     } finally {
       exchange.close();
     }
-    logger.trace("serve500: end");
+    logger.trace("serve500: end :{}:{}", request.method, request.url);
   }
 
   private void serveStatic(
@@ -597,7 +597,7 @@ public class PlayHandler implements HttpHandler {
       HttpExchange exchange,
       Http.Request request,
       Http.Response response) {
-    logger.trace("serveStatic: begin");
+    logger.trace("serveStatic: begin :{}:{}", request.method, request.url);
 
     try {
       File file = serverHelper.findFile(renderStatic.file);
@@ -608,17 +608,17 @@ public class PlayHandler implements HttpHandler {
         serveLocalFile(file, request, response, exchange);
       }
     } catch (Throwable ez) {
-      logger.error("serveStatic for request {} {}", request.method, request.url, ez);
+      logger.error("serveStatic error :{}:{}", request.method, request.url, ez);
       sendServerError(exchange, request);
     }
-    logger.trace("serveStatic: end");
+    logger.trace("serveStatic: end :{}:{}", request.method, request.url);
   }
 
   private void sendServerError(HttpExchange exchange, Http.Request request) {
     try {
       printResponse(exchange, INTERNAL_ERROR, "text/plain", "Internal Error");
     } catch (IOException ex) {
-      logger.error("serveStatic for request {} {}", request.method, request.url, ex);
+      logger.error("serveStatic error :{}:{}", request.method, request.url, ex);
     }
   }
 

@@ -53,44 +53,45 @@ public class FileService {
       String fileContentType = MimeTypes.getContentType(localFile.getName(), "text/plain");
       String contentType = response.contentType != null ? response.contentType : fileContentType;
 
-      if (logger.isTraceEnabled()) {
-        logger.trace(
-            "serving {}, keepAlive:{}, contentType:{}, fileLength:{}, request.path:{}",
-            file,
-            isKeepAlive,
-            contentType,
-            fileLength,
-            request.path);
-      }
+      logger.trace(
+          "serving {}, keepAlive:{}, contentType:{}, fileLength:{} :{}:{}",
+          file,
+          isKeepAlive,
+          contentType,
+          fileLength,
+          request.method,
+          request.path
+      );
 
       setHeaders(nettyResponse, fileLength, contentType);
       writeFileContent(
           file, nettyRequest, nettyResponse, channel, raf, isKeepAlive, fileContentType, startedAt);
 
     } catch (Throwable e) {
-      logger.error("Failed to serve {} in {} ms", file, formatNanos(nanoTime() - startedAt), e);
-      closeSafely(localFile, raf, request.path);
-      closeSafely(ctx, request.path);
+      logger.error("Failed to serve {} in {} ms :{}:{}", file,
+          formatNanos(nanoTime() - startedAt), request.method, request.url, e);
+      closeSafely(localFile, raf, request);
+      closeSafely(ctx, request);
     }
   }
 
-  private void closeSafely(File localFile, Closeable closeable, String path) {
+  private void closeSafely(File localFile, Closeable closeable, Request request) {
     try {
       if (closeable != null) {
         closeable.close();
       }
     } catch (IOException e) {
-      logger.warn("Failed to close {}, request.path:{}", localFile.getAbsolutePath(), path, e);
+      logger.warn("Failed to close {} :{}:{}", localFile.getAbsolutePath(), request.method, request.path, e);
     }
   }
 
-  private void closeSafely(ChannelHandlerContext ctx, String path) {
+  private void closeSafely(ChannelHandlerContext ctx, Request request) {
     try {
       if (ctx.getChannel().isOpen()) {
         ctx.getChannel().close();
       }
     } catch (Throwable ex) {
-      logger.warn("Failed to close channel, request.path:{}", path, ex);
+      logger.warn("Failed to close channel :{}:{}", request.method, request.path, ex);
     }
   }
 
@@ -114,25 +115,30 @@ public class FileService {
         writeFuture = channel.write(chunkedInput);
       } else {
         logger.debug(
-            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
+            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection :{}:{}",
             file,
-            isKeepAlive);
+            isKeepAlive,
+            nettyRequest.getMethod(), nettyRequest.getUri()
+        );
       }
     } else {
       if (channel.isOpen()) {
         writeFuture = channel.write(nettyResponse);
       } else {
         logger.debug(
-            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
+            "Try to write {} on a closed channel[keepAlive:{}]: Remote host may have closed the connection :{}:{}",
             file,
-            isKeepAlive);
+            isKeepAlive,
+            nettyRequest.getMethod(), nettyRequest.getUri()
+        );
       }
       raf.close();
-      logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt));
+      logger.trace("served {} in {} ms :{}:{}", file,
+          formatNanos(nanoTime() - startedAt), nettyRequest.getMethod(), nettyRequest.getUri());
     }
 
     if (writeFuture != null) {
-      writeFuture.addListener(new FileServingListener(file, startedAt));
+      writeFuture.addListener(new FileServingListener(file, startedAt, nettyRequest));
       if (!isKeepAlive) {
         writeFuture.addListener(ChannelFutureListener.CLOSE);
       }
@@ -175,21 +181,25 @@ public class FileService {
 
     private final String file;
     private final long startedAt;
+    private final HttpRequest request;
 
-    private FileServingListener(String file, long startedAt) {
+    private FileServingListener(String file, long startedAt, HttpRequest request) {
       this.file = file;
       this.startedAt = startedAt;
+      this.request = request;
     }
 
     @Override
     public void operationComplete(ChannelFuture future) {
       if (future.isSuccess()) {
-        logger.trace("served {} in {} ms", file, formatNanos(nanoTime() - startedAt));
+        logger.trace("served {} in {} ms :{}:{}", file,
+            formatNanos(nanoTime() - startedAt), request.getMethod(), request.getUri());
       } else {
         logger.trace(
-            "failed to serve {} in {} ms",
+            "failed to serve {} in {} ms :{}:{}",
             file,
             formatNanos(nanoTime() - startedAt),
+            request.getMethod(), request.getUri(),
             future.getCause());
       }
     }

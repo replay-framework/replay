@@ -38,21 +38,22 @@ public class FileService {
         String fileContentType = MimeTypes.getContentType(localFile.getName(), "text/plain");
         String contentType = requireNonNullElse(response.contentType, fileContentType);
 
-        if (logger.isTraceEnabled()) {
-          logger.trace(
-              "serving {}, keepAlive:{}, contentType:{}, fileLength:{}, request.path:{}",
-              file,
-              keepAlive,
-              contentType,
-              fileLength,
-              request.path);
-        }
+        logger.trace(
+            "serving {}, keepAlive:{}, contentType:{}, fileLength:{} :{}:{}",
+            file,
+            keepAlive,
+            contentType,
+            fileLength,
+            request.method,
+            request.path
+        );
 
         setHeaders(exchange, fileLength, contentType);
         writeFileContent(file, exchange, raf, keepAlive, fileContentType, startedAt);
 
       } catch (Throwable e) {
-        logger.error("Failed to serve {} in {} ms", file, formatNanos(nanoTime() - startedAt), e);
+        logger.error("Failed to serve {} in {} ms :{}:{}", file,
+            formatNanos(nanoTime() - startedAt), request.method, request.url, e);
       }
     }
   }
@@ -78,10 +79,12 @@ public class FileService {
       throws IOException {
     if (exchange.getRequestMethod().equals(HEAD)) {
       logger.trace(
-          "served {} {} in {} ms",
-          exchange.getRequestMethod(),
+          "served {} in {} ms :{}:{}",
           file,
-          formatNanos(nanoTime() - startedAt));
+          formatNanos(nanoTime() - startedAt),
+          exchange.getRequestMethod(),
+          exchange.getRequestURI()
+      );
     } else {
       try (OutputStream out = exchange.getResponseBody()) {
         byte[] buffer = new byte[1024];
