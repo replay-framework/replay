@@ -32,10 +32,10 @@ dependencies {
 
 task generateReplayVersion(type: Exec) {
   commandLine 'git', 'describe', '--always'
-  standardOutput out
+  standardOutput = out
 
   doFirst {
-    standardOutput new FileOutputStream("${buildDir}/classes/java/main/play/version")
+    standardOutput = new FileOutputStream("${buildDir}/classes/java/main/play/version")
     standardOutput.write((project.version + '-').getBytes('UTF-8'))
   }
 }

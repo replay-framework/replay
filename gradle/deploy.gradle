@@ -1,4 +1,4 @@
-apply plugin: 'maven-publish'
+apply plugin: "com.vanniktech.maven.publish"
 
 jar {
   manifest {
@@ -30,67 +30,29 @@ tasks.register('javadocJar', Jar) {
 }
 
 if (project.hasProperty("signing.keyId")) {
-  apply plugin: 'signing'
-
-  signing {
-    afterEvaluate {
-      sign publishing.publications.mavenJava
-    }
-  }
-}
-
-artifacts {
-  archives jar
-  archives sourcesJar
-  archives javadocJar
-}
-
-publishing {
-  if (project.hasProperty("sonatypeUsername")) {
-    repositories {
-      maven {
-        name 'Maven'
-        url project.version.endsWith("-SNAPSHOT") ?
-            'https://s01.oss.sonatype.org/content/repositories/snapshots/' :
-            'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-        credentials {
-          username "$sonatypeUsername"
-          password "$sonatypePassword"
+  mavenPublishing {
+    pom {
+      name = archivesBaseName
+      description = 'RePlay is a fork of the Play1 framework, created by Codeborne.'
+      url = 'https://github.com/replay-framework/replay'
+      inceptionYear = "2017"
+      licenses {
+        license {
+          name = 'MIT'
+          url = 'https://opensource.org/licenses/MIT'
         }
       }
-    }
-  }
-
-  publications {
-    mavenJava(MavenPublication) {
-      groupId "${project.group}"
-      artifactId "${project.name}"
-
-      from components.java
-      artifact(sourcesJar)
-      artifact(javadocJar)
-
-      pom {
-        name = archivesBaseName
-        description = 'RePlay is a fork of the Play1 framework, created by Codeborne.'
+      developers {
+        developer {
+          id = 'asolntsev'
+          name = 'Andrei Solntsev'
+          url = "https://github.com/asolntsev/"
+        }
+      }
+      scm {
+        connection = 'scm:git@github.com:replay-framework/replay.git'
+        developerConnection = 'scm:git@github.com:replay-framework/replay.git'
         url = 'https://github.com/replay-framework/replay'
-        licenses {
-          license {
-            name = 'MIT'
-            url = 'https://opensource.org/licenses/MIT'
-          }
-        }
-        developers {
-          developer {
-            id = 'asolntsev'
-            name = 'Andrei Solntsev'
-          }
-        }
-        scm {
-          connection = 'scm:git@github.com:replay-framework/replay.git'
-          developerConnection = 'scm:git@github.com:replay-framework/replay.git'
-          url = 'https://github.com/replay-framework/replay'
-        }
       }
     }
   }
