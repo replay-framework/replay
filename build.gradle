@@ -21,7 +21,7 @@ defaultTasks 'clean', 'check', 'publishToMavenLocal'
 subprojects {
 
   group = 'io.github.replay-framework'
-  version = project.properties['revision'] ?: '2.7.0'
+  version = project.properties['revision'] ?: '2.7.1-SNAPSHOT'
 
   apply plugin: 'java'
   apply plugin: 'java-library'
