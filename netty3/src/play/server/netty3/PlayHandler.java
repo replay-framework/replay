@@ -116,11 +116,11 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
   @Override
   public void messageReceived(final ChannelHandlerContext ctx, MessageEvent messageEvent) {
-    logger.trace("messageReceived: begin");
     Object msg = messageEvent.getMessage();
 
     // Http request
     if (msg instanceof HttpRequest nettyRequest) {
+      logger.trace("messageReceived: begin :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
 
       Request request = new Request();
       Response response = new Response();
@@ -156,18 +156,20 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
       } catch (URISyntaxException ex) {
         // Do not log the stack trace for URI parsing errors. An info line suffices.
-        logger.info("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
-        serve400(ex, ctx);
+        logger.info("{} - {} :{}:{}", ex.getClass().getSimpleName(), ex.getMessage(), nettyRequest.getMethod(), nettyRequest.getUri());
+        serve400(ex, ctx, request);
       } catch (IllegalArgumentException ex) {
-        logger.warn("Exception on request. serving 400 back", ex);
-        serve400(ex, ctx);
+        logger.warn("Exception on request. serving 400 back :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri(), ex);
+        serve400(ex, ctx, request);
       } catch (Exception ex) {
-        logger.warn("Exception on request. serving 500 back", ex);
+        logger.warn("Exception on request. serving 500 back :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri(), ex);
         serve500(ex, ctx, request, response);
       }
+      logger.trace("messageReceived: end :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
     }
-
-    logger.trace("messageReceived: end");
+    else {
+      logger.trace("messageReceived: unsupported message type {} {}", msg.getClass().getName(), msg);
+    }
   }
 
   private class Netty3Invocation extends Invocation {
@@ -192,7 +194,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public boolean init() throws IOException {
-      logger.trace("init: begin");
+      logger.trace("init: begin :{}:{}", request.method, request.path);
 
       Request.setCurrent(request);
       Response.setCurrent(response);
@@ -211,14 +213,14 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             rs = staticPathsCache.get(request.domain + " " + request.method + " " + request.path);
           }
           serveStatic(rs, ctx, request, response, nettyRequest, event);
-          logger.trace("init: end false");
+          logger.trace("init: end false :{}:{}", request.method, request.path);
           return false;
         }
         Router.instance.routeOnlyStatic(request);
         super.init();
       } catch (NotFound nf) {
         serve404(nf, ctx, request);
-        logger.trace("init: end false");
+        logger.trace("init: end false :{}:{}", request.method, request.path);
         return false;
       } catch (RenderStatic rs) {
         if (Play.mode == Play.Mode.PROD) {
@@ -227,11 +229,11 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
           }
         }
         serveStatic(rs, ctx, request, response, nettyRequest, this.event);
-        logger.trace("init: end false");
+        logger.trace("init: end false :{}:{}", request.method, request.path);
         return false;
       }
 
-      logger.trace("init: end true");
+      logger.trace("init: end true :{}:{}", request.method, request.path);
       return true;
     }
 
@@ -247,7 +249,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void run() {
       try {
-        logger.trace("run: begin");
+        logger.trace("run: begin :{}:{}", request.method, request.path);
         try {
           preInit();
           if (init()) {
@@ -269,7 +271,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       } catch (Exception e) {
         serve500(e, ctx, request, response);
       }
-      logger.trace("run: end");
+      logger.trace("run: end :{}:{}", request.method, request.path);
     }
 
     @Override
@@ -296,7 +298,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       } else {
         copyResponse(ctx, request, response, nettyRequest);
       }
-      logger.trace("execute: end");
+      logger.trace("execute: end :{}:{}", request.method, request.path);
     }
   }
 
@@ -304,7 +306,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     String warning = nettyRequest.headers().get(HttpHeaders.Names.WARNING);
     String length = nettyRequest.headers().get(HttpHeaders.Names.CONTENT_LENGTH);
     if (warning != null) {
-      logger.trace("saveExceededSizeError: begin");
+      logger.trace("saveExceededSizeError: begin :{}:{}", request.method, request.path);
 
       try {
         StringBuilder error = new StringBuilder();
@@ -341,9 +343,9 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         String errorData = URLEncoder.encode(errorsCookieCrypter.encrypt(error.toString()), UTF_8);
         Http.Cookie cookie = new Http.Cookie(Scope.COOKIE_PREFIX + "_ERRORS", errorData);
         request.cookies.put(Scope.COOKIE_PREFIX + "_ERRORS", cookie);
-        logger.trace("saveExceededSizeError: end");
+        logger.trace("saveExceededSizeError: end :{}:{}", request.method, request.path);
       } catch (RuntimeException e) {
-        throw new UnexpectedException("Error serialization problem", e);
+        throw new UnexpectedException("Serialization problem for %s %s".formatted(request.method, request.path), e);
       }
     }
   }
@@ -403,7 +405,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       Response response,
       HttpResponse nettyResponse,
       HttpRequest nettyRequest) {
-    logger.trace("writeResponse: begin");
+    logger.trace("writeResponse: begin :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
 
     boolean keepAlive = isKeepAlive(nettyRequest);
     byte[] content =
@@ -413,9 +415,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     nettyResponse.setContent(buf);
 
     if (!nettyResponse.getStatus().equals(HttpResponseStatus.NOT_MODIFIED)) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("writeResponse: content length [{}]", response.out.size());
-      }
+      logger.trace("writeResponse: content length [{}] for :{}:{}",
+          response.out.size(), nettyRequest.getMethod(), nettyRequest.getUri());
       setContentLength(nettyResponse, response.out.size());
     }
 
@@ -424,8 +425,8 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       f = ctx.getChannel().write(nettyResponse);
     } else {
       logger.debug(
-          "Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection",
-          keepAlive);
+          "Try to write on a closed channel[keepAlive:{}]: Remote host may have closed the connection :{}:{}",
+          keepAlive, nettyRequest.getMethod(), nettyRequest.getUri());
     }
 
     // Decide whether to close the connection or not.
@@ -433,13 +434,13 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       // Close the connection when the whole content is written out.
       f.addListener(ChannelFutureListener.CLOSE);
     }
-    logger.trace("writeResponse: end");
+    logger.trace("writeResponse: end :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
   }
 
   private void copyResponse(
       ChannelHandlerContext ctx, Request request, Response response, HttpRequest nettyRequest)
       throws Exception {
-    logger.trace("copyResponse: begin");
+    logger.trace("copyResponse: begin :{}:{}", request.method, request.path);
 
     // Decide whether to close the connection or not.
 
@@ -496,7 +497,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     } else {
       writeResponse(ctx, response, nettyResponse, nettyRequest);
     }
-    logger.trace("copyResponse: end");
+    logger.trace("copyResponse: end :{}:{}", request.method, request.path);
   }
 
   private String getRemoteIPAddress(MessageEvent e) {
@@ -505,7 +506,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
   Request parseRequest(HttpRequest nettyRequest, MessageEvent messageEvent)
       throws IOException, URISyntaxException {
-    logger.trace("parseRequest: begin, URI = {}", nettyRequest.getUri());
+    logger.trace("parseRequest: begin :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
 
     String contentType = nettyRequest.headers().get(CONTENT_TYPE);
 
@@ -535,7 +536,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
             getHeaders(nettyRequest),
             getCookies(nettyRequest));
 
-    logger.trace("parseRequest: end");
+    logger.trace("parseRequest: end :{}:{}", nettyRequest.getMethod(), nettyRequest.getUri());
     return request;
   }
 
@@ -602,16 +603,16 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     }
   }
 
-  private void serve400(Exception e, ChannelHandlerContext ctx) {
-    logger.trace("serve400: begin");
+  private void serve400(Exception e, ChannelHandlerContext ctx, Request request) {
+    logger.trace("serve400: begin :{}:{}", request.method, request.path);
     HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.BAD_REQUEST);
     nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
     printResponse(ctx, nettyResponse, e.getMessage() + '\n');
-    logger.trace("serve400: end");
+    logger.trace("serve400: end :{}:{}", request.method, request.path);
   }
 
   private void serve404(NotFound e, ChannelHandlerContext ctx, Request request) {
-    logger.trace("serve404: begin");
+    logger.trace("serve404: begin :{}:{}", request.method, request.path);
     String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
 
@@ -620,7 +621,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
     printResponse(ctx, nettyResponse, errorHtml);
-    logger.trace("serve404: end");
+    logger.trace("serve404: end :{}:{}", request.method, request.path);
   }
 
   private void printResponse(
@@ -635,12 +636,12 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
   private void serve500(
       Exception e, ChannelHandlerContext ctx, Request request, Response response) {
-    logger.trace("serve500: begin");
+    logger.trace("serve500: begin :{}:{}", request.method, request.path);
     HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR);
     Charset encoding = response.encoding;
 
     try {
-      flushCookies(response, nettyResponse);
+      flushCookies(request, response, nettyResponse);
 
       String format = requireNonNullElse(request.format, "txt");
       nettyResponse
@@ -656,19 +657,17 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
         writeFuture.addListener(ChannelFutureListener.CLOSE);
         logger.error(
-            "Internal Server Error (500) for {} {} ({})",
-            request.method,
-            request.url,
+            "Internal Server Error (500) ({}) :{}:{}",
             e.getClass().getSimpleName(),
+            request.method, request.url,
             e);
       } catch (Throwable ex) {
         logger.error(
-            "Internal Server Error (500) for {} {} ({})",
-            request.method,
-            request.url,
+            "Internal Server Error (500) ({}) :{}:{}",
             e.getClass().getSimpleName(),
+            request.method, request.url,
             e);
-        logger.error("Error during the 500 response generation", ex);
+        logger.error("Error during the 500 response generation :{}:{}", request.method, request.url, ex);
         byte[] bytes = "Internal Error".getBytes(encoding);
         ChannelBuffer buf = ChannelBuffers.copiedBuffer(bytes);
         setContentLength(nettyResponse, bytes.length);
@@ -685,20 +684,20 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         ChannelFuture writeFuture = ctx.getChannel().write(nettyResponse);
         writeFuture.addListener(ChannelFutureListener.CLOSE);
       } catch (Exception fex) {
-        logger.error("(encoding ?)", fex);
+        logger.error("(encoding ?) :{}:{}", request.method, request.url, fex);
       }
       throw exxx;
     }
-    logger.trace("serve500: end");
+    logger.trace("serve500: end :{}:{}", request.method, request.path);
   }
 
-  private void flushCookies(Response response, HttpResponse nettyResponse) {
+  private void flushCookies(Request request, Response response, HttpResponse nettyResponse) {
     try {
       Map<String, Http.Cookie> cookies = response.cookies;
       addCookiesToResponse(nettyResponse, cookies);
 
     } catch (Exception e) {
-      logger.error("Failed to flush cookies", e);
+      logger.error("Failed to flush cookies :{}:{}", request.method, request.path, e);
     }
   }
 
@@ -713,7 +712,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
       Response response,
       HttpRequest nettyRequest,
       MessageEvent e) {
-    logger.trace("serveStatic: begin");
+    logger.trace("serveStatic: begin :{}:{}", request.method, request.path);
 
     HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
     try {
@@ -724,7 +723,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         serveLocalFile(file, request, response, ctx, e, nettyRequest, nettyResponse);
       }
     } catch (Throwable ez) {
-      logger.error("serveStatic for request {} {}", request.method, request.url, ez);
+      logger.error("serveStatic error :{}:{}", request.method, request.url, ez);
       try {
         HttpResponse errorResponse =
             new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
@@ -735,10 +734,10 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
         ChannelFuture future = ctx.getChannel().write(errorResponse);
         future.addListener(ChannelFutureListener.CLOSE);
       } catch (Exception ex) {
-        logger.error("serveStatic for request {} {}", request.method, request.url, ex);
+        logger.error("serveStatic error :{}:{}", request.method, request.url, ex);
       }
     }
-    logger.trace("serveStatic: end");
+    logger.trace("serveStatic: end :{}:{}", request.method, request.path);
   }
 
   private void serveLocalFile(
