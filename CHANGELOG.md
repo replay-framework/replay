@@ -2,6 +2,10 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.7.1 (released 02.09.2025)
+* #157 fix serving "Bad Request" and "Not Found" responses in Netty4 (#652)
+* #157 add request method+path for all trace logs in PlayHandler (#652)
+
 ## 2.7.0 (released 31.08.2025)
 * #624 #623 fix RePlay on Windows (#632)
 * fix leftover `Play.getVirtualFile()` usage in tags (#522) / by Szabolcs Hubai @xabolcs
