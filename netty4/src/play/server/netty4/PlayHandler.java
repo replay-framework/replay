@@ -44,6 +44,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -85,6 +86,7 @@ import play.mvc.ActionInvoker;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
+import play.mvc.Http.StatusCode;
 import play.mvc.Router;
 import play.mvc.Scope;
 import play.mvc.Scope.RenderArgs;
@@ -169,7 +171,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final Response response;
     private final FullHttpRequest nettyRequest;
 
-    public Netty4Invocation(
+    private Netty4Invocation(
         Request request,
         Response response,
         ChannelHandlerContext ctx,
@@ -577,11 +579,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
   private void serve400(Exception e, ChannelHandlerContext ctx, Request request) {
     logger.trace("serve400: begin :{}:{}", request.method, request.path);
-
-    FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.BAD_REQUEST);
-    nettyResponse.headers().set(CONTENT_TYPE, "text/plain");
-    printResponse(ctx, nettyResponse, e.getMessage() + '\n');
-
+    printResponse(ctx, HttpResponseStatus.BAD_REQUEST, "text/plain", e.getMessage() + '\n');
     logger.trace("serve400: end :{}:{}",  request.method, request.path);
   }
 
@@ -589,21 +587,19 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     logger.trace("serve404: begin :{}:{}", request.method, request.path);
     String format = Objects.toString(request.format, "txt");
     String contentType = MimeTypes.getContentType("404." + format, "text/plain");
-
-    FullHttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.NOT_FOUND);
-    nettyResponse.headers().set(CONTENT_TYPE, contentType);
-
     String errorHtml = serverHelper.generateNotFoundResponse(request, format, e);
-    printResponse(ctx, nettyResponse, errorHtml);
+    printResponse(ctx, HttpResponseStatus.NOT_FOUND, contentType, errorHtml);
     logger.trace("serve404: end :{}:{}", request.method, request.path);
   }
 
   private void printResponse(
-      ChannelHandlerContext ctx, FullHttpResponse nettyResponse, String errorHtml) {
+      ChannelHandlerContext ctx, HttpResponseStatus status, String contentType, String errorHtml) {
     byte[] bytes = errorHtml.getBytes(Response.current().encoding);
-    ByteBuf buf = ctx.alloc().buffer(bytes.length).writeBytes(bytes);
+
+    FullHttpResponse nettyResponse = new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.wrappedBuffer(bytes));
+    nettyResponse.headers().set(CONTENT_TYPE, contentType);
     setContentLength(nettyResponse, bytes.length);
-    nettyResponse = nettyResponse.replace(buf);
+
     ChannelFuture writeFuture = ctx.channel().writeAndFlush(nettyResponse);
     writeFuture.addListener(ChannelFutureListener.CLOSE);
   }
@@ -679,10 +675,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     return new DefaultFullHttpResponse(HTTP_1_1, status);
   }
 
-  private HttpResponse createByteHttpResponse(HttpResponseStatus status) {
-    return new DefaultHttpResponse(HTTP_1_1, status);
-  }
-
   private void serveStatic(
       RenderStatic renderStatic,
       ChannelHandlerContext ctx,
@@ -698,9 +690,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         serve404(
             new NotFound("The file " + renderStatic.file + " does not exist"), ctx, playRequest);
       } else {
-        HttpResponse nettyResponse =
-          createByteHttpResponse(HttpResponseStatus.valueOf(playResponse.status));
-        serveLocalFile(file, playRequest, playResponse, ctx, nettyRequest, nettyResponse);
+        serveLocalFile(file, playRequest, playResponse, ctx, nettyRequest);
       }
     } catch (Throwable ez) {
       logger.error("serveStatic error :{}:{}", playRequest.method, playRequest.url, ez);
@@ -725,18 +715,23 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       Request playRequest,
       Response playResponse,
       ChannelHandlerContext ctx,
-      FullHttpRequest nettyRequest,
-      HttpResponse nettyResponse)
+      FullHttpRequest nettyRequest)
       throws FileNotFoundException {
     boolean keepAlive = isKeepAlive(nettyRequest);
-    addETag(nettyRequest, nettyResponse, localFile);
     Channel ch = ctx.channel();
-    if (nettyResponse.status().equals(NOT_MODIFIED)) {
+    if (playResponse.status == StatusCode.NOT_MODIFIED) {
+      ByteBuf empty = Unpooled.EMPTY_BUFFER;
+      FullHttpResponse nettyResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_MODIFIED, empty);
+      addETag(nettyRequest, nettyResponse, localFile);
       ChannelFuture writeFuture = ch.writeAndFlush(nettyResponse);
       if (!keepAlive) {
         writeFuture.addListener(ChannelFutureListener.CLOSE);
       }
     } else {
+      HttpResponse nettyResponse =
+          new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+              HttpResponseStatus.valueOf(playResponse.status));
+      addETag(nettyRequest, nettyResponse, localFile);
       fileService.serve(localFile, nettyRequest, nettyResponse, ctx, playRequest, playResponse, ch);
     }
   }
