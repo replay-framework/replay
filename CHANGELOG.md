@@ -2,6 +2,9 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.7.2 (under construction)
+* TBD
+
 ## 2.7.1 (released 02.09.2025)
 * #157 fix serving "Bad Request" and "Not Found" responses in Netty4 (#652)
 * #157 add request method+path for all trace logs in PlayHandler (#652)
