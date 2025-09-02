@@ -42,4 +42,10 @@ class HelloWorldSpec extends BaseSpec {
     $("#link-with-pluses-in-path").click();
     $("h1").shouldHave(text("Hello, Me+Myself+Irene/2000 (Farrelly brothers)!"));
   }
+
+  @Test
+  void linkCausingTechnicalError() {
+    $("#link-technical-error").click();
+    $("h1").shouldHave(text("Index 42 out of bounds for length 3").or(text("Oops, an error occurred")));
+  }
 }

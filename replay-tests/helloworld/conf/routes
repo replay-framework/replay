@@ -1,5 +1,6 @@
 GET    /                   HelloWorld.hello
 GET    /hello/{greeting}   HelloWorld.hola
+GET    /error              HelloWorld.error
 GET    /images             HelloWorld.images
 GET    /repeat             HelloWorld.repeat
 GET    /epic-fail          HelloWorld.epicFail
