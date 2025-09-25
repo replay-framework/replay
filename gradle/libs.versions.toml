@@ -134,7 +134,7 @@ jacksonDatabind = { group = "com.fasterxml.jackson.core", name = "jackson-databi
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
 
 # :replay-tests:liquibase
-h2 = { group = "com.h2database", name = "h2", version = "2.3.232" }
+h2 = { group = "com.h2database", name = "h2", version = "2.4.240" }
 liquibaseCore = { group = "org.liquibase", name = "liquibase-core", version = "4.33.0" }
 
 
