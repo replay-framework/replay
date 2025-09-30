@@ -2,7 +2,7 @@ dependencies {
   api project(':framework')
   testImplementation project(':framework').sourceSets.test.compileClasspath
 
-  api('com.google.inject:guice:6.0.0')
+  api(libs.guice)
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')
