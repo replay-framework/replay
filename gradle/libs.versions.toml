@@ -134,7 +134,7 @@ kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
 
 # :replay-tests:liquibase
 h2 = { group = "com.h2database", name = "h2", version = "2.4.240" }
-liquibaseCore = { group = "org.liquibase", name = "liquibase-core", version = "5.0.0" }
+liquibaseCore = { group = "org.liquibase", name = "liquibase-core", version = "5.0.1" }
 
 
 # [bundles] # Only useful for sharing sets of dependencies between (sub)projects
