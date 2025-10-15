@@ -115,7 +115,7 @@ groovyXml = { group = "org.codehaus.groovy", name = "groovy-xml", version.ref = 
 
 
 # :replay-tests
-pdfTest = { group = "com.codeborne", name = "pdf-test", version = "2.0.0" }
+pdfTest = { group = "com.codeborne", name = "pdf-test", version = "2.1.0" }
 selenide = { group = "com.codeborne", name = "selenide", version = "7.11.1" }
 
 # :replay-tests:criminals
