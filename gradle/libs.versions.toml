@@ -17,7 +17,7 @@
 assertjVersion = "3.27.6"
 commonsLangVersion = "3.19.0"
 commonsTextVersion = "1.14.0"
-flyingSaucerPdfVersion = "9.13.3"
+flyingSaucerPdfVersion = "10.0.3"
 xercesVersion = "2.12.2"
 groovyVersion = "3.0.25"
 hibernateVersion = "6.6.15.Final"
