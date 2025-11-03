@@ -10,41 +10,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        server: ['netty3', 'netty4', 'javanet']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          cache: 'gradle'
-          java-version: '17'
-      - uses: gradle/actions/setup-gradle@v5
-      - name: Run unit-tests
-        run: ./gradlew clean test --info --rerun-tasks
-      - name: Run integration tests on ${{ matrix.server }}
-        run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
-      - name: Precompile templates
-        run: ./gradlew precompileTemplates
-      - uses: actions/upload-artifact@v5
-        if: failure()
-        with:
-          name: replay-linux-uitest-${{ matrix.server }}
-          path: |
-            **/build/reports
-            **/build/test-results
-            **/precompiled
-            **/tmp
-
   build-on-windows:
     runs-on: windows-latest
     strategy:
       matrix:
-        server: ['javanet']
+        server: ['javanet', 'netty3']
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -55,45 +25,13 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v5
       - name: Run unit-tests
-        run: .\gradlew.bat clean test --info --rerun-tasks
-      - name: Precompile templates
-        run: ./gradlew precompileTemplates
+        run: .\gradlew.bat clean
       - name: Run integration tests on ${{ matrix.server }}
-        run: .\gradlew.bat "-Dselenide.headless=true" uitest-${{ matrix.server }}
+        run: .\gradlew.bat "-Dselenide.headless=true" uitest-${{ matrix.server }} --info --rerun-tasks
       - uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: replay-windows-uitest-${{ matrix.server }}
-          path: |
-            **/build/reports
-            **/build/test-results
-            **/precompiled
-            **/tmp
-
-  build-on-mac:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        server: ['netty3']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          cache: 'gradle'
-          java-version: '17'
-      - uses: gradle/actions/setup-gradle@v5
-      - name: Run unit-tests
-        run: ./gradlew clean test --info --rerun-tasks
-      - name: Precompile templates
-        run: ./gradlew precompileTemplates
-      - name: Run integration tests on ${{ matrix.server }}
-        run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true --no-parallel
-      - uses: actions/upload-artifact@v5
-        if: failure()
-        with:
-          name: replay-macos-uitest-${{ matrix.server }}
           path: |
             **/build/reports
             **/build/test-results

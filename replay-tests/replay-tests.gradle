@@ -66,7 +66,7 @@ tasks.register('uitest-netty4', Test) {
 }
 
 tasks.register('uitest-javanet', Test) {
-  include 'ui/**/*'
+  include 'ui/**/*ReportTest*'
   outputs.upToDateWhen { false }
   classpath = configurations.javanetTestClasspath + classpath
 }

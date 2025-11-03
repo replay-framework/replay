@@ -1,10 +1,25 @@
 package ui;
 
 import static com.codeborne.selenide.TextCheck.FULL_TEXT;
+import static java.lang.System.currentTimeMillis;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import criminals.Application;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ScheduledExecutorService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
@@ -14,6 +29,8 @@ import play.Play;
 public class BaseUITest {
   protected static final WireMockServer wireMock = new WireMockServer(0);
   private final Logger log = LoggerFactory.getLogger(getClass());
+  private final ScheduledExecutorService job = newScheduledThreadPool(1);
+  private final String prefix = new SimpleDateFormat("HH-mm-ss-SSS").format(new Date());
 
   @BeforeAll
   public static void setupSeleniumHttpClient() {
@@ -37,6 +54,46 @@ public class BaseUITest {
       log.info("Started AUT at {}", Configuration.baseUrl);
     } else {
       log.info("Running AUT on {}", Configuration.baseUrl);
+    }
+  }
+
+  @BeforeEach
+  final void startThreadDumper() {
+    log.info("Saving thread dumpers in files build/reports/thread-dump-{}-*", prefix);
+    job.scheduleWithFixedDelay(() -> saveThreadDump(), 500, 100, MILLISECONDS);
+  }
+
+  @AfterEach
+  final void stopThreadDumper() throws InterruptedException {
+    long start = currentTimeMillis();
+    job.shutdown();
+    boolean terminated = job.awaitTermination(5, SECONDS);
+    job.shutdownNow();
+    log.info("Stopped thread dumper {} in {} ms: {}", prefix, currentTimeMillis() - start, terminated);
+  }
+
+  private void saveThreadDump() {
+    File build = new File("build");
+    build.mkdirs();
+    File reports = new File(build, "reports");
+    reports.mkdirs();
+
+    File file = new File(reports, "thread-dump-%s-%s.txt".formatted(prefix, currentTimeMillis()));
+
+    ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
+    ThreadInfo[] threadInfos = threadMxBean.dumpAllThreads(true, true);
+
+    try (FileWriter writer = new FileWriter(file, UTF_8)) {
+      for (ThreadInfo threadInfo : threadInfos) {
+        writer.write(threadInfo.toString());
+        for (StackTraceElement ste : threadInfo.getStackTrace()) {
+          writer.write("\tat " + ste.toString() + "\n");
+        }
+        writer.write("\n");
+      }
+    }
+    catch (IOException e) {
+      log.error("Failed to dump threads to file {}: {}", file, e.toString());
     }
   }
 }
