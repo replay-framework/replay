@@ -1,19 +1,23 @@
 package ui;
 
 import static com.codeborne.pdftest.assertj.Assertions.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.codeborne.pdftest.PDF;
 import com.codeborne.selenide.Configuration;
 import java.io.IOException;
 import java.net.URL;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReportTest extends BaseUITest {
+
   private static final Logger log = LoggerFactory.getLogger(ReportTest.class);
 
   @Test
+  @Timeout(value = 20, unit = SECONDS)
   public void downloadReportAsPDF() throws IOException {
     URL url = new URL(Configuration.baseUrl + "/report/pdf?days=42");
     log.info("Verifying PDF {} ...", url);
