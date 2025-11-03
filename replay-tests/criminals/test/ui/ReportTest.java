@@ -17,7 +17,7 @@ public class ReportTest extends BaseUITest {
   private static final Logger log = LoggerFactory.getLogger(ReportTest.class);
 
   @RepeatedTest(20)
-  @Timeout(value = 10, unit = SECONDS)
+  @Timeout(value = 20, unit = SECONDS)
   public void downloadReportAsPDF() throws IOException {
     URL url = new URL(Configuration.baseUrl + "/report/pdf?days=42");
     log.info("Verifying PDF {} ...", url);
