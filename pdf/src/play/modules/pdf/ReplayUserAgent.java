@@ -1,5 +1,6 @@
 package play.modules.pdf;
 
+import static java.lang.System.currentTimeMillis;
 import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
 
 import java.io.File;
@@ -72,17 +73,20 @@ public class ReplayUserAgent extends ITextUserAgent {
   @Nullable
   @Override
   public String resolveURI(@Nullable String uri) {
+    long start = currentTimeMillis();
     if (uri != null) {
       // try to find it in play
       String filePath = REGEX_URL_QUERY.matcher(uri).replaceFirst("");
       File file = fileSearcher.searchFor(filePath);
-      logger.debug("Resolved uri {} to file {}", uri, file == null ? null : file.getAbsolutePath());
+      logger.debug("Resolved uri {} to file {} in {} ms.", uri, file == null ? null : file.getAbsolutePath(), currentTimeMillis() - start);
       if (file != null && file.exists()) {
         return toAbsoluteUrl(file);
       }
     }
 
-    return super.resolveURI(uri);
+    String result = super.resolveURI(uri);
+    logger.debug("Resolved uri {} to {} in {} ms.", uri, result, currentTimeMillis() - start);
+    return result;
   }
 
   private String toAbsoluteUrl(File file) {

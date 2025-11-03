@@ -1,6 +1,7 @@
 package ui;
 
 import static com.codeborne.pdftest.assertj.Assertions.assertThat;
+import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.codeborne.pdftest.PDF;
@@ -21,8 +22,18 @@ public class ReportTest extends BaseUITest {
   public void downloadReportAsPDF() throws IOException {
     URL url = new URL(Configuration.baseUrl + "/report/pdf?days=42");
     log.info("Verifying PDF {} ...", url);
-    PDF pdf = new PDF(url);
+    PDF pdf = readPdf(url);
     assertThat(pdf).containsExactText("Hello, Anonymous!");
     assertThat(pdf).containsExactText("This is the report for last 42 days");
+  }
+
+  private static PDF readPdf(URL url) throws IOException {
+    long start = currentTimeMillis();
+    try {
+      return new PDF(url);
+    }
+    finally {
+      log.info("PDF {} read in {} ms.", url, currentTimeMillis() - start);
+    }
   }
 }
