@@ -1,14 +1,20 @@
 package play.modules.pdf;
 
+import static com.google.common.cache.CacheBuilder.newBuilder;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.xhtmlrenderer.pdf.ITextRenderer.DEFAULT_DOTS_PER_PIXEL;
 
+import com.google.common.cache.Cache;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.net.ssl.HostnameVerifier;
@@ -19,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
+import org.xhtmlrenderer.resource.ImageResource;
 import play.Play;
 
 @ParametersAreNonnullByDefault
@@ -26,6 +33,12 @@ public class ReplayUserAgent extends ITextUserAgent {
 
   private static final Logger logger = LoggerFactory.getLogger(ReplayUserAgent.class);
   private static final Pattern REGEX_URL_QUERY = Pattern.compile("\\?.*");
+  private static final Cache<String, ImageResource> imageCache = newBuilder()
+      .expireAfterAccess(1, MINUTES)
+      .expireAfterWrite(1, HOURS)
+      .maximumSize(100)
+      .build();
+
   private final FileSearcher fileSearcher;
 
   public ReplayUserAgent(ITextOutputDevice outputDevice) {
@@ -38,7 +51,17 @@ public class ReplayUserAgent extends ITextUserAgent {
   }
 
   @Override
-  protected InputStream resolveAndOpenStream(String uri) {
+  @Nonnull
+  public ImageResource getImageResource(String uri) {
+    try {
+      return imageCache.get(uri, () -> super.getImageResource(uri));
+    } catch (ExecutionException e) {
+      throw new RuntimeException("Failed to load image from " + uri, e);
+    }
+  }
+
+  @Override
+  protected InputStream resolveAndOpenStream(@Nullable String uri) {
     trustCertsIfNeeded();
     return super.resolveAndOpenStream(uri);
   }
