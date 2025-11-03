@@ -518,7 +518,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
 
   @Nonnull
   private File createPdfFile(ReplayITextRenderer renderer) throws IOException, DocumentException {
-    File file = Files.createTempFile("pdf", "yahp").toFile();
+    File file = Files.createTempFile("replay-yahp-", ".pdf").toFile();
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
       renderer.createPDF(out, true);
       out.flush();
