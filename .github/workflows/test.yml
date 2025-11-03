@@ -22,7 +22,7 @@ jobs:
         with:
           distribution: 'temurin'
           cache: 'gradle'
-          java-version: '17'
+          java-version: '21'
       - uses: gradle/actions/setup-gradle@v5
       - name: Run unit-tests
         run: .\gradlew.bat clean
