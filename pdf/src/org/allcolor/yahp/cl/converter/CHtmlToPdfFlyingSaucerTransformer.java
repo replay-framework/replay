@@ -507,8 +507,11 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
 
   private void delete(List<File> files) {
     for (final File f : files) {
-      if (!f.delete()) {
-        log.info("Failed to delete temporary file {}", f);
+      if (f.delete()) {
+        log.info("Deleted temporary file {}", f);
+      }
+      else {
+        log.warn("Failed to delete temporary file {}", f);
       }
     }
   }
