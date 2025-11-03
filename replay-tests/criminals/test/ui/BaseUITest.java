@@ -19,6 +19,7 @@ import java.lang.management.ThreadMXBean;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
+import org.apache.pdfbox.pdmodel.font.FontMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,13 +29,16 @@ import play.Play;
 
 public class BaseUITest {
   protected static final WireMockServer wireMock = new WireMockServer(0);
+  private static final Logger LOG = LoggerFactory.getLogger(BaseUITest.class);
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final ScheduledExecutorService job = newScheduledThreadPool(1);
   private final String prefix = new SimpleDateFormat("HH-mm-ss-SSS").format(new Date());
 
   @BeforeAll
-  public static void setupSeleniumHttpClient() {
-    System.setProperty("webdriver.http.factory", "jdk-http-client");
+  public static void preloadPdfFonts() {
+    long startTime = currentTimeMillis();
+    FontMapper mapper = org.apache.pdfbox.pdmodel.font.FontMappers.instance();
+    LOG.info("Loaded font mapper {} in {} ms.", mapper, currentTimeMillis() - startTime);
   }
 
   @BeforeEach

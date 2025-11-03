@@ -6,6 +6,7 @@ dependencies {
   implementation(libs.fluentHc)
 
   testImplementation(libs.pdfTest)
+  testImplementation(libs.pdfBox)
   testImplementation(libs.subethasmtp) { transitive = false }
   testImplementation(libs.wiremock) {
     exclude group: 'org.eclipse.jetty', module: 'jetty-client'
