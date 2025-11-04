@@ -325,32 +325,33 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
    * @param in html document stream
    * @param urlForBase base url of the document
    * @param size pdf document page size
-   * @param hf header-footer list
+   * @param headersFooters header-footer list
    * @param properties transform properties
    * @param out out stream to the pdf file
    */
   @Override
   public void transform(
       final InputStream in,
-      String urlForBase,
+      final String urlForBase,
       final PageSize size,
-      final List hf,
+      final List headersFooters,
       final Map properties,
       final OutputStream out)
       throws CConvertException {
     //noinspection unchecked
-    doTransform(in, urlForBase, size, hf, properties, out);
+    doTransform(in, urlForBase, size, headersFooters, properties, out);
   }
 
   void doTransform(
       final InputStream in,
-      String urlForBase,
+      final String baseUrl,
       final PageSize size,
-      final List<CHeaderFooter> hf,
+      final List<CHeaderFooter> headersFooters,
       final Map<String, String> properties,
       final OutputStream out)
       throws CConvertException {
     List<File> files = new ArrayList<>();
+    String urlForBase = baseUrl;
     try {
       final CShaniDomParser parser = createCShaniDomParser();
       final ReplayITextRenderer renderer = ReplayITextRenderer.build();
@@ -424,9 +425,9 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         }
       }
 
-      final DocumentAndSize[] docs = CDocumentCut.cut(theDoc, size);
+      final List<DocumentAndSize> docs = CDocumentCut.cut(theDoc, size);
       for (DocumentAndSize doc1 : docs) {
-        Document mydoc = doc1.doc;
+        Document mydoc = doc1.doc();
         mydoc.getDocumentElement().getElementsByTagName("body").item(0);
         head = mydoc.getDocumentElement().getElementsByTagName("head").item(0);
         urlForBase = readBaseUrl(mydoc, urlForBase);
@@ -458,8 +459,8 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
             registerTTF(dir, renderer);
           }
         }
-        ((ADocument) mydoc).setInputEncoding("utf-8");
-        ((ADocument) mydoc).setXmlEncoding("utf-8");
+        ((ADocument) mydoc).setInputEncoding(UTF_8.name());
+        ((ADocument) mydoc).setXmlEncoding(UTF_8.name());
         renderer.getSharedContext().setBaseURL(urlForBase);
         mydoc = parser.parse(new StringReader(mydoc.toString()));
         mydoc.getDomConfig().setParameter("entities", Boolean.FALSE);
@@ -469,10 +470,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
         File f = createPdfFile(renderer);
         files.add(f);
       }
-      final PageSize[] sizes = new PageSize[docs.length];
-      for (int i = 0; i < docs.length; i++) {
-        sizes[i] = docs[i].size;
-      }
+      List<PageSize> sizes = docs.stream().map(DocumentAndSize::size).toList();
       CDocumentReconstructor.reconstruct(
           files,
           properties,
@@ -480,7 +478,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
           urlForBase,
           "Flying Saucer Renderer (https://xhtmlrenderer.dev.java.net/)",
           sizes,
-          hf);
+          headersFooters);
     } catch (DocumentException | IOException e) {
       log.error("Failed to transform html to pdf", e);
       throw new CConvertException("Failed to transform html to pdf: " + e, e);
@@ -532,8 +530,8 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     nf.setMaximumFractionDigits(2);
     nf.setMinimumFractionDigits(0);
 
-    double[] size = doc.size.getCMSize();
-    double[] margin = doc.size.getCMMargin();
+    double[] size = doc.size().getCMSize();
+    double[] margin = doc.size().getCMMargin();
 
     return "\n@page {\n"
         + "size: "
