@@ -10,6 +10,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import criminals.Application;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,10 +39,17 @@ public class BaseUITest {
 
   @BeforeAll
   public static void preloadPdfFonts() {
-    long startTime = currentTimeMillis();
+    long start = currentTimeMillis();
     FontMapper mapper = org.apache.pdfbox.pdmodel.font.FontMappers.instance();
     FontMapping<FontBoxFont> sampleFont = mapper.getFontBoxFont("Helvetica", null);
-    LOG.info("Loaded font mapper {} and sample font {} in {} ms.", mapper, sampleFont, currentTimeMillis() - startTime);
+    LOG.info("Loaded font mapper {} and sample font {} in {} ms.", mapper, sampleFont, currentTimeMillis() - start);
+  }
+
+  @BeforeAll
+  public static void preloadAwtToolkit() {
+    long start = currentTimeMillis();
+    Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+    LOG.info("Loaded AWT toolkit {} in {} ms.", defaultToolkit, currentTimeMillis() - start);
   }
 
   @BeforeEach
