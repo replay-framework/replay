@@ -106,7 +106,6 @@ flyingSaucerPdf = { group = "org.xhtmlrenderer", name = "flying-saucer-pdf", ver
 xercesParser = { group = "xerces", name = "xercesImpl", version.ref = "xercesVersion" }
 shaniParser = { group = "com.google.code.maven-play-plugin.org.allcolor.shanidom", name = "shani-parser", version = "1.4.17-patched-yahp-1.3" }
 yahp = { group = "com.google.code.maven-play-plugin.org.allcolor.yahp", name = "yahp", version.ref = "yahpVersion" }
-yahpInternal = { group = "com.google.code.maven-play-plugin.org.allcolor.yahp", name = "yahp-internal", version.ref = "yahpVersion" }
 
 # :fastergt
 ecj = { group = "org.eclipse.jdt", name = "ecj", version = "3.37.0" }

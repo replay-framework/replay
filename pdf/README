@@ -2,12 +2,12 @@ PDF module for the Play! framework. This module allows you to easily create PDF 
 
 Copyright 2010
 
-    Nicolas Leroux - nicolas@lunatech.com www.lunatech-research.com/users/nicolas-leroux 
+    Nicolas Leroux - nicolas@lunatech.com www.lunatech-research.com/users/nicolas-leroux
 
 Copyright 2013-2017
 
     Codeborne  -  andrei@codeborne.com
-    
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -19,3 +19,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+P.S. Package "org.allcolor.yahp.cl.converter" was copied from project https://github.com/allcolor/YaHP-Converter
+because it's not maintained anymore.
+It's distributed under https://raw.githubusercontent.com/allcolor/YaHP-Converter/refs/heads/master/license.txt license.

@@ -19,7 +19,6 @@ dependencies {
 
   implementation(libs.shaniParser)
   api(libs.yahp) { transitive = false }
-  thirdParty(libs.yahpInternal) { transitive = false }
 }
 
 task extractThirdPartyJars(type: Sync) {
