@@ -6,6 +6,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.io.IOUtils.toByteArray;
 
 import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
@@ -53,7 +55,7 @@ public class BaseUITest {
   }
 
   @BeforeEach
-  public final void startAUT() {
+  public final void startAUT() throws IOException {
     if (!Play.started) {
       log.info("Starting AUT with classpath {}", System.getProperty("java.class.path"));
 
@@ -67,6 +69,11 @@ public class BaseUITest {
       Configuration.textCheck = FULL_TEXT;
 
       log.info("Started AUT at {}", Configuration.baseUrl);
+
+      long startTime = currentTimeMillis();
+      byte[] html = toByteArray(new URL(Configuration.baseUrl));
+      log.info("Loaded AUT welcome page from {} in {} ms. ({} bytes)",
+          Configuration.baseUrl, currentTimeMillis() - startTime, html.length);
     } else {
       log.info("Running AUT on {}", Configuration.baseUrl);
     }
