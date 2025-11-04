@@ -19,25 +19,10 @@
  */
 package org.allcolor.yahp.cl.converter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CHeaderFooter;
-import org.allcolor.yahp.converter.IHtmlToPdfTransformer.PageSize;
+import static java.lang.Integer.parseInt;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNullElse;
+import static java.util.Objects.requireNonNullElseGet;
 
 import com.lowagie.text.Meta;
 import com.lowagie.text.pdf.BaseFont;
@@ -48,92 +33,108 @@ import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfSignatureAppearance;
 import com.lowagie.text.pdf.PdfStamper;
 import com.lowagie.text.pdf.PdfWriter;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CHeaderFooter;
+import org.allcolor.yahp.converter.IHtmlToPdfTransformer.PageSize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Use iText to construct a complete pdf document from differents pdf parts.
- * Apply configured security policies on the resulting pdf.
+ * Use iText to construct a complete pdf document from differents pdf parts. Apply configured
+ * security policies on the resulting pdf.
  *
  * @author Quentin Anciaux
  * @version 1.2.20b
  */
 public class CDocumentReconstructor {
+
+  private static final Logger log = LoggerFactory.getLogger(CDocumentReconstructor.class);
+  private static final Pattern RE_PAGE_NUMBER = Pattern.compile("<pagenumber>");
+  private static final Pattern RE_PAGE_COUNT = Pattern.compile("<pagecount>");
+
   /**
    * return the itext security flags for encryption
    *
-   * @param properties
-   *            the converter properties
-   *
+   * @param properties the converter properties
    * @return the itext security flags
    */
-  private static final int getSecurityFlags(final Map properties) {
+  private static int getSecurityFlags(final Map<String, String> properties) {
     int securityType = 0;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_PRINTING)) ? (securityType | PdfWriter.ALLOW_PRINTING)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_MODIFY_CONTENTS)) ? (securityType | PdfWriter.ALLOW_MODIFY_CONTENTS)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_COPY)) ? (securityType | PdfWriter.ALLOW_COPY)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_MODIFT_ANNOTATIONS)) ? (securityType | PdfWriter.ALLOW_MODIFY_ANNOTATIONS)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_FILLIN)) ? (securityType | PdfWriter.ALLOW_FILL_IN)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_SCREEN_READERS)) ? (securityType | PdfWriter.ALLOW_SCREENREADERS)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_ASSEMBLY)) ? (securityType | PdfWriter.ALLOW_ASSEMBLY)
-        : securityType;
-    securityType = "true".equals(properties
-        .get(IHtmlToPdfTransformer.PDF_ALLOW_DEGRADED_PRINTING)) ? (securityType | PdfWriter.ALLOW_DEGRADED_PRINTING)
-        : securityType;
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_PRINTING))) {
+      securityType |= PdfWriter.ALLOW_PRINTING;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_MODIFY_CONTENTS))) {
+      securityType |= PdfWriter.ALLOW_MODIFY_CONTENTS;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_COPY))) {
+      securityType |= PdfWriter.ALLOW_COPY;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_MODIFT_ANNOTATIONS))) {
+      securityType |= PdfWriter.ALLOW_MODIFY_ANNOTATIONS;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_FILLIN))) {
+      securityType |= PdfWriter.ALLOW_FILL_IN;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_SCREEN_READERS))) {
+      securityType |= PdfWriter.ALLOW_SCREENREADERS;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_ASSEMBLY))) {
+      securityType |= PdfWriter.ALLOW_ASSEMBLY;
+    }
+    if ("true".equals(properties.get(IHtmlToPdfTransformer.PDF_ALLOW_DEGRADED_PRINTING))) {
+      securityType |= PdfWriter.ALLOW_DEGRADED_PRINTING;
+    }
 
     return securityType;
-  } // end getSecurityFlags()
+  }
 
   /**
    * construct a pdf document from pdf parts.
    *
-   * @param files
-   *            list containing the pdf to assemble
-   * @param properties
-   *            converter properties
-   * @param fout
-   *            outputstream to write the new pdf
-   * @param base_url
-   *            base url of the document
-   * @param producer
-   *            producer of the pdf
-   *
-   * @throws CConvertException
-   *             if an error occured while reconstruct.
+   * @param files      list containing the pdf to assemble
+   * @param properties converter properties
+   * @param fout       outputstream to write the new pdf
+   * @param baseUrl    base url of the document
+   * @param producer   producer of the pdf
+   * @throws CConvertException if an error occurred while reconstruct.
    */
-  public static void reconstruct(final List files, final Map properties,
-      final OutputStream fout, final String base_url,
-      final String producer, final PageSize [] size, final List hf)
+  public static void reconstruct(final List<File> files, final Map<String, String> properties,
+      final OutputStream fout, final String baseUrl,
+      final String producer, final List<PageSize> size, final List<CHeaderFooter> headersFooters)
       throws CConvertException {
     OutputStream out = fout;
-    OutputStream out2 = fout;
+    OutputStream out2;
     boolean signed = false;
-    OutputStream oldOut = null;
+    OutputStream oldOut;
     File tmp = null;
     File tmp2 = null;
     try {
       tmp = File.createTempFile("yahp", "pdf");
       tmp2 = File.createTempFile("yahp", "pdf");
       oldOut = out;
-      if ("true".equals(properties
-          .get(IHtmlToPdfTransformer.USE_PDF_SIGNING))) {
+      if ("true".equals(properties.get(IHtmlToPdfTransformer.USE_PDF_SIGNING))) {
         signed = true;
         out2 = new FileOutputStream(tmp2);
-      } // end if
-      else {
+      } else {
         out2 = oldOut;
       }
       out = new FileOutputStream(tmp);
@@ -141,13 +142,12 @@ public class CDocumentReconstructor {
       PdfCopy writer = null;
       boolean first = true;
 
-
-      Map mapSizeDoc = new HashMap();
+      Map<String, String> mapSizeDoc = new HashMap<>();
 
       int totalPage = 0;
 
       for (int i = 0; i < files.size(); i++) {
-        final File fPDF = (File) files.get(i);
+        final File fPDF = files.get(i);
         final PdfReader reader = new PdfReader(fPDF.getAbsolutePath());
         reader.consolidateNamedDestinations();
 
@@ -155,222 +155,201 @@ public class CDocumentReconstructor {
 
         if (first) {
           first = false;
-          // step 1: creation of a document-object
-          // set title/creator/author
-          document = new com.lowagie.text.Document(reader
-              .getPageSizeWithRotation(1));
-          // step 2: we create a writer that listens to the document
+          document = new com.lowagie.text.Document(reader.getPageSizeWithRotation(1));
           writer = new PdfCopy(document, out);
-          // use pdf version 1.5
           writer.setPdfVersion(PdfWriter.VERSION_1_3);
-          // compress the pdf
           writer.setFullCompression();
 
           // check if encryption is needed
-          if ("true".equals(properties
-              .get(IHtmlToPdfTransformer.USE_PDF_ENCRYPTION))) {
-            final String password = (String) properties
-                .get(IHtmlToPdfTransformer.PDF_ENCRYPTION_PASSWORD);
-            final int securityType = CDocumentReconstructor
-                .getSecurityFlags(properties);
-            writer.setEncryption(password.getBytes(UTF_8), null, securityType, PdfWriter.STANDARD_ENCRYPTION_128);
-          } // end if
+          if ("true".equals(properties.get(IHtmlToPdfTransformer.USE_PDF_ENCRYPTION))) {
+            final String password = properties.get(IHtmlToPdfTransformer.PDF_ENCRYPTION_PASSWORD);
+            final int securityType = CDocumentReconstructor.getSecurityFlags(properties);
+            writer.setEncryption(password.getBytes(UTF_8), null, securityType,
+                PdfWriter.STANDARD_ENCRYPTION_128);
+          }
 
-          final String title = (String) properties
-              .get(IHtmlToPdfTransformer.PDF_TITLE);
+          final String title = properties.get(IHtmlToPdfTransformer.PDF_TITLE);
 
           if (title != null) {
             document.addTitle(title);
-          } // end if
-          else if (base_url != null) {
-            document.addTitle(base_url);
-          } // end else if
+          } else if (baseUrl != null) {
+            document.addTitle(baseUrl);
+          }
 
-          final String creator = (String) properties
-              .get(IHtmlToPdfTransformer.PDF_CREATOR);
+          document.addCreator(requireNonNullElse(
+              properties.get(IHtmlToPdfTransformer.PDF_CREATOR), IHtmlToPdfTransformer.VERSION));
 
-          if (creator != null) {
-            document.addCreator(creator);
-          } // end if
-          else {
-            document.addCreator(IHtmlToPdfTransformer.VERSION);
-          } // end else
-
-          final String author = (String) properties
-              .get(IHtmlToPdfTransformer.PDF_AUTHOR);
+          final String author = properties.get(IHtmlToPdfTransformer.PDF_AUTHOR);
 
           if (author != null) {
             document.addAuthor(author);
-          } // end if
+          }
 
-          final String sproducer = (String) properties
-              .get(IHtmlToPdfTransformer.PDF_PRODUCER);
-
-          if (sproducer != null) {
-            document.add(new Meta("Producer", sproducer));
-          } // end if
-          else {
-            document.add(new Meta("Producer", (IHtmlToPdfTransformer.VERSION + " - http://www.allcolor.org/YaHPConverter/ - " + producer)));
-          } // end else
-
-          // step 3: we open the document
+          document.add(new Meta("Producer", producerMetaValue(properties, producer)));
           document.open();
-        } // end if
+        }
 
         PdfImportedPage page;
 
-        for (int j = 0; j < n;) {
+        for (int j = 0; j < n; ) {
           ++j;
           totalPage++;
-          mapSizeDoc.put(""+totalPage,""+i);
+          mapSizeDoc.put("" + totalPage, "" + i);
           page = writer.getImportedPage(reader, j);
           writer.addPage(page);
-        } // end for
-      } // end for
+        }
+      }
 
       document.close();
       out.flush();
       out.close();
       {
         final PdfReader reader = new PdfReader(tmp.getAbsolutePath());
-        ;
+
         final int n = reader.getNumberOfPages();
         final PdfStamper stp = new PdfStamper(reader, out2);
         int i = 0;
-        BaseFont.createFont(BaseFont.HELVETICA,
-            BaseFont.WINANSI, BaseFont.EMBEDDED);
+        BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
         final CHtmlToPdfFlyingSaucerTransformer trans = new CHtmlToPdfFlyingSaucerTransformer();
         while (i < n) {
           i++;
-          int indexSize = Integer.parseInt((String)mapSizeDoc.get(""+i));
-          final int[] dsize = size[indexSize].getSize();
-          final int[] dmargin = size[indexSize].getMargin();
-          for (final Iterator it = hf.iterator(); it.hasNext();) {
-            final CHeaderFooter chf = (CHeaderFooter) it.next();
-            if (chf.getSfor().equals(CHeaderFooter.ODD_PAGES)
-                && (i % 2 == 0)) {
+          int indexSize = parseInt(mapSizeDoc.get("" + i));
+          final int[] dsize = size.get(indexSize).getSize();
+          final int[] dmargin = size.get(indexSize).getMargin();
+          for (CHeaderFooter chf : headersFooters) {
+            if (chf.getSfor().equals(CHeaderFooter.ODD_PAGES) && i % 2 == 0) {
               continue;
-            } else if (chf.getSfor().equals(
-                CHeaderFooter.EVEN_PAGES)
-                && (i % 2 != 0)) {
+            } else if (chf.getSfor().equals(CHeaderFooter.EVEN_PAGES) && i % 2 != 0) {
               continue;
             }
-            final String text = chf.getContent().replaceAll(
-                "<pagenumber>", "" + i).replaceAll(
-                "<pagecount>", "" + n);
+            final String text = replacePageCount(replacePageNumber(chf.getContent(), i), n);
+
             // text over the existing page
             final PdfContentByte over = stp.getOverContent(i);
             final ByteArrayOutputStream bbout = new ByteArrayOutputStream();
             if (chf.getType().equals(CHeaderFooter.HEADER)) {
-              trans.transform(new ByteArrayInputStream(text.getBytes("utf-8")), base_url, new PageSize(dsize[0]-(dmargin[0]+dmargin[1]),dmargin[3]), new ArrayList(), properties, bbout);
+              trans.transform(new ByteArrayInputStream(text.getBytes(UTF_8)), baseUrl,
+                  new PageSize(dsize[0] - (dmargin[0] + dmargin[1]), dmargin[3]), new ArrayList(),
+                  properties, bbout);
             } else if (chf.getType().equals(CHeaderFooter.FOOTER)) {
-              trans.transform(new ByteArrayInputStream(text.getBytes("utf-8")), base_url, new PageSize(dsize[0]-(dmargin[0]+dmargin[1]),dmargin[2]), new ArrayList(), properties, bbout);
+              trans.transform(new ByteArrayInputStream(text.getBytes(UTF_8)), baseUrl,
+                  new PageSize(dsize[0] - (dmargin[0] + dmargin[1]), dmargin[2]), new ArrayList(),
+                  properties, bbout);
             }
-            final PdfReader readerHF = new PdfReader(
-                bbout.toByteArray()
-            );
+            final PdfReader readerHF = new PdfReader(bbout.toByteArray());
             if (chf.getType().equals(CHeaderFooter.HEADER)) {
-              over.addTemplate(stp.getImportedPage(readerHF, 1),dmargin[0],dsize[1] - dmargin[3]);
+              over.addTemplate(stp.getImportedPage(readerHF, 1), dmargin[0], dsize[1] - dmargin[3]);
             } else if (chf.getType().equals(CHeaderFooter.FOOTER)) {
-              over.addTemplate(stp.getImportedPage(readerHF, 1),dmargin[0],0);
+              over.addTemplate(stp.getImportedPage(readerHF, 1), dmargin[0], 0);
             }
             readerHF.close();
           }
         }
         stp.close();
       }
-      try {
-        out2.flush();
-      }
-      catch (Exception ignore) {}
-      finally {
-        try{out2.close();
-        }catch(Exception ignore){}
-      }
+      flushAndClose(out2);
       if (signed) {
 
-        final String keypassword = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_SIGNING_PRIVATE_KEY_PASSWORD);
-        final String password = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_ENCRYPTION_PASSWORD);
-        final String keyStorepassword = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_SIGNING_KEYSTORE_PASSWORD);
-        final String privateKeyFile = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_SIGNING_PRIVATE_KEY_FILE);
-        final String reason = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_SIGNING_REASON);
-        final String location = (String) properties
-            .get(IHtmlToPdfTransformer.PDF_SIGNING_LOCATION);
-        final boolean selfSigned = !"false".equals(properties
-            .get(IHtmlToPdfTransformer.USE_PDF_SELF_SIGNING));
-        PdfReader reader = null;
+        final String keyPassword = properties.get(
+            IHtmlToPdfTransformer.PDF_SIGNING_PRIVATE_KEY_PASSWORD);
+        final String password = properties.get(IHtmlToPdfTransformer.PDF_ENCRYPTION_PASSWORD);
+        final String keyStorePassword = properties.get(
+            IHtmlToPdfTransformer.PDF_SIGNING_KEYSTORE_PASSWORD);
+        final String privateKeyFile = properties.get(
+            IHtmlToPdfTransformer.PDF_SIGNING_PRIVATE_KEY_FILE);
+        final String reason = properties.get(IHtmlToPdfTransformer.PDF_SIGNING_REASON);
+        final String location = properties.get(IHtmlToPdfTransformer.PDF_SIGNING_LOCATION);
+        final boolean selfSigned = !"false".equals(properties.get(IHtmlToPdfTransformer.USE_PDF_SELF_SIGNING));
+        final PdfReader reader = readPdf(tmp2, password);
 
-        if (password != null) {
-          reader = new PdfReader(tmp2.getAbsolutePath(), password
-              .getBytes());
-        } // end if
-        else {
-          reader = new PdfReader(tmp2.getAbsolutePath());
-        } // end else
+        final KeyStore ks = keyStore(privateKeyFile, keyStorePassword, selfSigned);
 
-        final KeyStore ks = selfSigned ? KeyStore.getInstance(KeyStore
-            .getDefaultType()) : KeyStore.getInstance("pkcs12");
-        ks.load(new FileInputStream(privateKeyFile), keyStorepassword
-            .toCharArray());
+        final String alias = ks.aliases().nextElement();
+        final PrivateKey key = (PrivateKey) ks.getKey(alias, keyPassword.toCharArray());
+        final Certificate[] chain = ks.getCertificateChain(alias);
+        final PdfStamper stamper = PdfStamper.createSignature(reader, oldOut, '\0');
 
-        final String alias = (String) ks.aliases().nextElement();
-        final PrivateKey key = (PrivateKey) ks.getKey(alias,
-            keypassword.toCharArray());
-        final Certificate chain[] = ks.getCertificateChain(alias);
-        final PdfStamper stp = PdfStamper.createSignature(reader,
-            oldOut, '\0');
+        if ("true".equals(properties.get(IHtmlToPdfTransformer.USE_PDF_ENCRYPTION))) {
+          stamper.setEncryption(PdfWriter.STANDARD_ENCRYPTION_128, password, null, getSecurityFlags(properties));
+        }
 
-        if ("true".equals(properties
-            .get(IHtmlToPdfTransformer.USE_PDF_ENCRYPTION))) {
-          stp.setEncryption(PdfWriter.STANDARD_ENCRYPTION_128, password,
-              null, CDocumentReconstructor
-                  .getSecurityFlags(properties));
-        } // end if
+        final PdfSignatureAppearance sap = stamper.getSignatureAppearance();
 
-        final PdfSignatureAppearance sap = stp.getSignatureAppearance();
-
-        if (selfSigned) {
-          sap.setCrypto(key, chain, null,
-              PdfSignatureAppearance.SELF_SIGNED);
-        } // end if
-        else {
-          sap.setCrypto(key, chain, null,
-              PdfSignatureAppearance.WINCER_SIGNED);
-        } // end else
+        sap.setCrypto(key, chain, null,
+            selfSigned ? PdfSignatureAppearance.SELF_SIGNED : PdfSignatureAppearance.WINCER_SIGNED);
 
         if (reason != null) {
           sap.setReason(reason);
-        } // end if
+        }
 
         if (location != null) {
           sap.setLocation(location);
-        } // end if
+        }
 
-        stp.close();
+        stamper.close();
         oldOut.flush();
-      } // end if
-    } // end try
-    catch (final Exception e) {
-      throw new CConvertException(
-          "ERROR: An Exception occured while reconstructing the pdf document: "
-              + e.getMessage(), e);
-    } // end catch
-    finally {
-      try {
-        tmp.delete();
-      } // end try
-      catch (final Exception ignore) {
       }
-      try {
-        tmp2.delete();
-      } // end try
-      catch (final Exception ignore) {
+    } catch (final Exception e) {
+      throw new CConvertException("Failed to reconstruct the pdf document: " + e.getMessage(), e);
+    } finally {
+      deleteFile(tmp);
+      deleteFile(tmp2);
+    }
+  }
+
+  private static String replacePageNumber(String html, int pageNumber) {
+    return RE_PAGE_NUMBER.matcher(html).replaceAll(String.valueOf(pageNumber));
+  }
+
+  private static String replacePageCount(String html, int pageCount) {
+    return RE_PAGE_COUNT.matcher(html).replaceAll(String.valueOf(pageCount));
+  }
+
+  private static String producerMetaValue(Map<String, String> properties, String producer) {
+    return requireNonNullElseGet(
+        properties.get(IHtmlToPdfTransformer.PDF_PRODUCER),
+        () -> "%s - http://www.allcolor.org/YaHPConverter/ - %s".formatted(
+            IHtmlToPdfTransformer.VERSION, producer)
+    );
+  }
+
+  private static PdfReader readPdf(File source, String password) throws IOException {
+    return password != null ?
+        new PdfReader(source.getAbsolutePath(), password.getBytes(UTF_8)) :
+        new PdfReader(source.getAbsolutePath());
+  }
+
+  private static KeyStore keyStore(String privateKeyFile, String keyStorePassword,
+      boolean selfSigned)
+      throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+    KeyStore keyStore = selfSigned ?
+        KeyStore.getInstance(KeyStore.getDefaultType()) :
+        KeyStore.getInstance("pkcs12");
+
+    keyStore.load(new FileInputStream(privateKeyFile), keyStorePassword.toCharArray());
+    return keyStore;
+  }
+
+  private static void deleteFile(File tmp) {
+    try {
+      boolean deleted = tmp.delete();
+      if (!deleted) {
+        log.warn("Failed to delete temporary file: {}", tmp.getAbsolutePath());
       }
-    } // end finally
-  } // end reconstruct()
-} // end CDocumentReconstructor
+    } catch (Exception e) {
+      log.warn("Failed to delete temporary file: {}", tmp.getAbsolutePath(), e);
+    }
+  }
+
+  private static void flushAndClose(OutputStream out) {
+    try (out) {
+      try {
+        out.flush();
+      } catch (IOException e) {
+        log.warn("Failed to flush stream", e);
+      }
+    } catch (IOException e) {
+      log.warn("Failed to close stream", e);
+    }
+  }
+}
