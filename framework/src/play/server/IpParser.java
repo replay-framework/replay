@@ -5,26 +5,22 @@ import static java.util.regex.Pattern.compile;
 import java.net.InetSocketAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class IpParser {
 
   private static final Pattern REGEX_IPV4 = compile("/(\\d+\\.\\d+\\.\\d+\\.\\d+):\\d+");
   private static final Pattern REGEX_IPV6 = compile("(.*)%.*");
   private static final Pattern REGEX_LOCALHOST = compile("^127\\.0\\.0\\.1:?\\d*$");
 
-  @Nonnull
-  @CheckReturnValue
   public String getRemoteIpAddress(InetSocketAddress address) {
     return getRemoteIpAddress(address.getAddress().getHostAddress());
   }
 
-  @Nonnull
-  @CheckReturnValue
   String getRemoteIpAddress(String address) {
     Matcher matcher = REGEX_IPV4.matcher(address);
     if (matcher.matches()) {
@@ -46,13 +42,10 @@ public class IpParser {
     }
   }
 
-  @CheckReturnValue
   boolean isLocalhost(String host) {
     return REGEX_LOCALHOST.matcher(host).matches();
   }
 
-  @Nonnull
-  @CheckReturnValue
   public ServerAddress parseHost(@Nullable String host) {
     if (host == null) {
       return new ServerAddress("", 80, "");

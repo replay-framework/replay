@@ -2,15 +2,13 @@ package play.mvc;
 
 import static java.util.Objects.requireNonNullElse;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class TemplateNameResolver {
 
-  @Nonnull
-  @CheckReturnValue
   public String resolveTemplateName() {
     Http.Request request = Http.Request.current();
     String templateName =
@@ -18,8 +16,6 @@ public class TemplateNameResolver {
     return resolveTemplateName(templateName);
   }
 
-  @Nonnull
-  @CheckReturnValue
   public String resolveTemplateName(String templateName) {
     Http.Request request = Http.Request.current();
     if (templateName.startsWith("@")) {

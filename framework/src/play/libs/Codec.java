@@ -5,40 +5,37 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.f4b6a3.ulid.UlidCreator;
 import java.security.MessageDigest;
 import java.util.UUID;
-import javax.annotation.Nonnull;
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.jspecify.annotations.NullMarked;
 import play.exceptions.UnexpectedException;
 
+@NullMarked
+@CheckReturnValue
 public class Codec {
-  @Nonnull
   public static String ulid() {
     return UlidCreator.getUlid().toLowerCase();
   }
 
-  @Nonnull
   public static String UUID() {
     return UUID.randomUUID().toString();
   }
 
-  @Nonnull
-  public static String encodeBASE64(@Nonnull String value) {
+  public static String encodeBASE64(String value) {
     return new String(Base64.encodeBase64(value.getBytes(UTF_8)), UTF_8);
   }
 
-  @Nonnull
-  public static String encodeBASE64(@Nonnull byte[] value) {
+  public static String encodeBASE64(byte[] value) {
     return new String(Base64.encodeBase64(value), UTF_8);
   }
 
-  @Nonnull
-  public static byte[] decodeBASE64(@Nonnull String value) {
+  public static byte[] decodeBASE64(String value) {
     return Base64.decodeBase64(value.getBytes(UTF_8));
   }
 
-  @Nonnull
-  public static String hexMD5(@Nonnull String value) {
+  public static String hexMD5(String value) {
     try {
       MessageDigest messageDigest = MessageDigest.getInstance("MD5");
       messageDigest.reset();
@@ -50,8 +47,7 @@ public class Codec {
     }
   }
 
-  @Nonnull
-  public static String hexSHA1(@Nonnull String value) {
+  public static String hexSHA1(String value) {
     try {
       MessageDigest md = MessageDigest.getInstance("SHA-1");
       md.update(value.getBytes(UTF_8));
@@ -62,13 +58,11 @@ public class Codec {
     }
   }
 
-  @Nonnull
-  public static String byteToHexString(@Nonnull byte[] bytes) {
+  public static String byteToHexString(byte[] bytes) {
     return String.valueOf(Hex.encodeHex(bytes));
   }
 
-  @Nonnull
-  public static byte[] hexStringToByte(@Nonnull String hexString) {
+  public static byte[] hexStringToByte(String hexString) {
     try {
       return Hex.decodeHex(hexString.toCharArray());
     } catch (DecoderException e) {

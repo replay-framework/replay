@@ -1,13 +1,19 @@
 package play.data.binding;
 
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Annotation;
 
+@NullMarked
+@CheckReturnValue
 public class BindingAnnotations {
-  public final Annotation[] annotations;
-  private String[] profiles;
-  private String[] noBindingProfiles;
 
-  public BindingAnnotations(Annotation[] annotations) {
+  public final Annotation @Nullable [] annotations;
+  private String @Nullable [] profiles;
+  private String @Nullable [] noBindingProfiles;
+
+  public BindingAnnotations(Annotation @Nullable [] annotations) {
     this.annotations = annotations;
   }
 

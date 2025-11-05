@@ -1,28 +1,36 @@
 package play.db.jpa;
 
+import static java.lang.Long.parseLong;
+
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.db.Configuration;
 import play.db.jpa.GenericModel.JPAQuery;
 
+@NullMarked
+@CheckReturnValue
+@SuppressWarnings("SqlSourceToSinkFlow")
 public class JPQL {
 
   private static final Pattern BY_PATTERN = Pattern.compile("^by[A-Z].*$");
   private static final Pattern ORDER_BY_PATTERN = Pattern.compile("OrderBy");
   private static final Pattern AND_PATTERN = Pattern.compile("And");
 
-  @Nonnull
+  @Nullable
+  public static final JPQL instance = new JPQL();
+
   private EntityManager em(String dbName) {
     return JPA.em(dbName);
   }
 
   long count(String dbName, String entity) {
-    return Long.parseLong(
+    return parseLong(
         em(dbName)
             .createQuery("select count(*) from " + entity + " e")
             .getSingleResult()
@@ -34,24 +42,31 @@ public class JPQL {
   }
 
   long count(String dbName, String entity, String query, Object[] params) {
-    return Long.parseLong(
+    return parseLong(
         bindParameters(
                 em(dbName).createQuery(createCountQuery(dbName, entity, query, params)), params)
             .getSingleResult()
             .toString());
   }
 
-  @Nonnull
+  @SuppressWarnings("unchecked")
   <T extends JPABase> List<T> findAll(String dbName, String entity) {
     return em(dbName).createQuery("select e from " + entity + " e").getResultList();
   }
 
   @Nullable
-  JPABase findById(String dbName, String entity, Object id) throws Exception {
-    return (JPABase) em(dbName).find(Class.forName(entity), id);
+  JPABase findById(String dbName, String entity, Object id) {
+    return (JPABase) em(dbName).find(getEntityClass(entity), id);
   }
 
-  @Nonnull
+  private static Class<?> getEntityClass(String entity) {
+    try {
+      return Class.forName(entity);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException("Failed to load entity class: \"%s\"".formatted(entity), e);
+    }
+  }
+
   JPAQuery find(String dbName, String entity, String query, Object[] params) {
     Query q = em(dbName).createQuery(createFindByQuery(dbName, entity, query, params));
     return new JPAQuery(
@@ -68,9 +83,8 @@ public class JPQL {
     return bindParameters(q).executeUpdate();
   }
 
-  @Nonnull
   private String createFindByQuery(
-      @Nonnull String dbName, @Nonnull String entityName, String query, Object... params) {
+      String dbName, String entityName, @Nullable String query, Object @Nullable ... params) {
     if (query == null || query.trim().isEmpty()) {
       return "from " + entityName;
     }
@@ -98,8 +112,11 @@ public class JPQL {
     return "from " + entityName + " where " + query;
   }
 
-  @Nonnull
-  private String createDeleteQuery(@Nonnull String entityName, String query, Object... params) {
+  private String createDeleteQuery(
+      String entityName,
+      @Nullable String query,
+      Object @Nullable ... params
+  ) {
     if (query == null) {
       return "delete from " + entityName;
     }
@@ -121,9 +138,8 @@ public class JPQL {
     return "delete from " + entityName + " where " + query;
   }
 
-  @Nonnull
   private String createCountQuery(
-      @Nonnull String dbName, @Nonnull String entityName, String query, Object... params) {
+      String dbName, String entityName, String query, Object @Nullable ... params) {
     if (query.trim().toLowerCase().startsWith("select ")) {
       return query;
     }
@@ -152,8 +168,7 @@ public class JPQL {
   }
 
   @SuppressWarnings("unchecked")
-  @Nonnull
-  private Query bindParameters(@Nonnull Query q, Object... params) {
+  private Query bindParameters(Query q, Object @Nullable ... params) {
     if (params == null) {
       return q;
     }
@@ -166,8 +181,7 @@ public class JPQL {
     return q;
   }
 
-  @Nonnull
-  private Query bindParameters(@Nonnull Query q, Map<String, Object> params) {
+  private Query bindParameters(Query q, @Nullable Map<String, Object> params) {
     if (params == null) {
       return q;
     }
@@ -177,7 +191,6 @@ public class JPQL {
     return q;
   }
 
-  @Nonnull
   private String findByToJPQL(String dbName, String findBy) {
     findBy = findBy.substring(2);
     StringBuilder jpql = new StringBuilder();
@@ -263,6 +276,4 @@ public class JPQL {
     prop = (prop.charAt(0) + "").toLowerCase() + prop.substring(1);
     return prop;
   }
-
-  public static JPQL instance = null;
 }

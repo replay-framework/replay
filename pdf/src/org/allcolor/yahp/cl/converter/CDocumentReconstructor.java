@@ -24,6 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNullElse;
 import static java.util.Objects.requireNonNullElseGet;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.lowagie.text.Meta;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
@@ -55,6 +56,8 @@ import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CHeaderFooter;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.PageSize;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +68,8 @@ import org.slf4j.LoggerFactory;
  * @author Quentin Anciaux
  * @version 1.2.20b
  */
+@NullMarked
+@CheckReturnValue
 public class CDocumentReconstructor {
 
   private static final Logger log = LoggerFactory.getLogger(CDocumentReconstructor.class);
@@ -118,7 +123,7 @@ public class CDocumentReconstructor {
    * @throws CConvertException if an error occurred while reconstruct.
    */
   public static void reconstruct(final List<File> files, final Map<String, String> properties,
-      final OutputStream fout, final String baseUrl,
+      final OutputStream fout, @Nullable final String baseUrl,
       final String producer, final List<PageSize> size, final List<CHeaderFooter> headersFooters)
       throws CConvertException {
     OutputStream out = fout;

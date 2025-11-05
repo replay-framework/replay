@@ -1,20 +1,20 @@
 package play.cache;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 import org.slf4j.MDC;
 
+@NullMarked
+@CheckReturnValue
 class MDCAwareTranscoder extends SerializingTranscoder {
   private final MemcachedTranscoder delegate;
   private final String mdcParameterName;
   private final String mdcParameterValue;
 
-  MDCAwareTranscoder(
-      @Nonnull MemcachedTranscoder delegate,
-      @Nonnull String mdcParameterName,
-      @Nonnull String mdcParameterValue) {
+  MDCAwareTranscoder(MemcachedTranscoder delegate, String mdcParameterName, String mdcParameterValue) {
     this.delegate = delegate;
     this.mdcParameterName = mdcParameterName;
     this.mdcParameterValue = mdcParameterValue;
@@ -34,9 +34,8 @@ class MDCAwareTranscoder extends SerializingTranscoder {
     }
   }
 
-  @Nullable
   @Override
-  protected byte[] serialize(Object object) {
+  protected byte @Nullable [] serialize(Object object) {
     return delegate.serialize(object);
   }
 }

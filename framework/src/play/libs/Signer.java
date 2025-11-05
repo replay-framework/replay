@@ -2,27 +2,30 @@ package play.libs;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import play.Play;
 import play.exceptions.UnexpectedException;
 
+@NullMarked
+@CheckReturnValue
 public class Signer {
   private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
-  @Nonnull private final String salt;
+  private final String salt;
 
-  public Signer(@Nonnull String salt) {
+  public Signer(String salt) {
     this.salt = salt;
   }
 
-  public @Nonnull String sign(@Nonnull String message) {
+  public String sign(String message) {
     return sign(message, Play.secretKey.getBytes(UTF_8));
   }
 
-  private @Nonnull String sign(@Nonnull String message, byte[] key) {
+  private String sign(String message, byte[] key) {
     if (key.length == 0) {
       throw new IllegalStateException("application.secret is not configured");
     }
@@ -47,7 +50,7 @@ public class Signer {
     }
   }
 
-  public boolean isValid(@Nullable String signature, @Nonnull String message) {
+  public boolean isValid(@Nullable String signature, String message) {
     return signature != null && signature.equals(sign(message));
   }
 }

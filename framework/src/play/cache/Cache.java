@@ -2,18 +2,18 @@ package play.cache;
 
 import java.io.NotSerializableException;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Play;
 import play.exceptions.CacheException;
 import play.exceptions.ConfigurationException;
 import play.libs.Time;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The Cache. Mainly an interface to Memcached or EhCache.
@@ -25,12 +25,15 @@ import play.libs.Time;
  * <p>Note: When specifying expiration == "0s" (zero seconds) the actual expiration-time may vary
  * between different cache implementations
  */
+@NullMarked
+@CheckReturnValue
 public abstract class Cache {
 
   private static final Logger logger = LoggerFactory.getLogger(Cache.class);
 
   /** The underlying cache implementation */
-  public static CacheImpl cacheImpl;
+  @Nullable
+  static CacheImpl cacheImpl;
 
   /**
    * Set an element.
@@ -39,9 +42,9 @@ public abstract class Cache {
    * @param value      Element value
    * @param expiration Ex: 10s, 3mn, 8h
    */
-  public static void set(String key, Object value, String expiration) {
+  public static void set(String key, @Nullable Object value, String expiration) {
     checkSerializable(value);
-    cacheImpl.set(key, value, Time.parseDuration(expiration));
+    cacheImpl().set(key, value, Time.parseDuration(expiration));
   }
 
   /**
@@ -51,8 +54,9 @@ public abstract class Cache {
    * @return The element value or null
    */
   @Nullable
-  public static <T> T get(@Nonnull String key) {
-    return (T) cacheImpl.get(key);
+  @SuppressWarnings("unchecked")
+  public static <T> T get(String key) {
+    return (T) cacheImpl().get(key);
   }
 
   /**
@@ -61,7 +65,7 @@ public abstract class Cache {
    * @param key The element key
    */
   public static void delete(String key) {
-    cacheImpl.delete(key);
+    cacheImpl().delete(key);
   }
 
   /** Clear all data from cache. */
@@ -96,32 +100,39 @@ public abstract class Cache {
     if (cacheImplClass != null) {
       try {
         // Since it implements the `CacheImpl` interface, it should have a static `instance` method.
-        Method method = cacheImplClass.getDeclaredMethod("instance", Properties.class);
-        cacheImpl = (CacheImpl) method.invoke(null, Play.configuration);
+        Method method = cacheImplClass.getDeclaredMethod("instance");
+        cacheImpl = (CacheImpl) method.invoke(null);
       } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
         logger.error("Error while instantiating cache", e);
-        throw new ConfigurationException("Failed to start the caching system");
+        throw new ConfigurationException("Failed to start the caching system", e);
       }
     } else {
-      cacheImpl = DummyCacheImpl.instance(new Properties());
+      cacheImpl = DummyCacheImpl.instance();
     }
   }
 
   /** Stop the cache system. */
   public static void stop() {
     try {
-      cacheImpl.stop();
+      if (cacheImpl != null) {
+        cacheImpl.stop();
+        cacheImpl = null;
+      }
     } catch (Exception e) {
       logger.error("Failed to stop the cache", e);
     }
   }
 
   /** Utility that check that an object is serializable. */
-  static void checkSerializable(Object value) {
+  private static void checkSerializable(@Nullable Object value) {
     if (value != null && !(value instanceof Serializable)) {
       throw new CacheException(
           "Cannot cache a non-serializable value of type " + value.getClass().getName(),
           new NotSerializableException(value.getClass().getName()));
     }
+  }
+
+  private static CacheImpl cacheImpl() {
+    return requireNonNull(cacheImpl, "Cache is not initialized");
   }
 }

@@ -2,18 +2,20 @@ package play.server.javanet;
 
 import static java.lang.Integer.parseInt;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 import play.Play.Mode;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class Server {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class);

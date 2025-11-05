@@ -3,7 +3,7 @@ package play.data.binding.types;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.data.Upload;
 import play.data.binding.Binder;
 import play.data.binding.TypeBinder;

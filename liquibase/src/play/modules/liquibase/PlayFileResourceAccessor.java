@@ -5,16 +5,19 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import com.google.errorprone.annotations.CheckReturnValue;
 import liquibase.resource.AbstractResourceAccessor;
 import liquibase.resource.PathResource;
 import liquibase.resource.Resource;
 import liquibase.resource.URIResource;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
 
+@NullMarked
+@CheckReturnValue
 public class PlayFileResourceAccessor extends AbstractResourceAccessor {
   private static final Logger logger = LoggerFactory.getLogger(PlayFileResourceAccessor.class);
 
@@ -25,6 +28,7 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
     return virtualFile;
   }
 
+  @Nullable
   private File findVirtualFile(String path) {
     // TODO remove this hack.
     // TODO Why LiquiBase adds prefix "app/" for included files?
@@ -42,7 +46,8 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
     }
   }
 
-  String getPath(String relativeTo, String streamPath) {
+  @Nullable
+  String getPath(@Nullable String relativeTo, @Nullable String streamPath) {
     if (relativeTo == null) return streamPath;
     if (relativeTo.endsWith("/")) return relativeTo + streamPath;
     int index = relativeTo.lastIndexOf('/');
@@ -66,8 +71,6 @@ public class PlayFileResourceAccessor extends AbstractResourceAccessor {
     return foundResources;
   }
 
-  @Nonnull
-  @CheckReturnValue
   private PathResource toResource(File virtualFile) {
     return new PathResource(Play.relativePath(virtualFile), virtualFile.toPath());
   }

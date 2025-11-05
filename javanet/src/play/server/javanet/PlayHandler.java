@@ -17,9 +17,11 @@ import static play.mvc.Http.StatusCode.BAD_REQUEST;
 import static play.mvc.Http.StatusCode.INTERNAL_ERROR;
 import static play.mvc.Http.StatusCode.NOT_FOUND;
 import static play.mvc.Http.StatusCode.NOT_MODIFIED;
+import static play.server.ServerHelper.findFile;
 import static play.utils.Utils.formatMemorySize;
 
 import com.google.common.net.HttpHeaders;
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.netty.handler.codec.http.cookie.Cookie;
@@ -41,9 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import org.apache.commons.io.IOUtils;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invocation;
@@ -69,7 +70,8 @@ import play.server.ServerHelper;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PlayHandler implements HttpHandler {
   private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
   private static final Logger securityLogger = LoggerFactory.getLogger("security");
@@ -246,7 +248,6 @@ public class PlayHandler implements HttpHandler {
     }
   }
 
-  @Nonnull
   private static Cookie toNettyCookie(Http.Cookie cookie) {
     Cookie c = new DefaultCookie(cookie.name, cookie.value);
     c.setSecure(cookie.secure);
@@ -338,7 +339,7 @@ public class PlayHandler implements HttpHandler {
     private final Http.Response response;
     private final HttpExchange exchange;
 
-    public JavaNetInvocation(Http.Request request, Http.Response response, HttpExchange exchange) {
+    private JavaNetInvocation(Http.Request request, Http.Response response, HttpExchange exchange) {
       this.request = request;
       this.response = response;
       this.exchange = exchange;
@@ -600,7 +601,7 @@ public class PlayHandler implements HttpHandler {
     logger.trace("serveStatic: begin :{}:{}", request.method, request.url);
 
     try {
-      File file = serverHelper.findFile(renderStatic.file);
+      File file = findFile(renderStatic.file);
       if ((file == null || !file.exists())) {
         serve404(
             new NotFound("The file " + renderStatic.file + " does not exist"), exchange, request);

@@ -6,7 +6,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Codec;
 import play.libs.Promise;
@@ -25,8 +25,8 @@ public abstract class WSRequest {
   public Scheme scheme;
   public Object body;
   public FileParam[] fileParams;
-  public final @Nonnull Map<String, String> headers = new LinkedHashMap<>();
-  public final @Nonnull Map<String, Object> parameters = new LinkedHashMap<>();
+  public final @NonNull Map<String, String> headers = new LinkedHashMap<>();
+  public final @NonNull Map<String, Object> parameters = new LinkedHashMap<>();
   public String mimeType;
 
   /** Sets whether redirects (301, 302) should be followed automatically */

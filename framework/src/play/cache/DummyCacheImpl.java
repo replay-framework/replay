@@ -1,33 +1,35 @@
 package play.cache;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Properties;
+import static play.libs.Lazy.lazyEvaluated;
+
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import play.libs.Lazy;
 
 /**
  * This class implements no caching at all. Since RePlay expects an implementation of the CacheImpl
  * interface to be present, we have created this "dummy" implementation that does nothing.
  * All `get` calls "miss", and `set` calls do nothing on purpose.
  */
+@NullMarked
+@CheckReturnValue
 public class DummyCacheImpl implements CacheImpl {
 
-  private static DummyCacheImpl uniqueInstance = null;
+  private static final Lazy<DummyCacheImpl> uniqueInstance = lazyEvaluated(() -> new DummyCacheImpl());
 
   private DummyCacheImpl() {}
 
-  public static DummyCacheImpl instance(@SuppressWarnings("unused") Properties playProperties) {
-    if (uniqueInstance == null) {
-      uniqueInstance = new DummyCacheImpl();
-    }
-    return uniqueInstance;
+  public static DummyCacheImpl instance() {
+    return uniqueInstance.get();
   }
 
   @Override
-  public void set(@Nonnull String key, Object value, int expiration) {}
+  public void set(String key, @Nullable Object value, int expiration) {}
 
   @Nullable
   @Override
-  public Object get(@Nonnull String key) {
+  public Object get(String key) {
     return null;
   }
 
@@ -35,7 +37,7 @@ public class DummyCacheImpl implements CacheImpl {
   public void clear() {}
 
   @Override
-  public void delete(@Nonnull String key) {}
+  public void delete(String key) {}
 
   @Override
   public void stop() {}

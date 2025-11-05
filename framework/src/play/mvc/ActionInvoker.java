@@ -85,9 +85,9 @@ public class ActionInvoker {
   }
 
   private static void initActionContext(ActionContext context) {
-    Http.Request.setCurrent(context.request);
-    Http.Response.setCurrent(context.response);
-    RenderArgs.current.set(context.renderArgs);
+    Http.Request.setCurrent(context.request());
+    Http.Response.setCurrent(context.response());
+    RenderArgs.current.set(context.renderArgs());
     CachedBoundActionMethodArgs.init();
   }
 
@@ -170,7 +170,7 @@ public class ActionInvoker {
   }
 
   private PlayController createController(ActionContext context) {
-    PlayController controller = Injector.getBeanOfType(context.request.controllerClass);
+    PlayController controller = Injector.getBeanOfType(context.request().controllerClass);
     if (controller instanceof PlayContextController) {
       ((PlayContextController) controller).setContext(context);
     }

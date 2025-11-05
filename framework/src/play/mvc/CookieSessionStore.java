@@ -6,21 +6,21 @@ import static play.mvc.Scope.SESSION_HTTPONLY;
 import static play.mvc.Scope.Session;
 import static play.mvc.Scope.Session.TS_KEY;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.Play;
 import play.exceptions.UnexpectedException;
 import play.libs.Signer;
 import play.libs.Time;
 
 /** Default session store implementation that stores signed data in a cookie */
+@NullMarked
 public class CookieSessionStore implements SessionStore {
 
   private final Signer signer = new Signer("session-");
 
-  @Nonnull
   @Override
-  public Session restore(@Nonnull Http.Request request) {
+  public Session restore(Http.Request request) {
     try {
       Session session = new Session();
       Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_SESSION");
@@ -65,8 +65,7 @@ public class CookieSessionStore implements SessionStore {
   }
 
   @Override
-  public void save(
-      @Nonnull Session session, @Nonnull Http.Request request, @Nullable Http.Response response) {
+  public void save(Session session, Http.Request request, Http.@Nullable Response response) {
     if (response == null) {
       // Some request like WebSocket don't have any response
       return;

@@ -16,10 +16,9 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.ClasspathResource;
@@ -46,7 +45,7 @@ import play.templates.Template;
  *
  * <p>Since all the enabled-plugins-iteration is done here, the code elsewhere is cleaner.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class PluginCollection {
   private static final Logger logger = LoggerFactory.getLogger(PluginCollection.class);
 
@@ -85,7 +84,6 @@ public class PluginCollection {
         .collect(toList());
   }
 
-  @Nonnull
   @CheckReturnValue
   private PluginDescriptor toPluginDescriptor(ClasspathResource pluginsFile, String line) {
     String[] lineParts = line.split(":");
@@ -189,8 +187,7 @@ public class PluginCollection {
     getEnabledPlugins().forEach(plugin -> plugin.onInvocationSuccess());
   }
 
-  public void onActionInvocationException(
-      @Nonnull Http.Request request, @Nonnull Response response, @Nonnull Throwable e) {
+  public void onActionInvocationException(Http.Request request, Response response, Throwable e) {
     getEnabledPlugins()
         .forEach(
             plugin -> {
@@ -205,7 +202,7 @@ public class PluginCollection {
             });
   }
 
-  public void onJobInvocationException(@Nonnull Throwable e) {
+  public void onJobInvocationException(Throwable e) {
     getEnabledPlugins()
         .forEach(
             plugin -> {
@@ -304,7 +301,7 @@ public class PluginCollection {
         .forEach(plugin -> plugin.afterActionInvocation(request, response, session, flash));
   }
 
-  public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
+  public void onActionInvocationFinally(Request request, Response response) {
     getEnabledPlugins().forEach(plugin -> plugin.onActionInvocationFinally(request, response));
   }
 
@@ -313,7 +310,7 @@ public class PluginCollection {
   }
 
   public boolean rawInvocation(
-      Request request, Response response, Session session, RenderArgs renderArgs, Flash flash) {
+      Request request, Response response, @Nullable Session session, RenderArgs renderArgs, @Nullable Flash flash) {
     return getEnabledPlugins()
         .map(plugin -> rawInvoke(request, response, session, renderArgs, flash, plugin))
         .filter(wasInvoked -> wasInvoked)
@@ -324,9 +321,9 @@ public class PluginCollection {
   private boolean rawInvoke(
       Request request,
       Response response,
-      Session session,
+      @Nullable Session session,
       RenderArgs renderArgs,
-      Flash flash,
+      @Nullable Flash flash,
       PlayPlugin plugin) {
     try {
       return plugin.rawInvocation(request, response, session, renderArgs, flash);

@@ -5,25 +5,29 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.Collectors.joining;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.inject.BeanSource;
 
+@NullMarked
+@CheckReturnValue
 public class GuiceBeanSource implements BeanSource {
   private static final Logger logger = LoggerFactory.getLogger(GuiceBeanSource.class);
 
-  @Nonnull private final Injector injector;
+  private final Injector injector;
 
-  public GuiceBeanSource(@Nonnull Module module) {
+  public GuiceBeanSource(Module module) {
     this(singletonList(module));
   }
 
-  public GuiceBeanSource(@Nonnull List<Module> modules) {
+  public GuiceBeanSource(List<Module> modules) {
     long start = nanoTime();
     logger.info(
         "Initializing guice modules: {}",

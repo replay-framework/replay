@@ -11,8 +11,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import javax.sql.DataSource;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ import play.db.jpa.JPA;
 import play.exceptions.DatabaseException;
 
 /** Database connection utilities. */
+@NullMarked
+@CheckReturnValue
 public class DB {
 
   private static final Logger logger = LoggerFactory.getLogger(DB.class);
@@ -30,28 +33,18 @@ public class DB {
    *
    * @see ExtendedDatasource
    */
-  protected static final Map<String, ExtendedDatasource> dataSources = new ConcurrentHashMap<>();
+  static final Map<String, ExtendedDatasource> dataSources = new ConcurrentHashMap<>();
 
-  public static class ExtendedDatasource {
+  @NullMarked
+  @CheckReturnValue
+  public record ExtendedDatasource(
 
-    /** Connection to the physical data source */
-    private final DataSource internalDataSource;
+    /* Connection to the physical data source */
+    DataSource dataSource,
 
-    /** The method used to destroy the data source */
-    private final String internalDestroyMethod;
-
-    public ExtendedDatasource(DataSource ds, String destroyMethod) {
-      this.internalDataSource = ds;
-      this.internalDestroyMethod = destroyMethod;
-    }
-
-    public String getDestroyMethod() {
-      return internalDestroyMethod;
-    }
-
-    public DataSource getDataSource() {
-      return internalDataSource;
-    }
+    /* The method used to destroy the data source */
+    String destroyMethod
+  ) {
   }
 
   /**
@@ -60,7 +53,9 @@ public class DB {
    * @since 1.3.0
    * @deprecated Use dataSources instead
    */
-  @Deprecated public static DataSource dataSource = null;
+  @Deprecated
+  @Nullable
+  public static DataSource dataSource = null;
 
   /**
    * The method used to destroy the datasource
@@ -74,32 +69,30 @@ public class DB {
 
   public static final String DEFAULT = "default";
 
-  static final ThreadLocal<Map<String, Connection>> localConnection = new ThreadLocal<>();
+  static final ThreadLocal<@Nullable Map<String, Connection>> localConnection = new ThreadLocal<>();
 
   @Nullable
-  public static DataSource getDataSource(@Nonnull String name) {
+  public static DataSource getDataSource(String name) {
     if (dataSources.get(name) != null) {
-      return dataSources.get(name).getDataSource();
+      return dataSources.get(name).dataSource();
     }
     return null;
   }
 
-  @Nonnull
   @SuppressWarnings("ConstantConditions")
   public static DataSource getDataSource() {
     return getDataSource(DEFAULT);
   }
 
-  @Nonnull
   public static Map<String, DataSource> getDataSources() {
     return dataSources
         .entrySet()
         .stream()
-        .collect(toMap(e -> e.getKey(), e -> e.getValue().getDataSource()));
+        .collect(toMap(e -> e.getKey(), e -> e.getValue().dataSource()));
   }
 
   @Nullable
-  private static Connection getLocalConnection(@Nonnull String name) {
+  private static Connection getLocalConnection(String name) {
     Map<String, Connection> map = localConnection.get();
     if (map != null) {
       return map.get(name);
@@ -179,12 +172,12 @@ public class DB {
   public static void destroy(String name) {
     try {
       ExtendedDatasource extDatasource = dataSources.get(name);
-      if (extDatasource != null && extDatasource.getDestroyMethod() != null) {
+      if (extDatasource != null && extDatasource.destroyMethod() != null) {
         Method close =
-            extDatasource.internalDataSource
+            extDatasource.dataSource()
                 .getClass()
-                .getMethod(extDatasource.getDestroyMethod());
-        close.invoke(extDatasource.getDataSource());
+                .getMethod(extDatasource.destroyMethod());
+        close.invoke(extDatasource.dataSource());
         dataSources.remove(name);
         DB.dataSource = null;
         logger.trace("Datasource destroyed");

@@ -5,16 +5,20 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
+@SuppressWarnings({"NonFinalFieldReferencedInHashCode", "NonFinalFieldReferenceInEquals"})
 public class PdfTemplate {
-  @Nullable private final String templateName;
+  @Nullable
+  private final String templateName;
   private final Map<String, Object> arguments = new HashMap<>();
+  @Nullable
   private String fileName;
   private IHtmlToPdfTransformer.PageSize pageSize = IHtmlToPdfTransformer.A4P;
 
@@ -26,26 +30,24 @@ public class PdfTemplate {
     this.templateName = templateName;
   }
 
-  @Nonnull
+  @CanIgnoreReturnValue
   public final PdfTemplate with(String name, Object value) {
     arguments.put(name, value);
     return this;
   }
 
-  @Nonnull
+  @CanIgnoreReturnValue
   public final PdfTemplate fileName(String fileName) {
     this.fileName = requireNonNull(fileName);
     return this;
   }
 
-  @Nonnull
+  @CanIgnoreReturnValue
   public final PdfTemplate pageSize(IHtmlToPdfTransformer.PageSize pageSize) {
     this.pageSize = requireNonNull(pageSize);
     return this;
   }
 
-  @Nonnull
-  @CheckReturnValue
   public Map<String, Object> getArguments() {
     return arguments;
   }
@@ -55,8 +57,6 @@ public class PdfTemplate {
     return templateName;
   }
 
-  @Nonnull
-  @CheckReturnValue
   public IHtmlToPdfTransformer.PageSize getPageSize() {
     return pageSize;
   }
@@ -68,13 +68,17 @@ public class PdfTemplate {
 
   @Override
   public boolean equals(Object object) {
-    if (!(object instanceof PdfTemplate)) return false;
+    if (!(object instanceof PdfTemplate other)) return false;
 
-    PdfTemplate other = (PdfTemplate) object;
     return Objects.equals(templateName, other.templateName)
         && Objects.equals(arguments, other.arguments)
         && Objects.equals(fileName, other.fileName)
         && Objects.equals(pageSize, other.pageSize);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(templateName, arguments, fileName, pageSize);
   }
 
   @Override

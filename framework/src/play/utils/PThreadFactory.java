@@ -2,11 +2,12 @@ package play.utils;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PThreadFactory implements ThreadFactory {
 
   private final ThreadGroup group;
@@ -18,8 +19,6 @@ public class PThreadFactory implements ThreadFactory {
     namePrefix = poolName + "-thread-";
   }
 
-  @Nonnull
-  @CheckReturnValue
   @Override
   public Thread newThread(Runnable r) {
     Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);

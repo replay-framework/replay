@@ -2,11 +2,12 @@ package play.modules.gtengineplugin;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.Play;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -16,10 +17,13 @@ import play.template2.GTRenderingResult;
 import play.template2.GTTemplateLocation;
 import play.templates.Template;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class GTTemplate extends Template {
 
   private final GTTemplateLocation templateLocation;
+
+  @Nullable
   private final GTJavaBase gtJavaBase;
 
   public GTTemplate(GTTemplateLocation templateLocation, @Nullable GTJavaBase gtJavaBase) {

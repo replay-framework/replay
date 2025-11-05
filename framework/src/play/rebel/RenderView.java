@@ -1,22 +1,25 @@
 package play.rebel;
 
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
+@CheckReturnValue
 public class RenderView extends View {
   public RenderView() {}
 
-  public RenderView(@Nonnull String templateName) {
+  public RenderView(String templateName) {
     super(templateName);
   }
 
-  public RenderView(@Nonnull String templateName, @Nonnull Map<String, Object> arguments) {
+  public RenderView(String templateName, Map<String, Object> arguments) {
     super(templateName, arguments);
   }
 
   @Override
-  public RenderView with(@Nonnull String name, @Nullable Object value) {
+  public RenderView with(String name, @Nullable Object value) {
     return (RenderView) super.with(name, value);
   }
 }

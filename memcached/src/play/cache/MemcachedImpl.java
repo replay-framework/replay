@@ -1,20 +1,23 @@
 package play.cache;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static play.libs.Lazy.lazyEvaluated;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import play.Play;
+import play.libs.Lazy;
 
 /**
  * Memcached implementation.
@@ -24,15 +27,17 @@ import org.slf4j.MDC;
  * <p>NOTE: expiration is specified in seconds
  */
 @SuppressWarnings("unused") // Used through reflection
+@NullMarked
+@CheckReturnValue
 public class MemcachedImpl implements CacheImpl {
 
   private static final Logger logger = LoggerFactory.getLogger(MemcachedImpl.class);
-  private static MemcachedImpl uniqueInstance = null;
+  private static final Lazy<MemcachedImpl> uniqueInstance = lazyEvaluated(() -> new MemcachedImpl(Play.configuration));
   private final MemcachedClient client;
   private final String mdcParameterName;
   private final MemcachedTranscoder tc = new MemcachedTranscoder();
 
-  private MemcachedImpl(Properties configuration) throws IOException {
+  private MemcachedImpl(Properties configuration) {
     System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.SLF4JLogger");
     client = new MemcachedClientBuilder().build(configuration);
     mdcParameterName = configuration.getProperty("memcached.mdc.parameter", "");
@@ -44,16 +49,13 @@ public class MemcachedImpl implements CacheImpl {
   }
 
   @SuppressWarnings("unused") // Used through reflection
-  public static MemcachedImpl instance(@Nonnull Properties playProperties) throws IOException {
-    if (uniqueInstance == null) {
-      uniqueInstance = new MemcachedImpl(playProperties);
-    }
-    return uniqueInstance;
+  public static MemcachedImpl instance() {
+    return uniqueInstance.get();
   }
 
   @Override
   @Nullable
-  public Object get(@Nonnull String key) {
+  public Object get(String key) {
     Future<Object> future = client.asyncGet(key, transcoder());
     try {
       return future.get(1, TimeUnit.SECONDS);
@@ -93,7 +95,6 @@ public class MemcachedImpl implements CacheImpl {
     }
   }
 
-  @Nonnull
   SerializingTranscoder transcoder() {
     return isEmpty(mdcParameterName)
         ? tc
@@ -106,12 +107,12 @@ public class MemcachedImpl implements CacheImpl {
   }
 
   @Override
-  public void delete(@Nonnull String key) {
+  public void delete(String key) {
     client.delete(key);
   }
 
   @Override
-  public void set(@Nonnull String key, Object value, int expiration) {
+  public void set(String key, @Nullable Object value, int expiration) {
     client.set(key, expiration, value, tc);
   }
 

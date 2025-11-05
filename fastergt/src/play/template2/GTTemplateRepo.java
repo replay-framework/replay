@@ -3,7 +3,7 @@ package play.template2;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.template2.compile.GTCompiler;
 import play.template2.compile.GTJavaCompileToClass;
 import play.template2.compile.GTPreCompiler;

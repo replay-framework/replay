@@ -1,8 +1,10 @@
 package play.server;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class ServerAddress {
   public final String domain;
   public final int port;

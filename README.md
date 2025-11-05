@@ -10,7 +10,7 @@
 
 RePlay is a fork of the [Play1](https://github.com/playframework/play1) framework, created by [Codeborne](https://codeborne.com) in 2017.
 Forking was needed to make some breaking changes (detailed below) that would not be acceptable on Play1.
-RePlay is a simplification of the the Play1 codebase that aims to improve developer ergonomics.
+RePlay is a simplification of the Play1 codebase that aims to improve developer ergonomics.
 The main differences between Play1 and RePlay are outlined below.
 
 RePlay originally forked Play v1.5.0. Any Play1 improvements that were made since then are ported to RePlay when applicable.
@@ -26,7 +26,7 @@ We use Gitter to discuss RePlay development, feel free to join [the channel](htt
 
 * Uses standard Java build tooling —[Gradle](https://gradle.org)— for dependency management and builds:
   * resulting in better compile times by incremental builds,
-  * no [dependecies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
+  * no [dependencies (`.jar`s) in version control](https://github.com/playframework/play1/tree/master/framework/lib) (both for the framework's and your own project's repository),
   * no dependency on [Ivy](https://ant.apache.org/ivy) (an outdated dependency resolver),
   * no Python scripts (with RePlay one simply uses Gradle or [Maven](https://maven.apache.org)),
   * no "modules" folder (which was a custom dependency management mechanism),
@@ -79,7 +79,7 @@ To start a new RePlay application make a copy of [demo application](https://gith
 
 Subprojects in RePlay's `replay-tests/` folder show how to do certain things in RePlay (like using LiquiBase and
 Hibernate backed applications (in `liquibase-app`), Kotlin (in `helloworld-kotlin`), some more advanced controller
-techniques (in `criminals`) a multi module application (in `multi-module-app`)
+techniques (in `criminals`) a multi-module application (in `multi-module-app`)
 and dependency injection with Guice (in `dependency-injection`)).
 
 Documentation for RePlay is found in (or referred to from) this README.
@@ -214,11 +214,11 @@ a currently popular Java MVC framework (like [Spring Boot](https://spring.io/pro
 
 A serious part of the work stems from the removal of Play1's "Enhancers", these use JBoss Javassist to
 apply runtime bytecode manipulation which add methods and intercept method calls or member field access.
-Removing the enhancers gives RePlay many of it's benefits: quick builds, reduce start-up times, allow non-Java JVM language interop,
+Removing the enhancers gives RePlay many of its benefits: quick builds, reduce start-up times, allow non-Java JVM language interop,
 reduce magic, make mocking easier and results in more idiomatic Java code.
 
 It is advised to perform the porting work as much as possible while still being based on Play1.
-This allows you to break-up the effort in smaller "testable" steps
+This allows you to break up the effort in smaller "testable" steps
 making the effort more incremental and thereby greatly reducing the complexity of actual switch to RePlay.
 Where this is possible the guide below points this out with a **TIP**.
 
@@ -228,9 +228,9 @@ The following list breaks down the porting effort into tasks:
 * Ensure that `app/play.plugins` file (or the file where the `play.plugins.descriptor` configuration property is pointing) is on the classpath (e.g. `sourceSets.main.resources { srcDir 'app' }`) and add all plugins you need explicitly (see the section on "Plugins").
 * Add the `app/<appname>/Application.java` and `app/<appname>/Module.java` (see the
 [RePlay example project](/replay-framework/replay/tree/main/replay-tests/criminals) and
-[multi-module-app test](/replay-framework/replay/tree/main/replay-tests/multi-module-app) for inspiration).
+[multi-module-app test](/replay-framework/replay/tree/main/replay-tests/multi-module-app) and
 [RePlay example project](/Users/andrei/projects/replay/replay-tests/criminals) for inspiration).
-* Play1 recommends to subclass from `db.Model`, which is deprecated in RePlay. Instead implement a base model as part of
+* Play1 recommends to subclass from `db.Model`, which is deprecated in RePlay. Instead, implement a base model as part of
 your project as seen in `replay-test/liquibase-app`. This give you more flexibility in configuring Hibernate handling of
 the `id` column.
 * Play1's [`PropertiesEnhancer`](https://github.com/playframework/play1/blob/master/framework/src/play/classloading/enhancers/PropertiesEnhancer.java) was removed.

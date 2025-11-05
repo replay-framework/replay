@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

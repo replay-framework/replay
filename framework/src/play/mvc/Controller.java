@@ -18,13 +18,13 @@ public class Controller implements PlayContextController {
 
   public void setContext(ActionContext actionContext) {
     this.actionContext = actionContext;
-    request = actionContext.request;
-    response = actionContext.response;
-    session = actionContext.session;
-    flash = actionContext.flash;
-    params = actionContext.request.params;
-    renderArgs = actionContext.renderArgs;
-    validation = actionContext.validation;
+    request = actionContext.request();
+    response = actionContext.response();
+    session = actionContext.session();
+    flash = actionContext.flash();
+    params = actionContext.request().params;
+    renderArgs = actionContext.renderArgs();
+    validation = actionContext.validation();
   }
 
   protected void checkAuthenticity() {
