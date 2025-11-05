@@ -16,10 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.ClasspathResource;
@@ -30,18 +29,17 @@ import play.mvc.results.NotFound;
 import play.templates.TemplateLoader;
 import play.utils.Utils;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class ServerHelper {
   public static final String SERVER_HELPER_FIND_FILE_TMP_PATH_PREFIX = "serverhelperfindfilesclasspathfiles/";
   private static final Logger logger = LoggerFactory.getLogger(ServerHelper.class);
 
-  @CheckReturnValue
   public static int maxContentLength(int defaultValue) {
     String setting = Play.configuration.getProperty("play.netty.maxContentLength");
     return setting == null ? defaultValue : parseInt(setting);
   }
 
-  @CheckReturnValue
   public boolean isKeepAlive(String protocol, String connectionHeader) {
     return switch (protocol) {
       case "HTTP/1.0" -> KEEP_ALIVE.equalsIgnoreCase(connectionHeader);
@@ -49,7 +47,6 @@ public class ServerHelper {
     };
   }
 
-  @CheckReturnValue
   public boolean isModified(
       String eTag, long last, @Nullable String ifNoneMatch, @Nullable String ifModifiedSince) {
     if (ifNoneMatch != null) {
@@ -72,24 +69,17 @@ public class ServerHelper {
     return true;
   }
 
-  @Nonnull
-  @CheckReturnValue
   public String generateNotFoundResponse(Http.Request request, String format, NotFound e) {
     return TemplateLoader.load("errors/404." + format)
         .render(getBindingForErrors(request, e, false));
   }
 
-  @Nonnull
-  @CheckReturnValue
   public String generateErrorResponse(Http.Request request, String format, Exception e) {
     return TemplateLoader.load("errors/500." + format)
         .render(getBindingForErrors(request, e, true));
   }
 
-  @Nonnull
-  @CheckReturnValue
-  private Map<String, Object> getBindingForErrors(
-      Http.Request request, Exception e, boolean isError) {
+  private Map<String, Object> getBindingForErrors(Http.Request request, Exception e, boolean isError) {
     Map<String, Object> binding = new HashMap<>(4);
     if (isError) {
       binding.put("exception", e);
@@ -116,7 +106,6 @@ public class ServerHelper {
   }
 
   @Nullable
-  @CheckReturnValue
   public static File findFile(String resource) {
     File file = Play.file(resource);
     if (file != null && file.exists() && file.isDirectory()) {
@@ -150,8 +139,6 @@ public class ServerHelper {
     return file;
   }
 
-  @Nonnull
-  @CheckReturnValue
   public String relativeUrl(String path, @Nullable String query) {
     return Stream.of(path, query).filter(s -> s != null && !s.isEmpty()).collect(joining("?"));
   }

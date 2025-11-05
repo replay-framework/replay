@@ -1,9 +1,11 @@
 package play.modules.pdf;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PDFDocument {
   final String content;
   final IHtmlToPdfTransformer.PageSize pageSize;

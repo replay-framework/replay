@@ -1,7 +1,8 @@
 package play.modules.pdf;
 
-import javax.annotation.Nonnull;
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
+import org.jspecify.annotations.NullMarked;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Scope.Flash;
@@ -9,6 +10,8 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Result;
 
+@NullMarked
+@CheckReturnValue
 public class PdfResult extends Result {
   private static final PdfHelper helper = new PdfHelper();
 
@@ -57,7 +60,6 @@ public class PdfResult extends Result {
     }
   }
 
-  @Nonnull
   String contentDisposition(String filename) {
     String type = inline ? "inline" : "attachment";
     return String.format("%s; filename=\"%s\"", type, filename);

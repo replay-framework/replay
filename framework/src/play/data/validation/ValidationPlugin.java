@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
@@ -38,10 +37,10 @@ import play.mvc.results.Result;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Java;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ValidationPlugin extends PlayPlugin {
 
-  static final ThreadLocal<Map<Object, String>> keys = new ThreadLocal<>();
+  static final ThreadLocal<@Nullable Map<Object, String>> keys = new ThreadLocal<>();
   private static final ErrorsCookieCrypter errorsCookieCrypter = new ErrorsCookieCrypter();
   private static final Logger securityLogger = LoggerFactory.getLogger("security");
   private static final Gson GSON = new Gson();
@@ -89,22 +88,21 @@ public class ValidationPlugin extends PlayPlugin {
 
   @Override
   public void onActionInvocationResult(
-      @Nonnull Request request,
-      @Nonnull Response response,
-      @Nonnull Session session,
-      @Nonnull RenderArgs renderArgs,
+      Request request,
+      Response response,
+      Session session,
+      RenderArgs renderArgs,
       Result result) {
     save(request, response);
   }
 
   @Override
-  public void onActionInvocationException(
-      @Nonnull Http.Request request, @Nonnull Response response, @Nonnull Throwable e) {
+  public void onActionInvocationException(Http.Request request, Response response, Throwable e) {
     clear(response);
   }
 
   @Override
-  public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
+  public void onActionInvocationFinally(Request request, Response response) {
     onJobInvocationFinally();
   }
 
@@ -164,7 +162,6 @@ public class ValidationPlugin extends PlayPlugin {
     }
   }
 
-  @Nonnull
   @CheckReturnValue
   List<Error> parseErrorsCookie(String errorsData) {
     try {
@@ -212,13 +209,12 @@ public class ValidationPlugin extends PlayPlugin {
     }
   }
 
-  @Nonnull
   @CheckReturnValue
   String composeErrorsCookieValue(List<Error> validationErrors) {
     return GSON.toJson(validationErrors);
   }
 
-  private void clear(@Nonnull Response response) {
+  private void clear(Response response) {
     try {
       if (response.cookies != null) {
         Cookie cookie = new Cookie(Scope.COOKIE_PREFIX + "_ERRORS", "");

@@ -19,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ import play.utils.Default;
 import play.utils.Utils;
 
 /** The router matches HTTP requests to action invocations */
+@NullMarked
+@CheckReturnValue
 public class Router {
 
   private static final Logger logger = LoggerFactory.getLogger(Router.class);
@@ -93,6 +96,7 @@ public class Router {
     }
   }
 
+  @Nullable
   private Route findParameterlessRoute(String method, String path) {
     return parameterlessRoutes
         .getOrDefault(method.toUpperCase(), emptyMap())
@@ -202,21 +206,18 @@ public class Router {
   }
 
   @Deprecated
-  @Nonnull
   public static String getFullUrl(String action, Map<String, Object> args) {
     return getFullUrl(action, args, Request.current());
   }
 
-  @Nonnull
   public static String getFullUrl(
       String action, Map<String, Object> args, @Nullable Request request) {
     String baseUrl = getBaseUrl(request);
     return getFullUrl(action, args, baseUrl);
   }
 
-  @Nonnull
   public static String getFullUrl(
-      @Nonnull String action, @Nonnull Map<String, Object> args, @Nonnull String baseUrl) {
+      String action, Map<String, Object> args, String baseUrl) {
     ActionDefinition actionDefinition = reverse(action, args);
     if ("WS".equals(actionDefinition.method)) {
       return HTTP_PROTO_REGEX.matcher(baseUrl).replaceFirst("ws") + actionDefinition;
@@ -226,12 +227,10 @@ public class Router {
 
   /** Gets baseUrl from current request or application.baseUrl in application.conf */
   @Deprecated
-  @Nonnull
   public static String getBaseUrl() {
     return getBaseUrl(Request.current());
   }
 
-  @Nonnull
   public static String getBaseUrl(@Nullable Request request) {
     if (request == null) {
       return getConfiguredBaseUrl();
@@ -240,7 +239,6 @@ public class Router {
     }
   }
 
-  @Nonnull
   public static String getConfiguredBaseUrl() {
     String appBaseUrl = Play.configuration.getProperty("application.baseUrl", "application.baseUrl");
     if (appBaseUrl.endsWith("/")) {
@@ -251,20 +249,17 @@ public class Router {
   }
 
   @Deprecated
-  @Nonnull
-  public static String getFullUrl(@Nonnull String action) {
+  public static String getFullUrl(String action) {
     return getFullUrl(action, Request.current());
   }
 
-  @Nonnull
-  public static String getFullUrl(@Nonnull String action, @Nullable Request request) {
+  public static String getFullUrl(String action, @Nullable Request request) {
     // Note the map is not <code>Collections.EMPTY_MAP</code> because it
     // will be copied and changed.
     return getFullUrl(action, new HashMap<>(16), request);
   }
 
-  @Nonnull
-  public static String getFullUrl(@Nonnull String action, @Nonnull String baseUrl) {
+  public static String getFullUrl(String action, String baseUrl) {
     // Note the map is not <code>Collections.EMPTY_MAP</code> because it
     // will be copied and changed.
     return getFullUrl(action, new HashMap<>(16), baseUrl);
@@ -314,33 +309,29 @@ public class Router {
   }
 
   @Deprecated
-  @Nonnull
   public static ActionDefinition reverse(
-      @Nonnull String action, @Nullable Map<String, Object> args) {
+      String action, @Nullable Map<String, Object> args) {
     return reverse(action, args, Request.current(), Response.current());
   }
 
-  @Nonnull
   public static ActionDefinition reverse(
-      @Nonnull String action,
+      String action,
       @Nullable Map<String, Object> args,
       @Nullable Request request,
       @Nullable Response response) {
     return instance.actionToUrl(action, args, request, response);
   }
 
-  @Nonnull
   public static ActionDefinition reverse(
-      @Nonnull String action,
+      String action,
       @Nullable Map<String, Object> args,
-      @Nonnull String requestFormat,
+      String requestFormat,
       @Nullable Charset encoding) {
     return instance.actionToUrl(action, args, requestFormat, encoding);
   }
 
-  @Nonnull
   public ActionDefinition actionToUrl(
-      @Nonnull String action,
+      String action,
       @Nullable Map<String, Object> actionArgs,
       @Nullable Request request,
       @Nullable Response response) {
@@ -349,11 +340,10 @@ public class Router {
     return actionToUrl(action, actionArgs, requestFormat, responseEncoding);
   }
 
-  @Nonnull
   public ActionDefinition actionToUrl(
-      @Nonnull String action,
+      String action,
       @Nullable Map<String, Object> actionArgs,
-      @Nonnull String requestFormat,
+      String requestFormat,
       @Nullable Charset encoding) {
     Map<String, Object> args = new LinkedHashMap<>(actionArgs);
     Charset actualEncoding = encoding == null ? Play.defaultWebEncoding : encoding;
@@ -595,17 +585,24 @@ public class Router {
   }
 
   public static class Route {
-
     public final String method;
     public final String path;
     public final String action;
+
+    @Nullable
     final Pattern actionPattern;
     final List<String> actionArgs = new ArrayList<>(3);
+
+    @Nullable
     final String staticDir;
     final boolean staticFile;
+
+    @Nullable
     final Pattern pattern;
     final List<Arg> args = new ArrayList<>(3);
     final Map<String, String> staticArgs = new HashMap<>(3);
+
+    @Nullable
     public final ClasspathResource routesFile;
     public final int routesFileLine;
 
@@ -615,7 +612,7 @@ public class Router {
         Pattern.compile("\\{<([^>]+)>([a-zA-Z_0-9]+)}");
 
     public Route(
-        String method, String path, String action, ClasspathResource sourceFile, int line) {
+        String method, String path, String action, @Nullable ClasspathResource sourceFile, int line) {
       this.method = method;
       this.path = path;
       this.action = action;
@@ -682,7 +679,8 @@ public class Router {
      * @param path Part after domain and before query-string. Starts with a "/".
      * @return route args or null
      */
-    public Map<String, String> matches(String method, String path) {
+    @Nullable
+    public Map<String, String> matches(@Nullable String method, String path) {
       path = normalizePath(path);
 
       // If method is HEAD and we have a GET
@@ -737,16 +735,7 @@ public class Router {
       return path != null && path.isEmpty() ? "/" : path;
     }
 
-    static class Arg {
-
-      final String name;
-      final Pattern constraint;
-
-      Arg(String name, Pattern constraint) {
-        this.name = name;
-        this.constraint = constraint;
-      }
-
+    record Arg(String name, Pattern constraint) {
       @Override
       public String toString() {
         return String.format("Arg {%s %s}", name, constraint);
@@ -759,14 +748,6 @@ public class Router {
     }
   }
 
-  public static class MatchingRoute {
-
-    public final Route route;
-    public final Map<String, String> args;
-
-    public MatchingRoute(Route route, Map<String, String> args) {
-      this.route = route;
-      this.args = args;
-    }
+  public record MatchingRoute(Route route, Map<String, String> args) {
   }
 }

@@ -3,6 +3,7 @@ package org.allcolor.yahp.cl.converter;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNullElse;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
 import java.io.BufferedOutputStream;
@@ -19,9 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.allcolor.xml.parser.CShaniDomParser;
 import org.allcolor.xml.parser.dom.ADocument;
 import org.allcolor.yahp.cl.converter.CDocumentCut.DocumentAndSize;
@@ -43,7 +43,8 @@ import org.w3c.dom.Text;
  * @author Quentin Anciaux
  * @version 0.02
  */
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransformer {
 
   private static final Logger log =
@@ -143,7 +144,6 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     return null;
   }
 
-  @Nonnull
   String transformSelectStyle(String style) {
     String width = parseCssProperty(style, "width");
     String height = parseCssProperty(style, "height");
@@ -300,12 +300,10 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     }
   }
 
-  @Nonnull
   private Element createSpan(Document doc, String text) {
     return createTextElement(doc, "span", text);
   }
 
-  @Nonnull
   private Element createTextElement(Document doc, String tag, String text) {
     Element content = doc.createElement(tag);
     content.setTextContent(text);
@@ -332,7 +330,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
   @Override
   public void transform(
       final InputStream in,
-      final String urlForBase,
+      @Nullable final String urlForBase,
       final PageSize size,
       final List headersFooters,
       final Map properties,
@@ -344,7 +342,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
 
   void doTransform(
       final InputStream in,
-      final String baseUrl,
+      @Nullable final String baseUrl,
       final PageSize size,
       final List<CHeaderFooter> headersFooters,
       final Map<String, String> properties,
@@ -488,7 +486,7 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     }
   }
 
-  private String readBaseUrl(Document doc, String defaultValue) {
+  private String readBaseUrl(Document doc, @Nullable String defaultValue) {
     NodeList base = doc.getElementsByTagName("base");
     String url =
         base.getLength() == 0 ? defaultValue : ((Element) base.item(0)).getAttribute("href");
@@ -514,7 +512,6 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     }
   }
 
-  @Nonnull
   private File createPdfFile(ReplayITextRenderer renderer) throws IOException, DocumentException {
     File file = Files.createTempFile("replay-yahp-", ".pdf").toFile();
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
@@ -524,7 +521,6 @@ public final class CHtmlToPdfFlyingSaucerTransformer implements IHtmlToPdfTransf
     return file;
   }
 
-  @Nonnull
   private String pageSize(DocumentAndSize doc) {
     final NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setMaximumFractionDigits(2);

@@ -1,5 +1,9 @@
 package play.utils;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.ConfProperties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -16,12 +20,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 
 /**
  * Custom impl of java.util.properties that preserves the key-order from the file and that reads the
  * properties-file in utf-8
  */
+@NullMarked
+@CheckReturnValue
 public class OrderSafeProperties extends ConfProperties {
 
   private static final Pattern ESCAPED_DOUBLE_QUOTE = Pattern.compile("\\\\\"");
@@ -70,17 +75,20 @@ public class OrderSafeProperties extends ConfProperties {
   }
 
   @Override
-  @Nonnull
   public Set<Object> keySet() {
     return keys;
   }
 
+  @Nullable
+  @CanIgnoreReturnValue
   @Override
   public Object put(Object key, Object value) {
     keys.add(key);
     return super.put(key, value);
   }
 
+  @Nullable
+  @CanIgnoreReturnValue
   @Override
   public Object remove(Object o) {
     keys.remove(o);
@@ -100,7 +108,6 @@ public class OrderSafeProperties extends ConfProperties {
   }
 
   @Override
-  @Nonnull
   public Set<Map.Entry<Object, Object>> entrySet() {
     Set<Map.Entry<Object, Object>> entrySet = new LinkedHashSet<>(keys.size());
     for (Object key : keys) {

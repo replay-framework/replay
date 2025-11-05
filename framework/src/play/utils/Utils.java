@@ -14,11 +14,13 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import play.Play;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class Utils {
 
   private static final Pattern PLUS_PATTERN = Pattern.compile("\\+");
@@ -31,12 +33,14 @@ public class Utils {
     return Stream.of(values).map(Object::toString).collect(joining(separator));
   }
 
+  @NullMarked
+  @CheckReturnValue
   public static class Maps {
 
     public static void mergeValueInMap(
-        Map<String, String[]> map, String name, @Nullable String value) {
-      String[] newValues;
-      String[] oldValues = map.get(name);
+        Map<String, @Nullable String[]> map, String name, @Nullable String value) {
+      @Nullable String[] newValues;
+      @Nullable String[] oldValues = map.get(name);
       if (oldValues == null) {
         newValues = new String[1];
         newValues[0] = value;
@@ -71,16 +75,20 @@ public class Utils {
     }
   }
 
-  private static final ThreadLocal<SimpleDateFormat> httpFormatter = new ThreadLocal<>();
+  private static final ThreadLocal<@Nullable SimpleDateFormat> httpFormatter = new ThreadLocal<>();
 
   public static SimpleDateFormat getHttpDateFormatter() {
-    if (httpFormatter.get() == null) {
-      httpFormatter.set(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US));
-      httpFormatter.get().setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat formatter = httpFormatter.get();
+    if (formatter == null) {
+      formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+      formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+      httpFormatter.set(formatter);
     }
-    return httpFormatter.get();
+    return formatter;
   }
 
+  @NullMarked
+  @CheckReturnValue
   public static class AlternativeDateFormat {
     private final List<SimpleDateFormat> formats;
 
@@ -103,31 +111,33 @@ public class Utils {
       throw new ParseException("Date format not understood: " + source, 0);
     }
 
-    private static final ThreadLocal<AlternativeDateFormat> dateFormat = new ThreadLocal<>();
+    private static final ThreadLocal<@Nullable AlternativeDateFormat> dateFormat = new ThreadLocal<>();
 
     public static AlternativeDateFormat getDefaultFormatter() {
-      if (dateFormat.get() == null) {
-        dateFormat.set(
-            new AlternativeDateFormat(
-                Locale.US,
-                "yyyy-MM-dd'T'HH:mm:ss'Z'", // ISO8601 + timezone
-                "yyyy-MM-dd'T'HH:mm:ss", // ISO8601
-                "yyyy-MM-dd HH:mm:ss",
-                "yyyyMMdd HHmmss",
-                "yyyy-MM-dd",
-                "yyyyMMdd'T'HHmmss",
-                "yyyyMMddHHmmss",
-                "dd'/'MM'/'yyyy",
-                "dd-MM-yyyy",
-                "dd'/'MM'/'yyyy HH:mm:ss",
-                "dd-MM-yyyy HH:mm:ss",
-                "ddMMyyyy HHmmss",
-                "ddMMyyyy"));
+      AlternativeDateFormat formatter = dateFormat.get();
+      if (formatter == null) {
+        formatter = new AlternativeDateFormat(
+            Locale.US,
+            "yyyy-MM-dd'T'HH:mm:ss'Z'", // ISO8601 + timezone
+            "yyyy-MM-dd'T'HH:mm:ss", // ISO8601
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyyMMdd HHmmss",
+            "yyyy-MM-dd",
+            "yyyyMMdd'T'HHmmss",
+            "yyyyMMddHHmmss",
+            "dd'/'MM'/'yyyy",
+            "dd-MM-yyyy",
+            "dd'/'MM'/'yyyy HH:mm:ss",
+            "dd-MM-yyyy HH:mm:ss",
+            "ddMMyyyy HHmmss",
+            "ddMMyyyy");
+        dateFormat.set(formatter);
       }
-      return dateFormat.get();
+      return formatter;
     }
   }
 
+  @Nullable
   public static String urlDecodePath(@Nullable String enc) {
     return enc == null
         ? null

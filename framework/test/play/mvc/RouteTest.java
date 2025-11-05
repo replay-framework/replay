@@ -24,8 +24,8 @@ public class RouteTest {
     assertThat(route.staticArgs).hasSize(0);
 
     assertThat(route.args).hasSize(1);
-    assertThat(route.args.get(0).name).isEqualTo("cardId");
-    assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
+    assertThat(route.args.get(0).name()).isEqualTo("cardId");
+    assertThat(route.args.get(0).constraint().toString()).isEqualTo("[^/]+");
 
     assertThat(route.pattern.toString()).isEqualTo("/cards/(?<cardId>[^/]+)/requisites");
     assertThat(route.pattern.matcher("/cards/1234567890/requisites").matches()).isTrue();
@@ -54,8 +54,8 @@ public class RouteTest {
     assertThat(route.staticArgs).hasSize(0);
 
     assertThat(route.args).hasSize(1);
-    assertThat(route.args.get(0).name).isEqualTo("method");
-    assertThat(route.args.get(0).constraint.toString()).isEqualTo("[^/]+");
+    assertThat(route.args.get(0).name()).isEqualTo("method");
+    assertThat(route.args.get(0).constraint().toString()).isEqualTo("[^/]+");
 
     assertThat(route.pattern.toString()).isEqualTo("/news/(?<method>[^/]+)");
     assertThat(route.pattern.matcher("/news/index").matches()).isTrue();
@@ -104,8 +104,8 @@ public class RouteTest {
     assertThat(route.staticArgs).hasSize(0);
 
     assertThat(route.args).hasSize(1);
-    assertThat(route.args.get(0).name).isEqualTo("any");
-    assertThat(route.args.get(0).constraint.toString()).isEqualTo(".*");
+    assertThat(route.args.get(0).name()).isEqualTo("any");
+    assertThat(route.args.get(0).constraint().toString()).isEqualTo(".*");
 
     assertThat(route.pattern.toString()).isEqualTo("/(?<any>.*)");
     assertThat(route.pattern.matcher("/").matches()).isTrue();

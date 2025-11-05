@@ -1,5 +1,7 @@
 package play.db.jpa;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
@@ -20,8 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import play.data.binding.BeanWrapper;
 import play.data.binding.Binder;
@@ -35,6 +38,8 @@ import play.mvc.Scope;
 
 /** A super class for JPA entities */
 @MappedSuperclass
+@NullMarked
+@CheckReturnValue
 @SuppressWarnings("unchecked")
 public class GenericModel extends JPABase {
   /**
@@ -47,7 +52,6 @@ public class GenericModel extends JPABase {
    * @param <T> The entity class
    * @return The created entity
    */
-  @Nonnull
   public static <T extends JPABase> T create(
       Http.Request request,
       Scope.Session session,
@@ -75,14 +79,14 @@ public class GenericModel extends JPABase {
    * @param <T> class of the entity
    * @return the entity
    */
-  @Nonnull
+  @CanIgnoreReturnValue
   public static <T extends JPABase> T edit(
       Http.Request request,
       Scope.Session session,
       ParamNode rootParamNode,
       String name,
       Object o,
-      Annotation[] annotations) {
+      Annotation @Nullable[] annotations) {
     return edit(request, session, JPA.DEFAULT, rootParamNode, name, o, annotations);
   }
 
@@ -97,15 +101,15 @@ public class GenericModel extends JPABase {
    * @param <T> class of the entity
    * @return the entity
    */
-  @Nonnull
+  @CanIgnoreReturnValue
   private static <T extends JPABase> T edit(
       Http.Request request,
       Scope.Session session,
       String dbName,
       ParamNode rootParamNode,
       String name,
-      @Nonnull Object o,
-      Annotation[] annotations) {
+      Object o,
+      Annotation @Nullable[] annotations) {
     // #1601 - If name is empty, we're dealing with "root" request parameters (without prefixes).
     // Must not call rootParamNode.getChild in that case, as it returns null. Use rootParamNode itself instead.
     ParamNode paramNode =
@@ -255,7 +259,6 @@ public class GenericModel extends JPABase {
     }
   }
 
-  @Nonnull
   private static <T> Class<T> loadClass(String className) throws ClassNotFoundException {
     return (Class<T>) Thread.currentThread().getContextClassLoader().loadClass(className);
   }
@@ -268,14 +271,14 @@ public class GenericModel extends JPABase {
    * @param <T> class of the entity
    * @return the entity
    */
-  @Nonnull
+  @CanIgnoreReturnValue
   public <T extends GenericModel> T edit(
       Http.Request request, Scope.Session session, ParamNode rootParamNode, String name) {
     edit(request, session, rootParamNode, name, this, null);
     return (T) this;
   }
 
-  @Nonnull
+  @NonNull
   public <T extends JPABase> T save() {
     _save();
     return (T) this;
@@ -287,7 +290,7 @@ public class GenericModel extends JPABase {
    * @param <T> class of the entity
    * @return The given entity
    */
-  @Nonnull
+  @NonNull
   public <T extends JPABase> T merge() {
     return (T) em(JPA.getDBName(this.getClass())).merge(this);
   }
@@ -298,7 +301,7 @@ public class GenericModel extends JPABase {
    * @param <T> class of the entity
    * @return The deleted entity.
    */
-  @Nonnull
+  @NonNull
   public <T extends JPABase> T delete() {
     _delete();
     return (T) this;
@@ -343,7 +346,7 @@ public class GenericModel extends JPABase {
      * @param param current query
      * @return The query
      */
-    @Nonnull
+    @NonNull
     public JPAQuery bind(String name, Object param) {
       if (param.getClass().isArray()) {
         param = Arrays.asList((Object[]) param);
@@ -362,7 +365,7 @@ public class GenericModel extends JPABase {
      * @param param The given parameters
      * @return The query
      */
-    @Nonnull
+    @NonNull
     public JPAQuery setParameter(String name, Object param) {
       query.setParameter(name, param);
       return this;
@@ -374,7 +377,7 @@ public class GenericModel extends JPABase {
      * @param <T> the type of the entity
      * @return A list of entities
      */
-    @Nonnull
+    @NonNull
     public <T> List<T> fetch() {
       try {
         return query.getResultList();
@@ -392,7 +395,7 @@ public class GenericModel extends JPABase {
      * @param <T> The entity class
      * @return A list of entities
      */
-    @Nonnull
+    @NonNull
     public <T> List<T> fetch(int max) {
       try {
         query.setMaxResults(max);
@@ -410,7 +413,7 @@ public class GenericModel extends JPABase {
      * @param position Position of the first element
      * @return A new query
      */
-    @Nonnull
+    @NonNull
     public JPAQuery from(int position) {
       query.setFirstResult(position);
       return this;
@@ -424,7 +427,7 @@ public class GenericModel extends JPABase {
      * @param <T> The entity class
      * @return a list of entities
      */
-    @Nonnull
+    @NonNull
     public <T> List<T> fetch(int page, int length) {
       if (page < 1) {
         page = 1;

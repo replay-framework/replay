@@ -4,11 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NullMarked
+@CheckReturnValue
 class MemcachedTranscoder extends SerializingTranscoder {
   private static final Logger logger = LoggerFactory.getLogger(MemcachedTranscoder.class);
 
@@ -23,9 +27,8 @@ class MemcachedTranscoder extends SerializingTranscoder {
     }
   }
 
-  @Nullable
   @Override
-  protected byte[] serialize(Object object) {
+  protected byte @Nullable [] serialize(Object object) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
       try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
         oos.writeObject(object);

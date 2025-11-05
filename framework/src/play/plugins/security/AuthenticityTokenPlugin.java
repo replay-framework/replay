@@ -1,8 +1,9 @@
 package play.plugins.security;
 
 import java.lang.reflect.Method;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import play.PlayPlugin;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
@@ -12,9 +13,10 @@ import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 import play.mvc.results.Forbidden;
 
+@NullMarked
+@CheckReturnValue
 public class AuthenticityTokenPlugin extends PlayPlugin {
 
-  @ParametersAreNonnullByDefault
   @Override
   public void beforeActionInvocation(
       Request request,
@@ -32,7 +34,7 @@ public class AuthenticityTokenPlugin extends PlayPlugin {
     verifyToken(session, authenticityToken[0]);
   }
 
-  private void verifyTokenIsPresent(@Nullable String[] authenticityToken) {
+  private void verifyTokenIsPresent(String @Nullable [] authenticityToken) {
     if (authenticityToken == null || authenticityToken.length == 0) {
       throw new Forbidden("No authenticity token");
     }

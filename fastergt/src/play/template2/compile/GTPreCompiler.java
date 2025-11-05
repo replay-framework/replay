@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.template2.GTFastTagResolver;
 import play.template2.GTFileResolver;
 import play.template2.GTGroovyBase;

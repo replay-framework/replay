@@ -26,7 +26,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.allcolor.xml.parser.dom.ADocument;
 import org.allcolor.xml.parser.dom.ANode.CNamespace;
 import org.allcolor.xml.parser.dom.CDom2HTMLDocument;
@@ -47,6 +49,8 @@ import org.w3c.dom.NodeList;
  * @author Quentin Anciaux
  * @version 0.94
  */
+@NullMarked
+@CheckReturnValue
 public class CDocumentCut {
 
   private static final Logger log = LoggerFactory.getLogger(CDocumentCut.class);
@@ -451,7 +455,7 @@ public class CDocumentCut {
    * @version 0.94
    */
   private record PbDocument(
-      Element pageBreakStart,
-      Element pageBreakEnd
+      @Nullable Element pageBreakStart,
+      @Nullable Element pageBreakEnd
   ) {}
 }

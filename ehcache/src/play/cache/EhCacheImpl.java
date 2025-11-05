@@ -6,21 +6,23 @@ import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConf
 import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
 import static org.ehcache.config.units.EntryUnit.ENTRIES;
 import static org.ehcache.config.units.MemoryUnit.MB;
+import static play.libs.Lazy.lazyEvaluated;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.Properties;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.google.common.annotations.VisibleForTesting;
 import net.sf.oval.exception.InvalidConfigurationException;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.ExpiryPolicy;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.Play;
+import play.libs.Lazy;
 
 /**
  * EhCache implementation.
@@ -31,9 +33,11 @@ import play.Play;
  *
  * @see <a href="http://ehcache.org/">http://ehcache.org/</a>
  */
+@NullMarked
+@CheckReturnValue
 public class EhCacheImpl implements CacheImpl {
 
-  private static EhCacheImpl uniqueInstance;
+  private static final Lazy<EhCacheImpl> uniqueInstance = lazyEvaluated(() -> new EhCacheImpl());
 
   CacheManager cacheManager;
 
@@ -65,11 +69,8 @@ public class EhCacheImpl implements CacheImpl {
   }
 
   @SuppressWarnings("unused") // Used through reflection
-  public static EhCacheImpl instance(@SuppressWarnings("unused") Properties playProperties) {
-    if (uniqueInstance == null) {
-      uniqueInstance = new EhCacheImpl();
-    }
-    return uniqueInstance;
+  public static EhCacheImpl instance() {
+    return uniqueInstance.get();
   }
 
   @VisibleForTesting
@@ -83,19 +84,19 @@ public class EhCacheImpl implements CacheImpl {
   }
 
   @Override
-  public void delete(@Nonnull String key) {
+  public void delete(String key) {
     cache.remove(key);
   }
 
   @Override
   @Nullable
-  public Object get(@Nonnull String key) {
+  public Object get(String key) {
     ValueWrapper valueWrapper = cache.get(key);
     return valueWrapper == null ? null : valueWrapper.value;
   }
 
   @Override
-  public void set(@Nonnull String key, Object value, int expiration) {
+  public void set(String key, @Nullable Object value, int expiration) {
     cache.put(key, new ValueWrapper(value, expiration));
   }
 
@@ -106,11 +107,14 @@ public class EhCacheImpl implements CacheImpl {
     }
   }
 
+  @NullMarked
+  @CheckReturnValue
   private static class ValueWrapper implements Serializable {
+    @Nullable
     Object value;
     int expiration;
 
-    ValueWrapper(Object value, int expiration) {
+    ValueWrapper(@Nullable Object value, int expiration) {
       this.value = value;
       this.expiration = expiration;
     }
@@ -122,6 +126,7 @@ public class EhCacheImpl implements CacheImpl {
       return Duration.ofSeconds(value.expiration);
     }
 
+    @Nullable
     @Override
     public Duration getExpiryForAccess(String key, Supplier<? extends ValueWrapper> value) {
       return null;

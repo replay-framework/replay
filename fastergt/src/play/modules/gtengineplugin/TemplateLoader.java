@@ -2,8 +2,9 @@ package play.modules.gtengineplugin;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import play.Play;
 import play.exceptions.TemplateNotFoundException;
 import play.modules.gtengineplugin.gt_integration.GTFileResolver1xImpl;
@@ -21,8 +22,11 @@ import play.template2.compile.GTCompiler;
 import play.template2.compile.GTGroovyPimpTransformer;
 import play.templates.Template;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class TemplateLoader {
+
+  @Nullable
   private static GTTemplateRepo templateRepo;
 
   public static void init() {

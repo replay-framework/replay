@@ -22,8 +22,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -35,6 +36,7 @@ import play.utils.HTTP;
 import play.utils.HTTP.ContentTypeWithEncoding;
 import play.utils.Utils;
 
+@CheckReturnValue
 public class Http {
 
   private static final Logger logger = LoggerFactory.getLogger(Http.class);
@@ -178,6 +180,8 @@ public class Http {
     public Charset encoding = Play.defaultWebEncoding;
 
     public String controller;
+
+    @Nullable
     public String actionMethod;
     public Integer port;
     public Map<String, Header> headers;
@@ -206,7 +210,7 @@ public class Http {
     /**
      * Free space to store your request specific data
      */
-    @Nonnull
+    @NonNull
     public final Map<String, Object> args = new HashMap<>(16);
 
     /**
@@ -234,7 +238,7 @@ public class Http {
      */
     boolean resolved;
 
-    @Nonnull
+    @NonNull
     public final Params params = new Params(this);
 
     public Boolean cachedIsSecure = null;
@@ -338,7 +342,7 @@ public class Http {
       }
     }
 
-    @Nonnull
+    @NonNull
     static String cleanupRemoteAddresses(String remoteAddress) {
       int index = remoteAddress.lastIndexOf(',');
       return index == -1 ? remoteAddress : remoteAddress.substring(index + 1).trim();
@@ -469,7 +473,7 @@ public class Http {
      *
      * @return the request base of the url (protocol, host and port)
      */
-    @Nonnull
+    @NonNull
     public String getBase() {
       if (port == 80 || port == 443) {
         return String.format("%s://%s", isSecure() ? "https" : "http", domain).intern();
@@ -588,7 +592,7 @@ public class Http {
      * @return the header value as a String
      */
     @Nullable
-    public String getHeader(@Nonnull String name) {
+    public String getHeader(@NonNull String name) {
       for (Map.Entry<String, Header> entry : headers.entrySet()) {
         if (entry.getKey().equalsIgnoreCase(name)) {
           if (entry.getValue() != null) {

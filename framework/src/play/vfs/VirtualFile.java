@@ -2,13 +2,13 @@ package play.vfs;
 
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.exceptions.UnexpectedException;
 
 /**
@@ -18,6 +18,8 @@ import play.exceptions.UnexpectedException;
  *     <p>So we use plain old {@link java.io.File} instead.
  */
 @Deprecated
+@NullMarked
+@CheckReturnValue
 public class VirtualFile {
 
   private final File realFile;
@@ -31,15 +33,13 @@ public class VirtualFile {
   }
 
   public boolean exists() {
-    return realFile != null && realFile.exists();
+    return realFile.exists();
   }
 
   public long length() {
     return realFile.length();
   }
 
-  @Nonnull
-  @CheckReturnValue
   public VirtualFile child(String name) {
     return new VirtualFile(new File(realFile, name));
   }

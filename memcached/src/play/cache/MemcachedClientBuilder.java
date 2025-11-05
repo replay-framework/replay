@@ -4,13 +4,22 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Properties;
+import com.google.errorprone.annotations.CheckReturnValue;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
+import org.jspecify.annotations.NullMarked;
 import play.exceptions.ConfigurationException;
 
+@NullMarked
+@CheckReturnValue
 class MemcachedClientBuilder {
-  public MemcachedClient build(Properties configuration) throws IOException {
-    return new MemcachedClient(parseAddresses(configuration));
+  public MemcachedClient build(Properties configuration) {
+    List<InetSocketAddress> addresses = parseAddresses(configuration);
+    try {
+      return new MemcachedClient(addresses);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to initialize Memcached from " + addresses, e);
+    }
   }
 
   List<InetSocketAddress> parseAddresses(Properties configuration) {

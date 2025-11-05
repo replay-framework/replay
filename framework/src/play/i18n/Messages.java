@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -92,8 +92,8 @@ public class Messages {
   }
 
   public static String getMessage(
-      @Nonnull String locale,
-      @Nonnull Function<Object, String> defaultMessage,
+      @NonNull String locale,
+      @NonNull Function<Object, String> defaultMessage,
       @Nullable Object key,
       Object... args) {
 

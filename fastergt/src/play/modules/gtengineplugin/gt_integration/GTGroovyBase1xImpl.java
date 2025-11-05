@@ -5,7 +5,7 @@ import groovy.lang.MissingPropertyException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.data.binding.Unbinder;
 import play.exceptions.ActionNotFoundException;
 import play.exceptions.NoRouteFoundException;

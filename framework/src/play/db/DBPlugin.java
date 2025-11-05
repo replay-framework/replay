@@ -7,12 +7,13 @@ import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -21,7 +22,8 @@ import play.db.DB.ExtendedDatasource;
 import play.exceptions.DatabaseException;
 import play.mvc.Http;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class DBPlugin extends PlayPlugin {
 
   private static final Logger logger = LoggerFactory.getLogger(DBPlugin.class);
@@ -43,6 +45,7 @@ public class DBPlugin extends PlayPlugin {
   }
 
   @Override
+  @SuppressWarnings("CallToDriverManagerGetConnection")
   public void onApplicationStart() {
     if (changed()) {
       String dbName = "";
@@ -68,11 +71,16 @@ public class DBPlugin extends PlayPlugin {
 
           if (isJndiDatasource || datasourceName.startsWith("java:")) {
             Context ctx = new InitialContext();
-            DataSource ds = (DataSource) ctx.lookup(datasourceName);
-            DB.dataSource = ds;
-            DB.destroyMethod = "";
-            ExtendedDatasource extDs = new ExtendedDatasource(ds, "");
-            DB.dataSources.put(dbName, extDs);
+            try {
+              DataSource ds = (DataSource) ctx.lookup(datasourceName);
+              DB.dataSource = ds;
+              DB.destroyMethod = "";
+              ExtendedDatasource extDs = new ExtendedDatasource(ds, "");
+              DB.dataSources.put(dbName, extDs);
+            }
+            finally {
+              ctx.close();
+            }
           } else {
 
             // Try the driver
@@ -85,20 +93,14 @@ public class DBPlugin extends PlayPlugin {
             }
 
             // Try the connection
-            Connection fake = null;
-            try {
-              if (dbConfig.getProperty("db.user") == null) {
-                fake = DriverManager.getConnection(dbConfig.getProperty("db.url"));
-              } else {
-                fake =
-                    DriverManager.getConnection(
-                        dbConfig.getProperty("db.url"),
-                        dbConfig.getProperty("db.user"),
-                        dbConfig.getProperty("db.pass"));
+            if (dbConfig.getProperty("db.user") == null) {
+              try (Connection ignored = DriverManager.getConnection(dbConfig.getProperty("db.url"))) {
               }
-            } finally {
-              if (fake != null) {
-                fake.close();
+            } else {
+              try (Connection ignored = DriverManager.getConnection(
+                      dbConfig.getProperty("db.url"),
+                      dbConfig.getProperty("db.user"),
+                      dbConfig.getProperty("db.pass"))) {
               }
             }
 
@@ -145,8 +147,7 @@ public class DBPlugin extends PlayPlugin {
   }
 
   @Override
-  public void onActionInvocationFinally(
-      @Nonnull Http.Request request, @Nonnull Http.Response response) {
+  public void onActionInvocationFinally(Http.Request request, Http.Response response) {
     DB.closeAll();
   }
 
@@ -206,14 +207,14 @@ public class DBPlugin extends PlayPlugin {
       if (extDataSource != null
           && !dbConfig
               .getProperty("db.destroyMethod", "")
-              .equals(extDataSource.getDestroyMethod())) {
+              .equals(extDataSource.destroyMethod())) {
         return true;
       }
     }
     return false;
   }
 
-  /** Needed because DriverManager will not load a driver ouside of the system classloader */
+  /** Needed because DriverManager will not load a driver outside the system classloader */
   public static class ProxyDriver implements Driver {
 
     private final Driver driver;
@@ -253,7 +254,7 @@ public class DBPlugin extends PlayPlugin {
     }
 
     @Override
-    public java.util.logging.Logger getParentLogger() {
+    public java.util.logging.@Nullable Logger getParentLogger() {
       try {
         return (java.util.logging.Logger)
             Driver.class.getDeclaredMethod("getParentLogger").invoke(this.driver);

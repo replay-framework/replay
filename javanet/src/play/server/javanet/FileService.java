@@ -8,6 +8,7 @@ import static play.mvc.Http.Methods.HEAD;
 import static play.mvc.Http.StatusCode.NOT_MODIFIED;
 import static play.mvc.Http.StatusCode.OK;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.sun.net.httpserver.HttpExchange;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import java.io.File;
@@ -15,14 +16,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.MimeTypes;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class FileService {
   private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 

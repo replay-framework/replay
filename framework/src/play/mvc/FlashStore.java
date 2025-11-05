@@ -4,10 +4,11 @@ import static play.mvc.Scope.COOKIE_PREFIX;
 import static play.mvc.Scope.COOKIE_SECURE;
 import static play.mvc.Scope.SESSION_HTTPONLY;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.inject.Singleton;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.exceptions.UnexpectedException;
@@ -15,6 +16,8 @@ import play.libs.Signer;
 import play.mvc.results.Forbidden;
 
 @Singleton
+@NullMarked
+@CheckReturnValue
 public class FlashStore {
   private static final Logger logger = LoggerFactory.getLogger(FlashStore.class);
 
@@ -25,12 +28,11 @@ public class FlashStore {
     this(new Signer("флэшрояль"));
   }
 
-  FlashStore(@Nonnull Signer signer) {
+  FlashStore(Signer signer) {
     this.signer = signer;
   }
 
-  @Nonnull
-  public Scope.Flash restore(@Nonnull Http.Request request) {
+  public Scope.Flash restore(Http.Request request) {
     Http.Cookie cookie = request.cookies.get(COOKIE_PREFIX + "_FLASH");
     if (cookie == null) return new Scope.Flash();
 
@@ -53,7 +55,7 @@ public class FlashStore {
   }
 
   public void save(
-      @Nonnull Scope.Flash flash, @Nonnull Http.Request request, @Nullable Http.Response response) {
+      Scope.Flash flash, Http.Request request, Http.@Nullable Response response) {
     if (response == null) {
       // Some requests like WebSocket requests don't have a response
       return;
@@ -97,7 +99,7 @@ public class FlashStore {
     }
   }
 
-  private void warnIfFlashIsGone(@Nonnull Scope.Flash flash, @Nonnull Http.Request request) {
+  private void warnIfFlashIsGone(Scope.Flash flash, Http.Request request) {
     for (Map.Entry<String, String> entry : flash.data.entrySet()) {
       if (!flash.out.containsKey(entry.getKey()) && !flash.used.contains(entry.getKey())) {
         logger.debug(

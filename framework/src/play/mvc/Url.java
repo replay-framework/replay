@@ -1,17 +1,23 @@
 package play.mvc;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.Play;
 
+@NullMarked
+@CheckReturnValue
 public class Url {
   private final String url;
 
@@ -105,9 +111,9 @@ public class Url {
     this(build(url, parameters));
   }
 
-  private static String build(String url, Map<String, Object> parameters) {
+  private static String build(String url, Map<String, @Nullable Object> parameters) {
     if (parameters.entrySet().stream().anyMatch(e -> isBlank(e.getKey()))) {
-      throw new IllegalArgumentException("Paramater name can not me Blank");
+      throw new IllegalArgumentException("Parameter name cannot be blank: " + parameters);
     }
     String parametersPart =
         parameters
@@ -120,15 +126,20 @@ public class Url {
     return url + separator + parametersPart;
   }
 
-  private static String build(String url, Object... args) {
-    Map<String, Object> parameters = new LinkedHashMap<>(args.length / 2);
+  private static String build(String url, @Nullable Object... args) {
+    Map<String, @Nullable Object> parameters = new LinkedHashMap<>(args.length / 2);
     for (int i = 0; i < args.length - 1; i += 2) {
-      parameters.put((String) args[i], args[i + 1]);
+      String name = (String) args[i];
+      if (isBlank(name)) {
+        throw new IllegalArgumentException("Parameter name cannot be blank: %s".formatted(Arrays.toString(args)));
+      }
+
+      parameters.put(name, args[i + 1]);
     }
     return build(url, parameters);
   }
 
-  private static String encode(String parameter) {
+  private static String encode(@Nullable String parameter) {
     return parameter == null ? "" : URLEncoder.encode(parameter, UTF_8);
   }
 
@@ -136,7 +147,7 @@ public class Url {
     return new SimpleDateFormat(Play.configuration.getProperty("date.format", "dd.MM.yyyy"));
   }
 
-  private static String paramToString(Object value) {
+  private static String paramToString(@Nullable Object value) {
     if (value instanceof Date) {
       return getDateFormat().format((Date) value);
     }

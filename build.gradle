@@ -83,6 +83,7 @@ subprojects {
   }
 
   dependencies {
+    api(libs.jspecify)
     testImplementation(libs.junitApi)
     testImplementation(libs.junitParams)
     testRuntimeOnly(libs.junitEngine)

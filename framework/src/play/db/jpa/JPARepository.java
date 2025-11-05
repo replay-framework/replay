@@ -1,19 +1,23 @@
 package play.db.jpa;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.inject.Singleton;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PersistenceUnit;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.db.jpa.GenericModel.JPAQuery;
 
 @Singleton
+@NullMarked
+@CheckReturnValue
 public class JPARepository<T extends JPABase> {
   private final String entityName;
   private final String dbName;
 
-  @Nonnull
   public static <T extends JPABase> JPARepository<T> from(Class<T> modelClass) {
     return new JPARepository<>(modelClass);
   }
@@ -36,25 +40,21 @@ public class JPARepository<T extends JPABase> {
     return JPQL.instance.count(dbName, entityName, query, params);
   }
 
-  @Nonnull
   public List<T> findAll() {
     return JPQL.instance.findAll(dbName, entityName);
   }
 
   @Nullable
+  @SuppressWarnings("unchecked")
   public T findById(Object id) {
-    try {
       return (T) JPQL.instance.findById(dbName, entityName, id);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
-  @Nonnull
   public JPAQuery find(String query, Object... params) {
     return JPQL.instance.find(dbName, entityName, query, params);
   }
 
+  @CanIgnoreReturnValue
   public int delete(String query, Object... params) {
     return JPQL.instance.delete(dbName, entityName, query, params);
   }

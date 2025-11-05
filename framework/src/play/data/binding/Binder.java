@@ -31,8 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public abstract class Binder {
    * @param <T> The Class type to register
    * @see #unregister(Class)
    */
-  public static <T> void register(@Nonnull Class<T> clazz, @Nonnull TypeBinder<T> typeBinder) {
+  public static <T> void register(@NonNull Class<T> clazz, @NonNull TypeBinder<T> typeBinder) {
     supportedTypes.put(checkNotNull(clazz), checkNotNull(typeBinder));
   }
 
@@ -108,13 +108,13 @@ public abstract class Binder {
    * @param clazz The class to remove the custom binder
    * @param <T> The Class type to register
    */
-  public static <T> void unregister(@Nonnull Class<T> clazz) {
+  public static <T> void unregister(@NonNull Class<T> clazz) {
     supportedTypes.remove(checkNotNull(clazz));
   }
 
   static Map<Class<?>, BeanWrapper> beanwrappers = new HashMap<>();
 
-  static BeanWrapper getBeanWrapper(@Nonnull Class<?> clazz) {
+  static BeanWrapper getBeanWrapper(@NonNull Class<?> clazz) {
     checkNotNull(clazz);
     if (!beanwrappers.containsKey(clazz)) {
       BeanWrapper beanwrapper = new BeanWrapper(clazz);
@@ -355,7 +355,7 @@ public abstract class Binder {
     return bean;
   }
 
-  private static <T> T createNewInstance(@Nonnull Class<T> clazz) {
+  private static <T> T createNewInstance(@NonNull Class<T> clazz) {
     try {
       Constructor<T> constructor = clazz.getDeclaredConstructor();
       constructor.setAccessible(true);

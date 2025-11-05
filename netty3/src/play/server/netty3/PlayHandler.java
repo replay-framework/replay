@@ -14,6 +14,7 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_MODIFIED_S
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.LAST_MODIFIED;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
+import static play.server.ServerHelper.findFile;
 import static play.server.ServerHelper.maxContentLength;
 import static play.utils.Utils.formatMemorySize;
 
@@ -35,9 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 import org.apache.commons.io.IOUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
@@ -92,7 +92,8 @@ import play.server.ServerHelper;
 import play.utils.ErrorsCookieCrypter;
 import play.utils.Utils;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PlayHandler extends SimpleChannelUpstreamHandler {
   private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
   private static final Logger securityLogger = LoggerFactory.getLogger("security");
@@ -540,8 +541,6 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
     return request;
   }
 
-  @Nonnull
-  @CheckReturnValue
   private InputStream readBody(HttpRequest nettyRequest) throws IOException {
     ChannelBuffer b = nettyRequest.getContent();
     if (b instanceof FileChannelBuffer buffer) {
@@ -716,7 +715,7 @@ public class PlayHandler extends SimpleChannelUpstreamHandler {
 
     HttpResponse nettyResponse = createHttpResponse(HttpResponseStatus.valueOf(response.status));
     try {
-      File file = serverHelper.findFile(renderStatic.file);
+      File file = findFile(renderStatic.file);
       if ((file == null || !file.exists())) {
         serve404(new NotFound("The file " + renderStatic.file + " does not exist"), ctx, request);
       } else {

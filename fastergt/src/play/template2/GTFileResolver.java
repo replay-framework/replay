@@ -1,6 +1,6 @@
 package play.template2;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class GTFileResolver {
 

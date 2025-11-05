@@ -3,12 +3,14 @@ package play.data.validation;
 import static java.util.Collections.emptyList;
 
 import java.util.Collection;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import com.google.errorprone.annotations.CheckReturnValue;
 import net.sf.oval.ConstraintViolation;
+import org.jspecify.annotations.NullMarked;
 import play.i18n.Messages;
 
 /** A validation error */
+@NullMarked
+@CheckReturnValue
 public class Error {
 
   private final String message;
@@ -60,8 +62,6 @@ public class Error {
     return message;
   }
 
-  @Nonnull
-  @CheckReturnValue
   static Error toValidationError(String key, ConstraintViolation violation) {
     Collection<?> variables =
         violation.getMessageVariables() == null

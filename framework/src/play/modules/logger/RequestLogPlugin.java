@@ -1,5 +1,6 @@
 package play.modules.logger;
 
+import static java.lang.Integer.toHexString;
 import static java.lang.String.format;
 import static java.lang.System.nanoTime;
 import static java.util.Arrays.asList;
@@ -13,9 +14,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -29,10 +30,11 @@ import play.mvc.Scope.Session;
 import play.mvc.results.NotFound;
 import play.mvc.results.Result;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
+@SuppressWarnings("NonConstantLogger")
 public class RequestLogPlugin extends PlayPlugin {
-  private static final String REQUEST_ID_PREFIX =
-      Integer.toHexString((int) (Math.random() * 0x1000));
+  private static final String REQUEST_ID_PREFIX = toHexString((int) (Math.random() * 0x1000));
   private static final AtomicLong counter = new AtomicLong(1);
   private static final Pattern REGEX_CLEAN_PARAM_VALUE = Pattern.compile("\r?\n");
   private final Logger logger;
@@ -94,30 +96,29 @@ public class RequestLogPlugin extends PlayPlugin {
 
   @Override
   public void onActionInvocationResult(
-      @Nonnull Request request,
-      @Nonnull Response response,
-      @Nonnull Session session,
-      @Nonnull Flash flash,
-      @Nonnull RenderArgs renderArgs,
-      @Nonnull Result result) {
+      Request request,
+      Response response,
+      Session session,
+      Flash flash,
+      RenderArgs renderArgs,
+      Result result) {
     request.args.put(Result.class.getName(), result);
   }
 
   @Override
-  public void onActionInvocationException(
-      @Nonnull Request request, @Nonnull Response response, @Nonnull Throwable e) {
+  public void onActionInvocationException(Request request, Response response, Throwable e) {
     if (e.getCause() != null) e = e.getCause();
     request.args.put(Result.class.getName(), new play.mvc.results.Error(e.toString()));
   }
 
   @Override
-  public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {
+  public void onActionInvocationFinally(Request request, Response response) {
     if (request.action == null) return;
 
     try {
-      Result result;
-      if (request.actionMethod == null) result = new NotFound(request.path);
-      else result = (Result) request.args.get(Result.class.getName());
+      Result result = request.actionMethod == null ?
+          new NotFound(request.path) :
+          (Result) request.args.get(Result.class.getName());
 
       logRequestInfo(request, result);
     } finally {
@@ -177,11 +178,8 @@ public class RequestLogPlugin extends PlayPlugin {
     try {
       return extractParamsUnsafe(request);
     } catch (Exception e) {
-      logger.error(
-          format(
-              "Failed to parse request params, encoding: %s , headers: %s",
-              request.encoding, request.headers),
-          e);
+      logger.error("Failed to parse request params, encoding: {} , headers: {}",
+          request.encoding, request.headers, e);
       return "";
     }
   }

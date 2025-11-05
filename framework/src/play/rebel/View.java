@@ -6,8 +6,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.data.validation.Validation;
 import play.exceptions.UnexpectedException;
 import play.libs.MimeTypes;
@@ -22,11 +23,15 @@ import play.templates.Template;
 import play.templates.TemplateLoader;
 
 /** 200 OK with a template rendering */
+@NullMarked
+@CheckReturnValue
 public class View extends Result {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
 
   private final String templateName;
-  private final Map<String, Object> arguments;
+  private final Map<String, @Nullable Object> arguments;
+
+  @Nullable
   private String content;
   private long renderTime;
 
@@ -34,11 +39,11 @@ public class View extends Result {
     this(templateNameResolver.resolveTemplateName());
   }
 
-  public View(@Nonnull String templateName) {
+  public View(String templateName) {
     this(templateName, new HashMap<>());
   }
 
-  public View(@Nonnull String templateName, @Nonnull Map<String, Object> arguments) {
+  public View(String templateName, Map<String, Object> arguments) {
     this.templateName = templateName;
     this.arguments = arguments;
   }
@@ -99,7 +104,7 @@ public class View extends Result {
     return renderTime;
   }
 
-  public View with(@Nonnull String name, @Nullable Object value) {
+  public View with(String name, @Nullable Object value) {
     arguments.put(name, value);
     return this;
   }

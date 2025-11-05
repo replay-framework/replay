@@ -7,6 +7,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hibernate.FlushMode.MANUAL;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -32,6 +33,8 @@ import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.BasicType;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -46,27 +49,30 @@ import play.inject.Injector;
 import play.mvc.Http;
 import play.mvc.Scope.Session;
 
+@NullMarked
+@CheckReturnValue
 public class JPAPlugin extends PlayPlugin {
 
   private static final Logger logger = LoggerFactory.getLogger(JPAPlugin.class);
   public static boolean autoTxs = true;
   private static final Pattern COMMA_SEPARATOR = Pattern.compile(", ");
 
-
+  @Nullable
   @Override
+  @SuppressWarnings("unchecked")
   public Object bind(
       Http.Request request,
       Session session,
       RootParamNode rootParamNode,
       String name,
-      Class clazz,
+      Class<?> clazz,
       Type type,
       Annotation[] annotations) {
     if (JPABase.class.isAssignableFrom(clazz)) {
-
+      Class<JPABase> entityClass = (Class<JPABase>) clazz;
       ParamNode paramNode = rootParamNode.getChild(name, true);
 
-      String[] keyNames = new JPAModelLoader(clazz).keyNames();
+      String[] keyNames = new JPAModelLoader(entityClass).keyNames();
       ParamNode[] ids = new ParamNode[keyNames.length];
 
       String dbName = JPA.getDBName(clazz);
@@ -89,7 +95,7 @@ public class JPAPlugin extends PlayPlugin {
           }
           Query query = em.createQuery(q.toString());
           // The primary key can be a composite.
-          Class<?>[] pk = new JPAModelLoader(clazz).keyTypes();
+          Class<?>[] pk = new JPAModelLoader(entityClass).keyTypes();
           int j = 0;
           for (ParamNode id : ids) {
             if (id.getValues() == null
@@ -144,7 +150,6 @@ public class JPAPlugin extends PlayPlugin {
       logger.info(
           "Initialized JPA for {} in {} ms", dbName, NANOSECONDS.toMillis(nanoTime() - startDb));
     }
-    JPQL.instance = new JPQL();
     logger.info("JPA initialized in {} ms.", NANOSECONDS.toMillis(nanoTime() - start));
   }
 

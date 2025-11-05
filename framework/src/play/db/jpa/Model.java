@@ -1,9 +1,11 @@
 package play.db.jpa;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for JPA model objects. Automatically provides an @Id Long id field.
@@ -13,9 +15,14 @@ import javax.annotation.Nullable;
  */
 @Deprecated
 @MappedSuperclass
+@NullMarked
+@CheckReturnValue
 public class Model extends GenericModel {
 
-  @Id @GeneratedValue protected Long id;
+  @Id
+  @GeneratedValue
+  @Nullable
+  protected Long id;
 
   public @Nullable Long getId() {
     return id;
@@ -26,6 +33,7 @@ public class Model extends GenericModel {
   }
 
   @Override
+  @Nullable
   public Object _key() {
     return getId();
   }

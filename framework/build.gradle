@@ -1,5 +1,4 @@
 dependencies {
-  api(libs.findbugsJsr305)
   api(libs.gson)
   api(libs.guava) { transitive = false }
   api(libs.hibernateCommonsAnnotations)

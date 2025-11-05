@@ -53,14 +53,14 @@ public class UrlTest {
   public void toUrlWithParams_nullNameThrows() {
     assertThatThrownBy(() -> new Url("url", singletonMap(null, "value")))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Blank");
+        .hasMessage("Parameter name cannot be blank: {null=value}");
   }
 
   @Test
   public void toUrl_withNullNameThrows() {
     assertThatThrownBy(() -> new Url("url", null, "value"))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Blank");
+        .hasMessage("Parameter name cannot be blank: [null, value]");
   }
 
   @Test

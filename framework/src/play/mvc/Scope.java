@@ -13,8 +13,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Play;
@@ -27,6 +29,8 @@ import play.libs.Signer;
 import play.utils.Utils;
 
 /** All application Scopes */
+@NullMarked
+@CheckReturnValue
 public class Scope {
 
   private static final Logger logger = LoggerFactory.getLogger(Scope.class);
@@ -40,6 +44,8 @@ public class Scope {
       Play.configuration.property("application.session.httpOnly", "false").hasValue("true");
 
   /** Flash scope */
+  @NullMarked
+  @CheckReturnValue
   public static class Flash {
 
     final Set<String> used = new HashSet<>();
@@ -57,47 +63,48 @@ public class Scope {
       this.data = data;
     }
 
-    public void put(@Nonnull String key, @Nullable String value) {
+    public void put(String key, @Nullable String value) {
       validateKey(key);
       data.put(key, value);
       out.put(key, value);
     }
 
-    public void put(@Nonnull String key, @Nullable Integer value) {
+    public void put(String key, @Nullable Integer value) {
       put(key, value == null ? null : value.toString());
     }
 
-    public void put(@Nonnull String key, @Nullable Long value) {
+    public void put(String key, @Nullable Long value) {
       put(key, value == null ? null : value.toString());
     }
 
-    public void put(@Nonnull String key, @Nullable Boolean value) {
+    public void put(String key, @Nullable Boolean value) {
       put(key, value == null ? null : value.toString());
     }
 
-    public void put(@Nonnull String key, @Nullable BigDecimal value) {
+    public void put(String key, @Nullable BigDecimal value) {
       put(key, value == null ? null : value.toPlainString());
     }
 
-    public void put(@Nonnull String key, @Nonnull Enum<?> value) {
+    public void put(String key, Enum<?> value) {
       put(key, value.name());
     }
 
-    public void now(@Nonnull String key, @Nonnull String value) {
+    public void now(String key, String value) {
       validateKey(key);
       data.put(key, value);
     }
 
-    private void validateKey(@Nonnull String key) {
+    private void validateKey(String key) {
       if (key.contains(":")) {
         throw new IllegalArgumentException("Character ':' is invalid in a flash key.");
       }
     }
 
-    public void error(@Nonnull String value, Object... args) {
+    public void error(String value, Object... args) {
       put(ERROR, Messages.get(value, args));
     }
 
+    @Nullable
     public String getErrorMessage() {
       return get(ERROR);
     }
@@ -106,10 +113,11 @@ public class Scope {
       return contains(ERROR);
     }
 
-    public void success(@Nonnull String value, Object... args) {
+    public void success(String value, Object... args) {
       put(SUCCESS, Messages.get(value, args));
     }
 
+    @Nullable
     public String getSuccessMessage() {
       return get(SUCCESS);
     }
@@ -118,7 +126,7 @@ public class Scope {
       return contains(SUCCESS);
     }
 
-    public void discard(@Nonnull String key) {
+    public void discard(String key) {
       out.remove(key);
     }
 
@@ -126,7 +134,7 @@ public class Scope {
       out.clear();
     }
 
-    public void keep(@Nonnull String key) {
+    public void keep(String key) {
       if (data.containsKey(key)) {
         out.put(key, data.get(key));
       }
@@ -137,12 +145,12 @@ public class Scope {
     }
 
     @Nullable
-    public String get(@Nonnull String key) {
+    public String get(String key) {
       used.add(key);
       return data.get(key);
     }
 
-    public boolean remove(@Nonnull String key) {
+    public boolean remove(String key) {
       return data.remove(key) != null;
     }
 
@@ -150,19 +158,20 @@ public class Scope {
       data.clear();
     }
 
-    public boolean contains(@Nonnull String key) {
+    public boolean contains(String key) {
       used.add(key);
       return data.containsKey(key);
     }
 
     @Override
-    @Nonnull
     public String toString() {
       return data.toString();
     }
   }
 
   /** Session scope */
+  @NullMarked
+  @CheckReturnValue
   public static class Session {
 
     private static final String AT_KEY = "___AT";
@@ -171,6 +180,7 @@ public class Scope {
     private static final String UA_KEY = "___UA";
     private static final Signer signer = new Signer("auth-token");
 
+    @Nullable
     private String id;
     Map<String, String> data = new HashMap<>();
     boolean changed;
@@ -181,7 +191,6 @@ public class Scope {
       this.id = id;
     }
 
-    @Nonnull
     public String getId() {
       if (id == null) {
         id = data.get(ID_KEY);
@@ -193,12 +202,10 @@ public class Scope {
       return id;
     }
 
-    @Nonnull
     public Map<String, String> all() {
       return data;
     }
 
-    @Nonnull
     public String getAuthenticityToken() {
       if (!data.containsKey(AT_KEY)) {
         this.put(AT_KEY, signer.sign(Codec.UUID()));
@@ -210,7 +217,7 @@ public class Scope {
       changed = true;
     }
 
-    public void put(@Nonnull String key, @Nullable String value) {
+    public void put(String key, @Nullable String value) {
       if (key.contains(":")) {
         throw new IllegalArgumentException("Character ':' is invalid in a session key.");
       }
@@ -222,7 +229,7 @@ public class Scope {
       }
     }
 
-    public void put(@Nonnull String key, @Nullable Object value) {
+    public void put(String key, @Nullable Object value) {
       change();
       if (value == null) {
         put(key, null);
@@ -232,16 +239,17 @@ public class Scope {
     }
 
     @Nullable
-    public String get(@Nonnull String key) {
+    public String get(String key) {
       return data.get(key);
     }
 
-    public boolean remove(@Nonnull String key) {
+    @CanIgnoreReturnValue
+    public boolean remove(String key) {
       change();
       return data.remove(key) != null;
     }
 
-    public void remove(@Nonnull String... keys) {
+    public void remove(String... keys) {
       for (String key : keys) {
         remove(key);
       }
@@ -268,7 +276,7 @@ public class Scope {
       return true;
     }
 
-    public boolean contains(@Nonnull String key) {
+    public boolean contains(String key) {
       return data.containsKey(key);
     }
 
@@ -277,21 +285,22 @@ public class Scope {
       return get(UA_KEY);
     }
 
-    public void setUserAgent(@Nonnull String userAgent) {
+    public void setUserAgent(String userAgent) {
       put(UA_KEY, userAgent);
     }
 
     @Override
-    @Nonnull
     public String toString() {
       return data.toString();
     }
   }
 
   /** HTTP params */
+  @NullMarked
+  @CheckReturnValue
   public static class Params {
 
-    public Params(@Nonnull Http.Request request) {
+    public Params(Http.Request request) {
       this.request = request;
     }
 
@@ -320,21 +329,21 @@ public class Scope {
       requestIsParsed = true;
     }
 
-    public void put(@Nonnull String key, @Nullable String value) {
+    public void put(String key, @Nullable String value) {
       checkAndParse();
       data.put(key, new String[] {value});
       // To ensure rootsParamsNode is regenerated if needed
       rootParamsNodeIsGenerated = false;
     }
 
-    public void put(@Nonnull String key, @Nonnull String[] values) {
+    public void put(String key, String[] values) {
       checkAndParse();
       data.put(key, values);
       // To ensure rootsParamsNode is regenerated if needed
       rootParamsNodeIsGenerated = false;
     }
 
-    public void remove(@Nonnull String key) {
+    public void remove(String key) {
       checkAndParse();
       data.remove(key);
       // To ensure rootsParamsNode is regenerated if needed
@@ -342,7 +351,7 @@ public class Scope {
     }
 
     @Nullable
-    public String get(@Nonnull String key) {
+    public String get(String key) {
       checkAndParse();
       if (data.containsKey(key)) {
         return data.get(key)[0];
@@ -350,7 +359,7 @@ public class Scope {
       return null;
     }
 
-    public boolean contains(@Nonnull String key) {
+    public boolean contains(String key) {
       checkAndParse();
       return data.containsKey(key);
     }
@@ -360,19 +369,16 @@ public class Scope {
       return request.args.containsKey("__UPLOADS");
     }
 
-    @Nullable
-    public String[] getAll(@Nonnull String key) {
+    public String @Nullable [] getAll(String key) {
       checkAndParse();
       return data.get(key);
     }
 
-    @Nonnull
     public Map<String, String[]> all() {
       checkAndParse();
       return data;
     }
 
-    @Nonnull
     public Map<String, String> allSimple() {
       checkAndParse();
       Map<String, String> result = new HashMap<>();
@@ -382,20 +388,19 @@ public class Scope {
       return result;
     }
 
-    private void _mergeWith(@Nonnull Map<String, String[]> map) {
+    private void _mergeWith(Map<String, String[]> map) {
       for (Map.Entry<String, String[]> entry : map.entrySet()) {
         Utils.Maps.mergeValueInMap(data, entry.getKey(), entry.getValue());
       }
     }
 
-    private void __mergeWith(@Nonnull Map<String, String> map) {
+    private void __mergeWith(Map<String, String> map) {
       for (Map.Entry<String, String> entry : map.entrySet()) {
         Utils.Maps.mergeValueInMap(data, entry.getKey(), entry.getValue());
       }
     }
 
-    @Nonnull
-    public String urlEncode(@Nonnull Http.Response response) {
+    public String urlEncode(Http.Response response) {
       checkAndParse();
       Charset encoding = response.encoding;
       StringBuilder ue = new StringBuilder();
@@ -418,7 +423,7 @@ public class Scope {
       return ue.toString();
     }
 
-    public void flash(@Nonnull Flash flash, @Nonnull String... params) {
+    public void flash(Flash flash, String... params) {
       Collection<String> keys = params.length == 0 ? all().keySet() : asList(params);
       for (String key : keys) {
         flash.put(key, join(",", data.get(key)));
@@ -426,7 +431,6 @@ public class Scope {
     }
 
     @Override
-    @Nonnull
     public String toString() {
       return data.toString();
     }
@@ -437,10 +441,11 @@ public class Scope {
 
     public final Map<String, Object> data = new HashMap<>(); // ThreadLocal access
 
-    @Deprecated public static final ThreadLocal<RenderArgs> current = new ThreadLocal<>();
+    @Deprecated
+    public static final ThreadLocal<@Nullable RenderArgs> current = new ThreadLocal<>();
 
     @Deprecated
-    @Nonnull
+    @Nullable
     public static RenderArgs current() {
       return current.get();
     }
@@ -449,12 +454,12 @@ public class Scope {
       current.remove();
     }
 
-    public void put(@Nonnull String key, @Nullable Object arg) {
+    public void put(String key, @Nullable Object arg) {
       this.data.put(key, arg);
     }
 
     @Nullable
-    public Object get(@Nonnull String key) {
+    public Object get(String key) {
       return data.get(key);
     }
 
@@ -465,7 +470,6 @@ public class Scope {
     }
 
     @Override
-    @Nonnull
     public String toString() {
       return data.toString();
     }

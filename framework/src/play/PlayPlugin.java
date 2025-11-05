@@ -1,12 +1,15 @@
 package play;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import play.data.binding.RootParamNode;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -18,6 +21,8 @@ import play.mvc.results.Result;
 import play.templates.Template;
 
 /** A framework plugin */
+@NullMarked
+@CheckReturnValue
 public abstract class PlayPlugin implements Comparable<PlayPlugin> {
 
   /** Plugin priority (0 for highest priority) */
@@ -46,6 +51,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
    * @param annotations annotation on the object
    * @return binding object
    */
+  @Nullable
   public Object bind(
       Http.Request request,
       Session session,
@@ -134,9 +140,9 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
   public void afterInvocation() {}
 
   public void onActionInvocationException(
-      @Nonnull Request request, @Nonnull Response response, @Nonnull Throwable e) {}
+      @NonNull Request request, @NonNull Response response, @NonNull Throwable e) {}
 
-  public void onJobInvocationException(@Nonnull Throwable e) {}
+  public void onJobInvocationException(@NonNull Throwable e) {}
 
   public void onJobInvocationFinally() {}
 
@@ -155,12 +161,12 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
    * @param result The result object for the request.
    */
   public void onActionInvocationResult(
-      @Nonnull Request request,
-      @Nonnull Response response,
-      @Nonnull Session session,
-      @Nonnull Flash flash,
-      @Nonnull RenderArgs renderArgs,
-      @Nonnull Result result) {
+      @NonNull Request request,
+      @NonNull Response response,
+      @NonNull Session session,
+      @NonNull Flash flash,
+      @NonNull RenderArgs renderArgs,
+      @NonNull Result result) {
     onActionInvocationResult(request, response, session, renderArgs, result);
   }
 
@@ -179,7 +185,7 @@ public abstract class PlayPlugin implements Comparable<PlayPlugin> {
    * Called at the end of the action invocation (either in case of success or any failure). Time to
    * close request-specific things.
    */
-  public void onActionInvocationFinally(@Nonnull Request request, @Nonnull Response response) {}
+  public void onActionInvocationFinally(@NonNull Request request, @NonNull Response response) {}
 
   /** Called when the application.conf has been read. */
   public void onConfigurationRead() {}

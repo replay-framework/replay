@@ -10,8 +10,9 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -22,7 +23,8 @@ import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
 import play.Play;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class ReplayUserAgent extends ITextUserAgent {
 
   private static final Logger logger = LoggerFactory.getLogger(ReplayUserAgent.class);
@@ -38,8 +40,9 @@ public class ReplayUserAgent extends ITextUserAgent {
     this.fileSearcher = fileSearcher;
   }
 
+  @Nullable
   @Override
-  protected InputStream resolveAndOpenStream(String uri) {
+  protected InputStream resolveAndOpenStream(@Nullable String uri) {
     trustCertsIfNeeded();
     return super.resolveAndOpenStream(uri);
   }

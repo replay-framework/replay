@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.mvc.Http;
 
 public class DummyHttpResponse extends HttpResponse {

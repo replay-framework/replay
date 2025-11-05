@@ -5,28 +5,31 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNullElseGet;
 import static org.allcolor.yahp.converter.IHtmlToPdfTransformer.DEFAULT_PDF_RENDERER;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
+import static play.libs.Lazy.lazyEvaluated;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer;
 import org.allcolor.yahp.converter.IHtmlToPdfTransformer.CConvertException;
 import play.Play;
+import play.libs.Lazy;
 import play.mvc.Http;
 import play.mvc.Scope;
 import play.mvc.TemplateNameResolver;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PdfHelper {
   private static final TemplateNameResolver templateNameResolver = new TemplateNameResolver();
-  private static IHtmlToPdfTransformer transformer;
+  private static final Lazy<IHtmlToPdfTransformer> transformer = lazyEvaluated(() -> initTransformer());
 
   public boolean isIE(Http.Request request) {
     if (!request.headers.containsKey("user-agent")) return false;
@@ -35,7 +38,7 @@ public class PdfHelper {
     return userAgent.value().contains("MSIE");
   }
 
-  public void renderPDF(PDFDocument document, OutputStream out, @Nullable Http.Request request) {
+  public void renderPDF(PDFDocument document, OutputStream out, Http.@Nullable Request request) {
     try {
       Map<?, ?> properties = new HashMap<>(Play.configuration);
       String uri = request == null ? "" : (request.getBase() + request.url);
@@ -47,7 +50,7 @@ public class PdfHelper {
 
   private void renderDoc(PDFDocument doc, String uri, Map<?, ?> properties, OutputStream out)
       throws CConvertException {
-    getTransformer()
+    transformer.get()
         .transform(
             new ByteArrayInputStream(removeScripts(doc.content).getBytes(UTF_8)),
             uri,
@@ -57,24 +60,15 @@ public class PdfHelper {
             out);
   }
 
-  @Nonnull
-  @CheckReturnValue
-  private static synchronized IHtmlToPdfTransformer getTransformer() {
-    if (transformer == null) {
-      try {
-        transformer =
-            (IHtmlToPdfTransformer)
-                Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor().newInstance();
-      } catch (Exception e) {
-        throw new RuntimeException("Exception initializing pdf module", e);
-      }
+  private static synchronized IHtmlToPdfTransformer initTransformer() {
+    try {
+      return (IHtmlToPdfTransformer) Class.forName(DEFAULT_PDF_RENDERER).getDeclaredConstructor()
+          .newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException("Exception initializing pdf module", e);
     }
-
-    return transformer;
   }
 
-  @Nonnull
-  @CheckReturnValue
   String removeScripts(String html) {
     int nextScriptStart = html.indexOf("<script");
     if (nextScriptStart == -1) return html;
@@ -90,8 +84,6 @@ public class PdfHelper {
     return sb.toString();
   }
 
-  @Nonnull
-  @CheckReturnValue
   private Map<String, Object> templateBinding(Map<String, Object> args) {
     Map<String, Object> templateBinding = new HashMap<>(args);
     Scope.RenderArgs renderArgs = Scope.RenderArgs.current();
@@ -104,8 +96,6 @@ public class PdfHelper {
     return templateBinding;
   }
 
-  @Nonnull
-  @CheckReturnValue
   public PDFDocument generatePDF(PdfTemplate pdfTemplate) {
     String templateName = templateName(pdfTemplate);
     Template htmlTemplate = TemplateLoader.load(templateName);
@@ -115,20 +105,14 @@ public class PdfHelper {
     return new PDFDocument(content, pdfTemplate.getPageSize());
   }
 
-  @Nonnull
-  @CheckReturnValue
   private String templateName(PdfTemplate pdfTemplate) {
     return templateNameResolver.resolveTemplateName(pdfTemplate.getTemplateName());
   }
 
-  @Nonnull
-  @CheckReturnValue
   String fileName(PdfTemplate pdfTemplate) {
     return fileName(pdfTemplate.getFileName(), templateName(pdfTemplate));
   }
 
-  @Nonnull
-  @CheckReturnValue
   private String fileName(@Nullable String providedFileName, String templateName) {
     return requireNonNullElseGet(providedFileName, () -> getBaseName(templateName) + ".pdf");
   }

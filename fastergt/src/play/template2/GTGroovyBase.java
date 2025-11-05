@@ -3,7 +3,7 @@ package play.template2;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
 import java.io.PrintWriter;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import play.template2.exceptions.GTException;
 
 public class GTGroovyBase extends Script {

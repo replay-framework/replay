@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 import org.apache.commons.lang3.StringUtils;
 import play.Invoker;
 import play.Play;
@@ -18,7 +18,7 @@ import play.mvc.Scope.Flash;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.Scope.Session;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class PlayStatusPlugin extends PlayPlugin {
   /**
    * Get the application status

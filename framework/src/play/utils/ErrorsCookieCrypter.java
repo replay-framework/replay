@@ -1,22 +1,18 @@
 package play.utils;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 import play.libs.Crypter;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class ErrorsCookieCrypter {
   private final Crypter crypter = new Crypter("errors-");
 
-  @Nonnull
-  @CheckReturnValue
   public String encrypt(String errorsCookie) {
     return crypter.encryptAES(Math.random() + ":" + errorsCookie);
   }
 
-  @Nonnull
-  @CheckReturnValue
   public String decrypt(String errorsCookie) {
     String decryptCookie = crypter.decryptAES(errorsCookie);
     return decryptCookie.substring(decryptCookie.indexOf(':') + 1);

@@ -21,8 +21,10 @@ import static java.lang.Long.parseLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNullElse;
+import static play.server.ServerHelper.findFile;
 import static play.utils.Utils.formatMemorySize;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
@@ -68,9 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Invocation;
@@ -97,7 +97,8 @@ import play.server.ServerAddress;
 import play.server.ServerHelper;
 import play.utils.Utils;
 
-@ParametersAreNonnullByDefault
+@NullMarked
+@CheckReturnValue
 public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
   private static final Logger logger = LoggerFactory.getLogger(PlayHandler.class);
   private final IpParser ipParser = new IpParser();
@@ -513,8 +514,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     return request;
   }
 
-  @Nonnull
-  @CheckReturnValue
   private static InputStream readBody(FullHttpRequest nettyRequest) {
     InputStream body;
     ByteBuf b = nettyRequest.content();
@@ -532,8 +531,6 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     return body;
   }
 
-  @Nonnull
-  @CheckReturnValue
   private Map<String, Http.Header> getHeaders(FullHttpRequest nettyRequest) {
     Map<String, Http.Header> headers = new HashMap<>(16);
 
@@ -684,7 +681,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     logger.trace("serveStatic: begin :{}:{}", playRequest.method, playRequest.path);
 
     try {
-      File file = serverHelper.findFile(renderStatic.file);
+      File file = findFile(renderStatic.file);
 
       if ((file == null || !file.exists())) {
         serve404(

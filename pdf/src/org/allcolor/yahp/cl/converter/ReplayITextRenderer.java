@@ -2,6 +2,8 @@ package org.allcolor.yahp.cl.converter;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
@@ -9,6 +11,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.pdf.ITextReplacedElementFactory;
 import play.modules.pdf.ReplayUserAgent;
 
+@NullMarked
+@CheckReturnValue
 class ReplayITextRenderer extends ITextRenderer {
   private final Map<String, String> knownFont = new HashMap<>();
 

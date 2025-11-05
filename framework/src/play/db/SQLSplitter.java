@@ -1,10 +1,13 @@
 package play.db;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
+@CheckReturnValue
 public class SQLSplitter implements Iterable<CharSequence> {
 
   /**
@@ -170,7 +173,6 @@ public class SQLSplitter implements Iterable<CharSequence> {
   }
 
   @Override
-  @Nonnull
   public Iterator<CharSequence> iterator() {
     return new Iterator<>() {
       int i = 0, prev = 0;
