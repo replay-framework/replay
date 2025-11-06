@@ -27,6 +27,6 @@ public class ErrorsCookieCrypterTest {
     assertThatThrownBy(() -> crypter.decrypt("e08d471c01b42cf0c5b67e13c65ec67"))
         .rootCause()
         .isInstanceOf(DecoderException.class)
-        .hasMessage("Odd number of characters.");
+        .hasMessage("Odd number of characters 31.");
   }
 }
