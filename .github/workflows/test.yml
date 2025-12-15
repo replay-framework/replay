@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true
       - name: Precompile templates
         run: ./gradlew precompileTemplates
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: replay-linux-uitest-${{ matrix.server }}
@@ -60,7 +60,7 @@ jobs:
         run: ./gradlew precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: .\gradlew.bat "-Dselenide.headless=true" uitest-${{ matrix.server }}
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: replay-windows-uitest-${{ matrix.server }}
@@ -90,7 +90,7 @@ jobs:
         run: ./gradlew precompileTemplates
       - name: Run integration tests on ${{ matrix.server }}
         run: ./gradlew uitest-${{ matrix.server }} -Dselenide.headless=true --no-parallel
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: replay-macos-uitest-${{ matrix.server }}
