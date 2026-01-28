@@ -1,0 +1,2 @@
+GET    /forced/{<[0-9]+>userId}   TypedInputController.printForced
+GET    /generic/{<[0-9]+>userId}  TypedInputController.printGeneric

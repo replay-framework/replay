@@ -1,0 +1,9 @@
+plugins {
+  alias(libs.plugins.kotlinJvm)
+}
+dependencies {
+  implementation(libs.guava) { transitive = false }
+  implementation(libs.kotlinStdlib)
+}
+
+apply from: '../replay-tests.gradle'
