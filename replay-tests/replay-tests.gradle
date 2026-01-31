@@ -57,19 +57,19 @@ tasks.register('uitest') {
 tasks.register('uitest-netty3', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen { false }
-  classpath = configurations.netty3TestClasspath + classpath
+  classpath = configurations.netty3TestClasspath + sourceSets.test.runtimeClasspath
 }
 
 tasks.register('uitest-netty4', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen { false }
-  classpath = configurations.netty4TestClasspath + classpath
+  classpath = configurations.netty4TestClasspath + sourceSets.test.runtimeClasspath
 }
 
 tasks.register('uitest-javanet', Test) {
   include 'ui/**/*'
   outputs.upToDateWhen { false }
-  classpath = configurations.javanetTestClasspath + classpath
+  classpath = configurations.javanetTestClasspath + sourceSets.test.runtimeClasspath
 }
 
 tasks.withType(Test).configureEach {
@@ -80,5 +80,4 @@ tasks.withType(Test).configureEach {
         systemProperties[it] = System.getProperty(it)
       }
   testClassesDirs = sourceSets.test.output.classesDirs
-  classpath = sourceSets.test.runtimeClasspath
 }
