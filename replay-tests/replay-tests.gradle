@@ -47,6 +47,7 @@ dependencies {
 test {
   include '**/*'
   exclude 'ui/**'
+  failOnNoDiscoveredTests = false
 }
 
 tasks.register('uitest') {
