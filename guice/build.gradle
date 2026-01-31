@@ -1,7 +1,5 @@
 dependencies {
   api project(':framework')
-  testImplementation project(':framework').sourceSets.test.compileClasspath
-
   api(libs.guice)
 }
 

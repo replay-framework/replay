@@ -29,17 +29,17 @@ dependencies {
   implementation(libs.reload4j)
 }
 
-task generateReplayVersion(type: Exec) {
-  commandLine 'git', 'describe', '--always'
-  standardOutput = out
+processResources {
+  def gitRevisionProvider = providers.exec {
+    commandLine 'git', 'rev-parse', '--short', 'HEAD'
+  }.standardOutput.asText.map { it.trim() }
 
-  doFirst {
-    standardOutput = new FileOutputStream("${buildDir}/classes/java/main/play/version")
-    standardOutput.write((project.version + '-').getBytes('UTF-8'))
+  filesMatching('play/version') {
+    expand(
+        'VERSION': project.version,
+        'GIT_REVISION': gitRevisionProvider.get(),
+    )
   }
 }
-
-classes.finalizedBy 'generateReplayVersion'
-jar.dependsOn 'generateReplayVersion'
 
 apply from: rootProject.file('gradle/deploy.gradle')
