@@ -10,7 +10,6 @@ test {
 
 dependencies {
   implementation project(':framework')
-  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
   testImplementation(libs.mockitoCore)
 
   implementation(libs.commonsLang3)

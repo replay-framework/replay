@@ -1,7 +1,6 @@
 dependencies {
   implementation(libs.netty3)
   implementation project(':framework')
-  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
   implementation(libs.commonsLang3)
 }
 

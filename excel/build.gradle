@@ -1,7 +1,5 @@
 dependencies {
   implementation project(':framework')
-  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
-
   api(libs.jxlsCore) { transitive = false }
   api(libs.jxlsReader) { transitive = false }
   implementation(libs.commonsJexl) { transitive = false }

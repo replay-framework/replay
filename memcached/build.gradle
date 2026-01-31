@@ -2,7 +2,6 @@ dependencies {
   implementation(libs.spymemcached)
   implementation(libs.commonsLang3)
   implementation project(':framework')
-  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
 }
 
 apply from: rootProject.file('gradle/deploy.gradle')

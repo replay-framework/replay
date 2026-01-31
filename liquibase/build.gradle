@@ -1,7 +1,5 @@
 dependencies {
   implementation project(':framework')
-  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
-
   implementation(libs.liquibaseCore) { transitive = false }
 }
 
