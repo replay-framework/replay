@@ -1,6 +1,6 @@
 dependencies {
   implementation project(':framework')
-  testImplementation project(':framework').sourceSets.test.compileClasspath
+  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
   implementation(libs.commonsText)
 
   // We use only few small jars from Netty project to parse http cookies
