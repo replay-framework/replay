@@ -8,7 +8,7 @@ dependencies {
 
   implementation(libs.commonsLang3)
   implementation(libs.commonsText)
-  testImplementation project(':framework').sourceSets.test.compileClasspath
+  testImplementation files({ project(':framework').sourceSets.test.compileClasspath })
   testImplementation(libs.assertjCore)
 }
 
