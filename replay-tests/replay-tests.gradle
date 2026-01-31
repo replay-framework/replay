@@ -78,4 +78,6 @@ tasks.withType(Test).configureEach {
         println " set ${it} to ${System.getProperty(it)}"
         systemProperties[it] = System.getProperty(it)
       }
+  testClassesDirs = sourceSets.test.output.classesDirs
+  classpath = sourceSets.test.runtimeClasspath
 }

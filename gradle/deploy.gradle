@@ -32,7 +32,7 @@ tasks.register('javadocJar', Jar) {
 if (project.hasProperty("signing.keyId")) {
   mavenPublishing {
     pom {
-      name = archivesBaseName
+      name = project.name
       description = 'RePlay is a fork of the Play1 framework, created by Codeborne.'
       url = 'https://github.com/replay-framework/replay'
       inceptionYear = "2017"
