@@ -2,8 +2,15 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
-## 2.7.2 (under construction)
+## 2.8.1 (under construction)
 * TBD
+
+## 2.8.0 (02.02.2026)
+* replace JSR 305 by JSpecify (`javax.annotation.Nullable` -> `org.jspecify.annotations.Nullable` etc.) (#693)
+* bump Netty4 from 4.2.4.Final to 4.2.9.Final
+* bump LiquiBase from 4.33.0 to 5.0.1
+* bump Hibernate from 6.6.15.Final to 6.6.42.Final
+* bump h2 from 2.3.232 to 2.4.240
 
 ## 2.7.1 (released 02.09.2025)
 * #157 fix serving "Bad Request" and "Not Found" responses in Netty4 (#652)
