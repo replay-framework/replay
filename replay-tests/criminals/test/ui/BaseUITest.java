@@ -6,7 +6,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.io.IOUtils.toByteArray;
 
 import com.codeborne.selenide.Configuration;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -15,9 +14,11 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +34,15 @@ import org.slf4j.LoggerFactory;
 import play.Play;
 
 public class BaseUITest {
+  static {
+    // Disable JVM-wide HttpURLConnection keep-alive cache. Otherwise, the warmup GET below
+    // can leave an idle TCP socket in KeepAliveCache that the JDK httpserver later closes
+    // (sun.net.httpserver.idleInterval, 30 s by default), and the next test reuses the
+    // already-closed socket — write succeeds into the kernel buffer, read in
+    // parseHTTPHeader blocks until SocketTimeoutException. See ReportTest flake on CI.
+    System.setProperty("http.keepAlive", "false");
+  }
+
   protected static final WireMockServer wireMock = new WireMockServer(0);
   private static final Logger LOG = LoggerFactory.getLogger(BaseUITest.class);
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -71,9 +81,18 @@ public class BaseUITest {
       log.info("Started AUT at {}", Configuration.baseUrl);
 
       long startTime = currentTimeMillis();
-      byte[] html = toByteArray(new URL(Configuration.baseUrl));
-      log.info("Loaded AUT welcome page from {} in {} ms. ({} bytes)",
-          Configuration.baseUrl, currentTimeMillis() - startTime, html.length);
+      URL warmupUrl = new URL(Configuration.baseUrl);
+      HttpURLConnection connection = (HttpURLConnection) warmupUrl.openConnection();
+      connection.setUseCaches(false);
+      connection.setRequestProperty("Connection", "close");
+      try (InputStream in = connection.getInputStream()) {
+        byte[] html = in.readAllBytes();
+        log.info("Loaded AUT welcome page from {} in {} ms. ({} bytes)",
+            warmupUrl, currentTimeMillis() - startTime, html.length);
+      }
+      finally {
+        connection.disconnect();
+      }
     } else {
       log.info("Running AUT on {}", Configuration.baseUrl);
     }

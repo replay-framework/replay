@@ -40,6 +40,15 @@ public class Server {
   public int start() {
     System.setProperty("file.encoding", "utf-8");
 
+    // The JDK httpserver closes idle keep-alive connections after this interval (in SECONDS,
+    // default 30). Combined with HttpURLConnection's KeepAliveCache on the client this is racy:
+    // the cached socket can be silently closed by the server, then a later request reuses it
+    // and blocks in parseHTTPHeader until a read timeout fires. Push it well beyond any
+    // plausible inter-request gap, but allow callers to override.
+    if (System.getProperty("sun.net.httpserver.idleInterval") == null) {
+      System.setProperty("sun.net.httpserver.idleInterval", "600");
+    }
+
     String address = address();
     try {
       HttpServer server = HttpServer.create(new InetSocketAddress(address, port), 0);
