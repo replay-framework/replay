@@ -29,7 +29,7 @@ mockitoVersion = "5.23.0"
 netty4Version = "4.2.13.Final"
 poiVersion = "3.17"
 restAssuredVersion = "6.0.0"
-slf4jVersion = "2.0.17"
+slf4jVersion = "2.0.18"
 yahpVersion = "1.3"
 
 
