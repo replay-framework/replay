@@ -46,7 +46,7 @@ assertjCore = { group = "org.assertj", name = "assertj-core", version.ref = "ass
 
 # :framework
 classGraph = { group = "io.github.classgraph", name = "classgraph", version = "4.8.184" }
-hikariCp = { group = "com.zaxxer", name = "HikariCP", version = "7.0.2" }
+hikariCp = { group = "com.zaxxer", name = "HikariCP", version = "7.1.0" }
 gson = { group = "com.google.code.gson", name = "gson", version = "2.14.0" }
 # Cannot upgrade to org.asynchttpclient:async-http-client as that requires Netty4 and we use Netty3
 asyncHttpClient = { group = "com.ning", name = "async-http-client", version = "1.9.40" }
