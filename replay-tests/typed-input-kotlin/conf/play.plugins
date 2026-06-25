@@ -1,0 +1,7 @@
+100:play.data.parsing.TempFilePlugin
+200:play.data.validation.ValidationPlugin
+600:play.libs.WS
+700:play.jobs.JobsPlugin
+800:play.modules.gtengineplugin.GTEnginePlugin
+1002:play.db.jpa.JPAPlugin
+100100:play.plugins.PlayStatusPlugin
