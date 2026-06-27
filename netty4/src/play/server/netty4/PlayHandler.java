@@ -289,7 +289,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       super.onSuccess();
       logger.trace("onSuccess: begin :{}:{}", request.method, request.path);
       if (response.chunked) {
-        closeChunked(response, ctx);
+        closeChunked(response, ctx, nettyRequest);
       } else {
         copyResponse(ctx, request, response, nettyRequest);
       }
@@ -813,7 +813,10 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
   }
 
-  private void closeChunked(Response playResponse, ChannelHandlerContext ctx) {
-    ctx.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+  private void closeChunked(Response playResponse, ChannelHandlerContext ctx, FullHttpRequest nettyRequest) {
+    ChannelFuture future = ctx.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+    if (!isKeepAlive(nettyRequest)) {
+      future.addListener(ChannelFutureListener.CLOSE);
+    }
   }
 }
