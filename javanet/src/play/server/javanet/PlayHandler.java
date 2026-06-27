@@ -145,13 +145,15 @@ public class PlayHandler implements HttpHandler {
         fileService.serve(file, exchange, request, response, keepAlive);
       }
     } else if (is != null) {
-      if (!exchange.getRequestMethod().equals(HEAD) && response.status != NOT_MODIFIED) {
-        exchange.sendResponseHeaders(response.status, 0);
-        try (OutputStream responseBody = exchange.getResponseBody()) {
-          IOUtils.copy(is, responseBody);
+      try (InputStream inputStream = is) {
+        if (!exchange.getRequestMethod().equals(HEAD) && response.status != NOT_MODIFIED) {
+          exchange.sendResponseHeaders(response.status, 0);
+          try (OutputStream responseBody = exchange.getResponseBody()) {
+            IOUtils.copy(inputStream, responseBody);
+          }
+        } else {
+          exchange.sendResponseHeaders(response.status, -1);
         }
-      } else {
-        is.close();
       }
     } else {
       writeResponse(exchange, request, response);
