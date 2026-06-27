@@ -2,8 +2,12 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
-## 2.8.1 (under construction)
-* TBD
+## 2.8.1 (27.06.2026)
+* bump netty4Version from 4.2.9.Final to 4.2.15.Final
+* bump hibernateVersion from 6.6.42.Final to 6.6.53.Final
+* bump org.liquibase:liquibase-core from 5.0.1 to 5.0.3
+* bump org.ehcache:ehcache from 3.11.1 to 3.12.0
+* bump com.zaxxer:HikariCP from 7.0.2 to 7.1.0
 
 ## 2.8.0 (02.02.2026)
 * replace JSR 305 by JSpecify (`javax.annotation.Nullable` -> `org.jspecify.annotations.Nullable` etc.) (#693)
