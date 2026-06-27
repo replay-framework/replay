@@ -60,16 +60,16 @@ Your project should use a JDK version equal to or greater than 17 that's *also* 
 You need to add RePlay dependencies to your build.gradle (or pom.xml):
 ```groovy
 dependencies {
-  implementation("io.github.replay-framework:framework:2.5.0")
-  implementation("io.github.replay-framework:javanet:2.5.0") // you can replace "javanet" by "netty3" or "netty4"
+  implementation("io.github.replay-framework:framework:2.8.1")
+  implementation("io.github.replay-framework:javanet:2.8.1") // you can replace "javanet" by "netty3" or "netty4"
   
   // Optionally:
-  implementation("io.github.replay-framework:guice:2.5.0")
-  implementation("io.github.replay-framework:fastergt:2.5.0")
-  implementation("io.github.replay-framework:liquibase:2.5.0")
-  implementation("io.github.replay-framework:pdf:2.5.0")
-  implementation("io.github.replay-framework:excel:2.5.0")
-  implementation("io.github.replay-framework:ehcache:2.5.0") // or `memcached`, or disable caching by not specifying a caching package. Earlier `memcached=true` setting won't be checked anymore!
+  implementation("io.github.replay-framework:guice:2.8.1")
+  implementation("io.github.replay-framework:fastergt:2.8.1")
+  implementation("io.github.replay-framework:liquibase:2.8.1")
+  implementation("io.github.replay-framework:pdf:2.8.1")
+  implementation("io.github.replay-framework:excel:2.8.1")
+  implementation("io.github.replay-framework:ehcache:2.8.1") // or `memcached`, or disable caching by not specifying a caching package. Earlier `memcached=true` setting won't be checked anymore!
 }
 ```
 
