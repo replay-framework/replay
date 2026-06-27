@@ -104,6 +104,9 @@ public class PlayHandler implements HttpHandler {
       response.out = new ByteArrayOutputStream();
       response.direct = null;
 
+      final Http.Request finalRequest = request;
+      response.onWriteChunk(chunk -> writeChunk(exchange, finalRequest, response, chunk));
+
       boolean raw =
           Play.pluginCollection.rawInvocation(
               request, response, null, Scope.RenderArgs.current(), null);
@@ -142,13 +145,13 @@ public class PlayHandler implements HttpHandler {
         fileService.serve(file, exchange, request, response, keepAlive);
       }
     } else if (is != null) {
-      if (!exchange.getRequestMethod().equals(HEAD) && exchange.getResponseCode() != NOT_MODIFIED) {
-        // writeFuture = ctx.getChannel().write(new ChunkedStream(is));
+      if (!exchange.getRequestMethod().equals(HEAD) && response.status != NOT_MODIFIED) {
+        exchange.sendResponseHeaders(response.status, 0);
+        try (OutputStream responseBody = exchange.getResponseBody()) {
+          IOUtils.copy(is, responseBody);
+        }
       } else {
         is.close();
-      }
-      if (!keepAlive) {
-        // writeFuture.addListener(ChannelFutureListener.CLOSE);
       }
     } else {
       writeResponse(exchange, request, response);
@@ -287,6 +290,29 @@ public class PlayHandler implements HttpHandler {
     }
 
     logger.trace("writeResponse: end :{}:{}", request.method, request.path);
+  }
+
+  private void writeChunk(
+      HttpExchange exchange, Http.Request request, Http.Response response, Object chunk) {
+    try {
+      if (exchange.getResponseCode() == -1) {
+        sendContentType(exchange, response);
+        addToResponse(exchange, response);
+        exchange.sendResponseHeaders(response.status, 0);
+      }
+      byte[] bytes;
+      if (chunk instanceof byte[]) {
+        bytes = (byte[]) chunk;
+      } else {
+        String message = chunk == null ? "" : chunk.toString();
+        bytes = message.getBytes(response.encoding);
+      }
+      OutputStream out = exchange.getResponseBody();
+      out.write(bytes);
+      out.flush();
+    } catch (IOException e) {
+      logger.error("Error writing chunk :{}:{}", request.method, request.path, e);
+    }
   }
 
   private void addETag(HttpExchange exchange, File file) throws IOException {
@@ -441,7 +467,11 @@ public class PlayHandler implements HttpHandler {
     public void onSuccess() throws Exception {
       super.onSuccess();
       logger.trace("onSuccess: begin :{}:{}", request.method, request.path);
-      copyResponse(exchange, request, response);
+      if (response.chunked) {
+        exchange.getResponseBody().close();
+      } else {
+        copyResponse(exchange, request, response);
+      }
       logger.trace("onSuccess: end :{}:{}", request.method, request.path);
     }
   }
