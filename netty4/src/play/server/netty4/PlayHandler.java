@@ -51,6 +51,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -287,7 +289,7 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       super.onSuccess();
       logger.trace("onSuccess: begin :{}:{}", request.method, request.path);
       if (response.chunked) {
-        closeChunked(response);
+        closeChunked(response, ctx);
       } else {
         copyResponse(ctx, request, response, nettyRequest);
       }
@@ -787,30 +789,31 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
       Object chunk) {
     try {
       if (playResponse.direct == null) {
+        // Mark that chunked streaming has started, but don't use FullHttpResponse —
+        // its encoder would immediately write the terminating "0\r\n\r\n" chunk.
+        // Use DefaultHttpResponse (headers only) so subsequent DefaultHttpContent
+        // writes carry the actual body chunks.
         playResponse.setHeader("Transfer-Encoding", "chunked");
-        playResponse.direct = new LazyChunkedInput();
-        copyResponse(ctx, playRequest, playResponse, nettyRequest);
+        playResponse.direct = "chunked";
+        DefaultHttpResponse nettyResponse =
+            new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(playResponse.status));
+        addToResponse(playResponse, nettyResponse);
+        ctx.channel().writeAndFlush(nettyResponse);
       }
-      ((LazyChunkedInput) playResponse.direct).writeChunk(chunk, playResponse.encoding);
-
-      if (this.pipelines.get("ChunkedWriteHandler") != null) {
-        ((ChunkedWriteHandler) this.pipelines.get("ChunkedWriteHandler")).resumeTransfer();
+      byte[] bytes;
+      if (chunk instanceof byte[]) {
+        bytes = (byte[]) chunk;
+      } else {
+        String message = chunk == null ? "" : chunk.toString();
+        bytes = message.getBytes(playResponse.encoding);
       }
-      if (this.pipelines.get("SslChunkedWriteHandler") != null) {
-        ((ChunkedWriteHandler) this.pipelines.get("SslChunkedWriteHandler")).resumeTransfer();
-      }
+      ctx.channel().writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(bytes)));
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
   }
 
-  private void closeChunked(Response playResponse) {
-    ((LazyChunkedInput) playResponse.direct).close();
-    if (this.pipelines.get("ChunkedWriteHandler") != null) {
-      ((ChunkedWriteHandler) this.pipelines.get("ChunkedWriteHandler")).resumeTransfer();
-    }
-    if (this.pipelines.get("SslChunkedWriteHandler") != null) {
-      ((ChunkedWriteHandler) this.pipelines.get("SslChunkedWriteHandler")).resumeTransfer();
-    }
+  private void closeChunked(Response playResponse, ChannelHandlerContext ctx) {
+    ctx.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
   }
 }

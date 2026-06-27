@@ -13,6 +13,7 @@ import play.data.validation.Validation;
 import play.modules.pdf.PdfResult;
 import play.mvc.Controller;
 import play.mvc.results.BadRequest;
+import play.mvc.results.NoResult;
 import play.rebel.View;
 
 public class HelloWorld extends Controller {
@@ -62,5 +63,12 @@ public class HelloWorld extends Controller {
 
   public View empty() {
     return new View();
+  }
+
+  public NoResult chunked() {
+    response.writeChunk("first chunk\n");
+    response.writeChunk("second chunk\n");
+    response.writeChunk("third chunk\n");
+    return new NoResult();
   }
 }
