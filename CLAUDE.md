@@ -60,6 +60,10 @@ Top-level modules and what they ship:
 - Logging: SLF4J (`org.slf4j.Logger` + `LoggerFactory`). `play.Logger` does not exist for runtime logging; `PlayLoggingSetup` only wires SLF4J. Use `{}` placeholders, not `String.format`.
 - Kotlin is allowed in source/test sets (`include '**/*.kt'`); `helloworld-kotlin` is the canonical example.
 
+## Pull requests
+
+When asked to create a pull request: create a new branch from the current state, commit the changes to that branch, push it, and open a PR targeting `main`. Never commit directly to `main` for a PR workflow.
+
 ## CI
 
 `.github/workflows/test.yml` runs three matrices — Linux × {netty3, netty4, javanet}, plus Windows (javanet) and macOS (netty3). Each runs `clean test`, `precompileTemplates`, then the corresponding `uitest-*`. If you add a feature that touches the HTTP layer, expect failures in the other backends — fix them before merging.
