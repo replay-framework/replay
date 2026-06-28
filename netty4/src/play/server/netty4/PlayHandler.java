@@ -793,12 +793,21 @@ public class PlayHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         // its encoder would immediately write the terminating "0\r\n\r\n" chunk.
         // Use DefaultHttpResponse (headers only) so subsequent DefaultHttpContent
         // writes carry the actual body chunks.
-        playResponse.setHeader("Transfer-Encoding", "chunked");
         playResponse.direct = "chunked";
         DefaultHttpResponse nettyResponse =
             new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(playResponse.status));
         addToResponse(playResponse, nettyResponse);
+        // addToResponse may have copied a Content-Length or a stale Transfer-Encoding;
+        // strip both and re-assert chunked only for non-HEAD requests.
+        nettyResponse.headers().remove(HttpHeaderNames.TRANSFER_ENCODING);
+        if (!nettyRequest.method().equals(HEAD)) {
+          nettyResponse.headers().remove(HttpHeaderNames.CONTENT_LENGTH);
+          nettyResponse.headers().set(HttpHeaderNames.TRANSFER_ENCODING, "chunked");
+        }
         ctx.channel().writeAndFlush(nettyResponse);
+      }
+      if (nettyRequest.method().equals(HEAD)) {
+        return;
       }
       byte[] bytes;
       if (chunk instanceof byte[]) {
