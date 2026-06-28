@@ -41,16 +41,15 @@ public class FastTags {
   }
 
   public void _jsRoute(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     Object arg = args.get("arg");
-    if (!(arg instanceof ActionDefinition)) {
+    if (!(arg instanceof ActionDefinition action)) {
       throw new TemplateException(
           template.template,
           fromLine,
           "Wrong parameter type, try #{jsRoute @Application.index() /}",
           new TagInternalException("Wrong parameter type"));
     }
-    ActionDefinition action = (ActionDefinition) arg;
     out.print("{");
     if (action.args.isEmpty()) {
       out.print("url: function() { return '" + action.url.replace("&amp;", "&") + "'; },");
@@ -65,7 +64,7 @@ public class FastTags {
   }
 
   public void _authenticityToken(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     out.printf(
         "<input type=\"hidden\" name=\"authenticityToken\" value=\"%s\"/>\n",
         session(template).getAuthenticityToken());
@@ -91,7 +90,7 @@ public class FastTags {
    * @param fromLine template line number where the tag is defined
    */
   public void _form(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     ActionDefinition actionDef = null;
     Object arg = args.get("arg");
     if (arg instanceof ActionDefinition) {
@@ -150,7 +149,7 @@ public class FastTags {
    * @param fromLine template line number where the tag is defined
    */
   public void _field(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     Map<String, Object> field = new HashMap<>();
     String _arg = args.get("arg").toString();
     field.put("name", _arg);
@@ -163,7 +162,7 @@ public class FastTags {
     body.call();
   }
 
-  Optional<Object> getValue(Closure body, String _arg) {
+  Optional<Object> getValue(Closure<?> body, String _arg) {
     if (isEmpty(_arg)) {
       // don't set any value if no arg given
       return Optional.empty();
@@ -208,7 +207,7 @@ public class FastTags {
    * @param fromLine template line number where the tag is defined
    */
   public void _a(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     ActionDefinition actionDef = (ActionDefinition) args.get("arg");
     if (actionDef == null) {
       actionDef = (ActionDefinition) args.get("action");
@@ -239,7 +238,7 @@ public class FastTags {
   }
 
   public void _error(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
+      Map<?, ?> args, Closure<?> body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     if (args.get("arg") == null && args.get("key") == null) {
       throw new TemplateException(template.template, fromLine, "Please specify the error key");
     }
@@ -263,7 +262,7 @@ public class FastTags {
       } else if (test instanceof Number) {
         return ((Number) test).intValue() != 0;
       } else if (test instanceof Collection) {
-        return !((Collection) test).isEmpty();
+        return !((Collection<?>) test).isEmpty();
       } else return !(test instanceof NullObject);
     }
     return false;
@@ -272,9 +271,9 @@ public class FastTags {
   public static String serialize(Map<?, ?> args, String... unless) {
     StringBuilder attrs = new StringBuilder();
     Arrays.sort(unless);
-    for (Object o : args.keySet()) {
-      String attr = o.toString();
-      String value = args.get(o) == null ? "" : args.get(o).toString();
+    for (Map.Entry<?, ?> entry : args.entrySet()) {
+      String attr = entry.getKey().toString();
+      String value = entry.getValue() == null ? "" : entry.getValue().toString();
       if (Arrays.binarySearch(unless, attr) < 0 && !attr.equals("arg")) {
         attrs.append(attr);
         attrs.append("=\"");
@@ -287,8 +286,7 @@ public class FastTags {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
-  public static @interface Namespace {
-
+  public @interface Namespace {
     String value() default "";
   }
 }
