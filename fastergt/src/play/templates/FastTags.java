@@ -6,7 +6,6 @@ import static play.utils.HTML.htmlEscape;
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,17 +19,14 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.codehaus.groovy.runtime.NullObject;
-import play.cache.Cache;
 import play.data.validation.Error;
 import play.data.validation.Validation;
 import play.exceptions.TagInternalException;
 import play.exceptions.TemplateException;
-import play.exceptions.TemplateNotFoundException;
 import play.mvc.Http;
 import play.mvc.Router.ActionDefinition;
 import play.mvc.Scope.Flash;
 import play.mvc.Scope.Session;
-import play.templates.BaseTemplate.RawData;
 import play.utils.UuidGenerator;
 
 public class FastTags {
@@ -42,53 +38,6 @@ public class FastTags {
 
   FastTags(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
-  }
-
-  public static void _cache(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    String key = args.get("arg").toString();
-    String duration = null;
-    if (args.containsKey("for")) {
-      duration = args.get("for").toString();
-    }
-    Object cached = Cache.get(key);
-    if (cached != null) {
-      out.print(cached);
-      return;
-    }
-    String result = JavaExtensions.toString(body);
-    Cache.set(key, result, duration);
-    out.print(result);
-  }
-
-  public static void _jsAction(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    String html = "";
-    String minimize = "";
-    if (args.containsKey("minimize")
-        && Boolean.FALSE.equals(Boolean.valueOf(args.get("minimize").toString()))) {
-      minimize = "\n";
-    }
-    html += "function(options) {" + minimize;
-    html += "var pattern = '" + args.get("arg").toString().replace("&amp;", "&") + "';" + minimize;
-    html += "for(key in options) {" + minimize;
-    html += "var val = options[key];" + minimize;
-    // Encode URI script
-    if (args.containsKey("encodeURI")
-        && Boolean.TRUE.equals(Boolean.valueOf(args.get("encodeURI").toString()))) {
-      html += "val = encodeURIComponent(val.replace('&amp;', '&'));" + minimize;
-    }
-    // Custom script
-    if (args.containsKey("customScript")) {
-      html += "val = " + args.get("customScript") + minimize;
-    }
-    html +=
-        "pattern = pattern.replace(':' + encodeURIComponent(key), ( (val===undefined || val===null)?'': val));"
-            + minimize;
-    html += "}" + minimize;
-    html += "return pattern;" + minimize;
-    html += "}" + minimize;
-    out.println(html);
   }
 
   public void _jsRoute(
@@ -130,26 +79,6 @@ public class FastTags {
 
   private static Session session(ExecutableTemplate template) {
     return (Session) template.getProperty("session");
-  }
-
-  public static void _option(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    Object value = args.get("arg");
-    Object selectedValue = TagContext.parent("select").data.get("selected");
-    boolean selected =
-        selectedValue != null
-            && value != null
-            && (selectedValue.toString()).equals(value.toString());
-    out.print(
-        "<option value=\""
-            + htmlEscape(value == null ? "" : value.toString())
-            + "\" "
-            + (selected ? "selected" : "")
-            + " "
-            + serialize(args, "selected", "value")
-            + ">");
-    out.println(JavaExtensions.toString(body));
-    out.print("</option>");
   }
 
   /**
@@ -309,39 +238,6 @@ public class FastTags {
     out.print("</a>");
   }
 
-  public static void _ifErrors(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    if (Validation.hasErrors()) {
-      body.call();
-      TagContext.parent().data.put("_executeNextElse", false);
-    } else {
-      TagContext.parent().data.put("_executeNextElse", true);
-    }
-  }
-
-  public static void _ifError(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    if (args.get("arg") == null) {
-      throw new TemplateException(template.template, fromLine, "Please specify the error key");
-    }
-    if (Validation.hasError(args.get("arg").toString())) {
-      body.call();
-      TagContext.parent().data.put("_executeNextElse", false);
-    } else {
-      TagContext.parent().data.put("_executeNextElse", true);
-    }
-  }
-
-  public static void _errorClass(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    if (args.get("arg") == null) {
-      throw new TemplateException(template.template, fromLine, "Please specify the error key");
-    }
-    if (Validation.hasError(args.get("arg").toString())) {
-      out.print("hasError");
-    }
-  }
-
   public void _error(
       Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
     if (args.get("arg") == null && args.get("key") == null) {
@@ -371,140 +267,6 @@ public class FastTags {
       } else return !(test instanceof NullObject);
     }
     return false;
-  }
-
-  static String __safe(Template template, Object val) {
-    if (val instanceof RawData) {
-      return ((RawData) val).data;
-    }
-    if (!template.name.endsWith(".html")) {
-      return val.toString();
-    }
-    return htmlEscape(val.toString());
-  }
-
-  public static void _doLayout(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    out.print("____%LAYOUT%____");
-  }
-
-  public static void _get(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    Object name = args.get("arg");
-    if (name == null) {
-      throw new TemplateException(template.template, fromLine, "Specify a variable name");
-    }
-    Object value = BaseTemplate.layoutData.get().get(name);
-    if (value != null) {
-      out.print(value);
-    } else {
-      if (body != null) {
-        out.print(JavaExtensions.toString(body));
-      }
-    }
-  }
-
-  public static void _set(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    // Simple case : #{set title:'Yop' /}
-    for (Map.Entry<?, ?> entry : args.entrySet()) {
-      Object key = entry.getKey();
-      if (!key.toString().equals("arg")) {
-        BaseTemplate.layoutData
-            .get()
-            .put(
-                key,
-                (entry.getValue() != null && entry.getValue() instanceof String)
-                    ? __safe(template.template, entry.getValue())
-                    : entry.getValue());
-        return;
-      }
-    }
-    // Body case
-    Object name = args.get("arg");
-    if (name != null && body != null) {
-      Object oldOut = body.getProperty("out");
-      StringWriter sw = new StringWriter();
-      body.setProperty("out", new PrintWriter(sw));
-      body.call();
-      BaseTemplate.layoutData.get().put(name, sw.toString());
-      body.setProperty("out", oldOut);
-    }
-  }
-
-  public static void _extends(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    try {
-      if (!args.containsKey("arg") || args.get("arg") == null) {
-        throw new TemplateException(template.template, fromLine, "Specify a template name");
-      }
-      String name = args.get("arg").toString();
-      if (name.startsWith("./")) {
-        String ct = BaseTemplate.currentTemplate.get().name;
-        if (ct.matches("^/lib/[^/]+/app/views/.*")) {
-          ct = ct.substring(ct.indexOf("/", 5));
-        }
-        ct = ct.substring(0, ct.lastIndexOf("/"));
-        name = ct + name.substring(1);
-      }
-      BaseTemplate.layout.set((BaseTemplate) TemplateLoader.load(name));
-    } catch (TemplateNotFoundException e) {
-      throw new TemplateNotFoundException(e.getPath(), template.template, fromLine);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public static void _include(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    try {
-      if (!args.containsKey("arg") || args.get("arg") == null) {
-        throw new TemplateException(template.template, fromLine, "Specify a template name");
-      }
-      String name = args.get("arg").toString();
-      if (name.startsWith("./")) {
-        String ct = BaseTemplate.currentTemplate.get().name;
-        if (ct.matches("^/lib/[^/]+/app/views/.*")) {
-          ct = ct.substring(ct.indexOf("/", 5));
-        }
-        ct = ct.substring(0, ct.lastIndexOf("/"));
-        name = ct + name.substring(1);
-      }
-      BaseTemplate t = (BaseTemplate) TemplateLoader.load(name);
-      Map<String, Object> newArgs = new HashMap<>();
-      newArgs.putAll(template.getBinding().getVariables());
-      newArgs.put("_isInclude", true);
-      t.internalRender(newArgs);
-    } catch (TemplateNotFoundException e) {
-      throw new TemplateNotFoundException(e.getPath(), template.template, fromLine);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public static void _render(
-      Map<?, ?> args, Closure body, PrintWriter out, ExecutableTemplate template, int fromLine) {
-    try {
-      if (!args.containsKey("arg") || args.get("arg") == null) {
-        throw new TemplateException(template.template, fromLine, "Specify a template name");
-      }
-      String name = args.get("arg").toString();
-      if (name.startsWith("./")) {
-        String ct = BaseTemplate.currentTemplate.get().name;
-        if (ct.matches("^/lib/[^/]+/app/views/.*")) {
-          ct = ct.substring(ct.indexOf("/", 5));
-        }
-        ct = ct.substring(0, ct.lastIndexOf("/"));
-        name = ct + name.substring(1);
-      }
-      args.remove("arg");
-      BaseTemplate t = (BaseTemplate) TemplateLoader.load(name);
-      Map<String, Object> newArgs = new HashMap<>();
-      newArgs.putAll((Map<? extends String, ? extends Object>) args);
-      newArgs.put("_isInclude", true);
-      newArgs.put("out", out);
-      t.internalRender(newArgs);
-    } catch (TemplateNotFoundException e) {
-      throw new TemplateNotFoundException(e.getPath(), template.template, fromLine);
-    }
   }
 
   public static String serialize(Map<?, ?> args, String... unless) {
