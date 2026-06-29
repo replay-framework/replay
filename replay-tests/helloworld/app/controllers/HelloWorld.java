@@ -71,4 +71,15 @@ public class HelloWorld extends Controller {
     response.writeChunk("third chunk\n");
     return new NoResult();
   }
+
+  public View tags() {
+    return new View("tags.html", ImmutableMap.of("n", 2));
+  }
+
+  public View tagForm(String username) {
+    if (username == null || username.isEmpty()) {
+      Validation.addError("username", "required");
+    }
+    return new View("tag-form.html");
+  }
 }
