@@ -9,6 +9,8 @@ GET    /pdf/text           HelloWorld.helloPdfFromPlainText
 GET    /pdf/text2          HelloWorld.helloPdfUsingRequestFormat
 GET    /empty              HelloWorld.empty
 GET    /chunked            HelloWorld.chunked
+GET    /tags               HelloWorld.tags
+GET    /tag-form           HelloWorld.tagForm
 POST   /post               AcceptPost.respondWithSameObject
 
 GET     /public/           staticDir:app/public

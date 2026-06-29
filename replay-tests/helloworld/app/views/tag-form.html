@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+#{field 'username'}
+<p id="field-name">${field.name}</p>
+<p id="field-error-class">${field.errorClass}</p>
+#{/field}
+
+#{ifError 'username'}<p id="if-error">has-error</p>#{/ifError}
+
+<p id="error-class">#{errorClass 'username' /}</p>
+
+<p id="error-msg">#{error 'username' /}</p>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+#{set title:'Tags test'/}
+<p id="set-get">#{get 'title' /}</p>
+
+#{ifnot false}<p id="ifnot">visible</p>#{/ifnot}
+
+#{if n == 1}<p id="elseif">one</p>#{/if}#{elseif n == 2}<p id="elseif">two</p>#{/elseif}#{else}<p id="elseif">other</p>#{/else}
+
+#{render 'tag-partial.html', who:'Rendered' /}
+
+#{cache 'tags-test', for:'1s'}<p id="cache">cached</p>#{/cache}
+
+<p id="jsaction">#{jsAction @HelloWorld.hello(':greeting') /}</p>
+
+<p id="sij">#{secureInlineJavaScript}inline-js#{/secureInlineJavaScript}</p>
+
+<p id="jsroute">#{jsRoute @HelloWorld.hello() /}</p>
+
+#{a @AcceptPost.respondWithSameObject()}<span id="a-tag">post-link</span>#{/a}
+</body>
+</html>
