@@ -2,6 +2,7 @@ package ui.hello;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,12 @@ public class TemplateTagsSpec extends BaseSpec {
 
   @Test
   public void elseif_tag() {
-    when().get("/tags").then().statusCode(200).body(containsString("two"));
+    when()
+        .get("/tags")
+        .then()
+        .statusCode(200)
+        .body(containsString("<p id=\"elseif\">two</p>"))
+        .body(not(containsString("<p id=\"elseif\">one</p>")));
   }
 
   @Test
@@ -63,8 +69,8 @@ public class TemplateTagsSpec extends BaseSpec {
         .get("/tag-form")
         .then()
         .statusCode(200)
-        .body(containsString("username"))
-        .body(containsString("hasError"));
+        .body(containsString("<p id=\"field-name\">username</p>"))
+        .body(containsString("<p id=\"field-error-class\">hasError</p>"));
   }
 
   @Test

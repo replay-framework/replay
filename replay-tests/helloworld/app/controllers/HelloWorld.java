@@ -11,6 +11,7 @@ import play.data.validation.Min;
 import play.data.validation.Valid;
 import play.data.validation.Validation;
 import play.modules.pdf.PdfResult;
+import org.jspecify.annotations.Nullable;
 import play.mvc.Controller;
 import play.mvc.results.BadRequest;
 import play.mvc.results.NoResult;
@@ -76,7 +77,7 @@ public class HelloWorld extends Controller {
     return new View("tags.html", ImmutableMap.of("n", 2));
   }
 
-  public View tagForm(String username) {
+  public View tagForm(@Nullable String username) {
     if (username == null || username.isEmpty()) {
       Validation.addError("username", "required");
     }
