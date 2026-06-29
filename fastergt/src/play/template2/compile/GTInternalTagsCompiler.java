@@ -1,5 +1,6 @@
 package play.template2.compile;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
 
@@ -20,14 +21,14 @@ public class GTInternalTagsCompiler {
                   String.class,
                   GTPreCompiler.SourceContext.class,
                   Integer.TYPE);
-    } catch (Exception e) {
+    } catch (NoSuchMethodException e) {
       // did not find a method to handle this tag
       return false;
     }
 
     try {
       tagMethod.invoke(this, tagName, contentMethodName, sc, startLine);
-    } catch (Exception e) {
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
       throw new GTCompilationExceptionWithSourceInfo(
           "Error generating code for tag '" + tagName + "'", sc.templateLocation, startLine + 1, e);
     }
@@ -62,7 +63,7 @@ public class GTInternalTagsCompiler {
     sc.jprintln("   binding.setProperty(as+\"_parity\", (i%2==0?\"even\":\"odd\"));");
 
     // call list tag content
-    sc.jprintln("   " + contentMethodName + "();");
+    sc.jprintln("   ", contentMethodName, "();");
 
     sc.jprintln(" }");
 
@@ -77,7 +78,7 @@ public class GTInternalTagsCompiler {
     // clear the runNextElse
     sc.jprintln(" clearElseFlag();");
     // do the if
-    sc.jprintln(" if(evaluateCondition(e)) {" + contentMethodName + "();} else { setElseFlag(); }");
+    sc.jprintln(" if(evaluateCondition(e)) {", contentMethodName, "();} else { setElseFlag(); }");
   }
 
   public void tag_ifnot(
@@ -88,8 +89,7 @@ public class GTInternalTagsCompiler {
     // clear the runNextElse
     sc.jprintln(" clearElseFlag();");
     // do the if
-    sc.jprintln(
-        " if(!evaluateCondition(e)) {" + contentMethodName + "();} else { setElseFlag(); }");
+    sc.jprintln(" if(!evaluateCondition(e)) {", contentMethodName, "();} else { setElseFlag(); }");
   }
 
   public void tag_else(
@@ -124,18 +124,17 @@ public class GTInternalTagsCompiler {
     sc.jprintln(" String " + templateNameVar + " = (String)tagArgs.get(\"arg\");", startLine);
 
     sc.jprintln(
-        " play.template2.GTTemplateLocationReal templateLocation = this.resolveTemplateLocation( "
-            + templateNameVar
-            + " );");
+        " play.template2.GTTemplateLocationReal templateLocation = this.resolveTemplateLocation( ",
+        templateNameVar,
+        " );");
 
     // must check runtime that the template exists
     sc.jprintln(
-        " if(templateLocation == null ) "
-            + "{throw new play.template2.exceptions.GTTemplateNotFoundWithSourceInfo("
-            + templateNameVar
-            + ", this.templateLocation, "
-            + (startLine + 1)
-            + ");}");
+        " if(templateLocation == null ) {throw new play.template2.exceptions.GTTemplateNotFoundWithSourceInfo(",
+        templateNameVar,
+        ", this.templateLocation, ",
+        String.valueOf(startLine + 1),
+        ");}");
 
     sc.jprintln(" this.extendsTemplateLocation = templateLocation;");
 
