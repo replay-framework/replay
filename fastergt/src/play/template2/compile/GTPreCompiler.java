@@ -51,8 +51,11 @@ public class GTPreCompiler {
       this.templateLocation = templateLocation;
     }
 
-    public void jprintln(String line) {
-      _out.append(line).append("\n");
+    public void jprintln(String... text) {
+      for (String s : text) {
+        _out.append(s);
+      }
+      _out.append("\n");
     }
 
     public void jprintln(String line, int lineNo) {
