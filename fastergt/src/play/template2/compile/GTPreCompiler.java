@@ -35,7 +35,7 @@ public class GTPreCompiler {
 
   private final GTTemplateRepo templateRepo;
 
-  public static class SourceContext {
+  public static final class SourceContext {
     public final GTTemplateLocation templateLocation;
     // generated java code
     // generated groovy code

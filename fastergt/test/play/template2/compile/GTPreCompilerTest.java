@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import play.template2.GTTemplateLocation;
 import play.template2.GTTemplateRepoBuilder;
 import play.template2.TemplateSourceRenderer;
 import play.template2.exceptions.GTCompilationExceptionWithSourceInfo;
@@ -71,6 +72,22 @@ public class GTPreCompilerTest {
       ex = e;
     }
     assertThat(ex.specialMessage).isEqualTo("Found unclosed tag #{aTag}");
+  }
+
+  @Test
+  public void backslashesInPathAreReplacedWithForwardSlashes() {
+    GTPreCompiler compiler = new GTTemplateRepoBuilder.GTPreCompilerFactoryImpl().createCompiler(null);
+
+    GTTemplateLocation location =
+        new GTTemplateLocation("app\\views\\index.html") {
+          @Override
+          public String readSource() {
+            return "hello";
+          }
+        };
+
+    GTPreCompiler.Output output = compiler.compile(location);
+    assertThat(output.javaCode).contains("\"app/views/index.html\"");
   }
 
   @Test
