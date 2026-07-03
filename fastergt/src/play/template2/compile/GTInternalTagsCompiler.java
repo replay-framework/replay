@@ -40,7 +40,7 @@ public class GTInternalTagsCompiler {
       String tagName, String contentMethodName, GTPreCompiler.SourceContext sc, int startLine) {
 
     // one can else if list is empty - must clear the else flag
-    sc.jprintln(" clearElseFlag();", startLine);
+    sc.jprintln(startLine, " clearElseFlag();");
 
     sc.jprintln(" String as = (String)tagArgs.get(\"as\");");
     sc.jprintln(" String itemName = (as==null?\"_\":as);");
@@ -74,7 +74,7 @@ public class GTInternalTagsCompiler {
   public void tag_if(
       String tagName, String contentMethodName, GTPreCompiler.SourceContext sc, int startLine) {
     // extract the argument named "arg"
-    sc.jprintln(" Object e = tagArgs.get(\"arg\");", startLine);
+    sc.jprintln(startLine, " Object e = tagArgs.get(\"arg\");");
     // clear the runNextElse
     sc.jprintln(" clearElseFlag();");
     // do the if
@@ -84,7 +84,7 @@ public class GTInternalTagsCompiler {
   public void tag_ifnot(
       String tagName, String contentMethodName, GTPreCompiler.SourceContext sc, int startLine) {
     // extract the argument named "arg"
-    sc.jprintln(" Object e = tagArgs.get(\"arg\");", startLine);
+    sc.jprintln(startLine, " Object e = tagArgs.get(\"arg\");");
 
     // clear the runNextElse
     sc.jprintln(" clearElseFlag();");
@@ -97,7 +97,7 @@ public class GTInternalTagsCompiler {
     // run the else if runNextElse is true
 
     // do the if
-    sc.jprintln(" if( elseFlagIsSet()) {" + contentMethodName + "();}", startLine);
+    sc.jprintln(startLine, " if( elseFlagIsSet()) {" + contentMethodName + "();}");
 
     // clear runNextElse
     sc.jprintln(" clearElseFlag();");
@@ -108,7 +108,7 @@ public class GTInternalTagsCompiler {
     // run the elseif if runNextElse is true AND expression is true
 
     // do the if
-    sc.jprintln(" if( elseFlagIsSet()) {", startLine);
+    sc.jprintln(startLine, " if( elseFlagIsSet()) {");
 
     // Just include the regluar if-tag here..
     tag_if(tagName, contentMethodName, sc, startLine);
@@ -121,7 +121,7 @@ public class GTInternalTagsCompiler {
     // the template we extends is the single argument named 'args'
 
     String templateNameVar = "_tn_" + (sc.nextMethodIndex++);
-    sc.jprintln(" String " + templateNameVar + " = (String)tagArgs.get(\"arg\");", startLine);
+    sc.jprintln(startLine, " String " + templateNameVar + " = (String)tagArgs.get(\"arg\");");
 
     sc.jprintln(
         " play.template2.GTTemplateLocationReal templateLocation = this.resolveTemplateLocation( ",
@@ -146,8 +146,9 @@ public class GTInternalTagsCompiler {
       String tagName, String contentMethodName, GTPreCompiler.SourceContext sc, int startLine) {
     // someone is extending us - and we are supposed to dump the output now..
     sc.jprintln(
-        " if( this.extendingTemplate == null) throw new play.template2.exceptions.GTRuntimeException(\"No template is currently extending this template\");",
-        startLine);
+        startLine,
+        " if( this.extendingTemplate == null) throw new play.template2.exceptions.GTRuntimeException(\"No template is currently extending this template\");"
+    );
     // inject all the output from the extending template into our output stream
     sc.jprintln(" this.insertOutput(this.extendingTemplate);");
 
