@@ -53,7 +53,7 @@ public class GTPreCompiler1xImpl extends GTPreCompiler {
       // generate groovy code
       String groovyMethodName = "action_resolver_" + (sc.nextMethodIndex++);
 
-      sc.gprintln(" String " + groovyMethodName + "() {", lineNo);
+      sc.gprintln(lineNo, " String " + groovyMethodName + "() {");
       if (absolute) {
         sc.gprintln(" return actionBridge._abs()." + action + ";");
       } else {
