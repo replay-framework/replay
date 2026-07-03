@@ -23,6 +23,12 @@ import play.template2.legacy.GTLegacyFastTagResolver;
 public class GTPreCompiler {
 
   public static final String generatedPackageName = "play.template2.generated_templates";
+  private static final Pattern RE_FORBIDDEN_SYMBOLS_IN_PATH = Pattern.compile("[{}/\\\\.:!]");
+  private static final Pattern RE_NEWLINES = Pattern.compile("\\r?\\n");
+  private static final Pattern RE_QUOTE = Pattern.compile("\"");
+  private static final Pattern RE_NEWLINE = Pattern.compile("\n");
+  private static final Pattern RE_CARRIAGE_RETURN = Pattern.compile("\r");
+  private static final Pattern RE_ARG = Pattern.compile("^[_a-zA-Z0-9]+\\s*:.*$");
 
   private final GTInternalTagsCompiler gtInternalTagsCompiler = new GTInternalTagsCompiler();
 
@@ -72,14 +78,8 @@ public class GTPreCompiler {
 
     @Override
     public String toString() {
-      return "SourceContext{"
-          + "lineOffset="
-          + lineOffset
-          + ", currentLineNo="
-          + currentLineNo
-          + ", templateLocation="
-          + templateLocation
-          + '}';
+      return "SourceContext{lineOffset=%d, currentLineNo=%d, templateLocation=%s}".formatted(
+          lineOffset, currentLineNo, templateLocation);
     }
   }
 
@@ -222,7 +222,7 @@ public class GTPreCompiler {
 
   public static String generateTemplateClassname(String relativePath) {
     return "GTTemplate_"
-        + fixStringForCode(relativePath.replaceAll("[{}/\\\\.:!]", "_"), null).toLowerCase();
+        + fixStringForCode(RE_FORBIDDEN_SYMBOLS_IN_PATH.matcher(relativePath).replaceAll("_"), null).toLowerCase();
   }
 
   public static class GTFragment {
@@ -438,7 +438,7 @@ public class GTPreCompiler {
           tagBody = tagBody.substring(2);
 
           // strip it for new lines..
-          tagBody = tagBody.replaceAll("\\r?\\n", " ");
+          tagBody = RE_NEWLINES.matcher(tagBody).replaceAll(" ");
 
           // now we are ready to process the found tag/expression etc..
 
@@ -649,11 +649,8 @@ public class GTPreCompiler {
     }
 
     String oneLiner =
-        plainText
-            .replace("\\", "\\\\")
-            .replaceAll("\"", "\\\\\"")
-            .replaceAll("\n", "\\\\n")
-            .replaceAll("\r", "\\\\r");
+        RE_CARRIAGE_RETURN.matcher(RE_NEWLINE.matcher(RE_QUOTE.matcher(plainText
+            .replace("\\", "\\\\")).replaceAll("\\\\\"")).replaceAll("\\\\n")).replaceAll("\\\\r");
 
     if (!oneLiner.isEmpty()) {
       return new GTFragmentCode(startLine, "out.append(\"" + oneLiner + "\");");
@@ -730,8 +727,7 @@ public class GTPreCompiler {
 
     GTFragment nextFragment;
     while ((nextFragment = processNextFragment(sc)) != null) {
-      if (nextFragment instanceof GTFragmentEndOfMultiLineTag) {
-        GTFragmentEndOfMultiLineTag f = (GTFragmentEndOfMultiLineTag) nextFragment;
+      if (nextFragment instanceof GTFragmentEndOfMultiLineTag f) {
         if (f.tagName.equals(tagName)) {
           return generateTagCode(startLine, tagName, tagArgString, sc, body);
         } else {
@@ -767,7 +763,7 @@ public class GTPreCompiler {
       // first time - must generate it
 
       // if only one argument, then we must name it 'arg'
-      if (!tagArgString.matches("^[_a-zA-Z0-9]+\\s*:.*$")) {
+      if (!RE_ARG.matcher(tagArgString).matches()) {
         tagArgString = "arg:" + tagArgString;
       }
 
@@ -1036,16 +1032,13 @@ public class GTPreCompiler {
 
     sc.jprintln(" Object " + varName + ";", sc.currentLineNo);
     for (GTFragment f : body) {
-      if (f instanceof GTFragmentMethodCall) {
-        GTFragmentMethodCall m = (GTFragmentMethodCall) f;
+      if (f instanceof GTFragmentMethodCall m) {
         sc.jprintln("  " + m.methodName + "();", sc.currentLineNo);
-      } else if (f instanceof GTFragmentCode) {
-        GTFragmentCode c = (GTFragmentCode) f;
+      } else if (f instanceof GTFragmentCode c) {
         if (!c.code.isEmpty()) {
-          sc.jprintln("  " + c.code + "", sc.currentLineNo);
+          sc.jprintln("  " + c.code, sc.currentLineNo);
         }
-      } else if (f instanceof GTFragmentScript) {
-        GTFragmentScript s = (GTFragmentScript) f;
+      } else if (f instanceof GTFragmentScript s) {
         // first generate groovy method with script code
         String groovyMethodName = "custom_script_" + (sc.nextMethodIndex++);
         sc.gprintln("");
@@ -1055,8 +1048,7 @@ public class GTPreCompiler {
         int lineNo = s.startLine;
         //gout.append(sc.pimpStart+"");
         for (String line :
-            s.scriptSource.split(
-                "\\r?\\n", -1)) { // we can ignore \r here - have no meaning in groovy source file
+            RE_NEWLINES.split(s.scriptSource, -1)) { // we can ignore \r here - have no meaning in groovy source file
           sc.gprintln(line, lineNo++);
         }
 
@@ -1065,8 +1057,7 @@ public class GTPreCompiler {
         // then generate call to that method from java
         sc.jprintln(" g." + groovyMethodName + "(new PrintWriter(out));", s.startLine);
 
-      } else if (f instanceof GTFragmentEndOfMultiLineTag) {
-        GTFragmentEndOfMultiLineTag _f = (GTFragmentEndOfMultiLineTag) f;
+      } else if (f instanceof GTFragmentEndOfMultiLineTag _f) {
         throw new GTCompilationExceptionWithSourceInfo(
             "#{/" + _f.tagName + "} is not opened.", sc.templateLocation, f.startLine + 1);
 
