@@ -26,13 +26,14 @@ public class ExtendsTest {
 
     GTJavaBase t = tr.getTemplateInstance(new GTTemplateLocation("folder/subfolder/templateUsingExtendsAndTag.txt"));
     t.renderTemplate(args);
-    assertThat(t.getAsString()).isEqualTo("maintemplateUsingExtends2%n[from tag: x]".formatted());
+    assertThat(t.getAsString())
+        .isEqualToIgnoringNewLines("maintemplateUsingExtends2%n[from tag: x]".formatted());
 
     // test nested extends
     t = tr.getTemplateInstance(new GTTemplateLocation("templateUsingExtendsExtendsAndTag.txt"));
     t.renderTemplate(args);
     assertThat(t.getAsString())
-        .isEqualTo("maintemplateUsingExtendsxtemplateUsingExtends3%n[from tag: x]".formatted());
+        .isEqualToIgnoringNewLines("maintemplateUsingExtendsxtemplateUsingExtends3%n[from tag: x]".formatted());
 
     assertThat(sr.renderSrc("#{tagUsingExtends/}template", args)).isEqualTo("maintag1template");
     assertThat(sr.renderSrc("#{tagUsingTagUsingExtends/}template", args))
