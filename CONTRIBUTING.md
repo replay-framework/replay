@@ -76,28 +76,20 @@ You need to generate this token by logging in to `s01.oss.sonatype.org` > click 
 Important is that the account you are using has permissions for `io/github/replay-framework` (this needs to be granted by raising a support ticket with Sonatype).
 
 
-Steps to release version, for example, version `X.Y.Z`:
+Steps to release version, for example, version `2.8.2`:
 
-1. Create a release branch, e.g. `release/X.Y.Z`
-2. Merge the branches that you want to be part of this release
-3. Fill/edit the `CHANGELOG.md`
-4. Replace version string with "X.Y.Z" in `build.gradle` (usually this means just removing the `-SNAPSHOT` suffix)
-5. Commit & push (CHANGELOG.md + build.gradle + and all changes)
-6. Run `./release.sh X.Y.Z`  This runs the tests, sets+pushes a `git tag`, and uploads the `*.jar` files to [s01.oss.sonatype.org](https://s01.oss.sonatype.org)
-7. Login to https://s01.oss.sonatype.org/#stagingRepositories and locate the staging repository...
-   * Wait until the "Close" button  gets enabled (~1 minute, "Refresh" may help)
-   * Click "Close" (no need to fill description)
-   * Wait until "Release" button gets enabled (~3 minutes, "Refresh" may help)
-   * Click "Release" (no need to fill description)
-   * After ~5-10 minutes, the new jar will be available in Central Maven repo (it may take up to 2 hours until it shows up in [search.maven.org](https://search.maven.org))
-   * In more detail this is explained here: https://central.sonatype.org/publish/release
-8. Merge the just created release branch into the `main` branch
-9. Open https://github.com/replay-framework/replay/milestones -> X.Y.Z -> "Edit milestone" -> "Close milestone"
-10. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
+1. Describe the changes in `CHANGELOG.md` (include only the changes interesting for users - avoid minor refactoring, test updates etc.)
+2. Replace "2.8.2-SNAPSHOT" by "2.8.2" in `build.gradle`
+3. Update version numbers to "2.8.2" in README.md
+4. Commit & push (CHANGELOG.md + build.gradle + README.md + and all changes)
+5. Run `./release.sh 2.8.2`  This runs the tests, adds git tag `v2.8.2` and uploads the `*.jar` files to Maven central repository.
+6. Login to https://central.sonatype.com/publishing/deployments and wait until the new version "2.8.2" gets published (it takes few minutes)
+7. Open https://github.com/replay-framework/replay/milestones -> 2.8.2 -> "Edit milestone" -> set date -> "Close milestone"
+8. Create new milestone "2.8.3"
+9. Open https://github.com/replay-framework/replay/releases -> "Draft a new release"
    * Fill the release details (copy-paste from `CHANGELOG.md`)
    * Click "Publish release"
-10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "A.B.C-SNAPSHOT", where A/B/C are the next in line of X/Y/Z) and commit
-11. Create a new release on github -- https://github.com/replay-framework/replay/releases -- and save as "Draft"
-12. Close milestone X.Y.Z and create a new milestone A.B.C: https://github.com/replay-framework/replay/milestones
+10. Replace the version in `build.gradle` with the next-up version with a `-SNAPSHOT` suffix (e.g.: "2.8.3-SNAPSHOT") and commit
+
 
 

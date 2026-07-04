@@ -2,6 +2,12 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.8.2 (04.07.2026)
+* #570 support chunked responses in Javanet and Netty4 servers (#791)
+* optimize Groovy templates compiler (#793) (#797) (#792)
+* remove Play1-era dead code from fastergt
+* bump Hibernate from 6.6.53.Final to 6.6.54.Final (#794)
+
 ## 2.8.1 (27.06.2026)
 * bump netty4Version from 4.2.9.Final to 4.2.15.Final
 * bump hibernateVersion from 6.6.42.Final to 6.6.53.Final
