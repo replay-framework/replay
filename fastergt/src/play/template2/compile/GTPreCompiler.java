@@ -71,29 +71,29 @@ public class GTPreCompiler {
 
     public void jprintln(int lineNo, String line) {
       _out.append(line);
-      appendLineNumber(lineNo);
+      appendLineNumber(_out, lineNo);
     }
 
     public void jprintln(int lineNo, String word1, String word2) {
       _out.append(word1).append(word2);
-      appendLineNumber(lineNo);
+      appendLineNumber(_out, lineNo);
     }
 
     public void jprintln(int lineNo, String word1, String word2, String word3) {
       _out.append(word1).append(word2).append(word3);
-      appendLineNumber(lineNo);
+      appendLineNumber(_out, lineNo);
     }
 
     public void jprintln(int lineNo, String word1, String word2, String word3, String word4) {
       _out.append(word1).append(word2).append(word3).append(word4);
-      appendLineNumber(lineNo);
+      appendLineNumber(_out, lineNo);
     }
 
     public void jprintln(int lineNo, String... line) {
       for (String word : line) {
         _out.append(word);
       }
-      appendLineNumber(lineNo);
+      appendLineNumber(_out, lineNo);
     }
 
     public void gprintln(String line) {
@@ -110,16 +110,16 @@ public class GTPreCompiler {
 
     public void gprintln(int lineNo, String line) {
       _gout.append(line);
-      appendLineNumber(lineNo);
+      appendLineNumber(_gout, lineNo);
     }
 
     public void gprintln(int lineNo, String word1, String word2, String word3) {
       _gout.append(word1).append(word2).append(word3);
-      appendLineNumber(lineNo);
+      appendLineNumber(_gout, lineNo);
     }
 
-    private void appendLineNumber(int lineNo) {
-      _out.append("//lineNo:").append(lineNo + 1).append("\n");
+    private void appendLineNumber(StringBuilder out, int lineNo) {
+      out.append("//lineNo:").append(lineNo + 1).append("\n");
     }
 
     @Override
