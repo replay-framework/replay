@@ -42,25 +42,25 @@ public class GTInternalTagsCompiler {
     // one can else if list is empty - must clear the else flag
     sc.jprintln(startLine, " clearElseFlag();");
 
-    sc.jprintln(" String as = (String)tagArgs.get(\"as\");");
-    sc.jprintln(" String itemName = (as==null?\"_\":as);");
-    sc.jprintln(" as = (as == null ? \"\" : as);");
-
-    sc.jprintln(" Object _items = tagArgs.get(\"items\");");
-    sc.jprintln(" if (_items == null ) _items = tagArgs.get(\"arg\");");
-    sc.jprintln(" if (_items == null ) return ;");
-
-    sc.jprintln(" int i=0;");
-    sc.jprintln(" Iterator it = convertToIterator(_items);");
-    sc.jprintln(" while( it.hasNext()) {");
-    // prepare for next iteration
-    sc.jprintln("   Object item = it.next();");
-    sc.jprintln("   i++;");
-    sc.jprintln("   binding.setProperty(itemName, item);");
-    sc.jprintln("   binding.setProperty(as+\"_index\", i);");
-    sc.jprintln("   binding.setProperty(as+\"_isLast\", !it.hasNext());");
-    sc.jprintln("   binding.setProperty(as+\"_isFirst\", i==1);");
-    sc.jprintln("   binding.setProperty(as+\"_parity\", (i%2==0?\"even\":\"odd\"));");
+    sc.jprintln(
+        """
+         String as = (String)tagArgs.get("as");
+         String itemName = (as==null?"_":as);
+         as = (as == null ? "" : as);
+         Object _items = tagArgs.get("items");
+         if (_items == null ) _items = tagArgs.get("arg");
+         if (_items == null ) return ;
+         int i=0;
+         Iterator it = convertToIterator(_items);
+         while( it.hasNext()) {
+           Object item = it.next();
+           i++;
+           binding.setProperty(itemName, item);
+           binding.setProperty(as+"_index", i);
+           binding.setProperty(as+"_isLast", !it.hasNext());
+           binding.setProperty(as+"_isFirst", i==1);
+           binding.setProperty(as+"_parity", (i%2==0?"even":"odd"));\
+        """);
 
     // call list tag content
     sc.jprintln("   ", contentMethodName, "();");

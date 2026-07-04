@@ -206,9 +206,12 @@ public class GTPreCompiler {
     // generate java class
     sc.jprintln("package " + generatedPackageName + ";");
 
-    sc.jprintln("import java.util.*;");
-    sc.jprintln("import java.io.*;");
-    sc.jprintln("import play.template2.GTLineMapper;");
+    sc.jprintln(
+        """
+        import java.util.*;
+        import java.io.*;
+        import play.template2.GTLineMapper;\
+        """);
 
     sc.jprintln(
         "public class " + templateClassName + " extends " + getJavaBaseClass().getName() + " {");
@@ -251,8 +254,11 @@ public class GTPreCompiler {
             + groovyLineMapper.getLineLookupAsString()
             + "});");
 
-    sc.jprintln(" public static GTLineMapper getJavaLineMapper() { return javaLineMapper;}");
-    sc.jprintln(" public static GTLineMapper getGroovyLineMapper() { return groovyLineMapper;}");
+    sc.jprintln(
+        """
+         public static GTLineMapper getJavaLineMapper() { return javaLineMapper;}
+         public static GTLineMapper getGroovyLineMapper() { return groovyLineMapper;}\
+        """);
 
     // end of java class
     sc.jprintln("}");
@@ -1000,23 +1006,25 @@ public class GTPreCompiler {
       GTPreCompiler.SourceContext sc,
       int line) {
     sc.jprintln(line, "//generateContentOutputCapturing");
-    // remember the original out
-    sc.jprintln("StringWriter org = out;");
-    // remember the original list
-    sc.jprintln("List<StringWriter> orgAllOuts = allOuts;");
-
-    // create a new one for capture
-    sc.jprintln("allOuts = new ArrayList<StringWriter>();");
-    sc.jprintln("initNewOut();");
+    // remember the original out and list, then start a fresh capture
+    sc.jprintln(
+        """
+        StringWriter org = out;
+        List<StringWriter> orgAllOuts = allOuts;
+        allOuts = new ArrayList<StringWriter>();
+        initNewOut();\
+        """);
 
     // call the content-method
     sc.jprintln(contentMethodName + "();");
     // store the output
     sc.jprintln("List<StringWriter> " + outputVariableName + " = allOuts;");
-    // restore the original out
-    sc.jprintln("out = org;");
-    // restore the list
-    sc.jprintln("allOuts = orgAllOuts;");
+    // restore the original out and list
+    sc.jprintln(
+        """
+        out = org;
+        allOuts = orgAllOuts;\
+        """);
   }
 
   private void generateGTContentRenderer(
