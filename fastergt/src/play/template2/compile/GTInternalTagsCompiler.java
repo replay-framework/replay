@@ -97,7 +97,7 @@ public class GTInternalTagsCompiler {
     // run the else if runNextElse is true
 
     // do the if
-    sc.jprintln(startLine, " if( elseFlagIsSet()) {" + contentMethodName + "();}");
+    sc.jprintln(startLine, " if( elseFlagIsSet()) {", contentMethodName, "();}");
 
     // clear runNextElse
     sc.jprintln(" clearElseFlag();");
@@ -121,7 +121,7 @@ public class GTInternalTagsCompiler {
     // the template we extends is the single argument named 'args'
 
     String templateNameVar = "_tn_" + (sc.nextMethodIndex++);
-    sc.jprintln(startLine, " String " + templateNameVar + " = (String)tagArgs.get(\"arg\");");
+    sc.jprintln(startLine, " String ", templateNameVar, " = (String)tagArgs.get(\"arg\");");
 
     sc.jprintln(
         " play.template2.GTTemplateLocationReal templateLocation = this.resolveTemplateLocation( ",
