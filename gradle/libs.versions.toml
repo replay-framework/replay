@@ -45,7 +45,7 @@ mockitoCore = { group = "org.mockito", name = "mockito-core", version.ref = "moc
 assertjCore = { group = "org.assertj", name = "assertj-core", version.ref = "assertjVersion" }
 
 # :framework
-classGraph = { group = "io.github.classgraph", name = "classgraph", version = "4.8.189" }
+classGraph = { group = "io.github.classgraph", name = "classgraph", version = "4.8.192" }
 hikariCp = { group = "com.zaxxer", name = "HikariCP", version = "7.1.0" }
 gson = { group = "com.google.code.gson", name = "gson", version = "2.14.0" }
 # Cannot upgrade to org.asynchttpclient:async-http-client as that requires Netty4 and we use Netty3
