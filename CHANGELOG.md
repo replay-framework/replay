@@ -2,6 +2,12 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.8.3 (13.09.2026)
+* bump Netty4 from 4.2.15.Final to 4.2.17.Final (#812)
+* bump Hibernate from 6.6.54.Final to 6.6.56.Final (#798) (#810) (#826)
+* bump Liquibase from 5.0.3 to 5.0.4 (#822)
+* bump H2 from 2.4.240 to 2.5.250 (#832)
+
 ## 2.8.2 (04.07.2026)
 * #570 support chunked responses in Javanet and Netty4 servers (#791)
 * optimize Groovy templates compiler (#793) (#797) (#792)
