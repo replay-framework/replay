@@ -2,6 +2,9 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
+## 2.8.4 (under construction)
+* TBD
+
 ## 2.8.3 (13.09.2026)
 * bump Netty4 from 4.2.15.Final to 4.2.17.Final (#812)
 * bump Hibernate from 6.6.54.Final to 6.6.56.Final (#798) (#810) (#826)
