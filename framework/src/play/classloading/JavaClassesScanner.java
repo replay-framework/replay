@@ -20,7 +20,7 @@ public class JavaClassesScanner {
   public List<Class<?>> allClassesInProject() {
     List<Class<?>> result = new ArrayList<>();
 
-    List<File> classpath = new ClassGraph().getClasspathFiles();
+    List<File> classpath = new ClassGraph().enableClasspath().getClasspathFiles();
 
     for (File file : classpath) {
       try {
@@ -36,6 +36,7 @@ public class JavaClassesScanner {
         logger.trace("{} is not empty, lets scan it: {}", SCAN_JARS_PROP, scanJars);
         long start = nanoTime();
         try (ScanResult scanResult =  new ClassGraph()
+            .enableClasspath()
             .enableClassInfo()
             .disableDirScanning()
             .acceptJars(scanJars.split(","))
@@ -43,7 +44,12 @@ public class JavaClassesScanner {
         ) {
           logger.debug("Scanning jars took {} ms.",
               NANOSECONDS.toMillis(nanoTime() - start));
-          result.addAll(scanResult.getAllClasses().loadClasses());
+          ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+          for (String className : scanResult.getAllClasses().getNames()) {
+            result.add(Class.forName(className, false, classLoader));
+          }
+        } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e);
         }
       }
     }
