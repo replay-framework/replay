@@ -2,8 +2,13 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
-## 2.8.4 (under construction)
+## 2.8.5 (under construction)
 * TBD
+
+## 2.8.4 (18.10.2026)
+* bump netty4 from 4.2.17.Final to 4.2.19.Final (#835) (#849)
+* bump hibernate from 6.6.56.Final to 6.6.58.Final (#836) (#838)
+* bump classgraph from 4.8.195 to 5.0.0 (#843) (#856) (#858)
 
 ## 2.8.3 (13.09.2026)
 * bump Netty4 from 4.2.15.Final to 4.2.17.Final (#812)
