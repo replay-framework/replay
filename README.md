@@ -186,6 +186,7 @@ The RePlay project comes with the following plugins:
 In Play1 this is available as a community plugin.
 * `play.modules.gtengineplugin.GTEnginePlugin`² — Installs the Groovy Templates engine for rendering views (requires the `io.github.replay-framework:fastergt` library).
 * `play.modules.logger.RequestLogPlugin` — logs every request with response type+status
+* `play.modules.pdf.PdfWarmupPlugin` — Renders a sample PDF at application startup, so that the first PDF request is fast (requires the `io.github.replay-framework:pdf` library).
 * `play.modules.logger.RePlayLogoPlugin` — Shows the RePlay logo at application startup
 * `play.plugins.PlayStatusPlugin`¹ — Installs the authenticated `/@status` endpoint.
 * `play.plugins.security.AuthenticityTokenPlugin` — Add automatic validation of a form's `authenticityToken`
