@@ -3,7 +3,7 @@
 **NOTE**: Only describe functional changes that affect users.
 
 ## 2.8.5 (under construction)
-* TBD
+* add `play.modules.pdf.PdfWarmupPlugin` that warms up PDF generation on application start
 
 ## 2.8.4 (18.10.2026)
 * bump netty4 from 4.2.17.Final to 4.2.19.Final (#835) (#849)
