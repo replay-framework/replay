@@ -3,6 +3,7 @@ package play.modules.pdf;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.io.ByteArrayOutputStream;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import play.PlayPlugin;
  * </pre>
  */
 @NullMarked
+@CheckReturnValue
 public class PdfWarmupPlugin extends PlayPlugin {
   private static final Logger logger = LoggerFactory.getLogger(PdfWarmupPlugin.class);
 
@@ -39,10 +41,16 @@ public class PdfWarmupPlugin extends PlayPlugin {
   int warmUp() {
     String svg = requireNonNull(getClass().getResource("warmup.svg")).toExternalForm();
     String html =
-        "<html><head><title>warmup</title></head><body>"
-            + "<h1>Warmup</h1><p>Hello, PDF!</p>"
-            + "<img src=\"" + svg + "\" width=\"30px\"/>"
-            + "</body></html>";
+        """
+        <html>
+        <head><title>warmup</title></head>
+        <body>
+          <h1>Warmup</h1>
+          <p>Hello, PDF!</p>
+          <img src="%s" width="30px"/>
+        </body>
+        </html>
+        """.formatted(svg);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.renderPDF(new PDFDocument(html), out, null);
     return out.size();
