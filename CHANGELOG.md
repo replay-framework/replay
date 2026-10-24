@@ -3,7 +3,7 @@
 **NOTE**: Only describe functional changes that affect users.
 
 ## 2.8.5 (under construction)
-* bump FlyingSaucer from 9.13.3 to 9.13.4 - SVG images are now drawn as vector graphics (much faster, smaller PDF)
+* bump FlyingSaucer from 9.13.3 to 9.13.4 - simple SVG images (without gradients, patterns, filters, masks or opacity) are now drawn as vector graphics (much faster, smaller PDF)
 
 ## 2.8.4 (18.10.2026)
 * bump netty4 from 4.2.17.Final to 4.2.19.Final (#835) (#849)
