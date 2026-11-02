@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
       - name: Run unit-tests
         run: ./gradlew test
       - name: Run integration tests on ${{ matrix.server }}
@@ -53,7 +53,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
       - name: Run unit-tests
         run: .\gradlew.bat test
       - name: Precompile templates
@@ -83,7 +83,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
       - name: Run unit-tests
         run: ./gradlew test
       - name: Precompile templates
