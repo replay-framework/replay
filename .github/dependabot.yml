@@ -12,6 +12,9 @@ updates:
     - dependency-name: org.eclipse.jdt:ecj
       versions:
         - ">=3.34.0"
+    - dependency-name: io.github.classgraph:classgraph
+      versions:
+        - ">=6.0.0" # ClassGraph 6.x requires Java 25 (class file version 69), RePlay targets Java 17
     - dependency-name: jakarta.persistence:jakarta.persistence-api
       update-types: ["version-update:semver-minor"]
     - dependency-name: org.hibernate:hibernate-core
