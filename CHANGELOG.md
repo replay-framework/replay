@@ -2,9 +2,14 @@
 
 **NOTE**: Only describe functional changes that affect users.
 
-## 2.8.5 (under construction)
-* bump FlyingSaucer from 9.13.3 to 9.13.4 - simple SVG images (without gradients, patterns, filters, masks or opacity) are now drawn as vector graphics (much faster, smaller PDF)
-* add `play.modules.pdf.PdfWarmupPlugin` that warms up PDF generation on application start
+## 2.8.6 (under construction)
+* TBD
+
+## 2.8.5 (20.11.2026)
+* bump FlyingSaucer from 9.13.3 to 9.13.4 - simple SVG images are now drawn as vector graphics - much faster and smaller PDF (#866)
+* add `play.modules.pdf.PdfWarmupPlugin` that warms up PDF generation on application start (#865)
+* build(deps): bump hibernateVersion from 6.6.58.Final to 6.6.59.Final (#861)
+* build(deps): bump netty4Version from 4.2.19.Final to 4.2.21.Final (#872) (#879)
 
 ## 2.8.4 (18.10.2026)
 * bump netty4 from 4.2.17.Final to 4.2.19.Final (#835) (#849)
